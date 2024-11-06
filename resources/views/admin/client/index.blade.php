@@ -25,7 +25,7 @@
             <!-- general form elements disabled -->
             <div class="card card-secondary">
               <div class="card-header">
-                <h3 class="card-title">Add new vendor</h3>
+                <h3 class="card-title">Add new client</h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -66,8 +66,8 @@
                     
                     <div class="col-sm-6">
                       <div class="form-group">
-                        <label>Company Name</label>
-                        <input type="text" class="form-control" id="company" name="company">
+                        <label>Logo</label>
+                        <input type="file" class="form-control" id="logo" name="logo">
                       </div>
                     </div>
 
@@ -118,6 +118,7 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>Logo</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -128,6 +129,13 @@
                     <td style="text-align: center">{{$data->name}}</td>
                     <td style="text-align: center">{{$data->email}}</td>
                     <td style="text-align: center">{{$data->phone}}</td>
+
+                    <td style="text-align: center">
+                        @if ($data->logo)
+                        <img src="{{asset('images/client/'.$data->logo)}}" height="120px" width="220px" alt="">
+                        @endif
+                    </td>
+                    
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
@@ -188,18 +196,26 @@
       //header for csrf-token is must in laravel
       $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
       //
-      var url = "{{URL::to('/admin/vendor')}}";
-      var upurl = "{{URL::to('/admin/vendor-update')}}";
+      var url = "{{URL::to('/admin/client')}}";
+      var upurl = "{{URL::to('/admin/client-update')}}";
       // console.log(url);
       $("#addBtn").click(function(){
       //   alert("#addBtn");
           if($(this).val() == 'Create') {
+
+            
+            var logo = $('#logo').prop('files')[0];
+            if(typeof logo === 'undefined'){
+              logo = 'null';
+            }
+
+
               var form_data = new FormData();
+              form_data.append('logo', logo);
               form_data.append("name", $("#name").val());
               form_data.append("phone", $("#phone").val());
               form_data.append("email", $("#email").val());
               form_data.append("address", $("#address").val());
-              form_data.append("company", $("#company").val());
               $.ajax({
                 url: url,
                 method: "POST",
@@ -223,12 +239,16 @@
           //create  end
           //Update
           if($(this).val() == 'Update'){
+            var logo = $('#logo').prop('files')[0];
+            if(typeof logo === 'undefined'){
+              logo = 'null';
+            }
               var form_data = new FormData();
+              form_data.append('logo', logo);
               form_data.append("name", $("#name").val());
               form_data.append("phone", $("#phone").val());
               form_data.append("email", $("#email").val());
               form_data.append("address", $("#address").val());
-              form_data.append("company", $("#company").val());
               form_data.append("codeid", $("#codeid").val());
               
               $.ajax({
@@ -296,7 +316,6 @@
           $("#phone").val(data.phone);
           $("#email").val(data.email);
           $("#address").val(data.address);
-          $("#company").val(data.company);
           $("#codeid").val(data.id);
           $("#addBtn").val('Update');
           $("#addBtn").html('Update');
