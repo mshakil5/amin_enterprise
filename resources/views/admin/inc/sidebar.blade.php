@@ -52,6 +52,16 @@
           </p>
         </a>
       </li>
+
+      
+      <li class="nav-item">
+        <a href="{{route('admin.ghat')}}" class="nav-link {{ (request()->is('admin/ghat*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Ghat
+          </p>
+        </a>
+      </li>
       
       
       

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\MotherVasselController;
 use App\Http\Controllers\Admin\LighterVasselController;
+use App\Http\Controllers\Admin\GhatController;
 
 
 /*------------------------------------------
@@ -55,6 +56,12 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/lighter-vassel/{id}/edit', [LighterVasselController::class, 'edit']);
     Route::post('/lighter-vassel-update', [LighterVasselController::class, 'update']);
     Route::get('/lighter-vassel/{id}', [LighterVasselController::class, 'delete']);
+
+    Route::get('/ghat', [GhatController::class, 'index'])->name('admin.ghat');
+    Route::post('/ghat', [GhatController::class, 'store']);
+    Route::get('/ghat/{id}/edit', [GhatController::class, 'edit']);
+    Route::post('/ghat-update', [GhatController::class, 'update']);
+    Route::get('/ghat/{id}', [GhatController::class, 'delete']);
     
 });
   
