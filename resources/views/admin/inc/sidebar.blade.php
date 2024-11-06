@@ -44,6 +44,14 @@
           </p>
         </a>
       </li>
+      <li class="nav-item">
+        <a href="{{route('lightervassel')}}" class="nav-link {{ (request()->is('admin/lighter-vassel*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Lighter Vassel
+          </p>
+        </a>
+      </li>
       
       
       

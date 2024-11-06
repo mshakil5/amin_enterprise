@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\MotherVasselController;
+use App\Http\Controllers\Admin\LighterVasselController;
 
 
 /*------------------------------------------
@@ -49,6 +50,11 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/mother-vassel/{id}', [MotherVasselController::class, 'delete']);
 
 
+    Route::get('/lighter-vassel', [LighterVasselController::class, 'index'])->name('lightervassel');
+    Route::post('/lighter-vassel', [LighterVasselController::class, 'store']);
+    Route::get('/lighter-vassel/{id}/edit', [LighterVasselController::class, 'edit']);
+    Route::post('/lighter-vassel-update', [LighterVasselController::class, 'update']);
+    Route::get('/lighter-vassel/{id}', [LighterVasselController::class, 'delete']);
     
 });
   
