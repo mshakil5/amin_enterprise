@@ -31,6 +31,8 @@ class MotherVasselController extends Controller
         }
         $data = new MotherVassel;
         $data->name = $request->name;
+        $data->description = $request->description;
+        $data->code = $request->code;
         $data->created_by = Auth::user()->id;
         if ($data->save()) {
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Create Successfully.</b></div>";
@@ -69,6 +71,8 @@ class MotherVasselController extends Controller
 
         $data = MotherVassel::find($request->codeid);
         $data->name = $request->name;
+        $data->description = $request->description;
+        $data->code = $request->code;
         $data->updated_by = Auth::user()->id;
         if ($data->save()) {
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";

@@ -21,11 +21,11 @@
       <div class="container-fluid">
         <div class="row justify-content-md-center">
           <!-- right column -->
-          <div class="col-md-6">
+          <div class="col-md-8">
             <!-- general form elements disabled -->
             <div class="card card-secondary">
               <div class="card-header">
-                <h3 class="card-title">Add new country</h3>
+                <h3 class="card-title">Add new mother vassel</h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -34,12 +34,29 @@
                   @csrf
                   <input type="hidden" class="form-control" id="codeid" name="codeid">
                   <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-6">
                       <div class="form-group">
-                        <label>Name</label>
+                        <label>Name*</label>
                         <input type="text" class="form-control" id="name" name="name">
                       </div>
                     </div>
+
+                    
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label>Code</label>
+                        <input type="text" class="form-control" id="code" name="code">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                      <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" class="form-control" id="description" name="description">
+                      </div>
+                    </div>
+
+
                   </div>
 
                   
@@ -82,6 +99,7 @@
                 <tr>
                   <th>Sl</th>
                   <th>Name</th>
+                  <th>Description</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -90,6 +108,7 @@
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{$data->name}}</td>
+                    <td style="text-align: center">{{$data->description}}</td>
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
@@ -150,14 +169,16 @@
       //header for csrf-token is must in laravel
       $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
       //
-      var url = "{{URL::to('/admin/country')}}";
-      var upurl = "{{URL::to('/admin/country-update')}}";
+      var url = "{{URL::to('/admin/mother-vassel')}}";
+      var upurl = "{{URL::to('/admin/mother-vassel-update')}}";
       // console.log(url);
       $("#addBtn").click(function(){
       //   alert("#addBtn");
           if($(this).val() == 'Create') {
               var form_data = new FormData();
               form_data.append("name", $("#name").val());
+              form_data.append("code", $("#code").val());
+              form_data.append("description", $("#description").val());
               $.ajax({
                 url: url,
                 method: "POST",
@@ -169,18 +190,7 @@
                         $(".ermsg").html(d.message);
                     }else if(d.status == 300){
 
-                      $(function() {
-                          var Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                          });
-                          Toast.fire({
-                            icon: 'success',
-                            title: 'Data create successfully.'
-                          });
-                        });
+                      $(".ermsg").html(d.message);
                       window.setTimeout(function(){location.reload()},2000)
                     }
                 },
@@ -194,6 +204,8 @@
           if($(this).val() == 'Update'){
               var form_data = new FormData();
               form_data.append("name", $("#name").val());
+              form_data.append("code", $("#code").val());
+              form_data.append("description", $("#description").val());
               form_data.append("codeid", $("#codeid").val());
               
               $.ajax({
@@ -209,18 +221,7 @@
                           $(".ermsg").html(d.message);
                           pagetop();
                       }else if(d.status == 300){
-                        $(function() {
-                          var Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                          });
-                          Toast.fire({
-                            icon: 'success',
-                            title: 'Data updated successfully.'
-                          });
-                        });
+                        $(".ermsg").html(d.message);
                           window.setTimeout(function(){location.reload()},2000)
                       }
                   },
@@ -269,6 +270,8 @@
       //Delete  
       function populateForm(data){
           $("#name").val(data.name);
+          $("#code").val(data.code);
+          $("#description").val(data.description);
           $("#codeid").val(data.id);
           $("#addBtn").val('Update');
           $("#addBtn").html('Update');
