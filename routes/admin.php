@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\MotherVasselController;
 use App\Http\Controllers\Admin\LighterVasselController;
 use App\Http\Controllers\Admin\GhatController;
+use App\Http\Controllers\Admin\PumpController;
 
 
 /*------------------------------------------
@@ -62,6 +63,12 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/ghat/{id}/edit', [GhatController::class, 'edit']);
     Route::post('/ghat-update', [GhatController::class, 'update']);
     Route::get('/ghat/{id}', [GhatController::class, 'delete']);
+
+    Route::get('/pump', [PumpController::class, 'index'])->name('admin.pump');
+    Route::post('/pump', [PumpController::class, 'store']);
+    Route::get('/pump/{id}/edit', [PumpController::class, 'edit']);
+    Route::post('/pump-update', [PumpController::class, 'update']);
+    Route::get('/pump/{id}', [PumpController::class, 'delete']);
     
 });
   

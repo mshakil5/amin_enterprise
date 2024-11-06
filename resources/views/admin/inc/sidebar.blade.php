@@ -62,6 +62,16 @@
           </p>
         </a>
       </li>
+
+            
+      <li class="nav-item">
+        <a href="{{route('admin.pump')}}" class="nav-link {{ (request()->is('admin/pump*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Petrol Pump
+          </p>
+        </a>
+      </li>
       
       
       
