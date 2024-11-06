@@ -72,6 +72,16 @@
           </p>
         </a>
       </li>
+
+      
+      <li class="nav-item">
+        <a href="{{route('admin.vendor')}}" class="nav-link {{ (request()->is('admin/vendor*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Vendor
+          </p>
+        </a>
+      </li>
       
       
       

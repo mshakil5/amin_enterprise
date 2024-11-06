@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\MotherVasselController;
 use App\Http\Controllers\Admin\LighterVasselController;
 use App\Http\Controllers\Admin\GhatController;
 use App\Http\Controllers\Admin\PumpController;
+use App\Http\Controllers\Admin\VendorController;
 
 
 /*------------------------------------------
@@ -69,6 +70,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/pump/{id}/edit', [PumpController::class, 'edit']);
     Route::post('/pump-update', [PumpController::class, 'update']);
     Route::get('/pump/{id}', [PumpController::class, 'delete']);
+
+    
+    Route::get('/vendor', [VendorController::class, 'index'])->name('admin.vendor');
+    Route::post('/vendor', [VendorController::class, 'store']);
+    Route::get('/vendor/{id}/edit', [VendorController::class, 'edit']);
+    Route::post('/vendor-update', [VendorController::class, 'update']);
+    Route::get('/vendor/{id}', [VendorController::class, 'delete']);
     
 });
   
