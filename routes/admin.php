@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\GhatController;
 use App\Http\Controllers\Admin\PumpController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\DestinationController;
 
 
 /*------------------------------------------
@@ -78,14 +79,19 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/vendor/{id}/edit', [VendorController::class, 'edit']);
     Route::post('/vendor-update', [VendorController::class, 'update']);
     Route::get('/vendor/{id}', [VendorController::class, 'delete']);
-
-    
     
     Route::get('/client', [ClientController::class, 'index'])->name('admin.client');
     Route::post('/client', [ClientController::class, 'store']);
     Route::get('/client/{id}/edit', [ClientController::class, 'edit']);
     Route::post('/client-update', [ClientController::class, 'update']);
     Route::get('/client/{id}', [ClientController::class, 'delete']);
+
+    
+    Route::get('/destination', [DestinationController::class, 'index'])->name('admin.destination');
+    Route::post('/destination', [DestinationController::class, 'store']);
+    Route::get('/destination/{id}/edit', [DestinationController::class, 'edit']);
+    Route::post('/destination-update', [DestinationController::class, 'update']);
+    Route::get('/destination/{id}', [DestinationController::class, 'delete']);
     
 });
   
