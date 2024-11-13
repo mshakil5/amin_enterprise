@@ -97,6 +97,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
 
     // program
+    Route::get('/program', [ProgramController::class, 'allPrograms'])->name('admin.allProgram');
     Route::get('/add-program', [ProgramController::class, 'createProgram'])->name('admin.addProgram');
     Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
 

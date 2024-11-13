@@ -17,23 +17,23 @@ use Illuminate\Support\Facades\Validator;
 
 class ProgramController extends Controller
 {
+
+    public function allPrograms()
+    {
+        $data = Program::orderby('id','DESC')->get();
+        return view('admin.program.index', compact('data'));
+    }
+
+
     public function createProgram()
     {
-        $data = Destination::orderby('id','DESC')->get();
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
-        return view('admin.program.create', compact('data','clients','mvassels','lvassels','vendors'));
+        return view('admin.program.create', compact('clients','mvassels','lvassels','vendors'));
     }
 
-    public function generateProgramID()
-    {
-        do {
-            $uniqueNumber = random_int(100000, 999999);
-        } while (Program::where('programid', $uniqueNumber)->exists()); 
-        return $uniqueNumber;
-    }
 
     public function store(Request $request)
     {

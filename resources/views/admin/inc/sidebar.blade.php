@@ -117,9 +117,9 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="{{route('admin.allProgram')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
-              <p>Flot</p>
+              <p>Programs</p>
             </a>
           </li>
           

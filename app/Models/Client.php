@@ -13,4 +13,9 @@ class Client extends Model
     {
         return $this->hasMany(Destination::class);
     }
+
+    public function program()
+    {
+        return $this->hasMany(Program::class);
+    }
 }
