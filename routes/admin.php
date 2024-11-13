@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PumpController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DestinationController;
+use App\Http\Controllers\Admin\ProgramController;
 
 
 /*------------------------------------------
@@ -92,6 +93,15 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/destination/{id}/edit', [DestinationController::class, 'edit']);
     Route::post('/destination-update', [DestinationController::class, 'update']);
     Route::get('/destination/{id}', [DestinationController::class, 'delete']);
+
+
+
+    // program
+    Route::get('/add-program', [ProgramController::class, 'createProgram'])->name('admin.addProgram');
+    Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
+
+
+
     
 });
   

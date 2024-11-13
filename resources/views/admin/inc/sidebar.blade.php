@@ -100,6 +100,31 @@
           </p>
         </a>
       </li>
+
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-chart-pie"></i>
+          <p>
+            Program
+            <i class="right fas fa-angle-left"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          <li class="nav-item">
+            <a href="{{route('admin.addProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Add Program</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Flot</p>
+            </a>
+          </li>
+          
+        </ul>
+      </li>
       
       
       
