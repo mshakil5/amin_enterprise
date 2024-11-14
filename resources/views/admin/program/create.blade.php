@@ -127,7 +127,7 @@
                                     <label for="vendor_id">Vendor</label>
                                     <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Add New</span>
                                     <select class="form-control" name="vendor_id[]" id="vendor_id">
-                                        <option value="">Choose Vendor</option>
+                                        <option value="">Select Vendor</option>
                                         @foreach ($vendors as $vendor)
                                         <option value="{{$vendor->id}}">{{$vendor->name}}</option>
                                         @endforeach
@@ -154,10 +154,15 @@
                                     <input type="number" class="form-control" name="token_fee[]" >
                                 </div>
                                 
-                                <div class="form-group col-md-2">
-                                  <label for="party_name">Party Name</label>
+                                <div class="form-group col-md-1">
+                                  <label for="party_name">Party</label>
                                   <input type="text" class="form-control" name="party_name[]" >
-                              </div>
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <label for="amount">Amount</label>
+                                    <input type="number" class="form-control" name="amount[]" >
+                                </div>
+
                                 <div class="form-group col-md-1">
                                     <label>Action</label>
                                     <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
@@ -204,41 +209,36 @@
           <div class="form-row dynamic-row">
             
               <div class="form-group col-md-2">
-                  <label for="vendor_id">Vendor</label>
                   <select class="form-control" name="vendor_id[]" id="vendor_id">
-                      <option value="">Choose Vendor</option>
+                      <option value="">Select Vendor</option>
                       @foreach ($vendors as $vendor)
                       <option value="{{$vendor->id}}">{{$vendor->name}}</option>
                       @endforeach
                   </select>
               </div>
               <div class="form-group col-md-2">
-                  <label for="truck_number">Truck Number</label>
                   <input type="text" class="form-control" name="truck_number[]" >
               </div>
               <div class="form-group col-md-1">
-                  <label for="qty">Quantity</label>
                   <input type="number" class="form-control" name="qty[]" >
               </div>
               <div class="form-group col-md-2">
-                  <label for="challan_no">Challan No</label>
                   <input type="number" class="form-control" name="challan_no[]" >
               </div>
               <div class="form-group col-md-1">
-                  <label for="line_charge">Line Ch.</label>
                   <input type="number" class="form-control" name="line_charge[]" >
               </div>
               <div class="form-group col-md-1">
-                  <label for="token_fee">Token Fee</label>
                   <input type="number" class="form-control" name="token_fee[]" >
               </div>
               
-              <div class="form-group col-md-2">
-                <label for="party_name">Party Name</label>
+              <div class="form-group col-md-1">
                 <input type="text" class="form-control" name="party_name[]" >
               </div>
               <div class="form-group col-md-1">
-                  <label>Action</label>
+                    <input type="number" class="form-control" name="amount[]" >
+                </div>
+              <div class="form-group col-md-1">
                   <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
               </div>
 

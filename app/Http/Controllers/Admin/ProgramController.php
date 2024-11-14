@@ -24,6 +24,12 @@ class ProgramController extends Controller
         return view('admin.program.index', compact('data'));
     }
 
+    public function programDetail($id)
+    {
+        $data = Program::with('programDetail')->where('id', $id)->first();
+        return view('admin.program.details', compact('data'));
+    }
+
 
     public function createProgram()
     {
@@ -60,6 +66,7 @@ class ProgramController extends Controller
         $lineCharges = $request->input('line_charge');
         $tokenfees = $request->input('token_fee');
         $partyNames = $request->input('party_name');
+        $amounts = $request->input('amount');
 
         $program = new Program();
         $program->date = $request->input('date');
@@ -91,6 +98,7 @@ class ProgramController extends Controller
                 $invdtl->line_charge = $lineCharges[$key]; 
                 $invdtl->token_fee = $tokenfees[$key]; 
                 $invdtl->party_name = $partyNames[$key]; 
+                $invdtl->amount = $amounts[$key]; 
                 $invdtl->created_by = Auth::user()->id;
                 $invdtl->save();
             }

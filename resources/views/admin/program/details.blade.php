@@ -21,27 +21,31 @@
                 <tr>
                   <th>Sl</th>
                   <th>Date</th>
-                  <th>Client</th>
-                  <th>Program ID</th>
-                  <th>Mother Vassel</th>
-                  <th>Lighter Vassel</th>
-                  <th>Consignment No.</th>
+                  <th>Vendor</th>
+                  <th>Party Name</th>
+                  <th>Truck Number</th>
+                  <th>Challan no</th>
+                  <th>Line Charge</th>
+                  <th>Qty</th>
+                  <th>Token fee</th>
+                  <th>Amount</th>
                   <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                  @foreach ($data as $key => $data)
+                  @foreach ($data->programDetail as $key => $data)
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                    <td style="text-align: center">{{$data->client->name}}</td>
-                    <td style="text-align: center">{{$data->programid}}</td>
-                    <td style="text-align: center">{{$data->motherVassel->name}}</td>
-                    <td style="text-align: center">{{$data->lighterVassel->name}}</td>
-                    <td style="text-align: center">{{$data->consignmentno}}</td>
+                    <td style="text-align: center">{{$data->vendor->name}}</td>
+                    <td style="text-align: center">{{$data->party_name}}</td>
+                    <td style="text-align: center">{{$data->truck_number}}</td>
+                    <td style="text-align: center">{{$data->challan_no}}</td>
+                    <td style="text-align: center">{{$data->line_charge}}</td>
+                    <td style="text-align: center">{{$data->qty}}</td>
+                    <td style="text-align: center">{{$data->token_fee}}</td>
+                    <td style="text-align: center">{{$data->amount}}</td>
                     <td style="text-align: center">
-                      <a href="{{route('admin.programDetail', $data->id)}}"><i class="fa fa-eye" style="color: #32a842;font-size:16px;"></i></a>
-
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
                     </td>

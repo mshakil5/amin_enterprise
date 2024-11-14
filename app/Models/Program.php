@@ -13,4 +13,20 @@ class Program extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function motherVassel()
+    {
+        return $this->belongsTo(MotherVassel::class);
+    }
+
+    public function lighterVassel()
+    {
+        return $this->belongsTo(LighterVassel::class);
+    }
+
+    public function programDetail()
+    {
+        return $this->hasMany(ProgramDetail::class);
+    }
+
 }
