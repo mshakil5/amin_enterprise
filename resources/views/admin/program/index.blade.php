@@ -26,6 +26,8 @@
                   <th>Mother Vassel</th>
                   <th>Lighter Vassel</th>
                   <th>Consignment No.</th>
+                  <th>Amount</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -39,6 +41,10 @@
                     <td style="text-align: center">{{$data->motherVassel->name}}</td>
                     <td style="text-align: center">{{$data->lighterVassel->name}}</td>
                     <td style="text-align: center">{{$data->consignmentno}}</td>
+                    <td style="text-align: center">{{$data->amount}}</td>
+                    <td style="text-align: center">
+                      
+                    </td>
                     <td style="text-align: center">
                       
                         <a class="btn btn-app" href="{{route('admin.programDetail', $data->id)}}">

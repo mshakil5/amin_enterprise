@@ -3,15 +3,15 @@
 @section('content')
 
 <!-- Main content -->
-{{-- <section class="content mt-3" id="newBtnSection">
+<section class="content mt-3" id="newBtnSection">
     <div class="container-fluid">
       <div class="row">
         <div class="col-2">
-            <a href="#" class="btn btn-secondary my-3">Back</a>
+            <a href="{{route('admin.allProgram')}}" class="btn btn-secondary my-3">Back</a>
         </div>
       </div>
     </div>
-</section> --}}
+  </section>
   <!-- /.content -->
 
 
