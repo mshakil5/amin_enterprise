@@ -79,7 +79,7 @@ class ProgramController extends Controller
         $program->consignmentno = $request->input('consignmentno');
         $program->headerid = $request->input('headerid');
         $program->qty_per_challan = $request->input('qty_per_challan');
-        $program->amount = $request->input('amount');
+        $program->amount = $request->input('camount');
         $program->note = $request->input('note', null);
         $program->created_by = auth()->user()->id;
         $program->save();
@@ -108,5 +108,129 @@ class ProgramController extends Controller
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
 
         return response()->json(['status'=> 300,'message'=>$message]);
+    }
+
+    public function programEdit($id)
+    {
+        $program = Program::with('programDetail')->where('id', $id)->first();
+        
+
+        $clients = Client::orderby('id','DESC')->where('status', 1)->get();
+        $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        return view('admin.program.edit', compact('clients','mvassels','lvassels','vendors','program'));
+    }
+
+
+    public function programUpdate(Request $request)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'mother_vassel_id' => 'required',
+            'lighter_vassel_id' => 'required',
+            'vendor_id.*' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
+
+        do {
+            $uprogramid = random_int(100000, 999999);
+        } while (Program::where('programid', $uprogramid)->exists()); 
+
+        $vendorIds = $request->input('vendor_id');
+        $truckNumbers = $request->input('truck_number');
+        $qtys = $request->input('qty');
+        $challanNos = $request->input('challan_no');
+        $lineCharges = $request->input('line_charge');
+        $tokenfees = $request->input('token_fee');
+        $partyNames = $request->input('party_name');
+        $amounts = $request->input('amount');
+        $programDtlIds = $request->input('program_detail_id');
+
+        $program = Program::find($request->pid);
+        $program->date = $request->input('date');
+        $program->programid = $uprogramid;
+        $program->client_id = $request->input('client_id');
+        $program->mother_vassel_id = $request->input('mother_vassel_id');
+        $program->lighter_vassel_id = $request->input('lighter_vassel_id');
+        $program->consignmentno = $request->input('consignmentno');
+        $program->headerid = $request->input('headerid');
+        $program->qty_per_challan = $request->input('qty_per_challan');
+        $program->amount = $request->input('camount');
+        $program->note = $request->input('note', null);
+        $program->created_by = auth()->user()->id;
+        $program->save();
+
+
+        $currentColorIds = $program->programDetail->pluck('id')->toArray();
+        $updatedColorIds = collect($request->program_detail_id)->filter()->toArray();
+        $colorIdsToDelete = array_diff($currentColorIds, $updatedColorIds);
+        $program->programDetail()->whereIn('id', $colorIdsToDelete)->delete();
+        
+
+        foreach($vendorIds as $key => $value)
+            {
+                if (isset($programDtlIds[$key])) {
+                    $invdtl = ProgramDetail::find($programDtlIds[$key]);
+                    $invdtl->date = $request->date;
+                    $invdtl->program_id = $program->id;
+                    $invdtl->programid = $uprogramid;
+                    $invdtl->consignmentno = $request->input('consignmentno');
+                    $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
+                    $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
+                    $invdtl->client_id = $request->input('client_id');
+                    $invdtl->vendor_id = $vendorIds[$key]; 
+                    $invdtl->truck_number = $truckNumbers[$key]; 
+                    $invdtl->qty = $qtys[$key]; 
+                    $invdtl->challan_no = $challanNos[$key]; 
+                    $invdtl->line_charge = $lineCharges[$key]; 
+                    $invdtl->token_fee = $tokenfees[$key]; 
+                    $invdtl->party_name = $partyNames[$key]; 
+                    $invdtl->amount = $amounts[$key]; 
+                    $invdtl->created_by = Auth::user()->id;
+                    $invdtl->save();
+                } else {
+                    $invdtl = new ProgramDetail();
+                    $invdtl->date = $request->date;
+                    $invdtl->program_id = $program->id;
+                    $invdtl->programid = $uprogramid;
+                    $invdtl->consignmentno = $request->input('consignmentno');
+                    $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
+                    $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
+                    $invdtl->client_id = $request->input('client_id');
+                    $invdtl->vendor_id = $vendorIds[$key]; 
+                    $invdtl->truck_number = $truckNumbers[$key]; 
+                    $invdtl->qty = $qtys[$key]; 
+                    $invdtl->challan_no = $challanNos[$key]; 
+                    $invdtl->line_charge = $lineCharges[$key]; 
+                    $invdtl->token_fee = $tokenfees[$key]; 
+                    $invdtl->party_name = $partyNames[$key]; 
+                    $invdtl->amount = $amounts[$key]; 
+                    $invdtl->created_by = Auth::user()->id;
+                    $invdtl->save();
+                }
+            }
+
+            
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message]);
+    }
+
+    public function prgmDelete($id)
+    {
+        $data = Program::find($id);
+        
+
+        if ($data->delete()) {
+            return response()->json(['success' => true, 'message' => 'Deleted successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to delete.'], 500);
+        }
     }
 }

@@ -58,11 +58,11 @@
                     <td style="text-align: center">
 
                       
-                        <a class="btn btn-app" id="EditBtn" rid="{{ $data->id }}">
+                        <a class="btn btn-app" id="trnEditBtn" rid="{{ $data->id }}">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                         
-                        <a class="btn btn-app" id="deleteBtn" rid="{{ $data->id }}">
+                        <a class="btn btn-app" id="trndeleteBtn" rid="{{ $data->id }}">
                             <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
                         </a>
 
@@ -303,7 +303,7 @@
                     trnsitem.empty();
                     $.each(d.data, function (a, b) {
                     
-                        trnsitem.append("<tr><td style='width: 10%; text-align:center'>" + b.payment_type + "</td><td style='width: 10%; text-align:center'>" + b.amount + "</td><td style='width: 10%; text-align:center'>" + b.receiver_name + "</td><td style='width: 10%; text-align:center'></td></tr>"); 
+                        trnsitem.append("<tr><td style='width: 10%; text-align:center'>" + b.payment_type + "</td><td style='width: 10%; text-align:center'>" + b.amount + "</td><td style='width: 10%; text-align:center'>" + b.receiver_name + "</td><td style='width: 10%; text-align:center'><a class='btn btn-app' id='trnEditBtn' rid=" + b.id + "><i class='fas fa-edit'></i> Edit </a><a class='btn btn-app' id='trndeleteBtn' rid=" + b.id + "> <i class='fa fa-trash-o' style='color: red; font-size:16px;'></i>Delete</a></td></tr>"); 
 
                     });
                     // trnsitem end

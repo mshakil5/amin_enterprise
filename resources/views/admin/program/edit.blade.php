@@ -3,15 +3,15 @@
 @section('content')
 
 <!-- Main content -->
-{{-- <section class="content mt-3" id="newBtnSection">
+<section class="content mt-3" id="newBtnSection">
     <div class="container-fluid">
       <div class="row">
         <div class="col-2">
-            <a href="#" class="btn btn-secondary my-3">Back</a>
+            <a href="{{route('admin.allProgram')}}" class="btn btn-secondary my-3">Back</a>
         </div>
       </div>
     </div>
-</section> --}}
+</section>
   <!-- /.content -->
 
 
@@ -21,14 +21,14 @@
             <div class="col-md-12">
                 <div class="card card-secondary">
                     <div class="card-header">
-                        <h3 class="card-title" id="cardTitle">Create New Program</h3>
+                        <h3 class="card-title" id="cardTitle">Update New Program</h3>
                     </div>
                     <div class="card-body">
                         <div class="ermsg">
                             
                         </div>
                         
-                        <form id="createThisForm">
+                        <form id="updateThisForm">
                             @csrf
                             <div class="form-row">
                                 <div class="form-group col-md-4">
@@ -39,7 +39,7 @@
                                     <select name="client_id" id="client_id" class="form-control">
                                       <option value="">Select</option>
                                       @foreach ($clients as $client)
-                                      <option value="{{$client->id}}">{{$client->name}}</option>
+                                      <option value="{{$client->id}}" {{$program->client_id == $client->id ? 'selected' : '' }}>{{$client->name}}</option>
                                       @endforeach
                                     </select>
 
@@ -52,22 +52,23 @@
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="date">Date <span style="color: red;">*</span></label>
-                                    <input type="date" class="form-control" id="date" name="date" value="{{date('Y-m-d')}}">
+                                    <input type="date" class="form-control" id="date" name="date" value="{{ $program->date}}">
                                     <span id="productCodeError" class="text-danger"></span>
+                                    <input type="hidden" class="form-control" id="pid" name="pid" value="{{ $program->id}}">
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="consignmentno">Consignment Number</label>
-                                    <input type="text" class="form-control" id="consignmentno" name="consignmentno" >
+                                    <input type="text" class="form-control" id="consignmentno" name="consignmentno"  value="{{ $program->consignmentno}}">
                                 </div>
                                 
                                 <div class="form-group col-md-2">
                                     <label for="headerid">Header ID</label>
-                                    <input type="text" class="form-control" id="headerid" name="headerid" >
+                                    <input type="text" class="form-control" id="headerid" name="headerid" value="{{ $program->headerid}}">
                                 </div>
 
                                 <div class="form-group col-md-2">
                                   <label for="qty_per_challan">Qty per challan</label>
-                                  <input type="number" class="form-control" id="qty_per_challan" name="qty_per_challan" >
+                                  <input type="number" class="form-control" id="qty_per_challan" name="qty_per_challan"  value="{{ $program->qty_per_challan}}">
                               </div>
 
                             </div>
@@ -82,7 +83,7 @@
                                     <select name="mother_vassel_id" id="mother_vassel_id" class="form-control">
                                       <option value="">Select</option>
                                       @foreach ($mvassels as $mvassel)
-                                      <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
+                                      <option value="{{$mvassel->id}}" {{$program->mother_vassel_id == $mvassel->id ? 'selected' : '' }}>{{$mvassel->name}}</option>
                                       @endforeach
                                     </select>
 
@@ -103,7 +104,7 @@
                                     <select name="lighter_vassel_id" id="lighter_vassel_id" class="form-control">
                                       <option value="">Select</option>
                                       @foreach ($lvassels as $lvassel)
-                                      <option value="{{$lvassel->id}}">{{$lvassel->name}}</option>
+                                      <option value="{{$lvassel->id}}" {{$program->lighter_vassel_id == $lvassel->id ? 'selected' : '' }}>{{$lvassel->name}}</option>
                                       @endforeach
                                     </select>
 
@@ -115,63 +116,91 @@
                                     
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="amount">Contract Amount</label>
-                                    <input type="number" class="form-control" id="camount" name="camount">
+                                    <label for="camount">Contract Amount</label>
+                                    <input type="number" class="form-control" id="camount" name="camount" value="{{ $program->amount}}">
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="description">Note</label>
-                                    <textarea class="form-control" id="note" name="note"></textarea>
+                                    <textarea class="form-control" id="note" name="note">{{ $program->note}}</textarea>
                                 </div>
                             </div>
-
-                            
 
                             <div class="form-row">
                                 <div class="form-group col-md-2">
                                     <label for="vendor_id">Vendor</label>
                                     <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Add New</span>
-                                    <select class="form-control" name="vendor_id[]" id="vendor_id">
-                                        <option value="">Select Vendor</option>
-                                        @foreach ($vendors as $vendor)
-                                        <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                        @endforeach
-                                    </select>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="truck_number">Truck Number</label>
-                                    <input type="text" class="form-control" name="truck_number[]" >
                                 </div>
                                 <div class="form-group col-md-1">
                                     <label for="qty">Quantity</label>
-                                    <input type="number" class="form-control" name="qty[]" >
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="challan_no">Challan No</label>
-                                    <input type="number" class="form-control" name="challan_no[]" >
                                 </div>
                                 <div class="form-group col-md-1">
                                     <label for="line_charge">Line Ch.</label>
-                                    <input type="number" class="form-control" name="line_charge[]" >
                                 </div>
                                 <div class="form-group col-md-1">
                                     <label for="token_fee">Token Fee</label>
-                                    <input type="number" class="form-control" name="token_fee[]" >
                                 </div>
                                 
                                 <div class="form-group col-md-1">
                                   <label for="party_name">Party</label>
-                                  <input type="text" class="form-control" name="party_name[]" >
                                 </div>
                                 <div class="form-group col-md-1">
                                     <label for="amount">Amount</label>
-                                    <input type="number" class="form-control" name="amount[]" >
                                 </div>
 
                                 <div class="form-group col-md-1">
-                                    <label>Action</label>
                                     <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
                                 </div>
                             </div>
+                            
+                            @foreach ($program->programDetail as $key => $dtl)
+
+                            <div class="form-row dynamic-row">
+                                <div class="form-group col-md-2">
+                                    <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                        <option value="">Select Vendor</option>
+                                        @foreach ($vendors as $vendor)
+                                        <option value="{{$vendor->id}}" {{$dtl->vendor_id == $vendor->id ? 'selected' : '' }}>{{$vendor->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" name="truck_number[]" value="{{$dtl->truck_number}}">
+                                    <input type="hidden" class="form-control" name="program_detail_id[]" value="{{$dtl->id}}">
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <input type="number" class="form-control" name="qty[]" value="{{$dtl->qty}}">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control" name="challan_no[]" value="{{$dtl->challan_no}}">
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <input type="number" class="form-control" name="line_charge[]" value="{{$dtl->line_charge}}">
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <input type="number" class="form-control" name="token_fee[]" value="{{$dtl->token_fee}}">
+                                </div>
+                                
+                                <div class="form-group col-md-1">
+                                  <input type="text" class="form-control" name="party_name[]" value="{{$dtl->party_name}}">
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <input type="number" class="form-control" name="amount[]" value="{{$dtl->amount}}">
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                                </div>
+                            </div>
+
+                            @endforeach
+
+                            
                             <div id="dynamic-rows">
 
                             </div>
@@ -181,7 +210,7 @@
                         </form>
                     </div>
                     <div class="card-footer">
-                      <button type="submit" form="createThisForm" id="addBtn"  class="btn btn-secondary">Create</button>
+                      <button type="submit" form="updateThisForm" id="addBtn"  class="btn btn-secondary">Update</button>
                           <div id="loader" style="display: none;">
                               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                               Loading...
@@ -263,58 +292,7 @@
       //header for csrf-token is must in laravel
       $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
       //
-      var url = "{{URL::to('/admin/destination')}}";
-      var upurl = "{{URL::to('/admin/destination-update')}}";
-      // console.log(url);
-      $("#addBtn2").click(function(){
-        
-              var form_data = new FormData();
-              form_data.append("name", $("#name").val());
-              form_data.append("address", $("#address").val());
-              form_data.append("client_id", $("#client_id").val());
-              $.ajax({
-                url: url,
-                method: "POST",
-                contentType: false,
-                processData: false,
-                data:form_data,
-                success: function (d) {
-                    if (d.status == 303) {
-                        $(".ermsg").html(d.message);
-                    }else if(d.status == 300){
 
-                      $(".ermsg").html(d.message);
-                      window.setTimeout(function(){location.reload()},2000)
-                    }
-                },
-                error: function (d) {
-                    console.log(d);
-                }
-            });
-            
-          //create  end
-          
-      });
-      //Edit
-      $("#contentContainer").on('click','#EditBtn', function(){
-          //alert("btn work");
-          codeid = $(this).attr('rid');
-          //console.log($codeid);
-          info_url = url + '/'+codeid+'/edit';
-          //console.log($info_url);
-          $.get(info_url,{},function(d){
-              populateForm(d);
-              pagetop();
-          });
-      });
-      //Edit  end
-      
-
-      
-      function clearform(){
-          $('#createThisForm')[0].reset();
-          $("#addBtn").val('Create');
-      }
   });
 </script>
 
@@ -327,10 +305,10 @@
             $(this).attr('disabled', true);
             $('#loader').show();
 
-            var formData = new FormData($('#createThisForm')[0]);
+            var formData = new FormData($('#updateThisForm')[0]);
 
             $.ajax({
-                url: '{{ route("programStore") }}',
+                url: '{{ route("programUpdate") }}',
                 method: 'POST',
                 data: formData,
                 contentType: false,
@@ -341,19 +319,18 @@
                 },
                 success: function(response) {
                     
-                    $(".ermsg").html(response.message);
-                    window.setTimeout(function(){location.reload()},2000)
 
-                    // swal({
-                    //     text: "Created successfully",
-                    //     icon: "success",
-                    //     button: {
-                    //         text: "OK",
-                    //         className: "swal-button--confirm"
-                    //     }
-                    // }).then(() => {
-                    //     // location.reload();
-                    // });
+                    console.log(response);
+                    swal({
+                        text: "Created successfully",
+                        icon: "success",
+                        button: {
+                            text: "OK",
+                            className: "swal-button--confirm"
+                        }
+                    }).then(() => {
+                        location.reload();
+                    });
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseJSON.message);

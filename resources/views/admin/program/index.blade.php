@@ -40,10 +40,17 @@
                     <td style="text-align: center">{{$data->lighterVassel->name}}</td>
                     <td style="text-align: center">{{$data->consignmentno}}</td>
                     <td style="text-align: center">
-                      <a href="{{route('admin.programDetail', $data->id)}}"><i class="fa fa-eye" style="color: #32a842;font-size:16px;"></i></a>
+                      
+                        <a class="btn btn-app" href="{{route('admin.programDetail', $data->id)}}">
+                          <i class="fa fa-eye" style="color: #32a842;font-size:16px;"></i> View
+                        </a>
+                        <a class="btn btn-app"  href="{{route('admin.programEdit', $data->id)}}">
+                            <i class="fas fa-edit" style="color: #2196f3;font-size:16px;"></i> Edit
+                        </a>
+                        <a class="btn btn-app" id="deleteBtn" rid="{{ $data->id }}">
+                            <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
+                        </a>
 
-                      <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
-                      <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
                     </td>
                   </tr>
                   @endforeach
@@ -87,6 +94,41 @@
 <script>
   $(document).ready(function () {
 
+    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+      //
+      var url = "{{URL::to('/admin/program-delete')}}";
+
+    //Delete
+    $("#contentContainer").on('click','#deleteBtn', function(){
+            if(!confirm('Sure?')) return;
+            codeid = $(this).attr('rid');
+            info_url = url + '/'+codeid;
+            $.ajax({
+                url:info_url,
+                method: "GET",
+                type: "DELETE",
+                data:{
+                },
+                success: function(d){
+                    if(d.success) {
+                        swal({
+                            text: "Deleted",
+                            icon: "success",
+                            button: {
+                                text: "OK",
+                                className: "swal-button--confirm"
+                            }
+                        }).then(() => {
+                            location.reload();
+                        });
+                    }
+                },
+                error:function(d){
+                    // console.log(d);
+                }
+            });
+        });
+      //Delete 
     
   });
 </script>

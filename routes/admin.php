@@ -100,8 +100,11 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // program
     Route::get('/program', [ProgramController::class, 'allPrograms'])->name('admin.allProgram');
     Route::get('/program/{id}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
+    Route::get('/program-edit/{id}', [ProgramController::class, 'programEdit'])->name('admin.programEdit');
     Route::get('/add-program', [ProgramController::class, 'createProgram'])->name('admin.addProgram');
+    Route::get('/program-delete/{id}', [ProgramController::class, 'prgmDelete']);
     Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
+    Route::post('/update-program', [ProgramController::class, 'programUpdate'])->name('programUpdate');
 
     // vendor advance
     Route::post('/vendor-advance-pay', [TransactionController::class,'vendorAdvancePay'])->name('vendorAdvancePay');
