@@ -28,7 +28,8 @@
                   <th>Line Charge</th>
                   <th>Qty</th>
                   <th>Token fee</th>
-                  <th>Amount</th>
+                  <th>Contract Amount</th>
+                  <th>Advance</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -45,6 +46,12 @@
                     <td style="text-align: center">{{$data->qty}}</td>
                     <td style="text-align: center">{{$data->token_fee}}</td>
                     <td style="text-align: center">{{$data->amount}}</td>
+
+                    <td style="text-align: center">
+                      <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Fuel </span>
+                      <span class="badge badge-secondary" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Money</span>
+                    </td>
+
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>

@@ -115,6 +115,10 @@
                                     
                                 </div>
                                 <div class="form-group col-md-4">
+                                    <label for="amount">Contract Amount</label>
+                                    <input type="number" class="form-control" id="amount" name="amount">
+                                </div>
+                                <div class="form-group col-md-12">
                                     <label for="description">Note</label>
                                     <textarea class="form-control" id="note" name="note"></textarea>
                                 </div>

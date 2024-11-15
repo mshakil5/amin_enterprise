@@ -77,6 +77,7 @@ class ProgramController extends Controller
         $program->consignmentno = $request->input('consignmentno');
         $program->headerid = $request->input('headerid');
         $program->qty_per_challan = $request->input('qty_per_challan');
+        $program->amount = $request->input('amount');
         $program->note = $request->input('note', null);
         $program->created_by = auth()->user()->id;
         $program->save();
