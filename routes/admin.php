@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DestinationController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\TransactionController;
 
 
 /*------------------------------------------
@@ -101,6 +102,10 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/program/{id}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
     Route::get('/add-program', [ProgramController::class, 'createProgram'])->name('admin.addProgram');
     Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
+
+    // vendor advance
+    Route::post('/vendor-advance-pay', [TransactionController::class,'vendorAdvancePay'])->name('vendorAdvancePay');
+    Route::post('/vendor-advance-transaction', [TransactionController::class,'vendorAdvanceTran'])->name('vendorAdvanceTran');
 
 
 

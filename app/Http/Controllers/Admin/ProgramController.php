@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Destination;
 use App\Models\LighterVassel;
 use App\Models\MotherVassel;
+use App\Models\PetrolPump;
 use App\Models\Program;
 use App\Models\Vendor;
 use App\Models\ProgramDetail;
@@ -27,7 +28,8 @@ class ProgramController extends Controller
     public function programDetail($id)
     {
         $data = Program::with('programDetail')->where('id', $id)->first();
-        return view('admin.program.details', compact('data'));
+        $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
+        return view('admin.program.details', compact('data','pumps'));
     }
 
 

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('date')->nullable();
+            $table->string('tran_id')->nullable();
             $table->unsignedBigInteger('vendor_id')->nullable();
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade'); 
             $table->unsignedBigInteger('advance_payment_id')->nullable();
@@ -29,7 +30,7 @@ return new class extends Migration
             $table->string('tran_type')->nullable();
             $table->string('challan_no')->nullable();
             $table->double('contact_amount',10,2)->default(0)->nullable();
-            $table->double('rcv_amount',10,2)->default(0)->nullable();
+            $table->double('amount',10,2)->default(0)->nullable();
             $table->double('due_amount',10,2)->default(0)->nullable();
             $table->double('other_cost',10,2)->default(0)->nullable();
             $table->longText('note')->nullable();
