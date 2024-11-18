@@ -109,6 +109,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // vendor advance
     Route::post('/vendor-advance-pay', [TransactionController::class,'vendorAdvancePay'])->name('vendorAdvancePay');
     Route::post('/vendor-advance-transaction', [TransactionController::class,'vendorAdvanceTran'])->name('vendorAdvanceTran');
+    Route::post('/add-destination-slab-rate', [ProgramController::class,'addDestinationSlabRate'])->name('addDestinationSlabRate');
 
 
 

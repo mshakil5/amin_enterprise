@@ -125,6 +125,106 @@
           
         </ul>
       </li>
+
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-chart-pie"></i>
+          <p>
+            Ledger
+            <i class="right fas fa-angle-left"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          <li class="nav-item">
+            <a href="{{route('admin.addProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Receivable Ledger</p>
+            </a>
+          </li>
+          
+          <li class="nav-item">
+            <a href="{{route('admin.addProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Payable Ledger</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{route('admin.allProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Advance Ledger</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{route('admin.addProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Expense Ledger</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="{{route('admin.addProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Income Ledger</p>
+            </a>
+          </li>
+          
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          <i class="nav-icon fas fa-chart-pie"></i>
+          <p>
+            Day Book
+            <i class="right fas fa-angle-left"></i>
+          </p>
+        </a>
+        <ul class="nav nav-treeview">
+          <li class="nav-item">
+            <a href="{{route('admin.addProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Cash Book</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{route('admin.allProgram')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Bank Book</p>
+            </a>
+          </li>
+          
+        </ul>
+      </li>
+
+      <li class="nav-item">
+        <a href="{{route('admin.destination')}}" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Trial Balance
+          </p>
+        </a>
+      </li>
+
+      
+      <li class="nav-item">
+        <a href="{{route('admin.destination')}}" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            P/L Statement
+          </p>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="{{route('admin.destination')}}" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Financial Statement
+          </p>
+        </a>
+      </li>
       
       
       

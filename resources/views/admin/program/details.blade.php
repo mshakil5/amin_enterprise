@@ -64,19 +64,19 @@
 
                       <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}">Transaction</span>
 
+                      <a class="btn btn-app destBtn" id="destinationBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
+                        <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
+                      </a>
+
                     </td>
 
                     <td style="text-align: center">
-
-                      
                         <a class="btn btn-app" id="trnEditBtn" rid="{{ $data->id }}">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        
                         <a class="btn btn-app" id="trndeleteBtn" rid="{{ $data->id }}">
                             <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
                         </a>
-
                     </td>
                   </tr>
                   @endforeach
@@ -196,7 +196,68 @@
   </div>
 </div>
 
+<!-- Destination-->
+<div class="modal fade" id="destModal" tabindex="-1" role="dialog" aria-labelledby="destModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="destModalLabel">Add destination Form</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form id="destForm">
+              <div class="modal-body">
 
+
+                  <div class="form-group">
+                      <label for="destination_id">Destination<span style="color: red;">*</span></label>
+                      <select name="destination_id" id="destination_id" class="form-control" >
+                          <option value="">Select</option>
+                          @foreach (\App\Models\Destination::where('status', 1)->select('id','name')->get() as $destination)
+                          <option value="{{$destination->id}}">{{$destination->name}}</option>
+                          @endforeach
+                      </select>
+                  </div>
+
+                  <h5>Add slab rate</h5>
+                  <hr>
+
+                  <div class="form-row p-2">
+                    <div class="form-group col-md-3">
+                        <label for="minqty">Min Qty</label>
+                        <input type="number" class="form-control" name="minqty[]" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="maxqty">Max Qty</label>
+                        <input type="number" class="form-control" name="maxqty[]" value="0">
+                    </div>
+
+                    <div class="form-group col-md-5">
+                        <label for="rate_per_qty">Rate per Qty</label>
+                        <input type="number" class="form-control" name="rate_per_qty[]" value="0">
+                    </div>
+
+                    <div class="form-group col-md-1">
+                        <label>Action</label>
+                        <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+
+
+                <div id="dynamic-rows" class="p-2"></div>
+
+                
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-success">Create</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+<!-- Destination end-->
 
 @endsection
 @section('script')
@@ -216,7 +277,39 @@
         "responsive": true,
       });
     });
-  </script>
+</script>
+
+
+  <!-- Dynamic Row Script -->
+<script>
+  $(document).ready(function() {
+      $(document).on('click', '.add-row', function() {
+          let newRow = `
+          <div class="form-row dynamic-row">
+                    <div class="form-group col-md-3">
+                        <input type="number" class="form-control" name="minqty[]"  value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <input type="number" class="form-control" name="maxqty[]"  value="0">
+                    </div>
+
+                    <div class="form-group col-md-5">
+                        <input type="number" class="form-control" name="rate_per_qty[]" value="0">
+                    </div>
+
+                    <div class="form-group col-md-1">
+                        <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                    </div>
+                </div>`;
+
+          $('#dynamic-rows').append(newRow);
+      });
+
+      $(document).on('click', '.remove-row', function() {
+          $(this).closest('.dynamic-row').remove();
+      });
+  });
+</script>
 
 
 
@@ -327,6 +420,51 @@
             });
               
 
+      });
+
+      // add destination
+      $("#contentContainer").on('click', '.destBtn', function () {
+          var id = $(this).data('id');
+          var vendorId = $(this).data('vendor-id');
+          var programId = $(this).data('program-id');
+          console.log(vendorId);
+          $('#destModal').modal('show');
+          
+          $('#destForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+              $(this).attr('disabled', true);
+              $('#loader').show();
+              var formData = new FormData($('#destForm')[0]);
+              formData.append("prgmdtlid", id);
+              formData.append("vendorId", vendorId);
+              formData.append("programId", programId);
+              
+
+              $.ajax({
+                  url: '{{ URL::to('/admin/add-destination-slab-rate') }}',
+                  method: 'POST',
+                  data:formData,
+                  contentType: false,
+                  processData: false,
+                  success: function (response) {
+                    console.log(response);
+                      $('#advModal').modal('hide');
+                      swal({
+                          text: "Payment store successfully",
+                          icon: "success",
+                          button: {
+                              text: "OK",
+                              className: "swal-button--confirm"
+                          }
+                      }).then(() => {
+                          location.reload();
+                      });
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+          });
       });
 
 

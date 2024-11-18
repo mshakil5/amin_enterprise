@@ -233,4 +233,67 @@ class ProgramController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to delete.'], 500);
         }
     }
+
+    public function addDestinationSlabRate(Request $request)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'destination_id' => 'required',
+            'amount.*' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
+
+
+        $rates = $request->input('rate_per_qty');
+        $minqtys = $request->input('minqty');
+        $maxqtys = $request->input('maxqty');
+
+        $program = new Program();
+        $program->date = $request->input('date');
+        $program->client_id = $request->input('client_id');
+        $program->mother_vassel_id = $request->input('mother_vassel_id');
+        $program->lighter_vassel_id = $request->input('lighter_vassel_id');
+        $program->consignmentno = $request->input('consignmentno');
+        $program->headerid = $request->input('headerid');
+        $program->qty_per_challan = $request->input('qty_per_challan');
+        $program->amount = $request->input('camount');
+        $program->note = $request->input('note', null);
+        $program->created_by = auth()->user()->id;
+        $program->save();
+
+        foreach($rates as $key => $value)
+            {
+                $invdtl = new ProgramDetail();
+                $invdtl->date = $request->input('date');
+                $invdtl->program_id = $program->id;
+                $invdtl->programid = $uprogramid;
+                $invdtl->consignmentno = $request->input('consignmentno');
+                $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
+                $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
+                $invdtl->client_id = $request->input('client_id');
+                $invdtl->vendor_id = $vendorIds[$key]; 
+                $invdtl->created_by = Auth::user()->id;
+                $invdtl->save();
+            }
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
