@@ -29,7 +29,7 @@ class ProgramController extends Controller
 
     public function programDetail($id)
     {
-        $data = Program::with('programDetail','programDetail.programDestination')->where('id', $id)->first();
+        $data = Program::with('programDetail','programDetail.programDestination','programDetail.programDestination.destinationSlabRate')->where('id', $id)->first();
         // dd($data);
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
         return view('admin.program.details', compact('data','pumps'));
@@ -140,10 +140,6 @@ class ProgramController extends Controller
             return response()->json(['status' => 400, 'message' => $errorMessage]);
         }
 
-        do {
-            $uprogramid = random_int(100000, 999999);
-        } while (Program::where('programid', $uprogramid)->exists()); 
-
         $vendorIds = $request->input('vendor_id');
         $truckNumbers = $request->input('truck_number');
         $qtys = $request->input('qty');
@@ -156,7 +152,6 @@ class ProgramController extends Controller
 
         $program = Program::find($request->pid);
         $program->date = $request->input('date');
-        $program->programid = $uprogramid;
         $program->client_id = $request->input('client_id');
         $program->mother_vassel_id = $request->input('mother_vassel_id');
         $program->lighter_vassel_id = $request->input('lighter_vassel_id');
@@ -169,10 +164,10 @@ class ProgramController extends Controller
         $program->save();
 
 
-        $currentColorIds = $program->programDetail->pluck('id')->toArray();
-        $updatedColorIds = collect($request->program_detail_id)->filter()->toArray();
-        $colorIdsToDelete = array_diff($currentColorIds, $updatedColorIds);
-        $program->programDetail()->whereIn('id', $colorIdsToDelete)->delete();
+        $currentpDtlIds = $program->programDetail->pluck('id')->toArray();
+        $updatedpDtlIds = collect($request->program_detail_id)->filter()->toArray();
+        $pIdsToDelete = array_diff($currentpDtlIds, $updatedpDtlIds);
+        $program->programDetail()->whereIn('id', $pIdsToDelete)->delete();
         
 
         foreach($vendorIds as $key => $value)
@@ -181,7 +176,6 @@ class ProgramController extends Controller
                     $invdtl = ProgramDetail::find($programDtlIds[$key]);
                     $invdtl->date = $request->date;
                     $invdtl->program_id = $program->id;
-                    $invdtl->programid = $uprogramid;
                     $invdtl->consignmentno = $request->input('consignmentno');
                     $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
                     $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
@@ -194,13 +188,12 @@ class ProgramController extends Controller
                     $invdtl->token_fee = $tokenfees[$key]; 
                     $invdtl->party_name = $partyNames[$key]; 
                     $invdtl->amount = $amounts[$key]; 
-                    $invdtl->created_by = Auth::user()->id;
+                    $invdtl->updated_by = Auth::user()->id;
                     $invdtl->save();
                 } else {
                     $invdtl = new ProgramDetail();
                     $invdtl->date = $request->date;
                     $invdtl->program_id = $program->id;
-                    $invdtl->programid = $uprogramid;
                     $invdtl->consignmentno = $request->input('consignmentno');
                     $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
                     $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
@@ -288,13 +281,110 @@ class ProgramController extends Controller
 
 
 
+    public function getDestinationSlabRate(Request $request)
+    {
+        
+        // $data = $request->all();
+        $data2 = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('status',1)->where('id', $request->prgmdtlid)->get();
+        $data = ProgramDestination::where('id', $request->pdid)->first();
+        $slabRates = DestinationSlabRate::where('program_destination_id', $data->id)->get();
 
 
+        $prop = '';
+        
+            foreach ($slabRates as $rate){
+                // <!-- Single Property Start -->
+                $prop.= '<div class="form-row dynamic-row">
+                            <div class="form-group col-md-3">
+                                <input type="number" class="form-control" name="maxqty[]" value="'.$rate->maxqty.'"><input type="hidden" class="form-control" name="rateid[]" value="'.$rate->id.'">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <input type="number" class="form-control" name="rate_per_qty[]" value="'.$rate->rate_per_qty.'">
+                            </div>
+                            <div class="form-group col-md-1">
+                                <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                            </div>
+                        </div>';
+            }
+        return response()->json(['status'=> 300, 'data'=>$data, 'rates'=>$prop]);
+    }
 
 
+    public function updateDestinationSlabRate(Request $request)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'updestid' => 'required',
+            'amount.*' => 'required',
+        ]);
+        $allrqt = $request->all();
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
 
 
+        $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
+        $oldids = $request->input('rateid');
+        $rates = $request->input('rate_per_qty');
+        $minqtys = $request->input('minqty');
+        $maxqtys = $request->input('maxqty');
 
+        $program = ProgramDestination::find($request->pdid);
+        $program->destination_id = $request->input('updestid');
+        $program->updated_by = auth()->user()->id;
+        $program->save();
+
+        // delete
+        $currentpDtlIds = $program->destinationSlabRate->pluck('id')->toArray();
+        $updatedpDtlIds = collect($request->rateid)->filter()->toArray();
+        $pIdsToDelete = array_diff($currentpDtlIds, $updatedpDtlIds);
+        $program->destinationSlabRate()->whereIn('id', $pIdsToDelete)->delete();
+        // delete
+
+        foreach($rates as $key => $value)
+            {
+
+                if (isset($oldids[$key])) {
+
+                    $invdtl = DestinationSlabRate::find($oldids[$key]);
+                    $invdtl->program_destination_id = $program->id;
+                    $invdtl->vendor_id = $request->input('vendorId');
+                    if ($key == 0) {
+                        $invdtl->minqty = 1;
+                    } else {
+                        $invdtl->minqty = $maxqtys[$key-1] + 1;
+                    }
+                    $invdtl->maxqty = $maxqtys[$key]; 
+                    $invdtl->rate_per_qty = $rates[$key]; 
+                    $invdtl->updated_by = Auth::user()->id;
+                    $invdtl->save();
+                } else {
+
+                    $invdtl = new DestinationSlabRate();
+                    $invdtl->program_destination_id = $program->id;
+                    $invdtl->vendor_id = $request->input('vendorId');
+                    $invdtl->program_id = $prgmDtl->program_id;
+                    $invdtl->program_detail_id = $request->prgmdtlid;
+                    if ($key == 0) {
+                        $invdtl->minqty = 1;
+                    } else {
+                        $invdtl->minqty = $maxqtys[$key-1] + 1;
+                    }
+                    $invdtl->maxqty = $maxqtys[$key]; 
+                    $invdtl->rate_per_qty = $rates[$key]; 
+                    $invdtl->created_by = Auth::user()->id;
+                    $invdtl->save();
+                }
+                
+
+                
+            }
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message,'allrqt'=>$allrqt ]);
+    }
 
 
 

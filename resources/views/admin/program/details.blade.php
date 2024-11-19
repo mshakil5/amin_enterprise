@@ -64,9 +64,16 @@
 
                       <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}">Transaction</span>
 
-                      <a class="btn btn-app destBtn" id="destinationBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
-                        <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
-                      </a>
+                      @if ($data->programDestination)
+                        <a class="btn btn-app destUpBtn" id="destinationUpBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-pdid="{{ $data->programDestination->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
+                          <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
+                        </a>
+                      @else
+                        <a class="btn btn-app destBtn" id="destinationBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
+                          <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
+                        </a>
+                      @endif
+                      
 
                     </td>
 
@@ -259,6 +266,61 @@
 </div>
 <!-- Destination end-->
 
+<!-- Destination-->
+<div class="modal fade" id="destUpModal" tabindex="-1" role="dialog" aria-labelledby="destUpModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="destUpModalLabel">Add destination Form</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form id="destUpForm">
+              <div class="modal-body">
+                  <div class="form-group">
+                    <input type="hidden" id="pdstid">
+                      <label for="updestid">Destination<span style="color: red;">*</span></label>
+                      <select name="updestid" id="updestid" class="form-control" >
+                          <option value="">Select</option>
+                          @foreach (\App\Models\Destination::where('status', 1)->select('id','name')->get() as $destination)
+                          <option value="{{$destination->id}}">{{$destination->name}}</option>
+                          @endforeach
+                      </select>
+                  </div>
+
+                  <h5>Add slab rate</h5>
+                  <hr>
+
+                  <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label for="maxqty">Max Qty</label>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                      <label for="rate_per_qty">Rate per Qty</label>
+                    </div>
+
+                    <div class="form-group col-md-1">
+                        <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
+                    </div>
+                  </div>
+
+
+                <div id="dynamic-up-rows" class=""></div>
+
+                
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-success">Update</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+<!-- Destination end-->
+
 @endsection
 @section('script')
 <script>
@@ -300,6 +362,7 @@
                 </div>`;
 
           $('#dynamic-rows').append(newRow);
+          $('#dynamic-up-rows').append(newRow);
       });
 
       $(document).on('click', '.remove-row', function() {
@@ -463,6 +526,76 @@
               });
           });
       });
+
+
+
+      // update destination
+      $("#contentContainer").on('click', '.destUpBtn', function () {
+          var id = $(this).data('id');
+          var vendorId = $(this).data('vendor-id');
+          var programId = $(this).data('program-id');
+          var pdstid = $(this).data('pdid');
+          console.log(pdstid);
+          $('#destUpModal').modal('show');
+              var formData = new FormData();
+              formData.append("prgmdtlid", id);
+              formData.append("vendorId", vendorId);
+              formData.append("programId", programId);
+              formData.append("pdid", pdstid);
+              $.ajax({
+                  url: '{{ URL::to('/admin/get-destination-slab-rate') }}',
+                  method: 'POST',
+                  data:formData,
+                  contentType: false,
+                  processData: false,
+                  success: function (response) {
+                      $('#updestid').val(response.data.destination_id);
+                      $('#pdstid').val(response.data.id);
+                      $('#dynamic-up-rows').html(response.rates);
+                      
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+
+
+            $('#destUpForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+              $(this).attr('disabled', true);
+              $('#loader').show();
+              var formData = new FormData($('#destUpForm')[0]);
+              formData.append("prgmdtlid", id);
+              formData.append("pdid", pdstid);
+              formData.append("vendorId", vendorId);
+              formData.append("programId", programId);
+              $.ajax({
+                  url: '{{ URL::to('/admin/destination-slab-rate-update') }}',
+                  method: 'POST',
+                  data:formData,
+                  contentType: false,
+                  processData: false,
+                  success: function (response) {
+                      $('#advModal').modal('hide');
+                      swal({
+                          text: "Data updated successfully",
+                          icon: "success",
+                          button: {
+                              text: "OK",
+                              className: "swal-button--confirm"
+                          }
+                      }).then(() => {
+                          location.reload();
+                      });
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+            });
+      });
+
+          
 
 
   });
