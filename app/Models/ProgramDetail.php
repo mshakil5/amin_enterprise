@@ -13,4 +13,14 @@ class ProgramDetail extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function destinationSlabRate()
+    {
+        return $this->hasMany(DestinationSlabRate::class);
+    }
+
+    public function programDestination()
+    {
+        return $this->hasOne(ProgramDestination::class);
+    }
 }

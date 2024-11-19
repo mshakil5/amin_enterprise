@@ -224,18 +224,18 @@
                   <hr>
 
                   <div class="form-row p-2">
-                    <div class="form-group col-md-3">
+                    {{-- <div class="form-group col-md-3">
                         <label for="minqty">Min Qty</label>
                         <input type="number" class="form-control" name="minqty[]" value="0">
-                    </div>
+                    </div> --}}
                     <div class="form-group col-md-3">
                         <label for="maxqty">Max Qty</label>
-                        <input type="number" class="form-control" name="maxqty[]" value="0">
+                        <input type="number" class="form-control" name="maxqty[]" value="">
                     </div>
 
-                    <div class="form-group col-md-5">
+                    <div class="form-group col-md-6">
                         <label for="rate_per_qty">Rate per Qty</label>
-                        <input type="number" class="form-control" name="rate_per_qty[]" value="0">
+                        <input type="number" class="form-control" name="rate_per_qty[]" value="">
                     </div>
 
                     <div class="form-group col-md-1">
@@ -287,14 +287,11 @@
           let newRow = `
           <div class="form-row dynamic-row">
                     <div class="form-group col-md-3">
-                        <input type="number" class="form-control" name="minqty[]"  value="0">
-                    </div>
-                    <div class="form-group col-md-3">
-                        <input type="number" class="form-control" name="maxqty[]"  value="0">
+                        <input type="number" class="form-control" name="maxqty[]"  value="">
                     </div>
 
-                    <div class="form-group col-md-5">
-                        <input type="number" class="form-control" name="rate_per_qty[]" value="0">
+                    <div class="form-group col-md-6">
+                        <input type="number" class="form-control" name="rate_per_qty[]" value="">
                     </div>
 
                     <div class="form-group col-md-1">
@@ -363,7 +360,7 @@
                   success: function (response) {
                       $('#advModal').modal('hide');
                       swal({
-                          text: "Payment store successfully",
+                          text: "Data store successfully",
                           icon: "success",
                           button: {
                               text: "OK",
@@ -450,7 +447,7 @@
                     console.log(response);
                       $('#advModal').modal('hide');
                       swal({
-                          text: "Payment store successfully",
+                          text: "Data store successfully",
                           icon: "success",
                           button: {
                               text: "OK",

@@ -11,6 +11,8 @@ use App\Models\PetrolPump;
 use App\Models\Program;
 use App\Models\Vendor;
 use App\Models\ProgramDetail;
+use App\Models\ProgramDestination;
+use App\Models\DestinationSlabRate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -27,7 +29,8 @@ class ProgramController extends Controller
 
     public function programDetail($id)
     {
-        $data = Program::with('programDetail')->where('id', $id)->first();
+        $data = Program::with('programDetail','programDetail.programDestination')->where('id', $id)->first();
+        // dd($data);
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
         return view('admin.program.details', compact('data','pumps'));
     }
@@ -248,34 +251,33 @@ class ProgramController extends Controller
         }
 
 
+        $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
         $rates = $request->input('rate_per_qty');
         $minqtys = $request->input('minqty');
         $maxqtys = $request->input('maxqty');
 
-        $program = new Program();
-        $program->date = $request->input('date');
-        $program->client_id = $request->input('client_id');
-        $program->mother_vassel_id = $request->input('mother_vassel_id');
-        $program->lighter_vassel_id = $request->input('lighter_vassel_id');
-        $program->consignmentno = $request->input('consignmentno');
-        $program->headerid = $request->input('headerid');
-        $program->qty_per_challan = $request->input('qty_per_challan');
-        $program->amount = $request->input('camount');
-        $program->note = $request->input('note', null);
+        $program = new ProgramDestination();
+        $program->vendor_id = $request->input('vendorId');
+        $program->destination_id = $request->input('destination_id');
+        $program->program_id = $prgmDtl->program_id;
+        $program->program_detail_id = $request->prgmdtlid;
         $program->created_by = auth()->user()->id;
         $program->save();
 
         foreach($rates as $key => $value)
             {
-                $invdtl = new ProgramDetail();
-                $invdtl->date = $request->input('date');
-                $invdtl->program_id = $program->id;
-                $invdtl->programid = $uprogramid;
-                $invdtl->consignmentno = $request->input('consignmentno');
-                $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
-                $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
-                $invdtl->client_id = $request->input('client_id');
-                $invdtl->vendor_id = $vendorIds[$key]; 
+                $invdtl = new DestinationSlabRate();
+                $invdtl->program_destination_id = $program->id;
+                $invdtl->vendor_id = $request->input('vendorId');
+                $invdtl->program_id = $prgmDtl->program_id;
+                $invdtl->program_detail_id = $request->prgmdtlid;
+                if ($key == 0) {
+                    $invdtl->minqty = 1;
+                } else {
+                    $invdtl->minqty = $maxqtys[$key-1] + 1;
+                }
+                $invdtl->maxqty = $maxqtys[$key]; 
+                $invdtl->rate_per_qty = $rates[$key]; 
                 $invdtl->created_by = Auth::user()->id;
                 $invdtl->save();
             }

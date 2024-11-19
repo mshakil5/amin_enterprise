@@ -23,9 +23,9 @@ return new class extends Migration
             $table->unsignedBigInteger('program_detail_id')->nullable();
             $table->foreign('program_detail_id')->references('id')->on('program_details')->onDelete('cascade');
 
-            $table->double('amount',10,2)->default(0)->nullable();
-            $table->double('due_amount',10,2)->default(0)->nullable();
-            $table->double('other_cost',10,2)->default(0)->nullable();
+            $table->integer('minqty')->default(0)->nullable();
+            $table->integer('maxqty')->default(0)->nullable();
+            $table->double('rate_per_qty',10,2)->default(0)->nullable();
             $table->longText('note')->nullable();
             $table->boolean('status')->default(1); 
             // 1= new or processing, 0= cancel, 2=hold, 3=complete 
