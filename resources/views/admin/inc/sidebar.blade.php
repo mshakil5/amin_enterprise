@@ -136,35 +136,35 @@
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="{{route('admin.addProgram')}}" class="nav-link">
+            <a href="{{route('receivableLedger')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Receivable Ledger</p>
             </a>
           </li>
           
           <li class="nav-item">
-            <a href="{{route('admin.addProgram')}}" class="nav-link">
+            <a href="{{route('receivableLedger')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Payable Ledger</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="{{route('admin.allProgram')}}" class="nav-link">
+            <a href="{{route('receivableLedger')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Advance Ledger</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="{{route('admin.addProgram')}}" class="nav-link">
+            <a href="{{route('receivableLedger')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Expense Ledger</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="{{route('admin.addProgram')}}" class="nav-link">
+            <a href="{{route('receivableLedger')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Income Ledger</p>
             </a>
@@ -199,7 +199,7 @@
       </li>
 
       <li class="nav-item">
-        <a href="{{route('admin.destination')}}" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+        <a href="#" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
           <p>
             Trial Balance
@@ -209,7 +209,7 @@
 
       
       <li class="nav-item">
-        <a href="{{route('admin.destination')}}" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+        <a href="#" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
           <p>
             P/L Statement
@@ -218,7 +218,7 @@
       </li>
 
       <li class="nav-item">
-        <a href="{{route('admin.destination')}}" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+        <a href="#" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
           <p>
             Financial Statement

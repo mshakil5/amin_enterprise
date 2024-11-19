@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PumpController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DestinationController;
+use App\Http\Controllers\Admin\LedgerController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\TransactionController;
 
@@ -114,6 +115,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/destination-slab-rate-update', [ProgramController::class,'updateDestinationSlabRate'])->name('updateDestinationSlabRate');
 
 
+    // ledger
+    Route::get('/ledger-receivable', [LedgerController::class, 'receivableLedger'])->name('receivableLedger');
 
     
 });
