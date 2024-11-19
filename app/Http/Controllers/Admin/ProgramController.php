@@ -13,6 +13,7 @@ use App\Models\Vendor;
 use App\Models\ProgramDetail;
 use App\Models\ProgramDestination;
 use App\Models\DestinationSlabRate;
+use App\Models\Ghat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -42,7 +43,8 @@ class ProgramController extends Controller
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
-        return view('admin.program.create', compact('clients','mvassels','lvassels','vendors'));
+        $ghats = Ghat::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        return view('admin.program.create', compact('clients','mvassels','lvassels','vendors','ghats'));
     }
 
 
@@ -65,6 +67,7 @@ class ProgramController extends Controller
         } while (Program::where('programid', $uprogramid)->exists()); 
 
         $vendorIds = $request->input('vendor_id');
+        $ghats = $request->input('ghat_id');
         $truckNumbers = $request->input('truck_number');
         $qtys = $request->input('qty');
         $challanNos = $request->input('challan_no');
@@ -98,6 +101,7 @@ class ProgramController extends Controller
                 $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
                 $invdtl->client_id = $request->input('client_id');
                 $invdtl->vendor_id = $vendorIds[$key]; 
+                $invdtl->ghat_id = $ghats[$key]; 
                 $invdtl->truck_number = $truckNumbers[$key]; 
                 $invdtl->qty = $qtys[$key]; 
                 $invdtl->challan_no = $challanNos[$key]; 

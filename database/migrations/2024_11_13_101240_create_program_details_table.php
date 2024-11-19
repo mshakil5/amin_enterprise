@@ -28,7 +28,8 @@ return new class extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $table->unsignedBigInteger('vendor_id')->nullable();
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade'); 
-
+            $table->unsignedBigInteger('ghat_id')->nullable();
+            $table->foreign('ghat_id')->references('id')->on('ghats')->onDelete('cascade'); 
             $table->string('truck_number')->nullable();
             $table->string('qty')->nullable();
             $table->string('challan_no')->nullable();

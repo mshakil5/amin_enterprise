@@ -137,9 +137,18 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group col-md-2">
-                                    <label for="truck_number">Truck Number</label>
+                                <div class="form-group col-md-1">
+                                    <label for="truck_number">Truck#</label>
                                     <input type="text" class="form-control" name="truck_number[]" >
+                                </div>
+                                <div class="form-group col-md-1">
+                                    <label for="ghat_id">Ghat</label>
+                                    <select class="form-control" name="ghat_id[]" id="ghat_id">
+                                        <option value="">Select</option>
+                                        @foreach ($ghats as $ghat)
+                                        <option value="{{$ghat->id}}">{{$ghat->name}}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="form-group col-md-1">
                                     <label for="qty">Quantity</label>
@@ -220,9 +229,18 @@
                       @endforeach
                   </select>
               </div>
-              <div class="form-group col-md-2">
+              <div class="form-group col-md-1">
                   <input type="text" class="form-control" name="truck_number[]" >
               </div>
+              
+                <div class="form-group col-md-1">
+                    <select class="form-control" name="ghat_id[]" id="ghat_id">
+                        <option value="">Select</option>
+                        @foreach ($ghats as $ghat)
+                        <option value="{{$ghat->id}}">{{$ghat->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
               <div class="form-group col-md-1">
                   <input type="number" class="form-control" name="qty[]" >
               </div>
