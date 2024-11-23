@@ -44,7 +44,8 @@ class ProgramController extends Controller
         $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $ghats = Ghat::select('id','name')->orderby('id','DESC')->where('status',1)->get();
-        return view('admin.program.create', compact('clients','mvassels','lvassels','vendors','ghats'));
+        $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
+        return view('admin.program.create', compact('clients','mvassels','lvassels','vendors','ghats','pumps'));
     }
 
 
@@ -67,11 +68,11 @@ class ProgramController extends Controller
         } while (Program::where('programid', $uprogramid)->exists()); 
 
         $vendorIds = $request->input('vendor_id');
-        $ghats = $request->input('ghat_id');
+        $destinations = $request->input('destination_id');
         $truckNumbers = $request->input('truck_number');
         $qtys = $request->input('qty');
         $challanNos = $request->input('challan_no');
-        $lineCharges = $request->input('line_charge');
+        $rate_per_qtys = $request->input('rate_per_qty');
         $tokenfees = $request->input('token_fee');
         $partyNames = $request->input('party_name');
         $amounts = $request->input('amount');
@@ -101,13 +102,12 @@ class ProgramController extends Controller
                 $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
                 $invdtl->client_id = $request->input('client_id');
                 $invdtl->vendor_id = $vendorIds[$key]; 
-                $invdtl->ghat_id = $ghats[$key]; 
+                $invdtl->ghat_id = $request->input('ghat_id'); 
                 $invdtl->truck_number = $truckNumbers[$key]; 
                 $invdtl->qty = $qtys[$key]; 
                 $invdtl->challan_no = $challanNos[$key]; 
-                $invdtl->line_charge = $lineCharges[$key]; 
-                $invdtl->token_fee = $tokenfees[$key]; 
-                $invdtl->party_name = $partyNames[$key]; 
+                $invdtl->destination_id = $destinations[$key]; 
+                $invdtl->rate_per_qty = $rate_per_qtys[$key]; 
                 $invdtl->amount = $amounts[$key]; 
                 $invdtl->created_by = Auth::user()->id;
                 $invdtl->save();

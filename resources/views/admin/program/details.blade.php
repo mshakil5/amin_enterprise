@@ -146,8 +146,7 @@
                             <input type="number" class="form-control" id="fuelqty" name="fuelqty">
                         </div>
                       </div>
-                    
-                  </div>
+                    </div>
 
                   <div class="form-group">
                       <label for="paymentAmount">Payment Amount <span style="color: red;">*</span></label>
@@ -157,7 +156,7 @@
                   <div class="form-group">
                     <label for="receiver_name">Receiver Name<span style="color: red;">*</span></label>
                     <input type="text" class="form-control" id="receiver_name" name="receiver_name">
-                </div>
+                  </div>
                   
                 </div>
                 <div class="modal-footer">
