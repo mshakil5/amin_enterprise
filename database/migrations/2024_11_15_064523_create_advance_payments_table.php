@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreign('petrol_pump_id')->references('id')->on('petrol_pumps')->onDelete('cascade'); 
             $table->string('fuel_rate')->nullable();
             $table->string('fuelqty')->nullable();
+            $table->string('fueltoken')->nullable();
+            $table->double('cashamount',10,2)->default(0)->nullable();
             $table->double('amount',10,2)->default(0)->nullable();
             $table->string('receiver_name')->nullable();
             $table->string('payment_type')->nullable();

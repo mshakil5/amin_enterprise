@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdvancePayment;
 use App\Models\Client;
 use App\Models\Destination;
 use App\Models\LighterVassel;
@@ -14,6 +15,7 @@ use App\Models\ProgramDetail;
 use App\Models\ProgramDestination;
 use App\Models\DestinationSlabRate;
 use App\Models\Ghat;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -48,6 +50,17 @@ class ProgramController extends Controller
         return view('admin.program.create', compact('clients','mvassels','lvassels','vendors','ghats','pumps'));
     }
 
+    public function afterPostProgram()
+    {
+        $clients = Client::orderby('id','DESC')->where('status', 1)->get();
+        $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $ghats = Ghat::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
+        return view('admin.program.create', compact('clients','mvassels','lvassels','vendors','ghats','pumps'));
+    }
+
 
     public function store(Request $request)
     {
@@ -68,14 +81,13 @@ class ProgramController extends Controller
         } while (Program::where('programid', $uprogramid)->exists()); 
 
         $vendorIds = $request->input('vendor_id');
-        $destinations = $request->input('destination_id');
         $truckNumbers = $request->input('truck_number');
-        $qtys = $request->input('qty');
         $challanNos = $request->input('challan_no');
-        $rate_per_qtys = $request->input('rate_per_qty');
-        $tokenfees = $request->input('token_fee');
-        $partyNames = $request->input('party_name');
-        $amounts = $request->input('amount');
+        $fuelqtys = $request->input('fuelqty');
+        $cashamounts = $request->input('cashamount');
+        $fuel_rates = $request->input('fuel_rate');
+        $fueltokens = $request->input('fueltoken');
+        $petrol_pump_ids = $request->input('petrol_pump_id');
 
         $program = new Program();
         $program->date = $request->input('date');
@@ -83,13 +95,15 @@ class ProgramController extends Controller
         $program->client_id = $request->input('client_id');
         $program->mother_vassel_id = $request->input('mother_vassel_id');
         $program->lighter_vassel_id = $request->input('lighter_vassel_id');
+        // $program->ghat_id = $request->input('ghat_id');
         $program->consignmentno = $request->input('consignmentno');
         $program->headerid = $request->input('headerid');
         $program->qty_per_challan = $request->input('qty_per_challan');
-        $program->amount = $request->input('camount');
         $program->note = $request->input('note', null);
         $program->created_by = auth()->user()->id;
         $program->save();
+
+        
 
         foreach($vendorIds as $key => $value)
             {
@@ -102,15 +116,38 @@ class ProgramController extends Controller
                 $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
                 $invdtl->client_id = $request->input('client_id');
                 $invdtl->vendor_id = $vendorIds[$key]; 
-                $invdtl->ghat_id = $request->input('ghat_id'); 
                 $invdtl->truck_number = $truckNumbers[$key]; 
-                $invdtl->qty = $qtys[$key]; 
                 $invdtl->challan_no = $challanNos[$key]; 
-                $invdtl->destination_id = $destinations[$key]; 
-                $invdtl->rate_per_qty = $rate_per_qtys[$key]; 
-                $invdtl->amount = $amounts[$key]; 
                 $invdtl->created_by = Auth::user()->id;
                 $invdtl->save();
+
+
+                $fuelAmnt = $fuel_rates[$key] * $fuelqtys[$key];
+                $data = new AdvancePayment();
+                $data->program_id = $program->id;
+                $data->program_detail_id  = $invdtl->id;
+                $data->vendor_id = $vendorIds[$key];
+                $data->cashamount = $cashamounts[$key];
+                $data->petrol_pump_id = $petrol_pump_ids[$key];
+                $data->fuel_rate = $fuel_rates[$key];
+                $data->fuelqty = $fuelqtys[$key];
+                $data->fueltoken = $fueltokens[$key];
+                $data->amount = $fuelAmnt + $cashamounts[$key];
+                $data->date = date('Y-m-d');
+                $data->save();
+
+                $transaction = new Transaction();
+                $transaction->program_id = $program->id;
+                $transaction->vendor_id = $vendorIds[$key];
+                $transaction->amount = $data->amount;
+                $transaction->tran_type = "Advance";
+                $transaction->date = date('Y-m-d');
+                $transaction->save();
+                $transaction->tran_id = 'AD' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                $transaction->save();
+
+
+
             }
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
 

@@ -8,7 +8,8 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-2">
-          <a href="{{route('admin.addProgram')}}" class="btn btn-secondary my-3">Create</a>
+          <a href="{{route('admin.addProgram')}}" class="btn btn-secondary my-3">Before Challan Receive</a>
+          <a href="{{route('admin.afterPostProgram')}}" class="btn btn-secondary my-3">After Challan Receive</a>
       </div>
     </div>
   </div>

@@ -64,20 +64,18 @@
                                             <input type="text" class="form-control" id="consignmentno" name="consignmentno" >
                                         </div>
                                         
-                                        <div class="form-group col-md-6">
-                                            <label for="headerid">Header ID</label>
-                                            <input type="text" class="form-control" id="headerid" name="headerid" >
-                                        </div>
-
-                                        <div class="form-group col-md-6">
-                                            <label for="camount">Contract Amount</label>
-                                            <input type="number" class="form-control" id="camount" name="camount">
-                                        </div>
         
                                         
                                     </div>
+                                </div>
+
+            
+                                <div class="col-sm-6">
+                                    
                                     <div class="form-row">
 
+                                        
+        
                                         <div class="form-group col-md-4">
                                             <label for="mother_vassel_id">Mother Vassel <span style="color: red;">*</span>
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
@@ -97,8 +95,6 @@
                                             @enderror
                                             
                                         </div>
-        
-        
                                         <div class="form-group col-md-4">
                                             <label for="lighter_vassel_id">Lighter Vassel <span style="color: red;">*</span>
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
@@ -118,7 +114,6 @@
                                             @enderror
                                             
                                         </div>
-        
                                         <div class="form-group col-md-4">
                                             <label for="ghat_id">Ghat<span style="color: red;">*</span>
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
@@ -139,131 +134,126 @@
                                             
                                         </div>
         
-        
-                                        
                                         {{-- <div class="form-group col-md-8">
                                             <label for="description">Note</label>
                                             <textarea class="form-control" id="note" name="note"></textarea>
                                         </div> --}}
                                     </div>
                                 </div>
-
-            
-                                <div class="col-sm-6">
-                                    <div class="callout callout-success">
-                                        <h5>Add Advance to vendor</h5>
-                                        <div class="row">
-                                            <div class="form-group col-md-4">
-                                                <label for="payment_type">Advance Item<span style="color: red;">*</span></label>
-                                                <select name="payment_type" id="payment_type" class="form-control" >
-                                                    <option value="Fuel">Fuel</option>
-                                                    <option value="Money">Money</option>
+                            </div>
+                            
+                            <table class="table table-bordered" id="programTable">
+                                <thead>
+                                    <tr>
+                                        <th>Vendor <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Add New</span></th>
+                                        <th>Truck#</th>
+                                        <th>Challan</th>
+                                        <th>Cash Adv</th>
+                                        <th>Fuel qty</th>
+                                        <th>Fuel rate</th>
+                                        <th>Fuel adv</th>
+                                        <th>Fuel token</th>
+                                        <th>Pump</th>
+                                        <th>Total</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                                <option value="">Select Vendor</option>
+                                                @foreach ($vendors as $vendor)
+                                                <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" name="truck_number[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control" name="challan_no[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control cashamount" name="cashamount[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control fuelqty" name="fuelqty[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" >
+                                        </td>
+                                        <td> 
+                                            <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control" name="fueltoken[]" >
+                                        </td>
+                                        <td>
+                                            <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                                <option value="">Select</option>
+                                                @foreach ($pumps as $pump)
+                                                    <option value="{{$pump->id}}">{{$pump->name}}</option>
+                                                @endforeach
                                                 </select>
-                                            </div>
-    
-                                            <div class="form-group col-md-4">
-                                                <label for="paymentAmount">Payment Amount <span style="color: red;">*</span></label>
-                                                <input type="number" class="form-control" id="paymentAmount" name="paymentAmount" placeholder="Enter payment amount">
-                                            </div>
-    
-                                            <div class="form-group  col-md-4">
-                                                <label for="receiver_name">Receiver Name<span style="color: red;">*</span></label>
-                                                <input type="text" class="form-control" id="receiver_name" name="receiver_name">
-                                            </div>
-                                        </div>
-                                        
-                                        
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
+                                        </td>
+                                    </tr>
 
-                                        <div id="fuelDiv">
-                                            
-                    
-                                            <div class="row">
-                                                <div class="form-group col-md-4">
-                                                    <label for="petrol_pump_id">Petrol Pump <span style="color: red;">*</span></label>
-                                                    <select name="petrol_pump_id" id="petrol_pump_id" class="form-control" >
-                                                    <option value="">Select</option>
-                                                    @foreach ($pumps as $pump)
-                                                        <option value="{{$pump->id}}">{{$pump->name}}</option>
-                                                    @endforeach
-                                                    </select>
-                                                </div>
-
-                                                <div class="form-group col-md-4">
-                                                <label for="fuel_rate">Fuel Rate <span style="color: red;">*</span></label>
-                                                <input type="number" class="form-control" id="fuel_rate" name="fuel_rate">
-                                                </div>
-                            
-                                                <div class="form-group col-md-4">
-                                                    <label for="fuelqty">Fuel Qty <span style="color: red;">*</span></label>
-                                                    <input type="number" class="form-control" id="fuelqty" name="fuelqty">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        
-                      
-                                    </div>
-                                </div>
-                            </div>
-                            
-
-                            <div class="form-row" id="progrmDtlDiv">
-                                <div class="form-group col-md-2">
-                                    <label for="vendor_id">Vendor</label>
-                                    <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Add New</span>
-                                    <select class="form-control" name="vendor_id[]" id="vendor_id">
-                                        <option value="">Select Vendor</option>
-                                        @foreach ($vendors as $vendor)
-                                        <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <label for="truck_number">Truck#</label>
-                                    <input type="text" class="form-control" name="truck_number[]" >
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="challan_no">Challan No</label>
-                                    <input type="number" class="form-control" name="challan_no[]" >
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <label for="qty">Quantity</label>
-                                    <input type="number" class="form-control" name="qty[]" >
-                                </div>
-
-                                <div class="form-group col-md-2">
-                                      <label for="destination_id">Destination<span style="color: red;">*</span></label>
-                                      <select name="destination_id" class="form-control" >
-                                          <option value="">Select</option>
-                                          @foreach (\App\Models\Destination::where('status', 1)->select('id','name')->get() as $destination)
-                                          <option value="{{$destination->id}}">{{$destination->name}}</option>
-                                          @endforeach
-                                      </select>
-                                </div>
-
-                                <div class="form-group col-md-1">
-                                    <label for="rate_per_qty">Slab rate</label>
-                                    <input type="number" class="form-control" name="rate_per_qty[]" value="">
-                                    {{-- <a class="btn btn-success destBtn" id="destinationBtn"> add rate </a>
-                                    <div class="allRates"></div> --}}
-                                </div>
+                                    <tr>
+                                        <td>
+                                            <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                                <option value="">Select Vendor</option>
+                                                @foreach ($vendors as $vendor)
+                                                <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" name="truck_number[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control" name="challan_no[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control cashamount" name="cashamount[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control fuelqty" name="fuelqty[]" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" >
+                                        </td>
+                                        <td> 
+                                            <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control" name="fueltoken[]" >
+                                        </td>
+                                        <td>
+                                            <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                                <option value="">Select</option>
+                                                @foreach ($pumps as $pump)
+                                                    <option value="{{$pump->id}}">{{$pump->name}}</option>
+                                                @endforeach
+                                                </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                                        </td>
+                                    </tr>
 
 
-                                <div class="form-group col-md-1">
-                                    <label for="amount">Total</label>
-                                    <input type="number" class="form-control" name="amount[]" value="" readonly>
-                                </div>
-                                
-
-                                <div class="form-group col-md-1">
-                                    <label>Action</label>
-                                    <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
-                                </div>
-                            </div>
-                            <div id="dynamic-rows">
-
-                            </div>
-
+                                </tbody>
+                            </table>
                             
 
                         </form>
@@ -329,7 +319,7 @@
             </form>
         </div>
     </div>
-  </div>
+</div>
   <!-- Destination end-->
 
 @endsection
@@ -340,206 +330,102 @@
   <!-- Dynamic Row Script -->
 <script>
   $(document).ready(function() {
+    // calculation
+    
+    function updateSummary() {
+        
+            var itemTotalAmount = 0;
+            var totalVatAmount = 0;
 
-    // $(document).on('click', '.add-rate-row', function() {
-    //       let newRow = `
-    //       <div class="form-row dynamic-rate-row">
-    //                 <div class="form-group col-md-3">
-    //                     <input type="number" class="form-control" name="maxqty[]"  value="">
-    //                 </div>
+            $('#programTable tbody tr').each(function() {
+                var fuelqty = parseFloat($(this).find('input.fuelqty').val()) || 0;
+                var fuel_rate = parseFloat($(this).find('input.fuel_rate').val()) || 0;
+                var cashamount = parseFloat($(this).find('input.cashamount').val()) || 0;
 
-    //                 <div class="form-group col-md-6">
-    //                     <input type="number" class="form-control" name="rate_per_qty[]" value="">
-    //                 </div>
+                var totalPrice = (fuelqty * fuel_rate).toFixed(2);
+                var totaladvance = (parseFloat(totalPrice) + parseFloat(cashamount)).toFixed(2);
 
-    //                 <div class="form-group col-md-1">
-    //                     <button type="button" class="btn btn-danger remove-rate-row"><i class="fas fa-minus"></i></button>
-    //                 </div>
-    //             </div>`;
+                $(this).find('input.fuel_amount').val(totalPrice);
+                $(this).find('input.totalamount').val(totaladvance);
 
-    //       $('#dynamic-rate-rows').append(newRow);
-    //   });
+                itemTotalAmount += parseFloat(totaladvance) || 0;
+                
+                console.log(totaladvance);
+            });
+
+            // $('#item_total_amount').val(itemTotalAmount.toFixed(2) || '0.00');
+            console.log(itemTotalAmount);
+        }
+
 
 
 
       $(document).on('click', '.add-row', function() {
           let newRow = `
-          <div class="form-row dynamic-row">
-            
-              <div class="form-group col-md-2">
-                  <select class="form-control" name="vendor_id[]" id="vendor_id">
-                      <option value="">Select Vendor</option>
-                      @foreach ($vendors as $vendor)
-                      <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                      @endforeach
-                  </select>
-              </div>
-              <div class="form-group col-md-1">
-                    <input type="text" class="form-control" name="truck_number[]" >
-                </div>
-                <div class="form-group col-md-2">
-                    <input type="number" class="form-control" name="challan_no[]" >
-                </div>
-                <div class="form-group col-md-1">
-                    <input type="number" class="form-control" name="qty[]" >
-                </div>
+                        <tr>
+                            <td>
+                                <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                    <option value="">Select Vendor</option>
+                                    @foreach ($vendors as $vendor)
+                                    <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="truck_number[]" >
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" name="challan_no[]" >
+                            </td>
+                            <td>
+                                <input type="number" class="form-control cashamount" name="cashamount[]" >
+                            </td>
+                            <td>
+                                <input type="number" class="form-control fuelqty" name="fuelqty[]" >
+                            </td>
+                            <td>
+                                <input type="number" class="form-control fuel_rate" name="fuel_rate[]" >
+                            </td>
+                            <td> 
+                                <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" name="fueltoken[]" >
+                            </td>
+                            <td>
+                                <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                    <option value="">Select</option>
+                                    @foreach ($pumps as $pump)
+                                        <option value="{{$pump->id}}">{{$pump->name}}</option>
+                                    @endforeach
+                                    </select>
+                            </td>
+                            <td>
+                                <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                            </td>
+                        </tr>`;
 
-                <div class="form-group col-md-2">
-                    <select name="destination_id" class="form-control" >
-                        <option value="">Select</option>
-                        @foreach (\App\Models\Destination::where('status', 1)->select('id','name')->get() as $destination)
-                        <option value="{{$destination->id}}">{{$destination->name}}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group col-md-2">
-                    <input type="number" class="form-control" name="rate_per_qty[]" value="">
-                </div>
-                <div class="form-group col-md-1">
-                    <input type="number" class="form-control" name="amount[]" value="" readonly>
-                </div>
-              
-              <div class="form-group col-md-1">
-                  <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
-              </div>
-
-          </div>`;
-
-          $('#dynamic-rows').append(newRow);
+          $('#programTable tbody').append(newRow);
       });
 
-      $(document).on('click', '.remove-row', function() {
-          $(this).closest('.dynamic-row').remove();
-      });
 
-      $(document).on('click', '.remove-rate-row', function() {
-          $(this).closest('.dynamic-rate-row').remove();
-      });
-  });
-</script>
-
-<script>
-
-    $(function() {
-      $('#fuelDiv').show(); 
-        $('#payment_type').change(function(){
-            if($('#payment_type').val() == 'Money') {
-                $('#fuelDiv').hide();
-            } else { 
-              $('#fuelDiv').show(); 
-            } 
+        $(document).on('click', '.remove-row', function() {
+            $(this).closest('tr').remove();
+            updateSummary();
         });
-    });
 
-    // add destination
-    // $("#progrmDtlDiv").on('click', '.destBtn', function () {
-    //     $('#destModal').modal('show');
-    //     let allRates = $(this).closest('.allRates');
-    //     $('#rateForm').on('click', '#newRateBtn', function () {
-    //         let form = $(this).closest('form');
-    //         let qtyValues = [];
-    //         let amountValues = [];
+        $(document).on('input', '#programTable input.fuelqty, #programTable input.fuel_rate, #programTable input.cashamount', function() {
+            updateSummary();
+        });
 
-    //         // Get all qty values within the closest form
-    //         form.find('.maxqty').each(function () {
-    //             qtyValues.push($(this).val());
-    //         });
-
-    //         // Get all amount values within the closest form
-    //         form.find('.rate_per_qty').each(function () {
-    //             amountValues.push($(this).val());
-    //         });
-
-    //         // Append the data to the closest allRates
-    //         for (let i = 0; i < qtyValues.length; i++) {
-    //             if (qtyValues[i] || amountValues[i]) { // Add only if values are present
-    //                 let rateEntry = `
-    //                     <div class="rateEntry">
-    //                         Qty: ${qtyValues[i]} | Amount: ${amountValues[i]}
-    //                         <button class="closeRate">X</button>
-    //                     </div>
-    //                 `;
-    //                 allRates.append(rateEntry);
-    //                 // $('#dynamic-rate-rows').append(rateEntry);
-    //                 console.log(rateEntry);
-    //             }
-    //         }
-
-    //         console.log(allRates);
-
-    //         // Event delegation for dynamically created close buttons
-    //         $(document).on('click', '.closeRate', function () {
-    //             $(this).parent('.rateEntry').remove();
-    //         });
-
-    //         // console.log('Quantities:', qtyValues);
-    //         // console.log('Amounts:', amountValues);
-    //     });
-        
-    // });
-
-    
-
-  $(document).ready(function () {
-    
-      //header for csrf-token is must in laravel
-      $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
-      //
-      var url = "{{URL::to('/admin/destination')}}";
-      var upurl = "{{URL::to('/admin/destination-update')}}";
-      // console.log(url);
-      $("#addBtn2").click(function(){
-        
-              var form_data = new FormData();
-              form_data.append("name", $("#name").val());
-              form_data.append("address", $("#address").val());
-              form_data.append("client_id", $("#client_id").val());
-              $.ajax({
-                url: url,
-                method: "POST",
-                contentType: false,
-                processData: false,
-                data:form_data,
-                success: function (d) {
-                    if (d.status == 303) {
-                        $(".ermsg").html(d.message);
-                    }else if(d.status == 300){
-
-                      $(".ermsg").html(d.message);
-                      window.setTimeout(function(){location.reload()},2000)
-                    }
-                },
-                error: function (d) {
-                    console.log(d);
-                }
-            });
-            
-          //create  end
-          
-      });
-      //Edit
-      $("#contentContainer").on('click','#EditBtn', function(){
-          //alert("btn work");
-          codeid = $(this).attr('rid');
-          //console.log($codeid);
-          info_url = url + '/'+codeid+'/edit';
-          //console.log($info_url);
-          $.get(info_url,{},function(d){
-              populateForm(d);
-              pagetop();
-          });
-      });
-      //Edit  end
-      
 
       
-      function clearform(){
-          $('#createThisForm')[0].reset();
-          $("#addBtn").val('Create');
-      }
   });
 </script>
+
 
 <!-- Create Program Start -->
 <script>
@@ -566,17 +452,6 @@
                     
                     $(".ermsg").html(response.message);
                     window.setTimeout(function(){location.reload()},2000)
-
-                    // swal({
-                    //     text: "Created successfully",
-                    //     icon: "success",
-                    //     button: {
-                    //         text: "OK",
-                    //         className: "swal-button--confirm"
-                    //     }
-                    // }).then(() => {
-                    //     // location.reload();
-                    // });
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseJSON.message);
@@ -589,29 +464,6 @@
             });
         });
 
-        $('#product_code').on('keyup', function() {
-            let productCode = $(this).val().trim();
-
-            if (productCode.length >= 2) {
-                $.ajax({
-                    url: "{{ route('programStore') }}",
-                    method: "GET",
-                    data: { product_code: productCode },
-                    success: function(response) {
-                        if (response.exists) {
-                            $('#productCodeError').text('This product code is already in use.');
-                            $('#addBtn').attr('disabled', true);
-                        } else {
-                            $('#productCodeError').text('');
-                            $('#addBtn').attr('disabled', false);
-                        }
-                    }
-                });
-            } else {
-                $('#productCodeError').text('');
-                $('#addBtn').attr('disabled', true);
-            }
-        });
     });
 </script>
 <!-- Create Program End -->

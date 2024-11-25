@@ -16,10 +16,9 @@ return new class extends Migration
             $table->string('date')->nullable();
             $table->string('programid')->nullable();
             $table->string('consignmentno')->nullable();
-
+            $table->string('headerid')->nullable();
             $table->unsignedBigInteger('program_id')->nullable();
             $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade'); 
-
             $table->unsignedBigInteger('mother_vassel_id')->nullable();
             $table->foreign('mother_vassel_id')->references('id')->on('mother_vassels')->onDelete('cascade'); 
             $table->unsignedBigInteger('lighter_vassel_id')->nullable();
@@ -30,12 +29,15 @@ return new class extends Migration
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade'); 
             $table->unsignedBigInteger('ghat_id')->nullable();
             $table->foreign('ghat_id')->references('id')->on('ghats')->onDelete('cascade'); 
+            $table->unsignedBigInteger('destination_id')->nullable();
+            $table->foreign('destination_id')->references('id')->on('destinations')->onDelete('cascade'); 
             $table->string('truck_number')->nullable();
             $table->string('qty')->nullable();
             $table->string('challan_no')->nullable();
             $table->string('line_charge')->nullable();
             $table->string('token_fee')->nullable();
             $table->string('party_name')->nullable();
+            $table->double('rate_per_qty',10,2)->default(0)->nullable();
             $table->double('amount',10,2)->default(0)->nullable();
             $table->double('rcv_amount',10,2)->default(0)->nullable();
             $table->double('due_amount',10,2)->default(0)->nullable();
