@@ -23,4 +23,9 @@ class ProgramDetail extends Model
     {
         return $this->hasOne(ProgramDestination::class);
     }
+
+    public function advancePayment()
+    {
+        return $this->hasOne(AdvancePayment::class);
+    }
 }

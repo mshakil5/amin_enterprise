@@ -104,6 +104,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/program-edit/{id}', [ProgramController::class, 'programEdit'])->name('admin.programEdit');
     Route::get('/add-program', [ProgramController::class, 'createProgram'])->name('admin.addProgram');
     Route::get('/after-challan-rcv', [ProgramController::class, 'afterPostProgram'])->name('admin.afterPostProgram');
+    Route::post('/check-challan', [ProgramController::class, 'checkChallan'])->name('admin.checkChallan');
     Route::get('/program-delete/{id}', [ProgramController::class, 'prgmDelete']);
     Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
     Route::post('/update-program', [ProgramController::class, 'programUpdate'])->name('programUpdate');

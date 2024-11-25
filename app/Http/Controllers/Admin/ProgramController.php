@@ -58,7 +58,7 @@ class ProgramController extends Controller
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $ghats = Ghat::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
-        return view('admin.program.create', compact('clients','mvassels','lvassels','vendors','ghats','pumps'));
+        return view('admin.program.afterchallan', compact('clients','mvassels','lvassels','vendors','ghats','pumps'));
     }
 
 
@@ -425,6 +425,24 @@ class ProgramController extends Controller
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
 
         return response()->json(['status'=> 300,'message'=>$message,'allrqt'=>$allrqt ]);
+    }
+
+
+
+    public function checkChallan(Request $request)
+    {
+        
+        $data = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('date', $request->date)->get();
+        
+        if ($data) {
+            $program = Program::where('id', $data->program_id)->first();
+        } else {
+            $program = '';
+        }
+        
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan found.</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program]);
     }
 
 
