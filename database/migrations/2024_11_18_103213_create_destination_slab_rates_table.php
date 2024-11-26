@@ -14,18 +14,15 @@ return new class extends Migration
         Schema::create('destination_slab_rates', function (Blueprint $table) {
             $table->id();
             $table->string('date')->nullable();
-            $table->unsignedBigInteger('program_destination_id')->nullable();
-            $table->foreign('program_destination_id')->references('id')->on('program_destinations')->onDelete('cascade'); 
-            $table->unsignedBigInteger('vendor_id')->nullable();
-            $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade'); 
-            $table->unsignedBigInteger('program_id')->nullable();
-            $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade'); 
-            $table->unsignedBigInteger('program_detail_id')->nullable();
-            $table->foreign('program_detail_id')->references('id')->on('program_details')->onDelete('cascade');
-
+            $table->string('title')->nullable();
+            $table->unsignedBigInteger('destination_id')->nullable();
+            $table->foreign('destination_id')->references('id')->on('destinations')->onDelete('cascade'); 
+            $table->unsignedBigInteger('ghat_id')->nullable();
+            $table->foreign('ghat_id')->references('id')->on('ghats')->onDelete('cascade');
             $table->integer('minqty')->default(0)->nullable();
             $table->integer('maxqty')->default(0)->nullable();
-            $table->double('rate_per_qty',10,2)->default(0)->nullable();
+            $table->double('below_rate_per_qty',10,2)->default(0)->nullable();
+            $table->double('above_rate_per_qty',10,2)->default(0)->nullable();
             $table->longText('note')->nullable();
             $table->boolean('status')->default(1); 
             // 1= new or processing, 0= cancel, 2=hold, 3=complete 

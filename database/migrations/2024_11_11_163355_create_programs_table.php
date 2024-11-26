@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('date')->nullable();
             $table->string('programid')->nullable();
-            $table->string('headerid')->nullable();
             $table->string('consignmentno')->nullable();
             $table->unsignedBigInteger('mother_vassel_id')->nullable();
             $table->foreign('mother_vassel_id')->references('id')->on('mother_vassels')->onDelete('cascade'); 
@@ -23,6 +22,8 @@ return new class extends Migration
             $table->foreign('lighter_vassel_id')->references('id')->on('lighter_vassels')->onDelete('cascade'); 
             $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
+            $table->unsignedBigInteger('ghat_id')->nullable();
+            $table->foreign('ghat_id')->references('id')->on('ghats')->onDelete('cascade');
             $table->integer('qty_per_challan')->default(0)->nullable();
             $table->double('amount',10,2)->default(0)->nullable();
             $table->double('rcv_amount',10,2)->default(0)->nullable();

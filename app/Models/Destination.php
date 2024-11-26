@@ -13,4 +13,12 @@ class Destination extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function destinationSlabRate()
+    {
+        return $this->hasMany(DestinationSlabRate::class);
+    }
+
+    
+
 }

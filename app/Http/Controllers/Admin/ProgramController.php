@@ -95,9 +95,8 @@ class ProgramController extends Controller
         $program->client_id = $request->input('client_id');
         $program->mother_vassel_id = $request->input('mother_vassel_id');
         $program->lighter_vassel_id = $request->input('lighter_vassel_id');
-        // $program->ghat_id = $request->input('ghat_id');
+        $program->ghat_id = $request->input('ghat_id');
         $program->consignmentno = $request->input('consignmentno');
-        $program->headerid = $request->input('headerid');
         $program->qty_per_challan = $request->input('qty_per_challan');
         $program->note = $request->input('note', null);
         $program->created_by = auth()->user()->id;
@@ -115,6 +114,7 @@ class ProgramController extends Controller
                 $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
                 $invdtl->lighter_vassel_id = $request->input('lighter_vassel_id');
                 $invdtl->client_id = $request->input('client_id');
+                $invdtl->ghat_id = $request->input('ghat_id');
                 $invdtl->vendor_id = $vendorIds[$key]; 
                 $invdtl->truck_number = $truckNumbers[$key]; 
                 $invdtl->challan_no = $challanNos[$key]; 
@@ -276,7 +276,10 @@ class ProgramController extends Controller
         
         $validator = Validator::make($request->all(), [
             'destination_id' => 'required',
-            'amount.*' => 'required',
+            'ghat_id' => 'required',
+            'qty' => 'required',
+            'below_rate_per_qty' => 'required',
+            'above_rate_per_qty' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -285,36 +288,18 @@ class ProgramController extends Controller
         }
 
 
-        $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
-        $rates = $request->input('rate_per_qty');
-        $minqtys = $request->input('minqty');
-        $maxqtys = $request->input('maxqty');
+        $prgmDtl = DestinationSlabRate::where('ghat_id', $request->ghat_id)->where('destination_id', $request->destination_id)->first();
 
-        $program = new ProgramDestination();
-        $program->vendor_id = $request->input('vendorId');
-        $program->destination_id = $request->input('destination_id');
-        $program->program_id = $prgmDtl->program_id;
-        $program->program_detail_id = $request->prgmdtlid;
-        $program->created_by = auth()->user()->id;
-        $program->save();
-
-        foreach($rates as $key => $value)
-            {
-                $invdtl = new DestinationSlabRate();
-                $invdtl->program_destination_id = $program->id;
-                $invdtl->vendor_id = $request->input('vendorId');
-                $invdtl->program_id = $prgmDtl->program_id;
-                $invdtl->program_detail_id = $request->prgmdtlid;
-                if ($key == 0) {
-                    $invdtl->minqty = 1;
-                } else {
-                    $invdtl->minqty = $maxqtys[$key-1] + 1;
-                }
-                $invdtl->maxqty = $maxqtys[$key]; 
-                $invdtl->rate_per_qty = $rates[$key]; 
-                $invdtl->created_by = Auth::user()->id;
-                $invdtl->save();
-            }
+        $invdtl = new DestinationSlabRate();
+        $invdtl->date = date('Y-m-d');
+        $invdtl->destination_id = $request->destination_id;
+        $invdtl->ghat_id = $request->ghat_id;
+        $invdtl->maxqty = $request->qty;
+        $invdtl->below_rate_per_qty = $request->below_rate_per_qty;
+        $invdtl->above_rate_per_qty = $request->above_rate_per_qty;
+        $invdtl->title = $request->title;
+        $invdtl->created_by = Auth::user()->id;
+        $invdtl->save();
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
 
         return response()->json(['status'=> 300,'message'=>$message]);
@@ -432,10 +417,16 @@ class ProgramController extends Controller
     public function checkChallan(Request $request)
     {
         
-        $data = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('date', $request->date)->get();
+        $data = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('date', $request->date)->first();
         
         if ($data) {
             $program = Program::where('id', $data->program_id)->first();
+
+
+
+
+
+
         } else {
             $program = '';
         }
