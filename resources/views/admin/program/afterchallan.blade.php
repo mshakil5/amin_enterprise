@@ -173,51 +173,12 @@
                                         <th>Fuel rate</th>
                                         <th>Fuel adv</th>
                                         <th>Fuel token</th>
-                                        <th>Pump</th>
                                         <th>Total</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <select class="form-control" id="vendor_id">
-                                                <option value="">Select Vendor</option>
-                                                @foreach ($vendors as $vendor)
-                                                <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" id="truck_number" >
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" id="cashamount" >
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" id="fuelqty" >
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" id="fuel_rate" >
-                                        </td>
-                                        <td> 
-                                            <input type="number" class="form-control" id="fuel_amount" readonly >
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" id="fueltoken" >
-                                        </td>
-                                        <td>
-                                            <select id="petrol_pump_id" class="form-control" >
-                                                <option value="">Select</option>
-                                                @foreach ($pumps as $pump)
-                                                    <option value="{{$pump->id}}">{{$pump->name}}</option>
-                                                @endforeach
-                                                </select>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" id="amount" value="" readonly>
-                                        </td>
-                                    </tr>
-
+                                    
                                 </tbody>
                             </table>
 
@@ -359,7 +320,7 @@
                                 <input type="number" class="form-control" id="above_rate_per_qty" name="above_rate_per_qty" >
                             </div>
                             <div class="form-group col-md-12">
-                                <button type="button" form="createThisForm" id="slabRateBtn"  class="btn btn-secondary">Submit</button>
+                                <button type="button" id="slabRateBtn"  class="btn btn-secondary">Submit</button>
                                 <div id="loader" style="display: none;">
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                     Loading...
@@ -441,22 +402,14 @@
                 },
                 success: function(response) {
                     
-                    console.log(response);
+                    console.log(response.data);
                     $("#mother_vassel_id").val(response.program.mother_vassel_id);
                     $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
+                    $("#ghat_id").val(response.program.ghat_id);
                     $("#consignmentno").val(response.program.consignmentno);
-                    $("#vendor_id").val(response.data.advance_payment.vendor_id);
-
-                    $("#petrol_pump_id").val(response.data.advance_payment.petrol_pump_id);
-                    $("#fuel_rate").val(response.data.advance_payment.fuel_rate);
-                    $("#fuelqty").val(response.data.advance_payment.fuelqty);
-                    $("#fueltoken").val(response.data.advance_payment.fueltoken);
-                    $("#cashamount").val(response.data.advance_payment.cashamount);
-                    $("#amount").val(response.data.advance_payment.amount);
-                    $("#advance").val(response.data.advance_payment.amount);
-                    $("#fuel_amount").val(response.data.advance_payment.fuel_rate * response.data.advance_payment.fuelqty);
-                    $("#truck_number").val(response.data.truck_number);
                     $(".ermsg").html(response.message);
+
+                    $('#programTable tbody').append(response.data);
                     
                 },
                 error: function(xhr, status, error) {

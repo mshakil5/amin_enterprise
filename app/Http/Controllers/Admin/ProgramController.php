@@ -417,23 +417,68 @@ class ProgramController extends Controller
     public function checkChallan(Request $request)
     {
         
-        $data = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('date', $request->date)->first();
+        $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('date', $request->date)->first();
         
-        if ($data) {
-            $program = Program::where('id', $data->program_id)->first();
+        if ($chkprgmid) {
 
+            $prgmdtls = ProgramDetail::with('advancePayment')
+                                    ->where('status',1)
+                                    ->where('challan_no', $request->challan_no)
+                                    ->where('date', $request->date)
+                                    ->get();
 
+            $program = Program::where('id', $chkprgmid->program_id)->first();
+            $prop = '';
+        
+            foreach ($prgmdtls as $prgmdtl){
+                // <!-- Single Property Start -->
+                $prop.= '<tr>
+                            <td>
+                                '.$prgmdtl->advancePayment->vendor->name.'
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="truck_number" value="'.$prgmdtl->truck_number.'">
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" id="cashamount"  value="'.$prgmdtl->advancePayment->cashamount.'">
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" id="fuelqty"  value="'.$prgmdtl->advancePayment->fuelqty.'">
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" id="fuel_rate"  value="'.$prgmdtl->advancePayment->fuel_rate.'">
+                            </td>
+                            <td> 
+                                <input type="number" class="form-control" id="fuel_amount" readonly  value="'.$prgmdtl->advancePayment->fuelqty * $prgmdtl->advancePayment->fuel_rate.'">
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" id="fueltoken" value="'.$prgmdtl->advancePayment->fueltoken.'">
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" id="amount" readonly  value="'.$prgmdtl->advancePayment->amount.'">
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-success"><i class="fas fa-arrow-right"></i></a>
+                            </td>
+                        </tr>';
+            }
 
+            $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan found.</b></div>";
 
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program]);
 
 
         } else {
-            $program = '';
+
+
+            $program = ' ';
+            $data = ' ';
+
+            $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan No not  found.</b></div>";
+
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program]);
         }
         
-        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan found.</b></div>";
-
-        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program]);
     }
 
 
