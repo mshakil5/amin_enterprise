@@ -220,7 +220,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            
+
                                         </tbody>
                                         <tfoot>
                                             <tr>
@@ -231,7 +231,7 @@
                                             <tr>
                                                 <td></td>
                                                 <td>Advance</td>
-                                                <td></td>
+                                                <td><span id="advanceAmnt"></span></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -476,7 +476,19 @@
 </script>
 <!-- Check slab rate End -->
 
+<script>
+    // return stock
+    $("#programTable").on('click','.addrateThis', function(){
+        alert('work');
+        advAmnt = $(this).attr('data-adv');
+        prgmDtlId = $(this).attr('data-pdtlid');
+        console.log(advAmnt, prgmDtlId);
+        $("#advanceAmnt").html(advAmnt);
 
+
+    });
+// return stock end
+</script>
 
 
 <!-- Create Destination -->

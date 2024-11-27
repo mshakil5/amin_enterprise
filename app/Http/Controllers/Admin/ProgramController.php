@@ -458,7 +458,7 @@ class ProgramController extends Controller
                                 <input type="number" class="form-control" id="amount" readonly  value="'.$prgmdtl->advancePayment->amount.'">
                             </td>
                             <td>
-                                <a class="btn btn-sm btn-success"><i class="fas fa-arrow-right"></i></a>
+                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'"><i class="fas fa-arrow-right"></i></span>
                             </td>
                         </tr>';
             }
