@@ -105,6 +105,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/add-program', [ProgramController::class, 'createProgram'])->name('admin.addProgram');
     Route::get('/after-challan-rcv', [ProgramController::class, 'afterPostProgram'])->name('admin.afterPostProgram');
     Route::post('/check-challan', [ProgramController::class, 'checkChallan'])->name('admin.checkChallan');
+    Route::post('/check-slab-rate', [ProgramController::class, 'checkSlabRate'])->name('admin.checkSlabRate');
     Route::get('/program-delete/{id}', [ProgramController::class, 'prgmDelete']);
     Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
     Route::post('/update-program', [ProgramController::class, 'programUpdate'])->name('programUpdate');
@@ -112,7 +113,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // vendor advance
     Route::post('/vendor-advance-pay', [TransactionController::class,'vendorAdvancePay'])->name('vendorAdvancePay');
     Route::post('/vendor-advance-transaction', [TransactionController::class,'vendorAdvanceTran'])->name('vendorAdvanceTran');
-    
+
     Route::post('/add-destination-slab-rate', [ProgramController::class,'addDestinationSlabRate'])->name('addDestinationSlabRate');
     Route::post('/get-destination-slab-rate', [ProgramController::class,'getDestinationSlabRate'])->name('getDestinationSlabRate');
     Route::post('/destination-slab-rate-update', [ProgramController::class,'updateDestinationSlabRate'])->name('updateDestinationSlabRate');

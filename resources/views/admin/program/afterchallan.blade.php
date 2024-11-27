@@ -193,12 +193,12 @@
                                             <input type="text" class="form-control" id="headerid" >
                                         </div>
                                         <div class="form-group col-md-4">
-                                            <label for="totalqty">Quantity as per challan</label>
-                                            <input type="text" class="form-control" id="totalqty" >
+                                            <label for="totalqtyasperchallan">Quantity as per challan</label>
+                                            <input type="number" class="form-control" id="totalqtyasperchallan" >
                                         </div>
                                         <div class="form-group col-md-4">
-                                            <label for="totalqty">Destination</label>
-                                            <select class="form-control" id="destination_id">
+                                            <label for="destid">Destination</label>
+                                            <select class="form-control" id="destid" name="destid">
                                                 <option value="">Select destination</option>
                                                 @foreach (\App\Models\Destination::where('status', 1)->get() as $destination)
                                                 <option value="{{$destination->id}}">{{$destination->name}}</option>
@@ -211,7 +211,7 @@
                                 
                                 <div class="col-sm-6">
 
-                                    <table class="table table-bordered">
+                                    <table class="table table-bordered" id="rateTable">
                                         <thead>
                                             <tr>
                                                 <th>Qty</th>
@@ -220,11 +220,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td><input type="text" class="form-control" id="qty" ></td>
-                                                <td><input type="text" class="form-control" id="rate" ></td>
-                                                <td><input type="text" class="form-control" id="amnt" ></td>
-                                            </tr>
+                                            
                                         </tbody>
                                         <tfoot>
                                             <tr>
@@ -401,14 +397,11 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    
-                    console.log(response.data);
                     $("#mother_vassel_id").val(response.program.mother_vassel_id);
                     $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
                     $("#ghat_id").val(response.program.ghat_id);
                     $("#consignmentno").val(response.program.consignmentno);
                     $(".ermsg").html(response.message);
-
                     $('#programTable tbody').append(response.data);
                     
                 },
@@ -426,6 +419,65 @@
     });
 </script>
 <!-- Create Program End -->
+
+
+<!-- Check slab rate -->
+<script>
+    $(document).ready(function() {
+        $(document).on('change', '#destid', function(e) {
+            e.preventDefault();
+
+            var totalqtyasperchallan = $("#totalqtyasperchallan").val();
+
+            if (!totalqtyasperchallan) {
+                alert('Please input quantity as per challan first!');
+                $("#destid").val('');
+                return;
+            }
+            var formData = new FormData();
+            formData.append("destid", $("#destid").val());
+            formData.append("ghat", $("#ghat_id").val());
+            formData.append("challanqty", $("#totalqtyasperchallan").val());
+
+            $.ajax({
+                url: '{{ route("admin.checkSlabRate") }}',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    
+                    console.log(response);
+                    $('#rateTable tbody').append(response.rate);
+
+                    // $("#mother_vassel_id").val(response.program.mother_vassel_id);
+                    // $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
+                    // $("#ghat_id").val(response.program.ghat_id);
+                    // $("#consignmentno").val(response.program.consignmentno);
+                    // $(".ermsg").html(response.message);
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                    // console.error(xhr.responseText);
+                },
+                complete: function() {
+                    $('#loader').hide();
+                    $('#addBtn').attr('disabled', false);
+                }
+            });
+        });
+
+    });
+</script>
+<!-- Check slab rate End -->
+
+
+
 
 <!-- Create Destination -->
 <script>

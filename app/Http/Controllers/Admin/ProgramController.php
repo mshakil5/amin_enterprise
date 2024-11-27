@@ -483,4 +483,55 @@ class ProgramController extends Controller
 
 
 
+    public function checkSlabRate(Request $request)
+    {
+        $challanqty = $request->challanqty;
+        $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+        
+        if ($chkrate) {
+            $prop = '';
+            if ($challanqty > $chkrate->maxqty) {
+                $aboveqty = $challanqty - $chkrate->maxqty;
+
+                $prop.= '<tr>
+                            <td><input type="number" class="form-control" id="qty" value="'.$chkrate->maxqty.'" ></td>
+                            <td><input type="number" class="form-control" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control" id="amnt" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" ></td>
+                        </tr>
+                        <tr>
+                            <td><input type="number" class="form-control" id="qty" value="'.$aboveqty.'" ></td>
+                            <td><input type="number" class="form-control" id="rate" value="'.$chkrate->above_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control" id="amnt" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" ></td>
+                        </tr>';
+
+            } else {
+
+                $prop.= '<tr>
+                            <td><input type="number" class="form-control" id="qty" value="'.$challanqty.'" ></td>
+                            <td><input type="number" class="form-control" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control" id="amnt" value="'.$chkrate->below_rate_per_qty * $challanqty.'" ></td>
+                        </tr>';
+            }
+            
+            
+        
+                
+
+
+
+            $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate found</b></div>";
+
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop]);
+
+
+        }else {
+            $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate not found</b></div>";
+
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>'']);
+        }
+        
+    }
+
+
+
 }
