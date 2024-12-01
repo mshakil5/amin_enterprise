@@ -30,6 +30,22 @@ return new class extends Migration
             $table->foreign('ghat_id')->references('id')->on('ghats')->onDelete('cascade'); 
             $table->string('truck_number')->nullable();
             $table->string('challan_no')->nullable();
+            $table->string('after_date')->nullable();
+            $table->unsignedBigInteger('destination_id')->nullable();
+            $table->foreign('destination_id')->references('id')->on('destinations')->onDelete('cascade'); 
+            $table->string('headerid')->nullable();
+            $table->string('dest_qty')->nullable();
+            $table->double('line_charge',10,2)->default(0)->nullable();
+            $table->double('carrying_bill',10,2)->default(0)->nullable();
+            $table->double('scale_fee',10,2)->default(0)->nullable();
+            $table->double('other_cost',10,2)->default(0)->nullable();
+            $table->double('transportcost',10,2)->default(0)->nullable();
+            $table->double('additional_cost',10,2)->default(0)->nullable();
+            $table->double('advance',10,2)->default(0)->nullable();
+            $table->double('due',10,2)->default(0)->nullable();
+            $table->boolean('dest_status')->default(1); 
+            $table->boolean('tran_status')->default(0); 
+            // 0= not complete, 1=complete 
             $table->longText('note')->nullable();
             $table->boolean('rate_status')->default(0); 
             $table->boolean('status')->default(1); 
