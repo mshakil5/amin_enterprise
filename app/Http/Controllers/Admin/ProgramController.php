@@ -417,12 +417,13 @@ class ProgramController extends Controller
     public function checkChallan(Request $request)
     {
         
-        $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('date', $request->date)->first();
+        $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('mother_vassel_id', $request->mv_id)->where('date', $request->date)->first();
         
         if ($chkprgmid) {
 
             $prgmdtls = ProgramDetail::with('advancePayment')
                                     ->where('status',1)
+                                    ->where('mother_vassel_id', $request->mv_id)
                                     ->where('challan_no', $request->challan_no)
                                     ->where('date', $request->date)
                                     ->get();
@@ -471,8 +472,8 @@ class ProgramController extends Controller
         } else {
 
 
-            $program = ' ';
-            $data = ' ';
+            $program = 'empty';
+            $data = 'empty';
 
             $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan No not  found.</b></div>";
 
@@ -490,26 +491,28 @@ class ProgramController extends Controller
         
         if ($chkrate) {
             $prop = '';
+            $totalAmount = 0;
             if ($challanqty > $chkrate->maxqty) {
                 $aboveqty = $challanqty - $chkrate->maxqty;
-
+                $totalAmount = $totalAmount + $chkrate->above_rate_per_qty * $aboveqty + $chkrate->below_rate_per_qty * $chkrate->maxqty;
                 $prop.= '<tr>
-                            <td><input type="number" class="form-control" id="qty" value="'.$chkrate->maxqty.'" ></td>
-                            <td><input type="number" class="form-control" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control" id="amnt" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" ></td>
+                            <td><input type="number" class="form-control qty" id="qty" value="'.$chkrate->maxqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="amnt" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" readonly></td>
                         </tr>
                         <tr>
-                            <td><input type="number" class="form-control" id="qty" value="'.$aboveqty.'" ></td>
-                            <td><input type="number" class="form-control" id="rate" value="'.$chkrate->above_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control" id="amnt" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" ></td>
+                            <td><input type="number" class="form-control qty" id="qty" value="'.$aboveqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="rate" value="'.$chkrate->above_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="amnt" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" readonly ></td>
                         </tr>';
 
             } else {
 
+                $totalAmount = $totalAmount + $chkrate->below_rate_per_qty * $chkrate->maxqty;
                 $prop.= '<tr>
-                            <td><input type="number" class="form-control" id="qty" value="'.$challanqty.'" ></td>
-                            <td><input type="number" class="form-control" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control" id="amnt" value="'.$chkrate->below_rate_per_qty * $challanqty.'" ></td>
+                            <td><input type="number" class="form-control qty" id="qty" value="'.$challanqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="amnt" value="'.$chkrate->below_rate_per_qty * $challanqty.'" readonly></td>
                         </tr>';
             }
             
@@ -521,13 +524,13 @@ class ProgramController extends Controller
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate found</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop, 'totalAmount' => $totalAmount]);
 
 
         }else {
             $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate not found</b></div>";
-
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>'']);
+            $totalAmount = 0;
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>'', 'totalAmount' => $totalAmount]);
         }
         
     }

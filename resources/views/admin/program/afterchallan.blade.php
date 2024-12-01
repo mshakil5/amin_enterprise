@@ -46,11 +46,11 @@
                                     
                                     <div class="form-row">
                                         <div class="form-group col-md-2">
-                                            <label for="client_id">Client </label>
-                                            <select name="client_id" id="client_id" class="form-control">
+                                            <label for="mv_id">Mother Vassel </label>
+                                            <select name="mv_id" id="mv_id" class="form-control">
                                               <option value="">Select</option>
-                                              @foreach ($clients as $client)
-                                              <option value="{{$client->id}}">{{$client->name}}</option>
+                                              @foreach ($mvassels as $mvassel)
+                                              <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
                                               @endforeach
                                             </select>
                                         </div>
@@ -206,6 +206,25 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group col-md-3">
+                                            <label for="carrying_bill">Carrying Bill</label>
+                                            <input type="number" class="form-control" id="carrying_bill" >
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="scale_fee">Scale fee</label>
+                                            <input type="number" class="form-control" id="scale_fee" >
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="line_charge">Line Charge</label>
+                                            <input type="number" class="form-control" id="line_charge" >
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="other_cost">Other cost</label>
+                                            <input type="number" class="form-control" id="other_cost" >
+                                        </div>
+                                    </div>
                                 </div>
 
                                 
@@ -223,20 +242,26 @@
 
                                         </tbody>
                                         <tfoot>
+
                                             <tr>
                                                 <td></td>
                                                 <td>Total</td>
+                                                <td><input type="number" class="form-control" id="totalamount" name="totalamount" readonly></td>
+                                            </tr>
+                                            <tr>
                                                 <td></td>
+                                                <td>Additional cost</td>
+                                                <td><input type="number" class="form-control" id="additionalCost" name="additionalCost" readonly></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>Advance</td>
-                                                <td><span id="advanceAmnt"></span></td>
+                                                <td><input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>Due</td>
-                                                <td></td>
+                                                <td><input type="number" class="form-control" id="totalDue" name="totalDue" readonly></td>
                                             </tr>
                                             
                                         </tfoot>
@@ -252,7 +277,7 @@
                         </form>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" form="addadvThisForm" class="btn btn-secondary">Check</button>
+                        <button type="submit" form="addadvThisForm" class="btn btn-secondary">Submit</button>
                         <div id="loader" style="display: none;">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             Loading...
@@ -372,7 +397,47 @@
 @endsection
 @section('script')
 
+<script>
+      function updateSummary() {
+        
+        var itemTotalAmount = 0;
+        $('#rateTable tbody tr').each(function() {
+            var fuelqty = parseFloat($(this).find('input.qty').val()) || 0;
+            var fuel_rate = parseFloat($(this).find('input.rate').val()) || 0;
 
+            var totalPrice = (fuelqty * fuel_rate).toFixed(2);
+
+            $(this).find('input.rateunittotal').val(totalPrice);
+            var rateunittotal = parseFloat($(this).find('input.rateunittotal').val()) || 0;
+            
+
+            itemTotalAmount += parseFloat(rateunittotal) || 0;
+            console.log(itemTotalAmount);
+        });
+            // add other cost
+            var carrying_bill = parseFloat($('#carrying_bill').val()) || 0;
+            var scale_fee = parseFloat($('#scale_fee').val()) || 0;
+            var line_charge = parseFloat($('#line_charge').val()) || 0;
+            var other_cost = parseFloat($('#other_cost').val()) || 0;
+            var advanceAmnt = parseFloat($('#advanceAmnt').val()) || 0;
+            // add other cost
+        
+            var totalAdditionalCost = carrying_bill + scale_fee + line_charge + other_cost;
+            var totalDue = totalAdditionalCost + itemTotalAmount - advanceAmnt;
+            $("#totalamount").val(itemTotalAmount);
+            $("#additionalCost").val(totalAdditionalCost);
+            $("#totalDue").val(totalDue);
+    }
+
+    $(document).on('input', '#carrying_bill, #scale_fee, #line_charge, #other_cost', function() {
+        updateSummary();
+    });
+
+    $(document).on('input', '#rateTable input.qty, #rateTable input.rate, #rateTable input.rateunittotal', function() {
+        updateSummary();
+    });
+
+</script>
 
 <!-- Create Program Start -->
 <script>
@@ -397,12 +462,23 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    $("#mother_vassel_id").val(response.program.mother_vassel_id);
-                    $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
-                    $("#ghat_id").val(response.program.ghat_id);
-                    $("#consignmentno").val(response.program.consignmentno);
-                    $(".ermsg").html(response.message);
-                    $('#programTable tbody').append(response.data);
+                    if (response.data == "empty") {
+                        $("#mother_vassel_id").val('');
+                        $("#lighter_vassel_id").val('');
+                        $("#ghat_id").val('');
+                        $("#consignmentno").val('');
+                        $(".ermsg").html(response.message);
+                        $('#programTable tbody').html('');
+                    } else {
+                        // $("#totalAmount").val(response.totalAmount);
+                        $("#mother_vassel_id").val(response.program.mother_vassel_id);
+                        $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
+                        $("#ghat_id").val(response.program.ghat_id);
+                        $("#consignmentno").val(response.program.consignmentno);
+                        $(".ermsg").html(response.message);
+                        $('#programTable tbody').append(response.data);
+                    }
+                    
                     
                 },
                 error: function(xhr, status, error) {
@@ -451,8 +527,14 @@
                 },
                 success: function(response) {
                     
-                    console.log(response);
-                    $('#rateTable tbody').append(response.rate);
+                    console.log(response.totalAmount);
+                    if (response.totalAmount > 0) {
+                        $('#rateTable tbody').append(response.rate);
+                        $("#totalamount").val(response.totalAmount);
+                    } else {
+                        $('#rateTable tbody').html(' ');
+                        $("#totalamount").val(0);
+                    }
 
                     // $("#mother_vassel_id").val(response.program.mother_vassel_id);
                     // $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
@@ -479,13 +561,9 @@
 <script>
     // return stock
     $("#programTable").on('click','.addrateThis', function(){
-        alert('work');
         advAmnt = $(this).attr('data-adv');
         prgmDtlId = $(this).attr('data-pdtlid');
-        console.log(advAmnt, prgmDtlId);
-        $("#advanceAmnt").html(advAmnt);
-
-
+        $("#advanceAmnt").val(advAmnt);
     });
 // return stock end
 </script>
