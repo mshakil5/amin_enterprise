@@ -540,9 +540,17 @@ class ProgramController extends Controller
     public function afterPostProgramStore(Request $request)
     {
         
+        $validator = Validator::make($request->all(), [
+            'prgmdtlid' => 'required',
+            'destid' => 'required',
+            'headerid' => 'required',
+        ]);
+        
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
 
-
-        $program = 'empty';
         $data = $request->all();
         $prgmdtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
         $prgm = Program::where('id', $prgmdtl->program_id)->first();
@@ -588,7 +596,7 @@ class ProgramController extends Controller
 
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan completed.</b></div>";
 
-        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program]);
+        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$progrm]);
         
         
     }
