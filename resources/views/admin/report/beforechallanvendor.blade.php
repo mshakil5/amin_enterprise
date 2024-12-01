@@ -15,7 +15,7 @@
                     
                     <div class="card-body">
                         <div class="ermsg"> </div>
-                        <form action="{{route('beforePostingVendorReport')}}" method="GET">
+                        <form action="{{route('challanPostingVendorReport')}}" method="GET">
                             @csrf
 
                             <div class="row">
@@ -62,7 +62,7 @@
 
           <div class="card card-secondary">
             <div class="card-header">
-              <h3 class="card-title">After challan receive vendor statement</h3>
+              <h3 class="card-title">Mother Vassel wise challan-vendor statement</h3>
             </div>
             <!-- /.card-header -->
             <div class="card-body">

@@ -136,25 +136,20 @@
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="{{route('beforePostingVendorReport')}}" class="nav-link">
+            <a href="{{route('challanPostingVendorReport')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
-              <p>Before Challan Posting</p>
+              <p>Challan Posting Report</p>
             </a>
           </li>
           
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="far fa-circle nav-icon"></i>
-              <p>After Challan Posting</p>
-            </a>
-          </li>
+          
 
           
           
         </ul>
       </li>
 
-      {{-- <li class="nav-item">
+      <li class="nav-item">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
           <p>
@@ -211,13 +206,13 @@
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="{{route('admin.addProgram')}}" class="nav-link">
+            <a href="#" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Cash Book</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="{{route('admin.allProgram')}}" class="nav-link">
+            <a href="#" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Bank Book</p>
             </a>
@@ -227,7 +222,7 @@
       </li>
 
       <li class="nav-item">
-        <a href="#" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+        <a href="#" class="nav-link">
           <i class="nav-icon fas fa-th"></i>
           <p>
             Trial Balance
@@ -237,7 +232,7 @@
 
       
       <li class="nav-item">
-        <a href="#" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+        <a href="#" class="nav-link">
           <i class="nav-icon fas fa-th"></i>
           <p>
             P/L Statement
@@ -246,13 +241,13 @@
       </li>
 
       <li class="nav-item">
-        <a href="#" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
+        <a href="#" class="nav-link ">
           <i class="nav-icon fas fa-th"></i>
           <p>
             Financial Statement
           </p>
         </a>
-      </li> --}}
+      </li>
       
       
       

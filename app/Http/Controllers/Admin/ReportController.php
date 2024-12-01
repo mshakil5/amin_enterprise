@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function beforePostingVendorReport(Request $request)
+    public function challanPostingVendorReport(Request $request)
     {
         if ($request->mv_id) {
             $data = ProgramDetail::selectRaw('
