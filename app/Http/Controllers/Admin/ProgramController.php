@@ -418,7 +418,7 @@ class ProgramController extends Controller
     public function checkChallan(Request $request)
     {
         
-        $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('challan_no', $request->challan_no)->where('mother_vassel_id', $request->mv_id)->where('date', $request->date)->first();
+        $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('rate_status',0)->where('challan_no', $request->challan_no)->where('mother_vassel_id', $request->mv_id)->where('date', $request->date)->first();
         
         if ($chkprgmid) {
 
