@@ -496,23 +496,23 @@ class ProgramController extends Controller
                 $aboveqty = $challanqty - $chkrate->maxqty;
                 $totalAmount = $totalAmount + $chkrate->above_rate_per_qty * $aboveqty + $chkrate->below_rate_per_qty * $chkrate->maxqty;
                 $prop.= '<tr>
-                            <td><input type="number" class="form-control qty" id="qty" value="'.$chkrate->maxqty.'" ></td>
-                            <td><input type="number" class="form-control rate" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control rateunittotal" id="amnt" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" readonly></td>
+                            <td><input type="number" class="form-control qty" id="qty" name="qty[]" value="'.$chkrate->maxqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="rate" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="amnt" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" readonly></td>
                         </tr>
                         <tr>
-                            <td><input type="number" class="form-control qty" id="qty" value="'.$aboveqty.'" ></td>
-                            <td><input type="number" class="form-control rate" id="rate" value="'.$chkrate->above_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control rateunittotal" id="amnt" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" readonly ></td>
+                            <td><input type="number" class="form-control qty" id="qty" name="qty[]" value="'.$aboveqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="rate" name="rate[]" value="'.$chkrate->above_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="amnt" name="amnt[]" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" readonly ></td>
                         </tr>';
 
             } else {
 
                 $totalAmount = $totalAmount + $chkrate->below_rate_per_qty * $chkrate->maxqty;
                 $prop.= '<tr>
-                            <td><input type="number" class="form-control qty" id="qty" value="'.$challanqty.'" ></td>
-                            <td><input type="number" class="form-control rate" id="rate" value="'.$chkrate->below_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control rateunittotal" id="amnt" value="'.$chkrate->below_rate_per_qty * $challanqty.'" readonly></td>
+                            <td><input type="number" class="form-control qty" id="qty" name="qty[]" value="'.$challanqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="rate" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="amnt" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $challanqty.'" readonly></td>
                         </tr>';
             }
             
@@ -532,6 +532,49 @@ class ProgramController extends Controller
             $totalAmount = 0;
             return response()->json(['status'=> 300,'message'=>$message, 'data'=>'', 'totalAmount' => $totalAmount]);
         }
+        
+    }
+
+
+    public function afterPostProgramStore(Request $request)
+    {
+        
+
+
+        $program = 'empty';
+        $data = $request->all();
+        $prgmdtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
+        $prgm = Program::where('id', $prgmdtl->program_id)->first();
+
+
+        $progrmDest = new ProgramDestination();
+        $progrmDest->date = date('Y-m-d');
+        $progrmDest->destination_id = $request->destid;
+        $progrmDest->ghat_id = $prgm->ghat_id;
+        $progrmDest->program_id = $prgm->id;
+        $progrmDest->program_detail_id = $request->prgmdtlid;
+        $progrmDest->vendor_id = $prgmdtl->vendor_id;
+        $progrmDest->headerid = $request->headerid;
+        $progrmDest->dest_qty = $request->totalqtyasperchallan;
+        $progrmDest->challan_no = $prgmdtl->challan_no;
+
+        $progrmDest->line_charge = $request->line_charge;
+        $progrmDest->carrying_bill = $request->carrying_bill;
+        $progrmDest->scale_fee = $request->scale_fee;
+        $progrmDest->other_cost = $request->other_cost;
+
+        $progrmDest->transportcost = $request->totalamount;
+        $progrmDest->additional_cost = $request->additionalCost;
+        $progrmDest->advance = $request->advanceAmnt;
+        $progrmDest->due = $request->totalDue;
+        $progrmDest->save();
+
+
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan completed.</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program]);
+        
         
     }
 

@@ -68,10 +68,6 @@
                                         <div class="form-group col-md-2">
                                             <label>Action</label> <br>
                                             <button type="button" form="createThisForm" id="checkBtn"  class="btn btn-secondary">Check</button>
-                                            <div id="loader" style="display: none;">
-                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Loading...
-                                            </div>
                                         </div>
                                         
                                     </div>
@@ -95,8 +91,7 @@
                     <div class="card-body">
                         <div class="advermsg"> </div>
                         
-                        <form id="addadvThisForm">
-                            @csrf
+                        
 
                             <div class="row">
                                 <div class="col-sm-6">
@@ -182,6 +177,8 @@
                                 </tbody>
                             </table>
 
+                        <form id="addadvThisForm">
+                            @csrf
 
                             <div class="row">
                                 
@@ -190,11 +187,11 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="headerid">Header ID </label>
-                                            <input type="text" class="form-control" id="headerid" >
+                                            <input type="text" class="form-control" id="headerid" name="headerid">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="totalqtyasperchallan">Quantity as per challan</label>
-                                            <input type="number" class="form-control" id="totalqtyasperchallan" >
+                                            <input type="number" class="form-control" id="totalqtyasperchallan" name="totalqtyasperchallan">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="destid">Destination</label>
@@ -210,19 +207,19 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-3">
                                             <label for="carrying_bill">Carrying Bill</label>
-                                            <input type="number" class="form-control" id="carrying_bill" >
+                                            <input type="number" class="form-control" id="carrying_bill" name="carrying_bill" >
                                         </div>
                                         <div class="form-group col-md-3">
                                             <label for="scale_fee">Scale fee</label>
-                                            <input type="number" class="form-control" id="scale_fee" >
+                                            <input type="number" class="form-control" id="scale_fee" name="scale_fee" >
                                         </div>
                                         <div class="form-group col-md-3">
                                             <label for="line_charge">Line Charge</label>
-                                            <input type="number" class="form-control" id="line_charge" >
+                                            <input type="number" class="form-control" id="line_charge" name="line_charge" >
                                         </div>
                                         <div class="form-group col-md-3">
                                             <label for="other_cost">Other cost</label>
-                                            <input type="number" class="form-control" id="other_cost" >
+                                            <input type="number" class="form-control" id="other_cost" name="other_cost" >
                                         </div>
                                     </div>
                                 </div>
@@ -256,7 +253,7 @@
                                             <tr>
                                                 <td></td>
                                                 <td>Advance</td>
-                                                <td><input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly></td>
+                                                <td><input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly><input type="hidden" class="form-control" id="prgmdtlid" name="prgmdtlid" readonly></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -277,7 +274,7 @@
                         </form>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" form="addadvThisForm" class="btn btn-secondary">Submit</button>
+                        <button type="button" id="afterChallanBtn" form="addadvThisForm" class="btn btn-secondary">Submit</button>
                         <div id="loader" style="display: none;">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             Loading...
@@ -412,7 +409,7 @@
             
 
             itemTotalAmount += parseFloat(rateunittotal) || 0;
-            console.log(itemTotalAmount);
+            // console.log(itemTotalAmount);
         });
             // add other cost
             var carrying_bill = parseFloat($('#carrying_bill').val()) || 0;
@@ -526,8 +523,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    
-                    console.log(response.totalAmount);
                     if (response.totalAmount > 0) {
                         $('#rateTable tbody').append(response.rate);
                         $("#totalamount").val(response.totalAmount);
@@ -564,6 +559,7 @@
         advAmnt = $(this).attr('data-adv');
         prgmDtlId = $(this).attr('data-pdtlid');
         $("#advanceAmnt").val(advAmnt);
+        $("#prgmdtlid").val(prgmDtlId);
     });
 // return stock end
 </script>
@@ -591,7 +587,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log(response);
                     $(".dermsg").html(response.message);
                     $(this).attr('disabled', false);
                     
@@ -610,4 +605,49 @@
     });
 </script>
 <!--  Destination End -->
+
+
+<!--  Program after challan data store start -->
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '#afterChallanBtn', function(e) {
+            e.preventDefault();
+
+            // $(this).attr('disabled', true);
+            // $('#loader').show();
+
+            var formData = new FormData($('#addadvThisForm')[0]);
+
+            $.ajax({
+                url: '{{ route("after-challan-store") }}',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log(response);
+                    $(".ermsg").html(response.message);
+                    // window.setTimeout(function(){location.reload()},2000)
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                    // console.error(xhr.responseText);
+                },
+                complete: function() {
+                    $('#loader').hide();
+                    $('#addBtn').attr('disabled', false);
+                }
+            });
+        });
+
+    });
+</script>
+<!-- Program after challan data store End -->
+
+
+
 @endsection

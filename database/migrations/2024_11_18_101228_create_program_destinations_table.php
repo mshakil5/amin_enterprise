@@ -25,15 +25,21 @@ return new class extends Migration
             $table->unsignedBigInteger('program_detail_id')->nullable();
             $table->foreign('program_detail_id')->references('id')->on('program_details')->onDelete('cascade');
             $table->string('headerid')->nullable();
-            $table->string('qty')->nullable();
             $table->string('challan_no')->nullable();
-            $table->string('line_charge')->nullable();
-            $table->string('token_fee')->nullable();
-            $table->double('rate_per_qty',10,2)->default(0)->nullable();
-            $table->double('amount',10,2)->default(0)->nullable();
-            $table->double('rcv_amount',10,2)->default(0)->nullable();
-            $table->double('due_amount',10,2)->default(0)->nullable();
-            $table->double('cost',10,2)->default(0)->nullable(); 
+            $table->string('dest_qty')->nullable();
+
+            $table->double('line_charge',10,2)->default(0)->nullable();
+            $table->double('carrying_bill',10,2)->default(0)->nullable();
+            $table->double('scale_fee',10,2)->default(0)->nullable();
+            $table->double('other_cost',10,2)->default(0)->nullable();
+
+            $table->double('transportcost',10,2)->default(0)->nullable();
+            $table->double('additional_cost',10,2)->default(0)->nullable();
+            $table->double('advance',10,2)->default(0)->nullable();
+            $table->double('due',10,2)->default(0)->nullable();
+
+            $table->boolean('dest_status')->default(1); 
+            // 1= new or processing, 0= cancel, 2=hold, 3=complete 
             $table->boolean('status')->default(1); 
             // 1= new or processing, 0= cancel, 2=hold, 3=complete 
             $table->string('updated_by')->nullable();
