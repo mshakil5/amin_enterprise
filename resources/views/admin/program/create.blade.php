@@ -3,7 +3,7 @@
 @section('content')
 
 <!-- Main content -->
-<section class="content mt-3" id="newBtnSection">
+<section class="content pt-1" id="newBtnSection">
     <div class="container-fluid">
       <div class="row">
         <div class="col-2">
@@ -450,8 +450,10 @@
                 },
                 success: function(response) {
                     console.log(response);
-                    $(".ermsg").html(response.message);
-                    if (program->id) {
+                    if (response.status = 400) {
+                        $(".ermsg").html(response.message);
+                    } else {
+                        $(".ermsg").html(response.message);
                         window.setTimeout(function(){location.reload()},2000)
                     }
                 },

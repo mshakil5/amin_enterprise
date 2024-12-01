@@ -67,9 +67,13 @@ class ProgramController extends Controller
     {
         
         $validator = Validator::make($request->all(), [
+            'client_id' => 'required',
             'mother_vassel_id' => 'required',
             'lighter_vassel_id' => 'required',
+            'ghat_id' => 'required',
             'vendor_id.*' => 'required',
+            'truck_number.*' => 'required',
+            'challan_no.*' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -146,9 +150,6 @@ class ProgramController extends Controller
                 $transaction->save();
                 $transaction->tran_id = 'AD' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                 $transaction->save();
-
-
-
             }
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
 
