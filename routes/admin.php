@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DestinationController;
 use App\Http\Controllers\Admin\LedgerController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TransactionController;
 
 
@@ -124,6 +125,10 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     // ledger
     Route::get('/ledger-receivable', [LedgerController::class, 'receivableLedger'])->name('receivableLedger');
+
+
+    // before posting challan report
+    Route::get('/before-posting-challan-report', [ReportController::class, 'beforePostingVendorReport'])->name('beforePostingVendorReport');
 
     
 });
