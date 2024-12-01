@@ -349,12 +349,9 @@
                 $(this).find('input.totalamount').val(totaladvance);
 
                 itemTotalAmount += parseFloat(totaladvance) || 0;
-                
-                console.log(totaladvance);
             });
 
             // $('#item_total_amount').val(itemTotalAmount.toFixed(2) || '0.00');
-            console.log(itemTotalAmount);
         }
 
 
@@ -449,8 +446,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log(response);
-                    if (response.status = 400) {
+                    if (response.status == 400) {
                         $(".ermsg").html(response.message);
                     } else {
                         $(".ermsg").html(response.message);
