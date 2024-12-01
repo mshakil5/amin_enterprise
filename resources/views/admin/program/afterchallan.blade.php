@@ -557,11 +557,13 @@
 
 <script>
     // return stock
+    $("#addadvThisForm").hide();
     $("#programTable").on('click','.addrateThis', function(){
         advAmnt = $(this).attr('data-adv');
         prgmDtlId = $(this).attr('data-pdtlid');
         $("#advanceAmnt").val(advAmnt);
         $("#prgmdtlid").val(prgmDtlId);
+        $("#addadvThisForm").show();
     });
 // return stock end
 </script>
