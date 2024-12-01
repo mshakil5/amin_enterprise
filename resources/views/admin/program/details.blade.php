@@ -23,7 +23,7 @@
 
           <div class="card card-secondary">
             <div class="card-header">
-              <h3 class="card-title">All Data</h3>
+              <h3 class="card-title">Mother Vassel: {{$data->motherVassel->name}}</h3>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
@@ -33,13 +33,13 @@
                   <th>Sl</th>
                   <th>Date</th>
                   <th>Vendor</th>
-                  <th>Party Name</th>
                   <th>Truck Number</th>
                   <th>Challan no</th>
+                  <th>Destination</th>
+                  <th>Carring Bill</th>
                   <th>Line Charge</th>
-                  <th>Qty</th>
-                  <th>Token fee</th>
-                  <th>Contract Amount</th>
+                  <th>Scale fee</th>
+                  <th>Other Cost</th>
                   <th>Advance</th>
                   <th>Action</th>
                 </tr>
@@ -50,16 +50,16 @@
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
-                    <td style="text-align: center">{{$data->party_name}}</td>
                     <td style="text-align: center">{{$data->truck_number}}</td>
                     <td style="text-align: center">{{$data->challan_no}}</td>
+                    <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                    <td style="text-align: center">{{$data->carrying_bill}}</td>
                     <td style="text-align: center">{{$data->line_charge}}</td>
-                    <td style="text-align: center">{{$data->qty}}</td>
-                    <td style="text-align: center">{{$data->token_fee}}</td>
-                    <td style="text-align: center">{{$data->amount}}</td>
+                    <td style="text-align: center">{{$data->scale_fee}}</td>
+                    <td style="text-align: center">{{$data->other_cost}}</td>
+                    <td style="text-align: center">{{$data->advance}}</td>
 
-                    <td style="text-align: center">
-
+                    {{-- <td style="text-align: center">
                       <span class="badge badge-success adv-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">Advance Pay</span>
 
                       <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}">Transaction</span>
@@ -73,17 +73,15 @@
                           <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
                         </a>
                       @endif
-                      
-
-                    </td>
+                    </td> --}}
 
                     <td style="text-align: center">
-                        <a class="btn btn-app" id="trnEditBtn" rid="{{ $data->id }}">
+                        {{-- <a class="btn btn-app" id="trnEditBtn" rid="{{ $data->id }}">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                         <a class="btn btn-app" id="trndeleteBtn" rid="{{ $data->id }}">
                             <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
-                        </a>
+                        </a> --}}
                     </td>
                   </tr>
                   @endforeach

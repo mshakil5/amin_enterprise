@@ -19,6 +19,11 @@ class Destination extends Model
         return $this->hasMany(DestinationSlabRate::class);
     }
 
+    public function programDetail()
+    {
+        return $this->hasMany(ProgramDetail::class);
+    }
+
     
 
 }

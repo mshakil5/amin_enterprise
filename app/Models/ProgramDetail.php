@@ -28,4 +28,9 @@ class ProgramDetail extends Model
     {
         return $this->hasOne(AdvancePayment::class);
     }
+
+    public function destination()
+    {
+        return $this->belongsTo(Destination::class);
+    }
 }
