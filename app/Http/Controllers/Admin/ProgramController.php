@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
+use App\Models\ChallanRate;
 use App\Models\Client;
 use App\Models\Destination;
 use App\Models\LighterVassel;
@@ -151,7 +152,7 @@ class ProgramController extends Controller
             }
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
 
-        return response()->json(['status'=> 300,'message'=>$message]);
+        return response()->json(['status'=> 300,'message'=>$message,'program'=>$program]);
     }
 
     public function programEdit($id)
@@ -546,30 +547,44 @@ class ProgramController extends Controller
         $prgmdtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
         $prgm = Program::where('id', $prgmdtl->program_id)->first();
 
-
-        $progrmDest = new ProgramDestination();
-        $progrmDest->date = date('Y-m-d');
-        $progrmDest->destination_id = $request->destid;
-        $progrmDest->ghat_id = $prgm->ghat_id;
-        $progrmDest->program_id = $prgm->id;
-        $progrmDest->program_detail_id = $request->prgmdtlid;
-        $progrmDest->vendor_id = $prgmdtl->vendor_id;
-        $progrmDest->headerid = $request->headerid;
-        $progrmDest->dest_qty = $request->totalqtyasperchallan;
-        $progrmDest->challan_no = $prgmdtl->challan_no;
-
-        $progrmDest->line_charge = $request->line_charge;
-        $progrmDest->carrying_bill = $request->carrying_bill;
-        $progrmDest->scale_fee = $request->scale_fee;
-        $progrmDest->other_cost = $request->other_cost;
-
-        $progrmDest->transportcost = $request->totalamount;
-        $progrmDest->additional_cost = $request->additionalCost;
-        $progrmDest->advance = $request->advanceAmnt;
-        $progrmDest->due = $request->totalDue;
-        $progrmDest->save();
+        
+        $qtys = $request->input('qty');
+        $rates = $request->input('rate');
 
 
+        $progrm = ProgramDetail::find($request->prgmdtlid);
+        $progrm->after_date = date('Y-m-d');
+        $progrm->destination_id = $request->destid;
+        $progrm->ghat_id = $prgm->ghat_id;
+        $progrm->program_id = $prgm->id;
+        $progrm->vendor_id = $prgmdtl->vendor_id;
+        $progrm->headerid = $request->headerid;
+        $progrm->dest_qty = $request->totalqtyasperchallan;
+        $progrm->challan_no = $prgmdtl->challan_no;
+        $progrm->line_charge = $request->line_charge;
+        $progrm->carrying_bill = $request->carrying_bill;
+        $progrm->scale_fee = $request->scale_fee;
+        $progrm->other_cost = $request->other_cost;
+        $progrm->transportcost = $request->totalamount;
+        $progrm->additional_cost = $request->additionalCost;
+        $progrm->advance = $request->advanceAmnt;
+        $progrm->due = $request->totalDue;
+        $progrm->rate_status = 1;
+        $progrm->save();
+
+            foreach($rates as $key => $value)
+            {
+
+                $chalanRate = new ChallanRate();
+                $chalanRate->program_detail_id = $progrm->id;
+                $chalanRate->challan_no = $progrm->challan_no;
+                $chalanRate->qty = $qtys[$key]; 
+                $chalanRate->rate_per_unit = $rates[$key]; 
+                $chalanRate->total = $rates[$key] * $qtys[$key]; 
+                $chalanRate->created_by = Auth::user()->id;
+                $chalanRate->save();
+                
+            }
 
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan completed.</b></div>";
 
