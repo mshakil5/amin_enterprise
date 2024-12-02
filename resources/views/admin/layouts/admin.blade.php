@@ -24,7 +24,10 @@
   <link rel="stylesheet" href="{{ asset('assets/admin/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
   <link rel="stylesheet" href="{{ asset('assets/admin/datatables-buttons/css/buttons.bootstrap4.min.css')}}">
   
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.9/sweetalert2.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.9/sweetalert2.min.css">
+  <!-- Select2 CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" rel="stylesheet" />
+
 
 
 </head>
@@ -149,6 +152,8 @@
 <script src="{{ asset('assets/admin/datatables-buttons/js/buttons.html5.min.js')}}"></script>
 <script src="{{ asset('assets/admin/datatables-buttons/js/buttons.print.min.js')}}"></script>
 <script src="{{ asset('assets/admin/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
+<!-- Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 <script>
   // page schroll top
   function pagetop() {
@@ -161,5 +166,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.9/sweetalert2.min.js"></script>
 
 @yield('script')
+
+<script>
+  $(document).ready(function() {
+      $('.select2').select2({
+          placeholder: "Select an option",
+          allowClear: true
+      });
+  });
+</script>
+
 </body>
 </html>

@@ -20,7 +20,7 @@ class ReportController extends Controller
                                         SUM(CASE WHEN rate_status = 1 THEN 1 ELSE 0 END) as challan_received,
                                         SUM(CASE WHEN rate_status = 0 THEN 1 ELSE 0 END) as challan_not_received
                                     ')
-                                    ->where('program_id', $request->mv_id)
+                                    ->where('mother_vassel_id', $request->mv_id)
                                     ->groupBy('vendor_id')
                                     ->get();
 

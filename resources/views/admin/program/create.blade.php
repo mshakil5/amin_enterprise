@@ -40,7 +40,7 @@
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
                                             </label>
                                             
-                                            <select name="client_id" id="client_id" class="form-control">
+                                            <select name="client_id" id="client_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($clients as $client)
                                               <option value="{{$client->id}}">{{$client->name}}</option>
@@ -81,7 +81,7 @@
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
                                             </label>
                                             
-                                            <select name="mother_vassel_id" id="mother_vassel_id" class="form-control">
+                                            <select name="mother_vassel_id" id="mother_vassel_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
                                               <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
@@ -100,7 +100,7 @@
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
                                             </label>
                                             
-                                            <select name="lighter_vassel_id" id="lighter_vassel_id" class="form-control">
+                                            <select name="lighter_vassel_id" id="lighter_vassel_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($lvassels as $lvassel)
                                               <option value="{{$lvassel->id}}">{{$lvassel->name}}</option>
@@ -119,7 +119,7 @@
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
                                             </label>
                                             
-                                            <select name="ghat_id" id="ghat_id" class="form-control">
+                                            <select name="ghat_id" id="ghat_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($ghats as $ghat)
                                               <option value="{{$ghat->id}}">{{$ghat->name}}</option>
