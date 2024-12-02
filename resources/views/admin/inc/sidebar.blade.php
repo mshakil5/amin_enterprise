@@ -150,6 +150,12 @@
               <p>Challan Posting Report</p>
             </a>
           </li>
+          <li class="nav-item">
+            <a href="{{route('vendorLedger')}}" class="nav-link">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Vendor Ledger</p>
+            </a>
+          </li>
           
           
 
