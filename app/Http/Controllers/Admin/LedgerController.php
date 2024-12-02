@@ -25,4 +25,17 @@ class LedgerController extends Controller
         $data = Transaction::where('status', 1)->get();
         return view('admin.accounts.ledger.vendor', compact('data','vendors', 'mvassels', 'clients'));
     }
+
+    public function vendorVasselLedger(Request $request)
+    {
+
+        if (! $request->isMethod('POST')) {
+            return route('vendorLedger');
+        } else {
+            $vendors = Vendor::where('status', 1)->get();
+            $mvassels = MotherVassel::where('status', 1)->get();
+            return view('admin.accounts.ledger.vendorVasselReport', compact('mvassels', 'vendors'));
+        }
+        
+    }
 }

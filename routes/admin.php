@@ -132,6 +132,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     // ledger
     Route::get('/vendor-ledger', [LedgerController::class, 'vendorLedger'])->name('vendorLedger');
+    Route::post('/vendor-ledger', [LedgerController::class, 'vendorVasselLedger'])->name('vendorVasselLedger');
     Route::get('/ledger-receivable', [LedgerController::class, 'receivableLedger'])->name('receivableLedger');
 
 

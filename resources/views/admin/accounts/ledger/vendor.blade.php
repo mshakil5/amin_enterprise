@@ -15,7 +15,7 @@
                     
                     <div class="card-body">
                         <div class="ermsg"> </div>
-                        <form action="{{route('challanPostingVendorReport')}}" method="GET">
+                        <form action="{{route('vendorVasselLedger')}}" method="POST">
                             @csrf
 
                             <div class="row">
