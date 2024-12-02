@@ -102,6 +102,15 @@
       </li>
 
       <li class="nav-item">
+        <a href="{{route('admin.slabrate')}}" class="nav-link {{ (request()->is('admin/slab-rate*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Slab Rate
+          </p>
+        </a>
+      </li>
+
+      <li class="nav-item">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
           <p>

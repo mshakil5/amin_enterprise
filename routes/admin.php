@@ -98,6 +98,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/destination/{id}', [DestinationController::class, 'delete']);
 
 
+    Route::get('/slab-rate', [DestinationController::class, 'slabRateIndex'])->name('admin.slabrate');
+    Route::post('/slab-rate', [DestinationController::class, 'slabRatestore']);
+    Route::get('/slab-rate/{id}/edit', [DestinationController::class, 'slabRateedit']);
+    Route::post('/slab-rate-update', [DestinationController::class, 'slabRateupdate']);
+    Route::get('/slab-rate/{id}', [DestinationController::class, 'slabRatedelete']);
+
+
 
     // program
     Route::get('/program', [ProgramController::class, 'allPrograms'])->name('admin.allProgram');
