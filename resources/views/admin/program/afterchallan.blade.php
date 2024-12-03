@@ -48,7 +48,7 @@
                                     
                                     <div class="form-row">
                                         <div class="form-group col-md-2">
-                                            <label for="mv_id">Mother Vassel </label>
+                                            <label for="mv_id">Mother Vassel<span style="color: red;">*</span> </label>
                                             <select name="mv_id" id="mv_id" class="form-control">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
@@ -56,11 +56,11 @@
                                               @endforeach
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-2">
+                                        {{-- <div class="form-group col-md-2">
                                             <label for="date">Date</label>
                                             <input type="date" class="form-control" id="date" name="date" value="{{date('Y-m-d')}}">
                                             <span id="productCodeError" class="text-danger"></span>
-                                        </div>
+                                        </div> --}}
                                         <div class="form-group col-md-2">
                                             <label for="challan_no">Challan Number <span style="color: red;">*</span></label>
                                             <input type="number" class="form-control" id="challan_no" name="challan_no" >
@@ -159,6 +159,9 @@
                                 </div>
                             </div>
 
+                            
+                        <form id="addadvThisForm">
+                            @csrf
 
                             <table class="table table-bordered mb-2" id="programTable">
                                 <thead>
@@ -179,10 +182,9 @@
                                 </tbody>
                             </table>
 
-                        <form id="addadvThisForm">
-                            @csrf
+                        
 
-                            <div class="row">
+                            <div class="row" id="headerDiv">
                                 
                                 <div class="col-sm-6">
                                     
@@ -207,19 +209,15 @@
                                     </div>
 
                                     <div class="form-row">
-                                        <div class="form-group col-md-3">
-                                            <label for="carrying_bill">Carrying Bill</label>
-                                            <input type="number" class="form-control" id="carrying_bill" name="carrying_bill" >
-                                        </div>
-                                        <div class="form-group col-md-3">
+                                        <div class="form-group col-md-4">
                                             <label for="scale_fee">Scale fee</label>
                                             <input type="number" class="form-control" id="scale_fee" name="scale_fee" >
                                         </div>
-                                        <div class="form-group col-md-3">
+                                        <div class="form-group col-md-4">
                                             <label for="line_charge">Line Charge</label>
                                             <input type="number" class="form-control" id="line_charge" name="line_charge" >
                                         </div>
-                                        <div class="form-group col-md-3">
+                                        <div class="form-group col-md-4">
                                             <label for="other_cost">Other cost</label>
                                             <input type="number" class="form-control" id="other_cost" name="other_cost" >
                                         </div>
@@ -266,7 +264,11 @@
                                         </tfoot>
                                     </table>
                                     
-                                    
+                                    <button type="button" id="afterChallanBtn" form="addadvThisForm" class="btn btn-secondary">Submit</button>
+                                    <div id="loader" style="display: none;">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </div>
                                     
                                 </div>
 
@@ -276,11 +278,7 @@
                         </form>
                     </div>
                     <div class="card-footer">
-                        <button type="button" id="afterChallanBtn" form="addadvThisForm" class="btn btn-secondary">Submit</button>
-                        <div id="loader" style="display: none;">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Loading...
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -414,21 +412,20 @@
             // console.log(itemTotalAmount);
         });
             // add other cost
-            var carrying_bill = parseFloat($('#carrying_bill').val()) || 0;
             var scale_fee = parseFloat($('#scale_fee').val()) || 0;
             var line_charge = parseFloat($('#line_charge').val()) || 0;
             var other_cost = parseFloat($('#other_cost').val()) || 0;
             var advanceAmnt = parseFloat($('#advanceAmnt').val()) || 0;
             // add other cost
         
-            var totalAdditionalCost = carrying_bill + scale_fee + line_charge + other_cost;
+            var totalAdditionalCost = scale_fee + line_charge + other_cost;
             var totalDue = totalAdditionalCost + itemTotalAmount - advanceAmnt;
             $("#totalamount").val(itemTotalAmount);
             $("#additionalCost").val(totalAdditionalCost);
             $("#totalDue").val(totalDue);
     }
 
-    $(document).on('input', '#carrying_bill, #scale_fee, #line_charge, #other_cost', function() {
+    $(document).on('input', '#scale_fee, #line_charge, #other_cost', function() {
         updateSummary();
     });
 
@@ -448,6 +445,8 @@
             $('#loader').show();
             $(this).attr('disabled', false);
 
+            $('#programTable tbody').html('');
+            $("#addadvThisForm").hide();
             var formData = new FormData($('#createThisForm')[0]);
 
             $.ajax({
@@ -461,6 +460,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
+                    console.log(response);
                     if (response.data == "empty") {
                         $("#mother_vassel_id").val('');
                         $("#lighter_vassel_id").val('');
@@ -469,6 +469,7 @@
                         $(".ermsg").html(response.message);
                         $('#programTable tbody').html('');
                     } else {
+                        $("#addadvThisForm").show();
                         // $("#totalAmount").val(response.totalAmount);
                         $("#mother_vassel_id").val(response.program.mother_vassel_id);
                         $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
@@ -557,13 +558,13 @@
 
 <script>
     // return stock
-    $("#addadvThisForm").hide();
+    $("#headerDiv").hide();
     $("#programTable").on('click','.addrateThis', function(){
         advAmnt = $(this).attr('data-adv');
         prgmDtlId = $(this).attr('data-pdtlid');
         $("#advanceAmnt").val(advAmnt);
         $("#prgmdtlid").val(prgmDtlId);
-        $("#addadvThisForm").show();
+        $("#headerDiv").show();
     });
 // return stock end
 </script>

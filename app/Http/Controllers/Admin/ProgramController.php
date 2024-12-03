@@ -450,19 +450,25 @@ class ProgramController extends Controller
                                     ->get();
 
             $program = Program::where('id', $chkprgmid->program_id)->first();
+            $vendors = Vendor::select('id', 'name')->orderby('id', 'DESC')->get();
             $prop = '';
         
             foreach ($prgmdtls as $prgmdtl){
                 // <!-- Single Property Start -->
                 $prop.= '<tr>
                             <td>
-                                '.$prgmdtl->advancePayment->vendor->name.'
+                                <select class="form-control" id="vendor_id" name="vendor_id">
+                                <option value="'.$prgmdtl->advancePayment->vendor_id.'" selected>'.$prgmdtl->advancePayment->vendor->name.'</option>';
+                                foreach ($vendors as $vendor){
+                                    $prop.= '<option value="'.$vendor->id.'">'.$vendor->name.'</option>';
+                                }
+                        $prop.= '</select>
                             </td>
                             <td>
                                 <input type="text" class="form-control" id="truck_number" value="'.$prgmdtl->truck_number.'">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="cashamount"  value="'.$prgmdtl->advancePayment->cashamount.'">
+                                <input type="number" class="form-control" id="cashamount"  value="'.$prgmdtl->advancePayment->cashamount.'" readonly>
                             </td>
                             <td>
                                 <input type="number" class="form-control" id="fuelqty"  value="'.$prgmdtl->advancePayment->fuelqty.'">
