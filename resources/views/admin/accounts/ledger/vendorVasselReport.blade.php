@@ -40,9 +40,9 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center">{{$cashTripAdv}}</td>
+                    <td style="text-align: center">{{$cashAdv}}</td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$cashAdv}}</td>
                   </tr>
 
                   <tr>
@@ -54,9 +54,9 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$fuelAdv}}</td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$cashAdv + $fuelAdv}}</td>
                   </tr>
 
                   <tr>
@@ -65,12 +65,12 @@
                     </td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$carryingQty}}</td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$carryingBill}}</td>
+                    <td style="text-align: center">{{$cashAdv + $fuelAdv - $carryingBill}}</td>
                   </tr>
 
                   <tr>
@@ -83,8 +83,8 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$scalecost}}</td>
+                    <td style="text-align: center">{{$cashAdv + $fuelAdv - $carryingBill - $scalecost}}</td>
                   </tr>
 
                   <tr>
@@ -96,9 +96,9 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$line_charge}}</td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$cashAdv + $fuelAdv + $line_charge - $carryingBill - $scalecost}}</td>
                   </tr>
 
                   <tr>
@@ -112,7 +112,7 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$cashAdv + $fuelAdv + $line_charge - $carryingBill - $scalecost}}</td>
                   </tr>
 
                   <tr>
@@ -126,7 +126,7 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$cashAdv + $fuelAdv + $line_charge - $carryingBill - $scalecost}}</td>
                   </tr>
                 
                 </tbody>

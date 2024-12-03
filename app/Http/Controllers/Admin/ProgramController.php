@@ -598,7 +598,7 @@ class ProgramController extends Controller
         $progrm->destination_id = $request->destid;
         $progrm->ghat_id = $prgm->ghat_id;
         $progrm->program_id = $prgm->id;
-        $progrm->vendor_id = $prgmdtl->vendor_id; 
+        $progrm->vendor_id = $request->vendor_id; 
         $progrm->headerid = $request->headerid; 
         $progrm->dest_qty = $request->totalqtyasperchallan;
         $progrm->challan_no = $prgmdtl->challan_no;
