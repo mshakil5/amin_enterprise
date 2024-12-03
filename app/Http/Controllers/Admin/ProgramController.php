@@ -457,7 +457,7 @@ class ProgramController extends Controller
                 // <!-- Single Property Start -->
                 $prop.= '<tr>
                             <td>
-                                <select class="form-control" id="vendor_id" name="vendor_id">
+                                <select class="form-control" id="vendor_id'.$prgmdtl->id.'" name="vendor_id">
                                 <option value="'.$prgmdtl->advancePayment->vendor_id.'" selected>'.$prgmdtl->advancePayment->vendor->name.'</option>';
                                 foreach ($vendors as $vendor){
                                     $prop.= '<option value="'.$vendor->id.'">'.$vendor->name.'</option>';
@@ -465,28 +465,28 @@ class ProgramController extends Controller
                         $prop.= '</select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" id="truck_number" value="'.$prgmdtl->truck_number.'">
+                                <input type="text" class="form-control" id="truck_number'.$prgmdtl->id.'" value="'.$prgmdtl->truck_number.'">
                             </td>
                             <td>
                                 <input type="number" class="form-control" id="cashamount"  value="'.$prgmdtl->advancePayment->cashamount.'" readonly>
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="fuelqty"  value="'.$prgmdtl->advancePayment->fuelqty.'">
+                                <input type="number" class="form-control" id="fuelqty'.$prgmdtl->id.'" name="fuelqty"  value="'.$prgmdtl->advancePayment->fuelqty.'">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="fuel_rate"  value="'.$prgmdtl->advancePayment->fuel_rate.'">
+                                <input type="number" class="form-control" id="fuel_rate'.$prgmdtl->id.'" name="fuel_rate"  value="'.$prgmdtl->advancePayment->fuel_rate.'">
                             </td>
                             <td> 
-                                <input type="number" class="form-control" id="fuel_amount" readonly  value="'.$prgmdtl->advancePayment->fuelqty * $prgmdtl->advancePayment->fuel_rate.'">
+                                <input type="number" class="form-control" id="fuel_amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->fuelqty * $prgmdtl->advancePayment->fuel_rate.'">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="fueltoken" value="'.$prgmdtl->advancePayment->fueltoken.'">
+                                <input type="number" class="form-control" id="fueltoken'.$prgmdtl->id.'" value="'.$prgmdtl->advancePayment->fueltoken.'">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="amount" readonly  value="'.$prgmdtl->advancePayment->amount.'">
+                                <input type="number" class="form-control" id="amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->amount.'">
                             </td>
                             <td>
-                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'"><i class="fas fa-arrow-right"></i></span>
+                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-advid="'.$prgmdtl->advancePayment->id.'"><i class="fas fa-arrow-right"></i></span>
                             </td>
                         </tr>';
             }
@@ -523,23 +523,23 @@ class ProgramController extends Controller
                 $aboveqty = $challanqty - $chkrate->maxqty;
                 $totalAmount = $totalAmount + $chkrate->above_rate_per_qty * $aboveqty + $chkrate->below_rate_per_qty * $chkrate->maxqty;
                 $prop.= '<tr>
-                            <td><input type="number" class="form-control qty" id="qty" name="qty[]" value="'.$chkrate->maxqty.'" ></td>
-                            <td><input type="number" class="form-control rate" id="rate" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control rateunittotal" id="amnt" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" readonly></td>
+                            <td><input type="number" class="form-control qty" id="slabqty1" name="qty[]" value="'.$chkrate->maxqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="slabrate1" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="slabamnt1" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" readonly></td>
                         </tr>
                         <tr>
-                            <td><input type="number" class="form-control qty" id="qty" name="qty[]" value="'.$aboveqty.'" ></td>
-                            <td><input type="number" class="form-control rate" id="rate" name="rate[]" value="'.$chkrate->above_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control rateunittotal" id="amnt" name="amnt[]" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" readonly ></td>
+                            <td><input type="number" class="form-control qty" id="slabqty2" name="qty[]" value="'.$aboveqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="slabrate2" name="rate[]" value="'.$chkrate->above_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="slabamnt2" name="amnt[]" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" readonly ></td>
                         </tr>';
 
             } else {
 
                 $totalAmount = $totalAmount + $chkrate->below_rate_per_qty * $chkrate->maxqty;
                 $prop.= '<tr>
-                            <td><input type="number" class="form-control qty" id="qty" name="qty[]" value="'.$challanqty.'" ></td>
-                            <td><input type="number" class="form-control rate" id="rate" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
-                            <td><input type="number" class="form-control rateunittotal" id="amnt" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $challanqty.'" readonly></td>
+                            <td><input type="number" class="form-control qty" id="slabqty1" name="qty[]" value="'.$challanqty.'" ></td>
+                            <td><input type="number" class="form-control rate" id="slabrate1" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="slabamnt1" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $challanqty.'" readonly></td>
                         </tr>';
             }
             
@@ -577,34 +577,43 @@ class ProgramController extends Controller
             return response()->json(['status' => 400, 'message' => $errorMessage]);
         }
 
-        $data = $request->all();
         $prgmdtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
         $prgm = Program::where('id', $prgmdtl->program_id)->first();
 
         
+        $data = $request->all();
         $qtys = $request->input('qty');
         $rates = $request->input('rate');
 
+        $fadv = AdvancePayment::find($request->advPmtid);
+        $fadv->fuelqty = $request->fuelqty;
+        $fadv->fuel_rate = $request->fuel_rate;
+        $fadv->fueltoken = $request->fueltoken;
+        $fadv->fuelamount = $request->fuelqty * $request->fuel_rate;
+        $fadv->amount = $fadv->fuelamount + $fadv->cashamount;
+        $fadv->save();
 
         $progrm = ProgramDetail::find($request->prgmdtlid);
         $progrm->after_date = date('Y-m-d');
         $progrm->destination_id = $request->destid;
         $progrm->ghat_id = $prgm->ghat_id;
         $progrm->program_id = $prgm->id;
-        $progrm->vendor_id = $prgmdtl->vendor_id;
-        $progrm->headerid = $request->headerid;
+        $progrm->vendor_id = $prgmdtl->vendor_id; 
+        $progrm->headerid = $request->headerid; 
         $progrm->dest_qty = $request->totalqtyasperchallan;
         $progrm->challan_no = $prgmdtl->challan_no;
-        $progrm->line_charge = $request->line_charge;
-        $progrm->carrying_bill = $request->carrying_bill;
-        $progrm->scale_fee = $request->scale_fee;
-        $progrm->other_cost = $request->other_cost;
-        $progrm->transportcost = $request->totalamount;
+        $progrm->line_charge = $request->line_charge; 
+        $progrm->scale_fee = $request->scale_fee; 
+        $progrm->other_cost = $request->other_cost; 
+        $progrm->transportcost = $request->totalamount; 
+        $progrm->carrying_bill = $request->totalamount; 
         $progrm->additional_cost = $request->additionalCost;
-        $progrm->advance = $request->advanceAmnt;
-        $progrm->due = $request->totalDue;
+        $progrm->advance = $fadv->amount; 
+        $progrm->due = $request->totalamount + $request->additionalCost - $fadv->amount; 
         $progrm->rate_status = 1;
         $progrm->save();
+
+        
 
             foreach($rates as $key => $value)
             {
@@ -622,7 +631,7 @@ class ProgramController extends Controller
 
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan completed.</b></div>";
 
-        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$progrm]);
+        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data]);
         
         
     }

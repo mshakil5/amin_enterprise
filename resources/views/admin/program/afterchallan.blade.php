@@ -253,7 +253,7 @@
                                             <tr>
                                                 <td></td>
                                                 <td>Advance</td>
-                                                <td><input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly><input type="hidden" class="form-control" id="prgmdtlid" name="prgmdtlid" readonly></td>
+                                                <td><input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly><input type="hidden" class="form-control" id="prgmdtlid" name="prgmdtlid" readonly><input type="hidden" class="form-control" id="advPmtid" name="advPmtid" readonly></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -533,12 +533,6 @@
                         $('#rateTable tbody').html(' ');
                         $("#totalamount").val(0);
                     }
-
-                    // $("#mother_vassel_id").val(response.program.mother_vassel_id);
-                    // $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
-                    // $("#ghat_id").val(response.program.ghat_id);
-                    // $("#consignmentno").val(response.program.consignmentno);
-                    // $(".ermsg").html(response.message);
                     
                 },
                 error: function(xhr, status, error) {
@@ -562,11 +556,13 @@
     $("#programTable").on('click','.addrateThis', function(){
         advAmnt = $(this).attr('data-adv');
         prgmDtlId = $(this).attr('data-pdtlid');
+        advPmtiId = $(this).attr('data-advid');
         $("#advanceAmnt").val(advAmnt);
         $("#prgmdtlid").val(prgmDtlId);
+        $("#advPmtid").val(advPmtiId);
         $("#headerDiv").show();
     });
-// return stock end
+    // return stock end
 </script>
 
 
@@ -620,8 +616,18 @@
 
             // $(this).attr('disabled', true);
             // $('#loader').show();
+            var prgmdtlid = $('#prgmdtlid').val();
 
+
+            // console.log(prgmdtlid, vendorid, truck_number, fuelqty, fuel_rate, fuel_amount, tamount, fueltoken, tamount,);
             var formData = new FormData($('#addadvThisForm')[0]);
+            formData.append("vendor_id", $('#vendor_id'+prgmdtlid).val());
+            formData.append("truck_number", $('#truck_number'+prgmdtlid).val());
+            formData.append("fuelqty", $('#fuelqty'+prgmdtlid).val());
+            formData.append("fuel_rate", $('#fuel_rate'+prgmdtlid).val());
+            formData.append("fuel_amount", $('#fuel_amount'+prgmdtlid).val());
+            formData.append("amount", $('#amount'+prgmdtlid).val());
+            formData.append("fueltoken", $('#fueltoken'+prgmdtlid).val());
 
             $.ajax({
                 url: '{{ route("after-challan-store") }}',
@@ -636,9 +642,7 @@
                 success: function(response) {
                     console.log(response);
                     $(".ermsg").html(response.message);
-                    if (response.data) {
-                        window.setTimeout(function(){location.reload()},2000)
-                    }
+                    window.setTimeout(function(){location.reload()},2000)
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseJSON.message);
