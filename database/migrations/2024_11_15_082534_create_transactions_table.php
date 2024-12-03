@@ -24,6 +24,12 @@ return new class extends Migration
             $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade'); 
             $table->unsignedBigInteger('program_detail_id')->nullable();
             $table->foreign('program_detail_id')->references('id')->on('program_details')->onDelete('cascade'); 
+            
+            $table->unsignedBigInteger('mother_vassel_id')->nullable();
+            $table->foreign('mother_vassel_id')->references('id')->on('mother_vassels')->onDelete('cascade'); 
+            $table->unsignedBigInteger('lighter_vassel_id')->nullable();
+            $table->foreign('lighter_vassel_id')->references('id')->on('lighter_vassels')->onDelete('cascade'); 
+            
             $table->unsignedBigInteger('client_id')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $table->string('payment_type')->nullable();

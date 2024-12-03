@@ -40,7 +40,7 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$cashTripAdv}}</td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                   </tr>

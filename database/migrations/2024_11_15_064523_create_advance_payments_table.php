@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('fuel_rate')->nullable();
             $table->string('fuelqty')->nullable();
             $table->string('fueltoken')->nullable();
+            $table->double('fuelamount',10,2)->default(0)->nullable();
             $table->double('cashamount',10,2)->default(0)->nullable();
             $table->double('amount',10,2)->default(0)->nullable();
             $table->string('receiver_name')->nullable();

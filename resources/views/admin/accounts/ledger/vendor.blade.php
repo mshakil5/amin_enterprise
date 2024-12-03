@@ -22,7 +22,7 @@
                                 <div class="col-sm-12">
                                     
                                     <div class="form-row">
-                                        <div class="form-group col-md-3">
+                                        {{-- <div class="form-group col-md-3">
                                             <label for="client_id">Client</label>
                                             <select name="client_id" id="client_id" class="form-control select2">
                                               <option value="">Select</option>
@@ -30,7 +30,7 @@
                                               <option value="{{$client->id}}">{{$client->name}}</option>
                                               @endforeach
                                             </select>
-                                        </div>
+                                        </div> --}}
                                         <div class="form-group col-md-3">
                                             <label for="vendor_id">Vendor</label>
                                             <select name="vendor_id" id="vendor_id" class="form-control select2">

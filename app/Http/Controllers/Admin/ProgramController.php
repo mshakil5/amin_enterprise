@@ -137,18 +137,39 @@ class ProgramController extends Controller
                 $data->fuel_rate = $fuel_rates[$key];
                 $data->fuelqty = $fuelqtys[$key];
                 $data->fueltoken = $fueltokens[$key];
+                $data->fuelamount = $fuel_rates[$key] * $fuelqtys[$key];
                 $data->amount = $fuelAmnt + $cashamounts[$key];
                 $data->date = date('Y-m-d');
                 $data->save();
 
                 $transaction = new Transaction();
+                $transaction->client_id = $request->input('client_id');
+                $transaction->mother_vassel_id = $request->input('mother_vassel_id');
                 $transaction->program_id = $program->id;
+                $transaction->program_details_id = $invdtl->id;
                 $transaction->vendor_id = $vendorIds[$key];
-                $transaction->amount = $data->amount;
+                $transaction->challan_no = $challanNos[$key]; 
+                $transaction->amount = $cashamounts[$key];
                 $transaction->tran_type = "Advance";
+                $transaction->payment_type = "Cash";
                 $transaction->date = date('Y-m-d');
                 $transaction->save();
-                $transaction->tran_id = 'AD' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                $transaction->save();
+
+                $transaction = new Transaction();
+                $transaction->client_id = $request->input('client_id');
+                $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+                $transaction->program_id = $program->id;
+                $transaction->program_details_id = $invdtl->id;
+                $transaction->vendor_id = $vendorIds[$key];
+                $transaction->challan_no = $challanNos[$key]; 
+                $transaction->amount = $fuelAmnt;
+                $transaction->tran_type = "Advance";
+                $transaction->payment_type = "Fuel";
+                $transaction->date = date('Y-m-d');
+                $transaction->save();
+                $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                 $transaction->save();
             }
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
@@ -419,7 +440,7 @@ class ProgramController extends Controller
     public function checkChallan(Request $request)
     {
         
-        $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('rate_status',0)->where('challan_no', $request->challan_no)->where('mother_vassel_id', $request->mv_id)->where('date', $request->date)->first();
+        $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('rate_status',0)->where('challan_no', $request->challan_no)->where('mother_vassel_id', $request->mv_id)->first();
         
         if ($chkprgmid) {
 
@@ -427,7 +448,6 @@ class ProgramController extends Controller
                                     ->where('status',1)
                                     ->where('mother_vassel_id', $request->mv_id)
                                     ->where('challan_no', $request->challan_no)
-                                    ->where('date', $request->date)
                                     ->get();
 
             $program = Program::where('id', $chkprgmid->program_id)->first();
