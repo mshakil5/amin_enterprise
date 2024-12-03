@@ -69,7 +69,6 @@ class ProgramController extends Controller
         $validator = Validator::make($request->all(), [
             'client_id' => 'required',
             'mother_vassel_id' => 'required',
-            'lighter_vassel_id' => 'required',
             'ghat_id' => 'required',
             'vendor_id.*' => 'required',
             'truck_number.*' => 'required',
@@ -146,7 +145,7 @@ class ProgramController extends Controller
                 $transaction->client_id = $request->input('client_id');
                 $transaction->mother_vassel_id = $request->input('mother_vassel_id');
                 $transaction->program_id = $program->id;
-                $transaction->program_details_id = $invdtl->id;
+                $transaction->program_detail_id = $invdtl->id;
                 $transaction->vendor_id = $vendorIds[$key];
                 $transaction->challan_no = $challanNos[$key]; 
                 $transaction->amount = $cashamounts[$key];
@@ -161,7 +160,7 @@ class ProgramController extends Controller
                 $transaction->client_id = $request->input('client_id');
                 $transaction->mother_vassel_id = $request->input('mother_vassel_id');
                 $transaction->program_id = $program->id;
-                $transaction->program_details_id = $invdtl->id;
+                $transaction->program_detail_id = $invdtl->id;
                 $transaction->vendor_id = $vendorIds[$key];
                 $transaction->challan_no = $challanNos[$key]; 
                 $transaction->amount = $fuelAmnt;

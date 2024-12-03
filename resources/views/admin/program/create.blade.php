@@ -96,7 +96,7 @@
                                             
                                         </div>
                                         <div class="form-group col-md-4">
-                                            <label for="lighter_vassel_id">Lighter Vassel <span style="color: red;">*</span>
+                                            <label for="lighter_vassel_id">Lighter Vassel
                                               <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
                                             </label>
                                             
@@ -181,7 +181,7 @@
                                             <input type="number" class="form-control fuelqty" name="fuelqty[]" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" >
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="105">
                                         </td>
                                         <td> 
                                             <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
@@ -227,7 +227,7 @@
                                             <input type="number" class="form-control fuelqty" name="fuelqty[]" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" >
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="105">
                                         </td>
                                         <td> 
                                             <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
@@ -381,7 +381,7 @@
                                 <input type="number" class="form-control fuelqty" name="fuelqty[]" >
                             </td>
                             <td>
-                                <input type="number" class="form-control fuel_rate" name="fuel_rate[]" >
+                                <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="105">
                             </td>
                             <td> 
                                 <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
