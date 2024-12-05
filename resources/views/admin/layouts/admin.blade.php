@@ -138,6 +138,7 @@
 {{-- <script src="{{ asset('assets/admin/js/dashboard.js')}}"></script> --}}
 <!-- DataTables  & Plugins -->
 <script src="{{ asset('assets/admin/datatables/jquery.dataTables.min.js')}}"></script>
+<script src="{{ asset('assets/admin/datatables/dataTables.bootstrap4.min.js')}}"></script>
 
 <script src="{{ asset('assets/admin/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
 <script src="{{ asset('assets/admin/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
