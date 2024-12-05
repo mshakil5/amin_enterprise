@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\LedgerController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Admin\GeneratingBillController;
 
 
 /*------------------------------------------
@@ -139,6 +140,12 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // before posting challan report
     Route::get('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReport');
     Route::post('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReportshow');
+
+
+    // bill generating
+    Route::get('/bill-generating', [GeneratingBillController::class, 'billGenerating'])->name('billGenerating');
+    Route::post('/bill-generating', [GeneratingBillController::class, 'billGeneratingStore'])->name('billGeneratingStore');
+    Route::get('/export-template', [GeneratingBillController::class, 'exportTemplate'])->name('export.template');
 
     
 });

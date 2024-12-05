@@ -1,0 +1,152 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\GeneratingBill;
+use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+class GeneratingBillController extends Controller
+{
+    public function billGenerating()
+    {
+        return view('admin.bill.generator');
+    }
+
+    public function billGeneratingStore(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:20480',
+        ]);
+
+        // Move the file to a temporary location
+        $file = $request->file('file')->getRealPath();
+
+        // Load the spreadsheet
+        $spreadsheet = IOFactory::load($file);
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+
+        // Iterate through the rows and save to the database
+        foreach ($rows as $index => $row) {
+            // Skip the first row if it is the header
+            if ($index === 0) {
+                continue;
+            }
+
+            GeneratingBill::create([
+                'header_id' => $row[1],
+                'date' => $row[2],
+                'truck_number' => $row[3],
+                'destination' => $row[4],
+                'from_location' => $row[5],
+                'to_location' => $row[6],
+                'shipping_method' => $row[7],
+                'challan_qty' => $row[8],
+                'trip_number' => $row[9],
+                'trip_qty' => $row[10],
+                'before_freight_amount' => $row[11],
+                'after_freight_amount' => $row[12],
+                'additional_claim' => $row[13],
+                'final_trip_amount' => $row[14],
+                'remark_by_transporter' => $row[15],
+                'rental_mode' => $row[16],
+                'mode_of_trip' => $row[17],
+                'rate_type' => $row[18],
+                'sales_region' => $row[19],
+                'wings' => $row[20],
+                'lc_no' => $row[21],
+                'vessel_name' => $row[22],
+                'batch_no' => $row[23],
+                'billing_ou' => $row[24],
+                'billing_legal_entity' => $row[25],
+                'bill_no' => $row[26],
+                'transaction_status' => $row[27],
+                // Map other columns as necessary
+            ]);
+        }
+
+        return back()->with('success', 'Data imported successfully.');
+    }
+
+
+    public function exportTemplate()
+    {
+        // Define the header row for the CSV
+        $headers = [
+            'header_id',
+            'date',
+            'truck_number',
+            'destination',
+            'from_location',
+            'to_location',
+            'shipping_method',
+            'challan_qty',
+            'trip_number',
+            'trip_qty',
+            'before_freight_amount',
+            'after_freight_amount',
+            'additional_claim',
+            'final_trip_amount',
+            'remark_by_transporter',
+            'rental_mode',
+            'mode_of_trip',
+            'rate_type',
+            'sales_region',
+            'wings',
+            'lc_no',
+            'vessel_name',
+            'batch_no',
+            'billing_ou',
+            'billing_legal_entity',
+            'bill_no',
+            'transaction_status', // Example columns
+        ];
+
+        // Create the CSV content
+        $callback = function () use ($headers) {
+            $file = fopen('php://output', 'w');
+            
+            // Add the header row to the CSV
+            fputcsv($file, $headers);
+
+            // Optionally, add example rows
+            fputcsv($file, ['header_id',
+                            'date',
+                            'truck_number',
+                            'destination',
+                            'from_location',
+                            'to_location',
+                            'shipping_method',
+                            'challan_qty',
+                            'trip_number',
+                            'trip_qty',
+                            'before_freight_amount',
+                            'after_freight_amount',
+                            'additional_claim',
+                            'final_trip_amount',
+                            'remark_by_transporter',
+                            'rental_mode',
+                            'mode_of_trip',
+                            'rate_type',
+                            'sales_region',
+                            'wings',
+                            'lc_no',
+                            'vessel_name',
+                            'batch_no',
+                            'billing_ou',
+                            'billing_legal_entity',
+                            'bill_no',
+                            'transaction_status',]);
+            
+                            fclose($file);
+                        };
+
+        // Return response to download as CSV
+        return response()->stream($callback, 200, [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=import_template.csv",
+        ]);
+    }
+}
