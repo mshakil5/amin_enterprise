@@ -33,6 +33,7 @@
                   <th>Sl</th>
                   <th>Date</th>
                   <th>Vendor</th>
+                  <th>Header ID</th>
                   <th>Truck Number</th>
                   <th>Challan no</th>
                   <th>Destination</th>
@@ -50,6 +51,7 @@
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
+                    <td style="text-align: center">{{$data->headerid}}</td>
                     <td style="text-align: center">{{$data->truck_number}}</td>
                     <td style="text-align: center">{{$data->challan_no}}</td>
                     <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
