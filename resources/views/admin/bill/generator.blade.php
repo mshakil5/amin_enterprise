@@ -10,9 +10,12 @@
                 <div class="card card-secondary">
                     <div class="card-header">
                         <h3 class="card-title" id="cardTitle">Vendor Ledger</h3>
-                        <a href="{{ route('export.template') }}" class="btn btn-tool">
-                            <i class="fas fa-envelope"></i>
-                        </a>
+                        
+                        <div class="card-tools">
+                            <a href="{{ route('export.template') }}" class="btn btn-tool">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                      </div>
                     </div>
                     
                     <div class="card-body">
