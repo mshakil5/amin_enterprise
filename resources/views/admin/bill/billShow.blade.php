@@ -74,7 +74,7 @@
                     <td style="text-align: center">
                         <label class="form-checkbox  grid layout">
                             <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->billing_status == 1) checked @endif  />
-                          </label>
+                        </label>
                     </td>
                   </tr>
                   @endforeach

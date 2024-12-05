@@ -34,8 +34,8 @@ class GeneratingBillController extends Controller
 
         $programId = $request->programId;
         if (isset($programId)) {
-            $program = new Program();
-            $program->bill_status = 1;
+            $program = Program::find($programId);
+            $program->bill_status = 0;
             $program->save();
         }
         // Move the file to a temporary location
@@ -53,49 +53,55 @@ class GeneratingBillController extends Controller
                 continue;
             }
 
-            $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[10])->first();
-            if (isset($chkPrgmDetail)) {
-                $chkPrgmDetail->generate_bill = 1;
-                $chkPrgmDetail->save();
+            if (empty($row[1])) {
+                continue;
+            }else {
 
-                $billingSts = 1;
-            } else {
-                $billingSts = 0;
+                $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[10])->first();
+                if (isset($chkPrgmDetail)) {
+                    $chkPrgmDetail->generate_bill = 1;
+                    $chkPrgmDetail->save();
+
+                    $billingSts = 1;
+                } else {
+                    $billingSts = 0;
+                }
+
+                GeneratingBill::create([
+                    'program_id' => $programId,
+                    'header_id' => $row[1],
+                    'date' => $row[2],
+                    'truck_number' => $row[3],
+                    'destination' => $row[4],
+                    'from_location' => $row[5],
+                    'to_location' => $row[6],
+                    'shipping_method' => $row[7],
+                    'challan_qty' => $row[8],
+                    'trip_number' => $row[9],
+                    'trip_qty' => $row[10],
+                    'before_freight_amount' => $row[11],
+                    'after_freight_amount' => $row[12],
+                    'additional_claim' => $row[13],
+                    'final_trip_amount' => $row[14],
+                    'remark_by_transporter' => $row[15],
+                    'rental_mode' => $row[16],
+                    'mode_of_trip' => $row[17],
+                    'rate_type' => $row[18],
+                    'sales_region' => $row[19],
+                    'wings' => $row[20],
+                    'lc_no' => $row[21],
+                    'vessel_name' => $row[22],
+                    'batch_no' => $row[23],
+                    'billing_ou' => $row[24],
+                    'billing_legal_entity' => $row[25],
+                    'bill_no' => $row[26],
+                    'transaction_status' => $row[27],
+                    'billing_status' => $billingSts,
+                    // Map other columns as necessary
+                ]);
             }
-            
 
-            GeneratingBill::create([
-                'program_id' => $programId,
-                'header_id' => $row[1],
-                'date' => $row[2],
-                'truck_number' => $row[3],
-                'destination' => $row[4],
-                'from_location' => $row[5],
-                'to_location' => $row[6],
-                'shipping_method' => $row[7],
-                'challan_qty' => $row[8],
-                'trip_number' => $row[9],
-                'trip_qty' => $row[10],
-                'before_freight_amount' => $row[11],
-                'after_freight_amount' => $row[12],
-                'additional_claim' => $row[13],
-                'final_trip_amount' => $row[14],
-                'remark_by_transporter' => $row[15],
-                'rental_mode' => $row[16],
-                'mode_of_trip' => $row[17],
-                'rate_type' => $row[18],
-                'sales_region' => $row[19],
-                'wings' => $row[20],
-                'lc_no' => $row[21],
-                'vessel_name' => $row[22],
-                'batch_no' => $row[23],
-                'billing_ou' => $row[24],
-                'billing_legal_entity' => $row[25],
-                'bill_no' => $row[26],
-                'transaction_status' => $row[27],
-                'billing_status' => $billingSts,
-                // Map other columns as necessary
-            ]);
+            
         }
 
         return back()->with('success', 'Data imported successfully.');
