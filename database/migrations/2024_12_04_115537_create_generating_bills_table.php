@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('generating_bills', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('program_id')->nullable();
+            $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade'); 
+            $table->unsignedBigInteger('program_detail_id')->nullable();
+            $table->foreign('program_detail_id')->references('id')->on('program_details')->onDelete('cascade');
             $table->string('header_id')->nullable();
             $table->string('date')->nullable();
             $table->string('truck_number')->nullable();

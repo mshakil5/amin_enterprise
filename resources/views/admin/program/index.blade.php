@@ -39,7 +39,7 @@
                   <th>Mother Vassel</th>
                   <th>Lighter Vassel</th>
                   <th>Consignment No.</th>
-                  <th>Amount</th>
+                  <th>Bill Generate</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -54,7 +54,9 @@
                     <td style="text-align: center">{{$data->motherVassel->name}}</td>
                     <td style="text-align: center">{{$data->lighterVassel->name}}</td>
                     <td style="text-align: center">{{$data->consignmentno}}</td>
-                    <td style="text-align: center">{{$data->amount}}</td>
+                    <td style="text-align: center">
+                      <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
+                    </td>
                     <td style="text-align: center">
                       
                     </td>

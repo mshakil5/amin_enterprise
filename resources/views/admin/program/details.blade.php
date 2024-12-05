@@ -2,12 +2,33 @@
 
 @section('content')
 
+<style>
+  .form-checkbox {
+      font-family: system-ui, sans-serif;
+      font-size: 2rem;
+      font-weight: bold;
+      line-height: 1.1;
+      display: grid;
+      grid-template-columns: 1em auto;
+      gap: 0.5em;
+    }
+
+    .custom-checkbox {
+      height: 30px;
+    }
+</style>
 <!-- Main content -->
 <section class="content mt-3" id="newBtnSection">
   <div class="container-fluid">
     <div class="row">
       <div class="col-2">
           <a href="{{route('admin.allProgram')}}" class="btn btn-secondary my-3">Back</a>
+          @if ($data->bill_status == 1)
+          <a href="{{route('billGenerating', $data->id)}}" class="btn btn-secondary my-3 ">Generate Bill</a>
+          @else
+          <a href="{{route('generatingBillShow', $data->id)}}" class="btn btn-secondary my-3">Bill Show </a>
+          @endif
+          
       </div>
     </div>
   </div>
@@ -31,6 +52,7 @@
                 <thead>
                 <tr>
                   <th>Sl</th>
+                  <th>Bill Status</th>
                   <th>Date</th>
                   <th>Vendor</th>
                   <th>Header ID</th>
@@ -50,6 +72,13 @@
                   @foreach ($data->programDetail as $key => $data)
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
+                    <td style="text-align: center">
+
+                      <label class="form-checkbox  grid layout">
+                        <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
+                      </label>
+
+                    </td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
                     <td style="text-align: center">{{$data->headerid}}</td>

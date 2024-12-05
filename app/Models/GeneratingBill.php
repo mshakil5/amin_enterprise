@@ -10,6 +10,8 @@ class GeneratingBill extends Model
     use HasFactory;
 
     protected $fillable = [
+        'program_id',
+        'program_detail_id',
         'header_id',
         'date',
         'truck_number',
@@ -37,6 +39,7 @@ class GeneratingBill extends Model
         'billing_legal_entity',
         'bill_no',
         'transaction_status',
+        'billing_status',
         'updated_by',
         'created_by',
     ];

@@ -47,6 +47,8 @@ return new class extends Migration
             $table->boolean('tran_status')->default(0); 
             // 0= not complete, 1=complete 
             $table->longText('note')->nullable();
+            $table->boolean('generate_bill')->default(0); 
+            $table->boolean('bill_status')->default(0); 
             $table->boolean('rate_status')->default(0); 
             $table->boolean('status')->default(1); 
             // 1= new or processing, 0= cancel, 2=hold, 3=complete 

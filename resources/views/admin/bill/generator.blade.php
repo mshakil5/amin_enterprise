@@ -32,6 +32,7 @@
                                         <div class="form-group col-md-6">
                                             <label for="upload">Uploads </label>
                                             <input type="file" name="file" required>
+                                            <input type="hidden" name="programId" value="{{$programId}}" required>
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label>Action</label> <br>

@@ -30,6 +30,8 @@ return new class extends Migration
             $table->double('due_amount',10,2)->default(0)->nullable();
             $table->double('cost',10,2)->default(0)->nullable();
             $table->longText('note')->nullable();
+            $table->boolean('generate_bill')->default(0); 
+            $table->boolean('bill_status')->default(0); 
             $table->boolean('status')->default(1); 
             // 1= new or processing, 0= cancel, 2=hold, 3=complete 
             $table->string('updated_by')->nullable();

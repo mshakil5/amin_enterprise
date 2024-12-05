@@ -4,14 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneratingBill;
+use App\Models\Program;
+use App\Models\ProgramDetail;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class GeneratingBillController extends Controller
 {
-    public function billGenerating()
+    public function billGenerating($id)
     {
-        return view('admin.bill.generator');
+        $programId = $id;
+
+        return view('admin.bill.generator', compact('programId'));
+    }
+
+    public function billGeneratingShow($id)
+    {
+        $programId = Program::where('id', $id)->first();
+        $data = GeneratingBill::where('program_id', $id)->get();
+
+        return view('admin.bill.billShow', compact('programId','data'));
     }
 
     public function billGeneratingStore(Request $request)
@@ -20,6 +32,12 @@ class GeneratingBillController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:20480',
         ]);
 
+        $programId = $request->programId;
+        if (isset($programId)) {
+            $program = new Program();
+            $program->bill_status = 1;
+            $program->save();
+        }
         // Move the file to a temporary location
         $file = $request->file('file')->getRealPath();
 
@@ -35,7 +53,19 @@ class GeneratingBillController extends Controller
                 continue;
             }
 
+            $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[10])->first();
+            if (isset($chkPrgmDetail)) {
+                $chkPrgmDetail->generate_bill = 1;
+                $chkPrgmDetail->save();
+
+                $billingSts = 1;
+            } else {
+                $billingSts = 0;
+            }
+            
+
             GeneratingBill::create([
+                'program_id' => $programId,
                 'header_id' => $row[1],
                 'date' => $row[2],
                 'truck_number' => $row[3],
@@ -63,6 +93,7 @@ class GeneratingBillController extends Controller
                 'billing_legal_entity' => $row[25],
                 'bill_no' => $row[26],
                 'transaction_status' => $row[27],
+                'billing_status' => $billingSts,
                 // Map other columns as necessary
             ]);
         }
