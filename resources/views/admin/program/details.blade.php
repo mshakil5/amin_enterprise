@@ -37,6 +37,7 @@
                   <th>Truck Number</th>
                   <th>Challan no</th>
                   <th>Destination</th>
+                  <th>Qty</th>
                   <th>Carring Bill</th>
                   <th>Line Charge</th>
                   <th>Scale fee</th>
@@ -55,6 +56,7 @@
                     <td style="text-align: center">{{$data->truck_number}}</td>
                     <td style="text-align: center">{{$data->challan_no}}</td>
                     <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                    <td style="text-align: center">{{$data->dest_qty}}</td>
                     <td style="text-align: center">{{$data->carrying_bill}}</td>
                     <td style="text-align: center">{{$data->line_charge}}</td>
                     <td style="text-align: center">{{$data->scale_fee}}</td>
