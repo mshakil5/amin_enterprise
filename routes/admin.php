@@ -131,8 +131,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // program after challan store
     Route::post('/program-after-challan-store', [ProgramController::class, 'afterPostProgramStore'])->name('after-challan-store');
 
-    // vendor advance
-    Route::post('/vendor-advance-pay', [TransactionController::class,'vendorAdvancePay'])->name('vendorAdvancePay');
+    // vendor payment
+    Route::post('/vendor-pay', [TransactionController::class,'vendorAdvancePay'])->name('vendorAdvancePay');
     Route::post('/vendor-advance-transaction', [TransactionController::class,'vendorAdvanceTran'])->name('vendorAdvanceTran');
 
     Route::post('/add-destination-slab-rate', [ProgramController::class,'addDestinationSlabRate'])->name('addDestinationSlabRate');

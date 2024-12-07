@@ -19,7 +19,7 @@ use App\Models\Ghat;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ProgramController extends Controller
@@ -41,8 +41,28 @@ class ProgramController extends Controller
 
     public function programVendor($id)
     {
-        $data = ProgramDetail::where('generate_bill', 1)->get();
-        return view('admin.program.vendor_report', compact('data'));
+        $pid = $id;
+
+
+
+        $data = ProgramDetail::select('vendor_id',
+                    DB::raw('SUM(dest_qty) as total_dest_qty'),
+                    DB::raw('SUM(line_charge) as total_line_charge'),
+                    DB::raw('SUM(carrying_bill) as total_carrying_bill'),
+                    DB::raw('SUM(scale_fee) as total_scale_fee'),
+                    DB::raw('SUM(advance) as total_advance'),
+                    DB::raw('SUM(other_cost) as total_other_cost'),
+                    DB::raw('SUM(due) as total_due')
+            )->where([
+                ['generate_bill','=', '1'],
+                ['program_id','=', $pid]
+            ])->groupBy('vendor_id')->get();
+
+
+
+
+
+        return view('admin.program.vendor_report', compact('data','pid'));
     }
 
 

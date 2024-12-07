@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
+use App\Models\Program;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -18,31 +19,23 @@ class TransactionController extends Controller
             'paymentNote' => 'nullable',
         ]);
 
-        $data = new AdvancePayment();
-        $data->program_detail_id = $request->id;
-        $data->program_id = $request->programId;
-        $data->vendor_id = $request->vendorId;
-        $data->amount = $request->paymentAmount;
-        $data->payment_type = $request->payment_type;
-        $data->receiver_name = $request->receiver_name;
-        $data->petrol_pump_id = $request->petrol_pump_id;
-        $data->fuel_rate = $request->fuel_rate;
-        $data->fuelqty = $request->fuelqty;
-        $data->date = date('Y-m-d');
-        if ($data->save()) {
+        $program = Program::where('id', $request->programId)->first();
+
+        
             $transaction = new Transaction();
-            $transaction->advance_payment_id = $data->id;
-            $transaction->program_detail_id = $request->id;
             $transaction->program_id = $request->programId;
+            $transaction->mother_vassel_id = $program->mother_vassel_id;
+            $transaction->lighter_vassel_id = $program->lighter_vassel_id;
+            $transaction->client_id = $program->client_id;
             $transaction->vendor_id = $request->vendorId;
             $transaction->amount = $request->paymentAmount;
             $transaction->payment_type = $request->payment_type;
-            $transaction->tran_type = "Advance";
+            $transaction->note = $request->paymentNote;
+            $transaction->tran_type = "Payment";
             $transaction->date = date('Y-m-d');
             $transaction->save();
-            $transaction->tran_id = 'AD' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+            $transaction->tran_id = 'AE' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
             $transaction->save();
-        }
 
         return response()->json([
             'status' => 'success',
