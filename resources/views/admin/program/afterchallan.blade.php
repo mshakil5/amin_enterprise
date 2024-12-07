@@ -647,9 +647,16 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log(response);
-                    $(".ermsg").html(response.message);
-                    window.setTimeout(function(){location.reload()},2000)
+
+                    if (status == 400) {
+                        $(".ermsg").html(response.message);
+                    } else {
+                        console.log(response);
+                        $(".ermsg").html(response.message);
+                        window.setTimeout(function(){location.reload()},2000)
+                    }
+
+                    
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseJSON.message);
