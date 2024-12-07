@@ -167,35 +167,41 @@ class ProgramController extends Controller
                 $data->date = date('Y-m-d');
                 $data->save();
 
-                $transaction = new Transaction();
-                $transaction->client_id = $request->input('client_id');
-                $transaction->mother_vassel_id = $request->input('mother_vassel_id');
-                $transaction->program_id = $program->id;
-                $transaction->program_detail_id = $invdtl->id;
-                $transaction->vendor_id = $vendorIds[$key];
-                $transaction->challan_no = $challanNos[$key]; 
-                $transaction->amount = $cashamounts[$key];
-                $transaction->tran_type = "Advance";
-                $transaction->payment_type = "Cash";
-                $transaction->date = date('Y-m-d');
-                $transaction->save();
-                $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-                $transaction->save();
+                if ($cashamounts[$key] > 0) {
+                    $transaction = new Transaction();
+                    $transaction->client_id = $request->input('client_id');
+                    $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $invdtl->id;
+                    $transaction->vendor_id = $vendorIds[$key];
+                    $transaction->challan_no = $challanNos[$key]; 
+                    $transaction->amount = $cashamounts[$key];
+                    $transaction->tran_type = "Advance";
+                    $transaction->payment_type = "Cash";
+                    $transaction->date = date('Y-m-d');
+                    $transaction->save();
+                    $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+                }
 
-                $transaction = new Transaction();
-                $transaction->client_id = $request->input('client_id');
-                $transaction->mother_vassel_id = $request->input('mother_vassel_id');
-                $transaction->program_id = $program->id;
-                $transaction->program_detail_id = $invdtl->id;
-                $transaction->vendor_id = $vendorIds[$key];
-                $transaction->challan_no = $challanNos[$key]; 
-                $transaction->amount = $fuelAmnt;
-                $transaction->tran_type = "Advance";
-                $transaction->payment_type = "Fuel";
-                $transaction->date = date('Y-m-d');
-                $transaction->save();
-                $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-                $transaction->save();
+                if ($fuelAmnt > 0) {
+                    $transaction = new Transaction();
+                    $transaction->client_id = $request->input('client_id');
+                    $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $invdtl->id;
+                    $transaction->vendor_id = $vendorIds[$key];
+                    $transaction->challan_no = $challanNos[$key]; 
+                    $transaction->amount = $fuelAmnt;
+                    $transaction->tran_type = "Advance";
+                    $transaction->payment_type = "Fuel";
+                    $transaction->date = date('Y-m-d');
+                    $transaction->save();
+                    $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+                }
+
+                
             }
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
 

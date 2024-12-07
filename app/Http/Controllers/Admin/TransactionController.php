@@ -43,9 +43,30 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function vendorAdvanceTran(Request $request)
+    public function vendorTran(Request $request)
     {
-        $data = AdvancePayment::where('program_detail_id',$request->pdid)->get();
-        return response()->json(['status'=> 300,'data'=>$data]);
+        $data = Transaction::where('program_id',$request->programId)->where('vendor_id',$request->vendorId)->get();
+
+        $prop = '';
+        
+            foreach ($data as $tran){
+                // <!-- Single Property Start -->
+                $prop.= '<tr>
+                            <td>
+                                '.$tran->date.'
+                            </td>
+                            <td>
+                                '.$tran->tran_id.'
+                            </td>
+                            <td>
+                                '.$tran->payment_type.'
+                            </td>
+                            <td>
+                                '.$tran->amount.'
+                            </td>
+                        </tr>';
+            }
+
+        return response()->json(['status'=> 300,'data'=>$prop]);
     }
 }

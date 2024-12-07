@@ -72,12 +72,12 @@
                     <td style="text-align: center">{{$data->total_scale_fee}}</td>
                     <td style="text-align: center">{{$data->total_other_cost}}</td>
                     <td style="text-align: center">{{$data->total_advance}}</td>
-                    <td style="text-align: center">{{$data->total_due}}</td>
+                    <td style="text-align: center">{{$data->total_carrying_bill - $totalPaid}}</td>
                     <td style="text-align: center">{{$totalPaid}}</td>
                     <td style="text-align: center">
                       <span class="badge badge-success payment-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $pid }}">Pay</span>
 
-                      <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}">Transaction</span>
+                      <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $pid }}">Transaction</span>
                     </td>
                   </tr>
                   @endforeach
@@ -136,6 +136,41 @@
 </div>
 
 
+<div class="modal fade" id="tranModal" tabindex="-1" role="dialog" aria-labelledby="tranModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="tranModalLabel">Vendor Payment Form</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+
+
+          <div class="modal-body">
+            
+            <table id="trantable" class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Transaction ID</th>
+                  <th>Payment Type</th>
+                  <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+
+          </div>
+        
+          
+      </div>
+  </div>
+</div>
+
+
 @endsection
 @section('script')
 <script>
@@ -173,62 +208,89 @@
 
 
     $("#contentContainer").on('click', '.payment-btn', function () {
-            var id = $(this).data('id');
-            var vendorId = $(this).data('vendor-id');
-            var programId = $(this).data('program-id');
-            console.log(vendorId);
-            $('#payModal').modal('show');
-            $('#payForm').off('submit').on('submit', function (event) {
-                event.preventDefault();
+      var id = $(this).data('id');
+      var vendorId = $(this).data('vendor-id');
+      var programId = $(this).data('program-id');
+      console.log(vendorId);
+      $('#payModal').modal('show');
+      $('#payForm').off('submit').on('submit', function (event) {
+          event.preventDefault();
 
-                var form_data = new FormData();
-                form_data.append("id", id);
-                form_data.append("vendorId", vendorId);
-                form_data.append("programId", programId);
-                form_data.append("paymentAmount", $("#paymentAmount").val());
-                form_data.append("payment_type", $("#payment_type").val());
-                form_data.append("paymentNote", $("#paymentNote").val());
+          var form_data = new FormData();
+          form_data.append("id", id);
+          form_data.append("vendorId", vendorId);
+          form_data.append("programId", programId);
+          form_data.append("paymentAmount", $("#paymentAmount").val());
+          form_data.append("payment_type", $("#payment_type").val());
+          form_data.append("paymentNote", $("#paymentNote").val());
 
-                if (!$("#paymentAmount").val()) {
-                    alert('Please enter a payment amount.');
-                    return;
-                }
+          if (!$("#paymentAmount").val()) {
+              alert('Please enter a payment amount.');
+              return;
+          }
 
-
-
-                $.ajax({
-                    url: '{{ URL::to('/admin/vendor-pay') }}',
-                    method: 'POST',
-                    data:form_data,
-                    contentType: false,
-                    processData: false,
-                    // dataType: 'json',
-                    success: function (response) {
-                      console.log(response);
-                        $('#payModal').modal('hide');
-                        swal({
-                            text: "Payment store successfully",
-                            icon: "success",
-                            button: {
-                                text: "OK",
-                                className: "swal-button--confirm"
-                            }
-                        }).then(() => {
-                            location.reload();
-                        });
-                    },
-                    error: function (xhr) {
-                        console.log(xhr.responseText);
-                    }
-                });
-            });
-        });
+          $.ajax({
+              url: '{{ URL::to('/admin/vendor-pay') }}',
+              method: 'POST',
+              data:form_data,
+              contentType: false,
+              processData: false,
+              // dataType: 'json',
+              success: function (response) {
+                console.log(response);
+                  $('#payModal').modal('hide');
+                  swal({
+                      text: "Payment store successfully",
+                      icon: "success",
+                      button: {
+                          text: "OK",
+                          className: "swal-button--confirm"
+                      }
+                  }).then(() => {
+                      location.reload();
+                  });
+              },
+              error: function (xhr) {
+                  console.log(xhr.responseText);
+              }
+          });
+      });
+    });
 
         $('#payModal').on('hidden.bs.modal', function () {
             $('#paymentAmount').val('');
             $('#paymentNote').val('');
         });
 
+
+        $("#contentContainer").on('click', '.trn-btn', function () {
+          var id = $(this).data('id');
+          var vendorId = $(this).data('vendor-id');
+          var programId = $(this).data('program-id');
+          console.log(vendorId);
+          $('#tranModal').modal('show');
+
+              var form_data = new FormData();
+              form_data.append("id", id);
+              form_data.append("vendorId", vendorId);
+              form_data.append("programId", programId);
+
+              $.ajax({
+                  url: '{{ URL::to('/admin/vendor-transaction') }}',
+                  method: 'POST',
+                  data:form_data,
+                  contentType: false,
+                  processData: false,
+                  // dataType: 'json',
+                  success: function (response) {
+                    console.log(response);
+                      $('#trantable tbody').html(response.data);
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+          });
 
   });
 </script>
