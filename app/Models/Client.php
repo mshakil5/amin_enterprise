@@ -18,4 +18,9 @@ class Client extends Model
     {
         return $this->hasMany(Program::class);
     }
+
+    public function clientRate()
+    {
+        return $this->hasMany(ClientRate::class);
+    }
 }

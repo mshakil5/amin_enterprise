@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\GhatController;
 use App\Http\Controllers\Admin\PumpController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\ClientRateController;
 use App\Http\Controllers\Admin\DestinationController;
 use App\Http\Controllers\Admin\LedgerController;
 use App\Http\Controllers\Admin\ProgramController;
@@ -104,6 +105,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/slab-rate/{id}/edit', [DestinationController::class, 'slabRateedit']);
     Route::post('/slab-rate-update', [DestinationController::class, 'slabRateupdate']);
     Route::get('/slab-rate/{id}', [DestinationController::class, 'slabRatedelete']);
+
+    // client slab rate
+    Route::get('/client-rate', [ClientRateController::class, 'index'])->name('admin.clientrate');
+    Route::post('/client-rate', [ClientRateController::class, 'store']);
+    Route::get('/client-rate/{id}/edit', [ClientRateController::class, 'edit']);
+    Route::post('/client-rate-update', [ClientRateController::class, 'update']);
+    Route::get('/client-rate/{id}', [ClientRateController::class, 'delete']);
 
 
 

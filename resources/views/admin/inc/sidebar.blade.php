@@ -84,7 +84,7 @@
       </li>
 
       <li class="nav-item">
-        <a href="{{route('admin.client')}}" class="nav-link {{ (request()->is('admin/client*')) ? 'active' : '' }}">
+        <a href="{{route('admin.client')}}" class="nav-link {{ (request()->is('admin/client')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
           <p>
             Client
@@ -106,6 +106,15 @@
           <i class="nav-icon fas fa-th"></i>
           <p>
             Slab Rate
+          </p>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="{{route('admin.clientrate')}}" class="nav-link {{ (request()->is('admin/client-rate*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Client Bill Rate
           </p>
         </a>
       </li>
