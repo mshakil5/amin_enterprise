@@ -40,7 +40,7 @@
                   <th>Lighter Vassel</th>
                   <th>Consignment No.</th>
                   <th>Bill Generate</th>
-                  <th>Status</th>
+                  <th>Vendor</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -58,7 +58,7 @@
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
                     </td>
                     <td style="text-align: center">
-                      
+                      <a href="{{route('admin.programVendorList', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Vendor</a>
                     </td>
                     <td style="text-align: center">
                       

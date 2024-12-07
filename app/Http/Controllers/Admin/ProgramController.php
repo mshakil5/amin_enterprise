@@ -39,6 +39,12 @@ class ProgramController extends Controller
         return view('admin.program.details', compact('data','pumps'));
     }
 
+    public function programVendor($id)
+    {
+        $data = ProgramDetail::where('generate_bill', 1)->get();
+        return view('admin.program.vendor_report', compact('data'));
+    }
+
 
     public function createProgram()
     {
