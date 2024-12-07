@@ -24,9 +24,9 @@
       <div class="col-2">
           <a href="{{route('admin.allProgram')}}" class="btn btn-secondary my-3">Back</a>
           @if ($data->bill_status == 1)
-          <a href="{{route('billGenerating', $data->id)}}" class="btn btn-secondary my-3 ">Generate Bill</a>
-          @else
           <a href="{{route('generatingBillShow', $data->id)}}" class="btn btn-secondary my-3">Bill Show </a>
+          @else
+          <a href="{{route('billGenerating', $data->id)}}" class="btn btn-secondary my-3 ">Generate Bill</a>
           @endif
           
       </div>

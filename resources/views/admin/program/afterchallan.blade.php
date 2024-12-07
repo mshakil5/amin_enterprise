@@ -433,6 +433,64 @@
         updateSummary();
     });
 
+
+    
+    $(document).ready(function() {
+        $(document).on('change', '#destid', function(e) {
+            e.preventDefault();
+
+            var totalqtyasperchallan = $("#totalqtyasperchallan").val();
+
+            if (!totalqtyasperchallan) {
+                alert('Please input quantity as per challan first!');
+                $("#destid").val('');
+                return;
+            }
+            var formData = new FormData();
+            formData.append("destid", $("#destid").val());
+            formData.append("ghat", $("#ghat_id").val());
+            formData.append("challanqty", $("#totalqtyasperchallan").val());
+
+            $.ajax({
+                url: '{{ route("admin.checkSlabRate") }}',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.totalAmount > 0) {
+                        $dueAmnt = $("#destid").val();
+                        $('#rateTable tbody').append(response.rate);
+                        $("#totalamount").val(response.totalAmount);
+                        $("#totalDue").val(response.totalAmount - $dueAmnt);
+                        
+                        updateSummary();
+
+                    } else {
+                        $('#rateTable tbody').html(' ');
+                        $("#totalamount").val(0);
+                        $("#totalDue").val(0);
+                    }
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                    // console.error(xhr.responseText);
+                },
+                complete: function() {
+                    $('#loader').hide();
+                    $('#addBtn').attr('disabled', false);
+                }
+            });
+        });
+
+    });
+
+
 </script>
 
 <!-- Create Program Start -->
@@ -497,58 +555,7 @@
 <!-- Create Program End -->
 
 
-<!-- Check slab rate -->
-<script>
-    $(document).ready(function() {
-        $(document).on('change', '#destid', function(e) {
-            e.preventDefault();
 
-            var totalqtyasperchallan = $("#totalqtyasperchallan").val();
-
-            if (!totalqtyasperchallan) {
-                alert('Please input quantity as per challan first!');
-                $("#destid").val('');
-                return;
-            }
-            var formData = new FormData();
-            formData.append("destid", $("#destid").val());
-            formData.append("ghat", $("#ghat_id").val());
-            formData.append("challanqty", $("#totalqtyasperchallan").val());
-
-            $.ajax({
-                url: '{{ route("admin.checkSlabRate") }}',
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                cache: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    if (response.totalAmount > 0) {
-                        $('#rateTable tbody').append(response.rate);
-                        $("#totalamount").val(response.totalAmount);
-                    } else {
-                        $('#rateTable tbody').html(' ');
-                        $("#totalamount").val(0);
-                    }
-                    
-                },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseJSON.message);
-                    // console.error(xhr.responseText);
-                },
-                complete: function() {
-                    $('#loader').hide();
-                    $('#addBtn').attr('disabled', false);
-                }
-            });
-        });
-
-    });
-</script>
-<!-- Check slab rate End -->
 
 <script>
     // return stock
