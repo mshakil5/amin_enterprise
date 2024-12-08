@@ -49,10 +49,22 @@
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                    <td style="text-align: center">{{$data->client->name}}</td>
+                    <td style="text-align: center">
+                      @if (isset($data->client_id))
+                      {{$data->client->name}}
+                      @endif
+                    </td>
                     <td style="text-align: center">{{$data->programid}}</td>
-                    <td style="text-align: center">{{$data->motherVassel->name}}</td>
-                    <td style="text-align: center">{{$data->lighterVassel->name}}</td>
+                    <td style="text-align: center">
+                      @if (isset($data->mother_vassel_id))
+                        {{$data->motherVassel->name}}
+                      @endif
+                    </td>
+                    <td style="text-align: center">
+                      @if ($data->lighter_vassel_id)
+                        {{$data->lighterVassel->name}}
+                      @endif
+                    </td>
                     <td style="text-align: center">{{$data->consignmentno}}</td>
                     <td style="text-align: center">
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
