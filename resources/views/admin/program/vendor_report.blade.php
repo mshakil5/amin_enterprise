@@ -290,7 +290,7 @@
                       console.log(xhr.responseText);
                   }
               });
-          });
+        });
 
   });
 </script>
