@@ -618,6 +618,7 @@ class ProgramController extends Controller
         $rates = $request->input('rate');
 
         $fadv = AdvancePayment::find($request->advPmtid);
+        $fadv->vendor_id = $request->vendor_id;
         $fadv->fuelqty = $request->fuelqty;
         $fadv->fuel_rate = $request->fuel_rate;
         $fadv->fueltoken = $request->fueltoken;
@@ -631,6 +632,7 @@ class ProgramController extends Controller
         $progrm->ghat_id = $prgm->ghat_id;
         $progrm->program_id = $prgm->id;
         $progrm->vendor_id = $request->vendor_id; 
+        $progrm->truck_number = $request->truck_number; 
         $progrm->headerid = $request->headerid; 
         $progrm->dest_qty = $request->totalqtyasperchallan;
         $progrm->challan_no = $prgmdtl->challan_no;
@@ -642,7 +644,7 @@ class ProgramController extends Controller
         $progrm->additional_cost = $request->additionalCost;
         $progrm->advance = $fadv->amount; 
         $progrm->due = $request->totalamount + $request->additionalCost - $fadv->amount; 
-        $progrm->rate_status = 1;
+        $progrm->rate_status = 0;
         $progrm->save();
 
         
