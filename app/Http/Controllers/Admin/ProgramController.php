@@ -27,7 +27,13 @@ class ProgramController extends Controller
 
     public function allPrograms()
     {
-        $data = Program::orderby('id','DESC')->get();
+        $data = Program::
+        withCount([
+            'programDetail as unique_challan_count' => function ($query) {
+                $query->select(DB::raw('COUNT(DISTINCT challan_no)'));
+            }
+        ])->orderby('id','DESC')->get();
+
         return view('admin.program.index', compact('data'));
     }
 
@@ -487,6 +493,28 @@ class ProgramController extends Controller
         
             foreach ($prgmdtls as $prgmdtl){
                 // <!-- Single Property Start -->
+
+                if (isset($prgmdtl->destination_id)) {
+                    $challanRate = ChallanRate::where('program_detail_id', $prgmdtl->id)->where('challan_no', $request->challan_no)->get();
+
+                    $prate = '';
+
+                    foreach ($challanRate as $key => $rate) {
+                        $id = $key+1;
+                        $prate.= '<tr>
+                            <td><input type="number" class="form-control qty" id="slabqty'.$id.'" name="qty[]" value="'.$rate->qty.'" ><input type="hidden" class="form-control" id="challanrateid'.$id.'" name="challanrateid[]" value="'.$rate->id.'" ></td>
+                            <td><input type="number" class="form-control rate" id="slabrate'.$id.'" name="rate[]" value="'.$rate->rate_per_unit.'" ></td>
+                            <td><input type="number" class="form-control rateunittotal" id="slabamnt'.$id.'" name="amnt[]" value="'.$rate->total.'" readonly></td>
+                        </tr>';
+                    }
+
+
+
+                } else {
+                    $prate = '';
+                }
+                
+
                 $prop.= '<tr>
                             <td>
                                 <select class="form-control" id="vendor_id'.$prgmdtl->id.'" name="vendor_id">
@@ -518,14 +546,14 @@ class ProgramController extends Controller
                                 <input type="number" class="form-control" id="amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->amount.'">
                             </td>
                             <td>
-                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-advid="'.$prgmdtl->advancePayment->id.'"><i class="fas fa-arrow-right"></i></span>
+                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-headerid="'.$prgmdtl->headerid.'" data-destqty="'.$prgmdtl->dest_qty.'" data-linecharge="'.$prgmdtl->line_charge.'" data-scale_fee="'.$prgmdtl->scale_fee.'" data-other_cost="'.$prgmdtl->other_cost.'" data-destination_id="'.$prgmdtl->destination_id.'" data-advid="'.$prgmdtl->advancePayment->id.'" data-due="'.$prgmdtl->due.'" data-additional_cost="'.$prgmdtl->additional_cost.'" data-carrying_bill="'.$prgmdtl->carrying_bill.'"><i class="fas fa-arrow-right"></i></span>
                             </td>
                         </tr>';
             }
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan found.</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program, 'prgmdtls'=>$prgmdtls, 'prate'=>$prate]);
 
 
         } else {
@@ -616,6 +644,7 @@ class ProgramController extends Controller
         $data = $request->all();
         $qtys = $request->input('qty');
         $rates = $request->input('rate');
+        $oldchallanrateids = $request->input('challanrateid');
 
         $fadv = AdvancePayment::find($request->advPmtid);
         $fadv->vendor_id = $request->vendor_id;
@@ -627,6 +656,14 @@ class ProgramController extends Controller
         $fadv->save();
 
         $progrm = ProgramDetail::find($request->prgmdtlid);
+
+        //importent
+        if ($progrm->destination_id != $request->destid) {
+            $dltoldchallanrate = ChallanRate::where('challan_no', $progrm->challan_no)->where('program_detail_id', $progrm->id)->delete();
+        }
+        //importent
+
+
         $progrm->after_date = date('Y-m-d');
         $progrm->destination_id = $request->destid;
         $progrm->ghat_id = $prgm->ghat_id;
@@ -647,19 +684,37 @@ class ProgramController extends Controller
         $progrm->rate_status = 0;
         $progrm->save();
 
+
         
 
             foreach($rates as $key => $value)
             {
 
-                $chalanRate = new ChallanRate();
-                $chalanRate->program_detail_id = $progrm->id;
-                $chalanRate->challan_no = $progrm->challan_no;
-                $chalanRate->qty = $qtys[$key]; 
-                $chalanRate->rate_per_unit = $rates[$key]; 
-                $chalanRate->total = $rates[$key] * $qtys[$key]; 
-                $chalanRate->created_by = Auth::user()->id;
-                $chalanRate->save();
+
+                if (isset($oldchallanrateids[$key])) {
+
+                    $chalanRate = ChallanRate::find($oldchallanrateids[$key]);
+                    $chalanRate->program_detail_id = $progrm->id;
+                    $chalanRate->challan_no = $progrm->challan_no;
+                    $chalanRate->qty = $qtys[$key]; 
+                    $chalanRate->rate_per_unit = $rates[$key]; 
+                    $chalanRate->total = $rates[$key] * $qtys[$key]; 
+                    $chalanRate->created_by = Auth::user()->id;
+                    $chalanRate->save();
+
+                } else {
+
+                    $chalanRate = new ChallanRate();
+                    $chalanRate->program_detail_id = $progrm->id;
+                    $chalanRate->challan_no = $progrm->challan_no;
+                    $chalanRate->qty = $qtys[$key]; 
+                    $chalanRate->rate_per_unit = $rates[$key]; 
+                    $chalanRate->total = $rates[$key] * $qtys[$key]; 
+                    $chalanRate->created_by = Auth::user()->id;
+                    $chalanRate->save();
+                }
+                
+                
                 
             }
 

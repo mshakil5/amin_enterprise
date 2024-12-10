@@ -493,7 +493,7 @@
 
 </script>
 
-<!-- Create Program Start -->
+<!-- Create check challan Start -->
 <script>
     $(document).ready(function() {
         $(document).on('click', '#checkBtn', function(e) {
@@ -504,6 +504,7 @@
             $(this).attr('disabled', false);
 
             $('#programTable tbody').html('');
+            $('#rateTable tbody').html('');
             $("#addadvThisForm").hide();
             var formData = new FormData($('#createThisForm')[0]);
 
@@ -519,15 +520,21 @@
                 },
                 success: function(response) {
                     console.log(response);
+
                     if (response.data == "empty") {
+
                         $("#mother_vassel_id").val('');
                         $("#lighter_vassel_id").val('');
                         $("#ghat_id").val('');
                         $("#consignmentno").val('');
                         $(".ermsg").html(response.message);
                         $('#programTable tbody').html('');
+                        $('#rateTable tbody').html('');
+
                     } else {
+
                         $("#addadvThisForm").show();
+                        $("#headerDiv").hide();
                         // $("#totalAmount").val(response.totalAmount);
                         $("#mother_vassel_id").val(response.program.mother_vassel_id);
                         $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
@@ -535,6 +542,8 @@
                         $("#consignmentno").val(response.program.consignmentno);
                         $(".ermsg").html(response.message);
                         $('#programTable tbody').append(response.data);
+                        $('#rateTable tbody').append(response.prate);
+
                     }
                     
                     
@@ -552,7 +561,7 @@
 
     });
 </script>
-<!-- Create Program End -->
+<!-- Create  check challan End -->
 
 
 
@@ -564,9 +573,29 @@
         advAmnt = $(this).attr('data-adv');
         prgmDtlId = $(this).attr('data-pdtlid');
         advPmtiId = $(this).attr('data-advid');
+
+        headerid = $(this).attr('data-headerid');
+        destqty = $(this).attr('data-destqty');
+        linecharge = $(this).attr('data-linecharge');
+        scale_fee = $(this).attr('data-scale_fee');
+        other_cost = $(this).attr('data-other_cost');
+        destination_id = $(this).attr('data-destination_id');
+        due = $(this).attr('data-due');
+        additional_cost = $(this).attr('data-additional_cost');
+        carrying_bill = $(this).attr('data-carrying_bill');
+
         $("#advanceAmnt").val(advAmnt);
         $("#prgmdtlid").val(prgmDtlId);
         $("#advPmtid").val(advPmtiId);
+        $("#headerid").val(headerid);
+        $("#totalqtyasperchallan").val(destqty);
+        $("#destid").val(destination_id);
+        $("#scale_fee").val(scale_fee);
+        $("#line_charge").val(linecharge);
+        $("#other_cost").val(other_cost);
+        $("#totalDue").val(due);
+        $("#additionalCost").val(additional_cost);
+        $("#totalamount").val(carrying_bill);
         $("#headerDiv").show();
     });
     // return stock end

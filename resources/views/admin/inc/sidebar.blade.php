@@ -119,7 +119,7 @@
         </a>
       </li>
 
-      <li class="nav-item">
+      <li class="nav-item {{ (request()->is('admin/program*')) ||  (request()->is('admin/add-program')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
           <p>
@@ -128,14 +128,14 @@
           </p>
         </a>
         <ul class="nav nav-treeview">
-          <li class="nav-item">
-            <a href="{{route('admin.addProgram')}}" class="nav-link">
+          <li class="nav-item  ">
+            <a href="{{route('admin.addProgram')}}" class="nav-link {{ (request()->is('admin/add-program')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Add Program</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="{{route('admin.allProgram')}}" class="nav-link">
+            <a href="{{route('admin.allProgram')}}" class="nav-link {{ (request()->is('admin/program*')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Programs</p>
             </a>

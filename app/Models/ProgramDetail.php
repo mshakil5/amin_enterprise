@@ -33,4 +33,9 @@ class ProgramDetail extends Model
     {
         return $this->belongsTo(Destination::class);
     }
+
+    public function clientRate()
+    {
+        return $this->hasMany(ClientRate::class);
+    }
 }

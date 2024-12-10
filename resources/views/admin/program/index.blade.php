@@ -41,6 +41,7 @@
                   <th>Consignment No.</th>
                   <th>Bill Generate</th>
                   <th>Vendor</th>
+                  <th>Total Challan</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -74,9 +75,13 @@
                     </td>
                     <td style="text-align: center">
                       
-                        <a class="btn btn-app" href="{{route('admin.programDetail', $data->id)}}">
-                          <i class="fa fa-eye" style="color: #32a842;font-size:16px;"></i> View
-                        </a>
+                      <a class="btn btn-block btn-info btn-xs" href="{{route('admin.programDetail', $data->id)}}">
+                        <span>{{$data->unique_challan_count}}</span>
+                      </a>
+                    </td>
+                    <td style="text-align: center">
+                      
+                        
                         <a class="btn btn-app"  href="{{route('admin.programEdit', $data->id)}}">
                             <i class="fas fa-edit" style="color: #2196f3;font-size:16px;"></i> Edit
                         </a>
