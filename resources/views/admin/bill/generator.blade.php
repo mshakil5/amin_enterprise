@@ -2,6 +2,17 @@
 
 @section('content')
 
+<!-- Main content -->
+<section class="content mt-3" id="newBtnSection">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-2">
+            <a href="{{route('admin.programDetail', $programId)}}" class="btn btn-secondary my-3">Back</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /.content -->
 
 <section class="content pt-3" id="contentContainer">
     <div class="container-fluid">

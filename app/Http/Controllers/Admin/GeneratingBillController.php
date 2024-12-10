@@ -35,7 +35,7 @@ class GeneratingBillController extends Controller
         $programId = $request->programId;
         if (isset($programId)) {
             $program = Program::find($programId);
-            $program->bill_status = 0;
+            $program->bill_status = 1;
             $program->save();
         }
         // Move the file to a temporary location
