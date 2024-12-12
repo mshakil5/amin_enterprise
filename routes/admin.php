@@ -133,6 +133,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     // billing
     Route::get('/bill', [TransactionController::class,'getBill'])->name('admin.getBill');
+    Route::post('/check-bill', [TransactionController::class, 'checkBill'])->name('admin.checkBill');
+    Route::post('/bill-store', [TransactionController::class, 'billStore'])->name('admin.billStore');
 
     // vendor payment
     Route::post('/vendor-pay', [TransactionController::class,'vendorAdvancePay'])->name('vendorAdvancePay');

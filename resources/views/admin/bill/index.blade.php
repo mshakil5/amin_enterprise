@@ -60,7 +60,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="form-group col-md-4">
+                                        <div class="form-group col-md-3">
                                             <label for="mv_id">Mother Vassel<span style="color: red;">*</span> </label>
                                             <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
@@ -68,6 +68,11 @@
                                               <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
                                               @endforeach
                                             </select>
+                                        </div>
+
+                                        <div class="form-group col-md-3">
+                                            <label for="bill_number">Bill Number<span style="color: red;">*</span> </label>
+                                            <input type="number" id="bill_number" name="bill_number" class="form-control" value="134904">
                                         </div>
 
                                         
@@ -82,6 +87,95 @@
                             </div>
                             
                         </form>
+
+                        <hr>
+
+
+                            <div class="row justify-content-md-center">
+                                <div class="col-sm-6">
+                                    
+                                    <form class="form-horizontal" id="billForm">
+                                        <div class="card-body">
+                                          <div class="form-group row">
+                                            <label for="totalqty" class="col-sm-4 col-form-label">Total Qty</label>
+                                            <div class="col-sm-6">
+                                              <input type="number" class="form-control" id="totalqty" name="totalqty" readonly>
+                                            </div>
+                                          </div>
+
+                                          
+                                          <div class="form-group row">
+                                            <label for="rcvType" class="col-sm-4 col-form-label">Received Method</label>
+                                            <div class="col-sm-6">
+                                                <select name="rcvType" id="rcvType" class="form-control">
+                                                    <option value="Bank">Bank</option>
+                                                    <option value="Cash">Cash</option>
+                                                </select>
+                                            </div>
+                                          </div>
+
+                                          
+                                          <div class="form-group row">
+                                            <label for="" class="col-sm-4 col-form-label">Total Amount (BDT)</label>
+                                            <div class="col-sm-6">
+                                              <input type="number" class="form-control" id="totalAmount" name="totalAmount" readonly>
+                                            </div>
+                                          </div>
+
+                                          
+                                          <div class="form-group row">
+                                            <label for="maintainance" class="col-sm-4 col-form-label">Less: Maintainance</label>
+                                            <div class="col-sm-6">
+                                              <input type="number" class="form-control" id="maintainance" name="maintainance">
+                                            </div>
+                                          </div>
+
+                                          
+                                          <div class="form-group row">
+                                            <label for="otherexp" class="col-sm-4 col-form-label">Less: Other Cost</label>
+                                            <div class="col-sm-6">
+                                              <input type="number" class="form-control" id="otherexp" name="otherexp">
+                                            </div>
+                                          </div>
+
+                                          
+                                          <div class="form-group row">
+                                            <label for="scaleCharge" class="col-sm-4 col-form-label">Add: Scale Charge</label>
+                                            <div class="col-sm-6">
+                                              <input type="number" class="form-control" id="scaleCharge" name="scaleCharge">
+                                            </div>
+                                          </div>
+
+                                          <div class="form-group row">
+                                            <label for="otherRcv" class="col-sm-4 col-form-label">Add: Others Receive</label>
+                                            <div class="col-sm-6">
+                                              <input type="number" class="form-control" id="otherRcv" name="otherRcv">
+                                            </div>
+                                          </div>
+
+                                          <div class="form-group row">
+                                            <label for="" class="col-sm-4 col-form-label">Total</label>
+                                            <div class="col-sm-6">
+                                              <input type="number" class="form-control" id="netAmount" name="netAmount">
+                                            </div>
+                                          </div>
+
+                                          <div class="form-group row">
+                                            
+                                            <div class="col-sm-6">
+                                                <button type="submit" id="saveBtn" class="btn btn-info float-right">Save</button>
+                                            </div>
+                                            
+                                          </div>
+                                          
+                                        </div>
+
+                                      </form>
+                                </div>
+
+                            </div>
+                            
+
                     </div>
                     <div class="card-footer"> </div>
                 </div>
@@ -119,7 +213,6 @@
                   <th> From-To </th>
                   <th style="text-align: center">Qty</th>
                   <th style="text-align: center">Receivable Amount</th>
-                  <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -138,12 +231,6 @@
                         } else {
                             $totalAmount = $totalQty * $rate->below_rate_per_qty;
                         }
-
-                        // $belowAmount = $rate->maxqty * $rate->below_rate_per_qty;
-                        // $aboveQty = $totalQty - $rate->maxqty;
-                        // $aboveAmount = $aboveQty * $rate->above_rate_per_qty;
-                        // $totalAmount = $belowAmount + $aboveAmount;
-                    
                       }
                   @endphp
 
@@ -171,14 +258,6 @@
                     </td>
 
 
-                    <td style="text-align: center">
-                        @if (isset($rate))
-                        <label class="form-checkbox  grid layout">
-                            <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->bill_status == 1) checked @endif  />
-                        </label>
-                        @endif
-                        
-                    </td>
                   </tr>
                   @endforeach
                 
@@ -194,21 +273,10 @@
                         <td></td>
                         <td></td>
                         <td>
-                            <label>Select Received Method</label> <br>
-                            <select name="rcvType" id="rcvType" class="form-control">
-                                <option value="Bank">Bank</option>
-                                <option value="Cash">Cash</option>
-                            </select>
+                            <label>Total Amount</label> 
                         </td>
                         <td>
-                            <label>Total Amount</label> <br>
-                            <input type="number" id="totalAmnt" name="totalAmnt" class="form-control">
-                        </td>
-                        <td>
-                            <div class="form-group">
-                                <label>Action</label> <br>
-                                <button type="button" form="createThisForm" id="checkBtn"  class="btn btn-secondary">Received</button>
-                            </div>
+                            <input type="number" id="totalBill" class="form-control" readonly>
                         </td>
                     </tr>
                     
@@ -253,29 +321,78 @@
 </script>
 
 
+<!-- Create check challan Start -->
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '#checkBtn', function(e) {
+            e.preventDefault();
+
+            $(this).attr('disabled', true);
+            $('#loader').show();
+            $(this).attr('disabled', false);
+
+            var formData = new FormData($('#createThisForm')[0]);
+
+            $.ajax({
+                url: '{{ route("admin.checkBill") }}',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // console.log(response);
+
+                    if (response.data == "empty") {
+                        // $("#mv_id").val('');
+                        // $("#client_id").val('');
+                        $(".ermsg").html(response.message);
+                        // $('#programTable tbody').html('');
+
+                    } else {
+
+                        $("#totalAmount").val(response.totalAmount);
+                        $("#netAmount").val(response.totalAmount);
+                        $("#totalqty").val(response.totalQty);
+                        $(".ermsg").html(response.message);
+
+                    }
+                    
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                    // console.error(xhr.responseText);
+                },
+                complete: function() {
+                    $('#loader').hide();
+                    $('#addBtn').attr('disabled', false);
+                }
+            });
+        });
+
+    });
+</script>
+<!-- Create  check challan End -->
+
 <!--  Program after challan data store start -->
 <script>
     $(document).ready(function() {
-        $(document).on('click', '#afterChallanBtn', function(e) {
+        $(document).on('click', '#saveBtn', function(e) {
             e.preventDefault();
 
-            // $(this).attr('disabled', true);
-            // $('#loader').show();
-            var prgmdtlid = $('#prgmdtlid').val();
-
-
             // console.log(prgmdtlid, vendorid, truck_number, fuelqty, fuel_rate, fuel_amount, tamount, fueltoken, tamount,);
-            var formData = new FormData($('#addadvThisForm')[0]);
-            formData.append("vendor_id", $('#vendor_id'+prgmdtlid).val());
-            formData.append("truck_number", $('#truck_number'+prgmdtlid).val());
-            formData.append("fuelqty", $('#fuelqty'+prgmdtlid).val());
-            formData.append("fuel_rate", $('#fuel_rate'+prgmdtlid).val());
-            formData.append("fuel_amount", $('#fuel_amount'+prgmdtlid).val());
-            formData.append("amount", $('#amount'+prgmdtlid).val());
-            formData.append("fueltoken", $('#fueltoken'+prgmdtlid).val());
+            var formData = new FormData($('#billForm')[0]);
+            formData.append("client_id", $('#client_id').val());
+            formData.append("mv_id", $('#mv_id').val());
+            formData.append("bill_number", $('#bill_number').val());
+            
 
             $.ajax({
-                url: '{{ route("after-challan-store") }}',
+                url: '{{ route("admin.billStore") }}',
                 method: 'POST',
                 data: formData,
                 contentType: false,

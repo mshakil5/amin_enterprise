@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
 use App\Models\Client;
+use App\Models\ClientRate;
 use App\Models\MotherVassel;
 use App\Models\Program;
 use App\Models\ProgramDetail;
@@ -80,5 +81,53 @@ class TransactionController extends Controller
         
         $data = ProgramDetail::where('generate_bill', 1)->get();
         return view('admin.bill.index', compact('clients','mvassels','data'));
+    }
+
+    public function checkBill(Request $request)
+    {
+        $data = $request->all();
+        
+        $chkprgms = ProgramDetail::where('client_id', $request->client_id)->where('bill_no', $request->bill_number)->where('mother_vassel_id', $request->mv_id)->get();
+
+
+        
+        if ($chkprgms) {
+            $totalAmount = 0;
+            $totalQty = 0;
+            foreach ($chkprgms as $key => $prgmDtl) {
+                $rate = ClientRate::where('client_id', $request->client_id)->where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
+                      $qty = $prgmDtl->dest_qty;
+
+                      if ($rate) {
+                        if ( $qty > $rate->maxqty) {
+                            $belowAmount = $rate->maxqty * $rate->below_rate_per_qty;
+                            $aboveQty = $qty - $rate->maxqty;
+                            $aboveAmount = $aboveQty * $rate->above_rate_per_qty;
+                            $totalAmount += $belowAmount + $aboveAmount;
+                        } else {
+                            $totalAmount += $qty * $rate->below_rate_per_qty;
+                        }
+                        $totalQty = $totalQty + $qty;
+                      }
+            }
+        }
+        
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Bill Found.</b></div>";
+        return response()->json(['status'=> 300,'message'=>$message,'data'=>$chkprgms,'totalAmount'=>$totalAmount,'totalQty'=>$totalQty]);
+    }
+
+    public function billStore(Request $request)
+    {
+        $data = $request->all();
+        
+        $chkprgms = ProgramDetail::where('client_id', $request->client_id)->where('bill_no', $request->bill_number)->where('mother_vassel_id', $request->mv_id)->get();
+
+
+       
+        
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Bill Found.</b></div>";
+        return response()->json(['status'=> 300,'message'=>$message,'data'=>$data]);
     }
 }
