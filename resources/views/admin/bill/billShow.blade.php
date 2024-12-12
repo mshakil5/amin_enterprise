@@ -47,11 +47,11 @@
                 <tr>
                     <th>sl</th>
                     <th>header_id</th>
+                    <th>Bill Number</th>
                     <th>date</th>
                     <th>truck_number</th>
                     <th>destination</th>
-                    <th>from_location</th>
-                    <th>to_location</th>
+                    <th>from-to location</th>
                     <th>shipping_method</th>
                     <th>challan_qty</th>
                     <th>Bill Status</th>
@@ -64,10 +64,10 @@
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{$data->header_id}}</td>
+                    <td style="text-align: center">{{$data->bill_no}}</td>
                     <td style="text-align: center">{{$data->date}}</td>
                     <td style="text-align: center">{{$data->truck_number}}</td>
-                    <td style="text-align: center">{{$data->destination}}</td>
-                    <td style="text-align: center">{{$data->from_location }}</td>
+                    <td style="text-align: center">{{$data->destination}}-{{$data->from_location }}</td>
                     <td style="text-align: center">{{$data->to_location}}</td>
                     <td style="text-align: center">{{$data->shipping_method}}</td>
                     <td style="text-align: center">{{$data->challan_qty}}</td>

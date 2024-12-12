@@ -69,6 +69,11 @@
                     <td style="text-align: center">{{$data->consignmentno}}</td>
                     <td style="text-align: center">
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
+
+                      @if ($data->bill_status == 1)
+                        <a href="{{route('generatingBillShow', $data->id)}}" class="btn btn-block btn-success btn-xs">Bill Show </a>
+                      @endif
+
                     </td>
                     <td style="text-align: center">
                       <a href="{{route('admin.programVendorList', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Vendor</a>
@@ -78,6 +83,14 @@
                       <a class="btn btn-block btn-info btn-xs" href="{{route('admin.programDetail', $data->id)}}">
                         <span>{{$data->unique_challan_count}}</span>
                       </a>
+
+                      @if ($data->generate_bill_count > 0)
+                        <span class="btn btn-success btn-xs">{{$data->generate_bill_count}} </span>
+                      @endif
+                      @if ($data->not_generate_bill_count > 0)
+                        <span class="btn btn-danger btn-xs">{{$data->not_generate_bill_count}} </span>
+                      @endif
+
                     </td>
                     <td style="text-align: center">
                       

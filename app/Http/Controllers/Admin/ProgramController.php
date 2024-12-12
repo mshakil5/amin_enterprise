@@ -31,8 +31,16 @@ class ProgramController extends Controller
         withCount([
             'programDetail as unique_challan_count' => function ($query) {
                 $query->select(DB::raw('COUNT(DISTINCT challan_no)'));
+            },
+            'programDetail as generate_bill_count' => function ($query) {
+                $query->where('generate_bill', 1);
+            },
+            'programDetail as not_generate_bill_count' => function ($query) {
+                $query->where('generate_bill', 0);
             }
         ])->orderby('id','DESC')->get();
+
+        // dd( $data );
 
         return view('admin.program.index', compact('data'));
     }
