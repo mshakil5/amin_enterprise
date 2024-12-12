@@ -59,9 +59,9 @@ class GeneratingBillController extends Controller
 
                 $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[10])->first();
                 if (isset($chkPrgmDetail)) {
+                    $chkPrgmDetail->bill_no = $row[26];
                     $chkPrgmDetail->generate_bill = 1;
                     $chkPrgmDetail->save();
-
                     $billingSts = 1;
                 } else {
                     $billingSts = 0;

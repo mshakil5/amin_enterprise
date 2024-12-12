@@ -53,6 +53,7 @@
                 <tr>
                   <th>Sl</th>
                   <th>Bill Status</th>
+                  <th>Bill No</th>
                   <th>Date</th>
                   <th>Vendor</th>
                   <th>Header ID</th>
@@ -79,6 +80,7 @@
                       </label>
 
                     </td>
+                    <td style="text-align: center">{{$data->bill_no}}</td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
                     <td style="text-align: center">{{$data->headerid}}</td>

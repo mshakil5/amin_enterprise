@@ -81,7 +81,7 @@
                     <td style="text-align: center">
                       
                       <a class="btn btn-block btn-info btn-xs" href="{{route('admin.programDetail', $data->id)}}">
-                        <span>{{$data->unique_challan_count}}</span>
+                        <span>Total Challan-{{$data->unique_challan_count}}</span>
                       </a>
 
                       @if ($data->generate_bill_count > 0)

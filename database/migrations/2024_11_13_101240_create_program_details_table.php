@@ -43,6 +43,7 @@ return new class extends Migration
             $table->double('additional_cost',10,2)->default(0)->nullable();
             $table->double('advance',10,2)->default(0)->nullable();
             $table->double('due',10,2)->default(0)->nullable();
+            $table->string('bill_no',191)->nullable();
             $table->boolean('dest_status')->default(1); 
             $table->boolean('tran_status')->default(0); 
             // 0= not complete, 1=complete 
