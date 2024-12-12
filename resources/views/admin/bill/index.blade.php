@@ -102,26 +102,51 @@
 
           <div class="card card-secondary">
             <div class="card-header">
-              <h3 class="card-title">All Generated Challan</h3>
+              <h3 class="card-title">All Generated bill not received from client.</h3>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                  <th>Sl</th>
-                  <th>Bill Status</th>
-                  <th>Bill No</th>
-                  <th>Date</th>
-                  <th>Vendor</th>
-                  <th>Header ID</th>
-                  <th>Truck Number</th>
-                  <th>Challan no</th>
+                  <th style="text-align: center">Sl</th>
+                  <th style="text-align: center">Bill Status</th>
+                  <th style="text-align: center">Bill No</th>
+                  <th style="text-align: center">Date</th>
+                  <th style="text-align: center">Vendor</th>
+                  <th style="text-align: center">Header ID</th>
+                  <th style="text-align: center">Challan no</th>
+                  <th> From-To </th>
+                  <th style="text-align: center">Qty</th>
+                  <th style="text-align: center">Receivable Amount</th>
                   <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                   @foreach ($data as $key => $data)
+
+                  @php
+                      $rate = \App\Models\ClientRate::where('client_id', $data->client_id)->where('destination_id', $data->destination_id)->where('ghat_id', $data->ghat_id)->first();
+                      $totalQty = $data->dest_qty;
+
+                      if ($rate) {
+                        if ( $totalQty > $rate->maxqty) {
+                            $belowAmount = $rate->maxqty * $rate->below_rate_per_qty;
+                            $aboveQty = $totalQty - $rate->maxqty;
+                            $aboveAmount = $aboveQty * $rate->above_rate_per_qty;
+                            $totalAmount = $belowAmount + $aboveAmount;
+                        } else {
+                            $totalAmount = $totalQty * $rate->below_rate_per_qty;
+                        }
+
+                        // $belowAmount = $rate->maxqty * $rate->below_rate_per_qty;
+                        // $aboveQty = $totalQty - $rate->maxqty;
+                        // $aboveAmount = $aboveQty * $rate->above_rate_per_qty;
+                        // $totalAmount = $belowAmount + $aboveAmount;
+                    
+                      }
+                  @endphp
+
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">
@@ -135,19 +160,59 @@
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
                     <td style="text-align: center">{{$data->headerid}}</td>
-                    <td style="text-align: center">{{$data->truck_number}}</td>
                     <td style="text-align: center">{{$data->challan_no}}</td>
+                    <td style="text-align: center">{{$data->ghat->name ?? ''}}-{{$data->destination->name ?? ''}}
+                    </td>
+                    <td style="text-align: center">{{$data->dest_qty}}</td>
+                    <td style="text-align: center">
+                        @if (isset($rate))
+                        {{$totalAmount}}
+                        @endif
+                    </td>
 
 
                     <td style="text-align: center">
+                        @if (isset($rate))
                         <label class="form-checkbox  grid layout">
                             <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->bill_status == 1) checked @endif  />
-                          </label>
+                        </label>
+                        @endif
+                        
                     </td>
                   </tr>
                   @endforeach
                 
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <label>Select Received Method</label> <br>
+                            <select name="rcvType" id="rcvType" class="form-control">
+                                <option value="Bank">Bank</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </td>
+                        <td>
+                            <label>Total Amount</label> <br>
+                            <input type="number" id="totalAmnt" name="totalAmnt" class="form-control">
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <label>Action</label> <br>
+                                <button type="button" form="createThisForm" id="checkBtn"  class="btn btn-secondary">Received</button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                </tfoot>
               </table>
             </div>
             <!-- /.card-body -->
