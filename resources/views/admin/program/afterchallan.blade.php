@@ -16,11 +16,11 @@
         </div>
       </div>
     </div>
-  </section>
-  <!-- /.content -->
+</section>
+<!-- /.content -->
 
 
-  <section class="content pt-3" id="addThisFormContainer">
+<section class="content pt-3" id="addThisFormContainer">
     <div class="container-fluid">
         <div class="row justify-content-md-center">
 

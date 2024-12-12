@@ -119,6 +119,15 @@
         </a>
       </li>
 
+      <li class="nav-item">
+        <a href="{{route('admin.getBill')}}" class="nav-link {{ (request()->is('admin/bill*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Bill Received
+          </p>
+        </a>
+      </li>
+
       <li class="nav-item {{ (request()->is('admin/program*')) ||  (request()->is('admin/add-program')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>

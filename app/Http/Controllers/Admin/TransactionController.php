@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
+use App\Models\Client;
+use App\Models\MotherVassel;
 use App\Models\Program;
+use App\Models\ProgramDetail;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -68,5 +71,14 @@ class TransactionController extends Controller
             }
 
         return response()->json(['status'=> 300,'data'=>$prop]);
+    }
+
+    public function getBill()
+    {
+        $clients = Client::orderby('id','DESC')->where('status', 1)->get();
+        $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        
+        $data = ProgramDetail::where('generate_bill', 1)->get();
+        return view('admin.bill.index', compact('clients','mvassels','data'));
     }
 }
