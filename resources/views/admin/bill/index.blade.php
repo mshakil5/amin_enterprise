@@ -96,6 +96,14 @@
                                     
                                     <form class="form-horizontal" id="billForm">
                                         <div class="card-body">
+                                            
+                                          <div class="form-group row">
+                                            <label for="totalqty" class="col-sm-4 col-form-label">Total Qty</label>
+                                            <div class="col-sm-6">
+                                                <input type="date" class="form-control" id="date" name="date" value="{{date('Y-m-d')}}">
+                                            </div>
+                                          </div>
+
                                           <div class="form-group row">
                                             <label for="totalqty" class="col-sm-4 col-form-label">Total Qty</label>
                                             <div class="col-sm-6">

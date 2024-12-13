@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
+use App\Models\BillReceive;
 use App\Models\Client;
 use App\Models\ClientRate;
 use App\Models\MotherVassel;
@@ -124,10 +125,24 @@ class TransactionController extends Controller
         $chkprgms = ProgramDetail::where('client_id', $request->client_id)->where('bill_no', $request->bill_number)->where('mother_vassel_id', $request->mv_id)->get();
 
 
+        $bill = new BillReceive();
+        $bill->date = $request->date;
+        $bill->client_id = $request->client_id;
+        $bill->mother_vassel_id = $request->mv_id;
+        $bill->bill_number = $request->bill_number;
+        $bill->rcv_type = $request->rcvType;
+        $bill->qty = $request->totalqty;
+        $bill->total_amount = $request->totalAmount;
+        $bill->maintainance = $request->maintainance;
+        $bill->scale_charge = $request->scaleCharge;
+        $bill->other_exp = $request->otherexp;
+        $bill->other_rcv = $request->otherRcv;
+        $bill->net_amount = $request->netAmount;
+        $bill->save();
        
         
 
-        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Bill Found.</b></div>";
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Bill Stored successfully.</b></div>";
         return response()->json(['status'=> 300,'message'=>$message,'data'=>$data]);
     }
 }
