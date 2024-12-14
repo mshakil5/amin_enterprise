@@ -368,7 +368,7 @@
                     <tbody>
                         @foreach (\App\Models\DestinationSlabRate::get() as $key => $slbrate)
                         <tr>
-                            <td style="text-align: center">{{$slbrate->ghat->name}}</td>
+                            <td style="text-align: center">{{$slbrate->ghat->name ?? null}}</td>
                             <td style="text-align: center">{{$slbrate->destination->name}}</td>
                             <td style="text-align: center">{{$slbrate->maxqty}}</td>
                             <td style="text-align: center">{{$slbrate->below_rate_per_qty}}</td>
@@ -684,7 +684,7 @@
                     } else {
                         console.log(response);
                         $(".ermsg").html(response.message);
-                        // window.setTimeout(function(){location.reload()},2000)
+                        window.setTimeout(function(){location.reload()},2000)
                     }
 
                     
