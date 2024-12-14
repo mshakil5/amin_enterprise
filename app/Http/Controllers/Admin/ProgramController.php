@@ -663,6 +663,13 @@ class ProgramController extends Controller
         $fadv->amount = $fadv->fuelamount + $fadv->cashamount;
         $fadv->save();
 
+        $tran = Transaction::where('advance_payment_id',$request->advPmtid)->where('payment_type','=','Fuel')->first();
+        if (isset($tran)) {
+            $tran->vendor_id = $request->vendor_id;
+            $tran->amount = $request->amount;
+            $tran->save();
+        }
+
         $progrm = ProgramDetail::find($request->prgmdtlid);
 
         //importent
@@ -670,7 +677,6 @@ class ProgramController extends Controller
             $dltoldchallanrate = ChallanRate::where('challan_no', $progrm->challan_no)->where('program_detail_id', $progrm->id)->delete();
         }
         //importent
-
 
         $progrm->after_date = date('Y-m-d');
         $progrm->destination_id = $request->destid;
@@ -697,8 +703,6 @@ class ProgramController extends Controller
 
             foreach($rates as $key => $value)
             {
-
-
                 if (isset($oldchallanrateids[$key])) {
 
                     $chalanRate = ChallanRate::find($oldchallanrateids[$key]);

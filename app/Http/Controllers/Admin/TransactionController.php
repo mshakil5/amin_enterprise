@@ -140,6 +140,19 @@ class TransactionController extends Controller
         $bill->net_amount = $request->netAmount;
         $bill->save();
        
+        $tran = new Transaction();
+        $tran->date =  $request->date;
+        $tran->bill_number =  $request->bill_number;
+        $tran->client_id =  $request->client_id;
+        $tran->bill_receive_id =  $bill->id;
+        $tran->mother_vassel_id =  $request->mother_vassel_id;
+        $tran->payment_type =  $request->rcvType;
+        $tran->tran_type =  "Received";
+        $tran->amount =  $request->netAmount;
+        $tran->save();
+        $tran->tran_id = 'RT' . date('ymd') . str_pad($tran->id, 4, '0', STR_PAD_LEFT);
+        $tran->save();
+
         
 
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Bill Stored successfully.</b></div>";

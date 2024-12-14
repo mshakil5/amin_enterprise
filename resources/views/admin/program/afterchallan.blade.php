@@ -427,6 +427,8 @@
 
     $(document).on('input', '#scale_fee, #line_charge, #other_cost', function() {
         updateSummary();
+        var scale_fee = parseFloat($('#scale_fee').val()) || 0;
+        var line_charge = parseFloat($('#line_charge').val()) || 0;
     });
 
     $(document).on('input', '#rateTable input.qty, #rateTable input.rate, #rateTable input.rateunittotal', function() {

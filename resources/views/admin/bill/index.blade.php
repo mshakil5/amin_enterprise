@@ -98,7 +98,7 @@
                                         <div class="card-body">
                                             
                                           <div class="form-group row">
-                                            <label for="totalqty" class="col-sm-4 col-form-label">Total Qty</label>
+                                            <label for="date" class="col-sm-4 col-form-label">Total Qty</label>
                                             <div class="col-sm-6">
                                                 <input type="date" class="form-control" id="date" name="date" value="{{date('Y-m-d')}}">
                                             </div>
@@ -389,6 +389,15 @@
 <!--  Program after challan data store start -->
 <script>
     $(document).ready(function() {
+
+
+        $(document).on('input', '#maintainance, #otherexp, #scaleCharge, #otherRcv', function() {
+            updateSummary();
+        });
+
+
+
+
         $(document).on('click', '#saveBtn', function(e) {
             e.preventDefault();
 
