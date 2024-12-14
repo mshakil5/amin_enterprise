@@ -93,7 +93,7 @@
 
                             <div class="row justify-content-md-center">
                                 <div class="col-sm-6">
-                                    
+                                    <div class="billmsg"></div>
                                     <form class="form-horizontal" id="billForm">
                                         <div class="card-body">
                                             
@@ -164,7 +164,7 @@
                                           <div class="form-group row">
                                             <label for="" class="col-sm-4 col-form-label">Total</label>
                                             <div class="col-sm-6">
-                                              <input type="number" class="form-control" id="netAmount" name="netAmount">
+                                              <input type="number" class="form-control" id="netAmount" name="netAmount" readonly>
                                             </div>
                                           </div>
 
@@ -365,7 +365,7 @@
                         $("#totalAmount").val(response.totalAmount);
                         $("#netAmount").val(response.totalAmount);
                         $("#totalqty").val(response.totalQty);
-                        $(".ermsg").html(response.message);
+                        $(".ermsg").html(response.message).fadeIn().delay(2000).fadeOut();
 
                     }
                     
@@ -388,12 +388,24 @@
 
 <!--  Program after challan data store start -->
 <script>
+
+        $(document).on('keyup', '#maintainance, #otherexp, #scaleCharge, #otherRcv', function() {
+            var totalAmount = parseFloat($('#totalAmount').val()) || 0;
+            var maintainance = parseFloat($('#maintainance').val()) || 0;
+            var otherexp = parseFloat($('#otherexp').val()) || 0;
+            var scaleCharge = parseFloat($('#scaleCharge').val()) || 0;
+            var otherRcv = parseFloat($('#otherRcv').val()) || 0;
+            
+            var netamnt = totalAmount + scaleCharge + otherRcv - otherexp - maintainance;
+            console.log(netamnt);
+            $("#netAmount").val(netamnt);
+        });
+
+
     $(document).ready(function() {
 
 
-        $(document).on('input', '#maintainance, #otherexp, #scaleCharge, #otherRcv', function() {
-            updateSummary();
-        });
+        
 
 
 
@@ -421,11 +433,11 @@
                 success: function(response) {
 
                     if (status == 400) {
-                        $(".ermsg").html(response.message);
+                        $(".billmsg").html(response.message);
                     } else {
                         console.log(response);
-                        $(".ermsg").html(response.message);
-                        // window.setTimeout(function(){location.reload()},2000)
+                        $(".billmsg").html(response.message);
+                        window.setTimeout(function(){location.reload()},2000)
                     }
 
                     
