@@ -255,6 +255,37 @@
             <p>Chart Of Accounts</p>
         </a>
       </li>
+      
+      <li class="nav-item">
+        <a href="{{ route('admin.income') }}" class="nav-link {{ (request()->is('admin/income')) ? 'active' : '' }}">
+            <i class="fa fa-users"></i>
+            <p>Income</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ route('admin.expense') }}" class="nav-link {{ (request()->is('admin/expense*')) ? 'active' : '' }}">
+            <i class="fa fa-users"></i>
+            <p>Expense</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ route('admin.asset') }}" class="nav-link {{ (request()->is('admin/asset*')) ? 'active' : '' }}">
+            <i class="fa fa-users"></i>
+            <p>Assets</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ route('admin.liabilities') }}" class="nav-link {{ (request()->is('admin/liabilities*')) ? 'active' : '' }}">
+            <i class="fa fa-users"></i>
+            <p>Liabilities</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ route('admin.equity') }}" class="nav-link {{ (request()->is('admin/equity*')) ? 'active' : '' }}">
+            <i class="fa fa-users"></i>
+            <p>Equity</p>
+        </a>
+    </li>
 
       <li class="nav-item  {{ (request()->is('admin/cash-book')) ? 'menu-open' : '' }}{{ (request()->is('admin/bank-book')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link {{ (request()->is('admin/cash-book')) ? 'active' : '' }}{{ (request()->is('admin/bank-book')) ? 'active' : '' }}">

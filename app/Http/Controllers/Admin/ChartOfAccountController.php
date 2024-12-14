@@ -17,7 +17,7 @@ class ChartOfAccountController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = ChartOfAccount::with('branch');
+            $query = ChartOfAccount::where('status', 1);
 
             if ($accountHead = $request->input('account_head')) {
                 $query->where('account_head', $accountHead);
@@ -58,7 +58,6 @@ class ChartOfAccountController extends Controller
         }
 
         $existingAccount = ChartOfAccount::where('account_name', $request->account_name)
-                                     ->where('branch_id', Auth::user()->branch_id)
                                      ->first();
     
         if ($existingAccount) {
@@ -83,7 +82,6 @@ class ChartOfAccountController extends Controller
         $chartOfAccount->serial = $request->serial;
         $chartOfAccount->description = $request->description;
         $chartOfAccount->status = 1;
-        $chartOfAccount->branch_id = Auth::user()->branch_id;
         $chartOfAccount->created_by = Auth::user()->id;
         $chartOfAccount->save();
 
@@ -128,7 +126,6 @@ class ChartOfAccountController extends Controller
         $chartOfAccount = ChartOfAccount::find($id);
 
         $existingAccount = ChartOfAccount::where('account_name', $request->account_name)
-                                  ->where('branch_id', Auth::user()->branch_id)
                                   ->where('id', '!=', $chartOfAccount->id)
                                   ->first();
 
