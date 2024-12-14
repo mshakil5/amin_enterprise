@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\GeneratingBillController;
+use App\Http\Controllers\Admin\ChartOfAccountController;
 
 
 /*------------------------------------------
@@ -169,5 +170,19 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('cash-book', [DaybookController::class, 'cashbook'])->name('admin.cashbookSearch');
     Route::get('bank-book', [DaybookController::class, 'bankbook'])->name('admin.bankbook');
     Route::post('bank-book', [DaybookController::class, 'bankbook'])->name('admin.bankbookSearch');
+
+
+    //Chart of account
+    Route::get('chart-of-account', [ChartOfAccountController::class, 'index'])->name('admin.addchartofaccount');
+    Route::post('chart-of-accounts', [ChartOfAccountController::class, 'index'])->name('admin.addchartofaccount.filter');
+    Route::post('chart-of-account', [ChartOfAccountController::class, 'store']);
+    Route::get('chart-of-account/{id}', [ChartOfAccountController::class, 'edit']);
+    Route::put('chart-of-account/{id}', [ChartOfAccountController::class, 'update']);
+    Route::get('chart-of-account/{id}/change-status', [ChartOfAccountController::class, 'changeStatus']);
+
+
+
+
+
 });
   
