@@ -248,8 +248,8 @@
         </ul>
       </li>
 
-      <li class="nav-item">
-        <a href="#" class="nav-link">
+      <li class="nav-item  {{ (request()->is('admin/cash-book')) ? 'menu-open' : '' }}{{ (request()->is('admin/bank-book')) ? 'menu-open' : '' }}">
+        <a href="#" class="nav-link {{ (request()->is('admin/cash-book')) ? 'active' : '' }}{{ (request()->is('admin/bank-book')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-chart-pie"></i>
           <p>
             Day Book
@@ -258,13 +258,13 @@
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="{{route('admin.cahbook')}}" class="nav-link">
+            <a href="{{route('admin.cashbook')}}" class="nav-link {{ (request()->is('admin/cash-book')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Cash Book</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="{{route('admin.bankbook')}}" class="nav-link {{ (request()->is('admin/bank-book')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Bank Book</p>
             </a>
@@ -304,7 +304,9 @@
       
       
       
-
+      <span class="mb-5"></span>
+      <span class="mb-5"></span>
+      <span class="mb-5"></span>
       
       {{-- <li class="nav-item {{ (request()->is('admin/client*')) ? 'menu-open' : '' }}{{ (request()->is('admin/completed-clients*')) ? 'menu-open' : '' }}{{ (request()->is('admin/decline-clients*')) ? 'menu-open' : '' }}{{ (request()->is('admin/processing-clients*')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link {{ (request()->is('admin/client*')) ? 'active' : '' }}">

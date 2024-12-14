@@ -165,8 +165,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     
     // daybook
-    Route::get('cash-book', [DaybookController::class, 'cashbook'])->name('admin.cahbook');
+    Route::get('cash-book', [DaybookController::class, 'cashbook'])->name('admin.cashbook');
     Route::post('cash-book', [DaybookController::class, 'cashbook'])->name('admin.cashbookSearch');
-    Route::get('bank-book', [DaybookController::class, 'bankbook'])->name('bankbook');
+    Route::get('bank-book', [DaybookController::class, 'bankbook'])->name('admin.bankbook');
+    Route::post('bank-book', [DaybookController::class, 'bankbook'])->name('admin.bankbookSearch');
 });
   
