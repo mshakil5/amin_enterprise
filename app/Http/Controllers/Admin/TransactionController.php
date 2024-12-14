@@ -145,7 +145,7 @@ class TransactionController extends Controller
         $tran->bill_number =  $request->bill_number;
         $tran->client_id =  $request->client_id;
         $tran->bill_receive_id =  $bill->id;
-        $tran->mother_vassel_id =  $request->mother_vassel_id;
+        $tran->mother_vassel_id =  $request->mv_id;
         $tran->payment_type =  $request->rcvType;
         $tran->tran_type =  "Received";
         $tran->amount =  $request->netAmount;

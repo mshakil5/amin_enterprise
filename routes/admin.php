@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PumpController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ClientRateController;
+use App\Http\Controllers\Admin\DaybookController;
 use App\Http\Controllers\Admin\DestinationController;
 use App\Http\Controllers\Admin\LedgerController;
 use App\Http\Controllers\Admin\ProgramController;
@@ -163,5 +164,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/export-template', [GeneratingBillController::class, 'exportTemplate'])->name('export.template');
 
     
+    // daybook
+    Route::get('cash-book', [DaybookController::class, 'cashbook'])->name('admin.cahbook');
+    Route::post('cash-book', [DaybookController::class, 'cashbook'])->name('admin.cashbookSearch');
+    Route::get('bank-book', [DaybookController::class, 'bankbook'])->name('bankbook');
 });
   
