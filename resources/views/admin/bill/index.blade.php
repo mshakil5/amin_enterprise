@@ -196,7 +196,7 @@
 </section>
 
 <!-- Main content -->
-<section class="content" id="contentContainer">
+<section class="content d-none" id="contentContainer">
     <div class="container-fluid">
       <div class="row">
         <div class="col-12">

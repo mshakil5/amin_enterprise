@@ -80,7 +80,7 @@ class TransactionController extends Controller
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         
-        $data = ProgramDetail::where('generate_bill', 1)->get();
+        $data = ProgramDetail::where('generate_bill', 1)->where('bill_status', 0)->get();
         return view('admin.bill.index', compact('clients','mvassels','data'));
     }
 
@@ -152,6 +152,8 @@ class TransactionController extends Controller
         $tran->save();
         $tran->tran_id = 'RT' . date('ymd') . str_pad($tran->id, 4, '0', STR_PAD_LEFT);
         $tran->save();
+
+        $pdtls = ProgramDetail::where('bill_no', $request->bill_number)->update(['bill_status' => 1]);
 
         
 
