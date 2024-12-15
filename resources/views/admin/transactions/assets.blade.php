@@ -57,10 +57,7 @@
                                 <th>Description</th>
                                 <th>Transaction Type</th>
                                 <th>Payment Type</th>
-                                <th>Gross Amount</th>
-                                <th>Tax Rate</th>
-                                <th>Tax Amount</th>
-                                <th>Net Amount</th>
+                                <th>Amount</th>
                                 <th>Action</th>
                             @endslot
                         @endcomponent
@@ -137,7 +134,19 @@
                             </div>
                         </div>
 
+                        
                         <div class="col-md-6">
+                            <div class="form-group" id="payment_type_container">
+                                <label for="payment_type" class="control-label">Payment Type</label>
+                                <select class="form-control" id="payment_type" name="payment_type">
+                                    <option value="">Select payment type</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 d-none">
                             <div class="form-group">
                                 <label for="tax_rate" class="control-label">Tax %</label>
                                 <input type="text" name="tax_rate" class="form-control " id="tax_rate">
@@ -145,7 +154,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row d-none">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="tax_amount" class="control-label">Tax Amount</label>
@@ -161,41 +170,31 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group" id="payment_type_container">
-                            <label for="payment_type" class="control-label">Payment Type</label>
-                            <select class="form-control" id="payment_type" name="payment_type">
-                                <option value="">Select payment type</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Bank">Bank</option>
-                            </select>
-                        </div>
-                    </div>
+                    <div class="row d-none">
 
-                    <div class="col-md-6">
-                        <div class="form-group d-none" id="showpayable" >
-                            <label for="payable_holder_id" class="control-label">Payable Holder Name</label>
-                            <select class="form-control" id="payable_holder_id" name="payable_holder_id">
-                                <option value="">Select payable holder</option>
-                                @foreach($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->account_name }}</option>
-                                @endforeach
-                            </select>
+                        <div class="col-md-6">
+                            <div class="form-group d-none" id="showpayable" >
+                                <label for="payable_holder_id" class="control-label">Payable Holder Name</label>
+                                <select class="form-control" id="payable_holder_id" name="payable_holder_id">
+                                    <option value="">Select payable holder</option>
+                                    @foreach($accounts as $account)
+                                        <option value="{{ $account->id }}">{{ $account->account_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group d-none" id="showreceivable" >
-                            <label for="recivible_holder_id" class="control-label">Receivable Holder Name</label>
-                            <select class="form-control" id="recivible_holder_id" name="recivible_holder_id">
-                                <option value="">Select recivible holder</option>
-                                @foreach($recivible as $recivible)
-                                    <option value="{{ $recivible->id }}">{{ $recivible->account_name }}</option>
-                                @endforeach
-                            </select>
+                        <div class="col-md-6">
+                            <div class="form-group d-none" id="showreceivable" >
+                                <label for="recivible_holder_id" class="control-label">Receivable Holder Name</label>
+                                <select class="form-control" id="recivible_holder_id" name="recivible_holder_id">
+                                    <option value="">Select recivible holder</option>
+                                    @foreach($recivible as $recivible)
+                                        <option value="{{ $recivible->id }}">{{ $recivible->account_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
                     </div>
 
@@ -331,12 +330,9 @@
             {data: 'chart_of_account', name: 'chart_of_account'},
             {data: 'ref', name: 'ref'},
             {data: 'description', name: 'description'},
-            {data: 'transaction_type', name: 'transaction_type'},
+            {data: 'tran_type', name: 'tran_type'},
             {data: 'payment_type', name: 'payment_type'},
             {data: 'amount', name: 'amount'},
-            {data: 'tax_rate', name: 'tax_rate'},
-            {data: 'tax_amount', name: 'tax_amount'},
-            {data: 'at_amount', name: 'at_amount'},
             {
                 data: 'action',
                 name: 'action',
@@ -375,7 +371,7 @@
                     // console.log(response);
                     $('#date').val(response.date);
                     $('#ref').val(response.ref);
-                    $('#transaction_type').val(response.transaction_type);
+                    $('#transaction_type').val(response.tran_type);
                     $('#amount').val(response.amount);
                     $('#tax_rate').val(response.tax_rate);
                     $('#tax_amount').val(response.tax_amount);

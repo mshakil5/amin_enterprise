@@ -17,8 +17,7 @@ class AssetController extends Controller
     {
         if($request->ajax()){
             $transactions = Transaction::with('chartOfAccount')
-                ->where('table_type', 'Assets')
-                ->where('branch_id', auth()->user()->branch_id);
+                ->where('table_type', 'Assets');
 
             if ($request->filled('start_date')) {
                 $endDate = $request->filled('end_date') ? $request->input('end_date') : now()->endOfDay();
@@ -81,13 +80,11 @@ class AssetController extends Controller
         $transaction->vat_rate = $request->input('vat_rate');
         $transaction->vat_amount = $request->input('vat_amount');
         $transaction->at_amount = $request->input('at_amount');
-        $transaction->transaction_type = $request->input('transaction_type');
+        $transaction->tran_type = $request->input('transaction_type');
         $transaction->liability_id = $request->input('payable_holder_id');
         $transaction->payment_type = $request->input('payment_type');
         $transaction->asset_id = $request->input('recivible_holder_id');
-        $transaction->branch_id = Auth::user()->branch_id;
         $transaction->created_by = Auth()->user()->id;
-        $transaction->created_ip = request()->ip();
 
         $transaction->save();
         $transaction->tran_id = 'AT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -108,7 +105,7 @@ class AssetController extends Controller
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'chart_of_account_type' => $chartOfAccount ? $chartOfAccount->sub_account_head : null,
             'ref' => $transaction->ref,
-            'transaction_type' => $transaction->transaction_type,
+            'transaction_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
             'tax_rate' => $transaction->tax_rate,
             'tax_amount' => $transaction->tax_amount,
@@ -156,7 +153,7 @@ class AssetController extends Controller
         $transaction->vat_rate = $request->input('vat_rate');
         $transaction->vat_amount = $request->input('vat_amount');
         $transaction->at_amount = $request->input('at_amount');
-        $transaction->transaction_type = $request->input('transaction_type');
+        $transaction->tran_type = $request->input('transaction_type');
 
         if ($request->input('transaction_type') !== 'Purchase') {
         $transaction->liability_id = null;
@@ -174,7 +171,6 @@ class AssetController extends Controller
         $transaction->payment_type = $request->input('payment_type');
         // $transaction->asset_id = $request->input('recivible_holder_id');
         $transaction->updated_by = Auth()->user()->id;
-        $transaction->updated_ip = request()->ip();
 
         $transaction->save();
 
