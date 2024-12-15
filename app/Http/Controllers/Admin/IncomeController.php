@@ -81,12 +81,11 @@ class IncomeController extends Controller
         $transaction->vat_rate = $request->input('vat_rate');
         $transaction->vat_amount = $request->input('vat_amount');
         $transaction->at_amount = $request->input('at_amount');
-        $transaction->transaction_type = $request->input('transaction_type');
+        $transaction->tran_type = $request->input('transaction_type');
         // $transaction->liability_id = $request->input('payable_holder_id');
         $transaction->payment_type = $request->input('payment_type');
         $transaction->income_id = $request->input('chart_of_account_id');
         $transaction->created_by = Auth()->user()->id;
-        $transaction->created_ip = request()->ip();
 
         $transaction->save();
         $transaction->tran_id = 'IN' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -146,16 +145,12 @@ class IncomeController extends Controller
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');
-        // $transaction->tax_rate = $request->input('tax_rate');
-        // $transaction->tax_amount = $request->input('tax_amount');
         $transaction->vat_rate = $request->input('vat_rate');
         $transaction->vat_amount = $request->input('vat_amount');
         $transaction->at_amount = $request->input('at_amount');
-        $transaction->transaction_type = $request->input('transaction_type');
-        // $transaction->payment_type = $request->input('payment_type');
+        $transaction->tran_type = $request->input('transaction_type');
         $transaction->income_id = $request->input('chart_of_account_id');
         $transaction->updated_by = Auth()->user()->id;
-        $transaction->updated_ip = request()->ip();
 
         if ($request->input('transaction_type') === 'Advance Adjust') {
             $transaction->tax_rate = null;

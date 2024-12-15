@@ -58,10 +58,7 @@
                                 <th>Description</th>
                                 <th>Transaction Type</th>
                                 <th>Payment Type</th>
-                                <th>Gross Amount</th>
-                                <th>Tax Rate</th>
-                                <th>Tax Amount</th>
-                                <th>Net Amount</th>
+                                <th>Amount</th>
                                 <th>Action</th>
                             @endslot
                         @endcomponent
@@ -123,11 +120,11 @@
                             <div class="form-group">
                                 <label for="transaction_type" class="col-form-label">Transaction Type</label>
                                 <select class="form-control" id="transaction_type" name="transaction_type">
-                                    <option value="">Select transaction type</option>
-                                    <option value="Current">Current</option>
-                                    <option value="Advance">Advance</option>
-                                    <option value="Advance Adjust">Advance Adjust</option>
-                                    <option value="Refund">Refund</option>
+                                    {{-- <option value="">Select transaction type</option> --}}
+                                    <option value="Current">New Income</option>
+                                    {{-- <option value="Advance">Advance</option>
+                                    <option value="Advance Adjust">Advance Adjust</option> --}}
+                                    <option value="Refund">Income Refund</option>
                                 </select>
                             </div>
                         </div>
@@ -140,37 +137,39 @@
                                 <input type="text" name="amount" class="form-control" id="amount">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none">
                             <div class="form-group">
                                 <label for="tax_rate" class="col-form-label">Tax %</label>
                                 <input type="text" name="tax_rate" class="form-control" id="tax_rate">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none">
                             <div class="form-group">
                                 <label for="tax_amount" class="col-form-label">Tax Amount</label>
                                 <input type="text" name="tax_amount" class="form-control" id="tax_amount">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none">
                             <div class="form-group">
                                 <label for="at_amount" class="col-form-label">Total Amount</label>
                                 <input type="text" name="at_amount" class="form-control" id="at_amount">
                             </div>
                         </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="payment_type" class="col-form-label">Payment Type</label>
+                                <select class="form-control" id="payment_type" name="payment_type">
+                                    <option value="">Select payment type</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="payment_type" class="col-form-label">Payment Type</label>
-                        <select class="form-control" id="payment_type" name="payment_type">
-                            <option value="">Select payment type</option>
-                            <option value="Cash">Cash</option>
-                            <option value="Bank">Bank</option>
-                        </select>
-                    </div>
+
+                    
 
                     <div class="form-group">
                         <label for="description" class="col-form-label">Description</label>
@@ -254,12 +253,9 @@
             {data: 'chart_of_account', name: 'chart_of_account'},
             {data: 'ref', name: 'ref'},
             {data: 'description', name: 'description'},
-            {data: 'transaction_type', name: 'transaction_type'},
+            {data: 'tran_type', name: 'tran_type'},
             {data: 'payment_type', name: 'payment_type'},
             {data: 'amount', name: 'amount'},
-            {data: 'tax_rate', name: 'tax_rate'},
-            {data: 'tax_amount', name: 'tax_amount'},
-            {data: 'at_amount', name: 'at_amount'},
             {
                 data: 'action',
                 name: 'action',

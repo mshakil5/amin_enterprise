@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ChartOfAccount extends Model
 {
     use HasFactory;
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'chart_of_account_id');
+    }
 }
