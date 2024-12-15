@@ -25,7 +25,7 @@ use App\Http\Controllers\Admin\EquityController;
 use App\Http\Controllers\Admin\AssetController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ChartOfAccountController;
-
+use App\Http\Controllers\Admin\PLStatementController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -228,6 +228,10 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
         Route::get('ledger/income-details/{id}', [LedgerController::class, 'income']);
         Route::get('ledger/liability-details/{id}', [LedgerController::class, 'liability']);
         Route::get('ledger/equity-details/{id}', [LedgerController::class, 'equity']);
+
+
+        // pl statement
+        Route::get('profit-statement', [PLStatementController::class, 'profitAndLossStatement'])->name('admin.profitAndLossStatement');
 
 
 

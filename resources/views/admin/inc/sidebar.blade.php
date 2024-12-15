@@ -322,7 +322,7 @@
 
       
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="{{ route('admin.profitAndLossStatement') }}" class="nav-link {{ (request()->is('admin/profit-statement')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
           <p>
             P/L Statement
@@ -330,14 +330,14 @@
         </a>
       </li>
 
-      <li class="nav-item">
+      {{-- <li class="nav-item">
         <a href="#" class="nav-link ">
           <i class="nav-icon fas fa-th"></i>
           <p>
             Financial Statement
           </p>
         </a>
-      </li>
+      </li> --}}
       
       
       
