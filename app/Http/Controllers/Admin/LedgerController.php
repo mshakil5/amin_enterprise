@@ -69,8 +69,8 @@ class LedgerController extends Controller
     public function asset($id, Request $request)
     {
         $data = Transaction::where('chart_of_account_id', $id)->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Purchase', 'Payment'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Sold', 'Deprication'])->sum('at_amount');
+        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Purchase', 'Payment'])->sum('at_amount');
+        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Sold', 'Deprication'])->sum('at_amount');
         $totalBalance = $totalDrAmount - $totalCrAmount;
         $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
         return view('admin.accounts.ledger.asset', compact('data', 'totalBalance','accountName'));
@@ -78,8 +78,8 @@ class LedgerController extends Controller
 
     public function expense($id, Request $request)
     {
-        $data = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Current', 'Prepaid', 'Due Adjust'])->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Current', 'Prepaid', 'Due Adjust'])->sum('at_amount');
+        $data = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust'])->get();
+        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust'])->sum('at_amount');
         $totalBalance = $totalDrAmount;
         $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
         return view('admin.accounts.ledger.expense', compact('data', 'totalBalance','accountName'));
@@ -87,9 +87,9 @@ class LedgerController extends Controller
 
     public function income($id, Request $request)
     {
-        $data = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Current', 'Advance Adjust', 'Refund'])->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Refund'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Current', 'Advance Adjust'])->sum('at_amount');
+        $data = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Advance Adjust', 'Refund'])->get();
+        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Refund'])->sum('at_amount');
+        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Advance Adjust'])->sum('at_amount');
         $totalBalance =  $totalCrAmount - $totalDrAmount;
         $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
         return view('admin.accounts.ledger.income', compact('data', 'totalBalance','accountName'));
@@ -98,8 +98,8 @@ class LedgerController extends Controller
     public function liability($id, Request $request)
     {
         $data = Transaction::where('chart_of_account_id', $id)->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Received'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Payment'])->sum('at_amount');
+        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
+        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
         $totalBalance = $totalDrAmount - $totalCrAmount;
         $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
         return view('admin.accounts.ledger.liability', compact('data', 'totalBalance','accountName'));
@@ -108,8 +108,8 @@ class LedgerController extends Controller
     public function equity($id, Request $request)
     {
         $data = Transaction::where('chart_of_account_id', $id)->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Payment'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('transaction_type', ['Received'])->sum('at_amount');
+        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
+        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
         $totalBalance =  $totalCrAmount - $totalDrAmount;
         $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
         return view('admin.accounts.ledger.equity', compact('data', 'totalBalance','accountName'));

@@ -244,9 +244,16 @@
               <p>Income Ledger</p>
             </a>
           </li>
+
+          
           
         </ul>
       </li>
+
+      <a href="{{ route('admin.ledgeraccount') }}" class="nav-link {{ (request()->is('admin/ledger-accounts*')) ? 'active' : '' }}">
+          <i class="fa fa-users"></i>
+          <p>Ledger</p>
+      </a>
 
       
       <li class="nav-item">
