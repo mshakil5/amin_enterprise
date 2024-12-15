@@ -27,7 +27,7 @@
                         </div>
 
                         <div class="table-responsive">
-                            <table id="dataTransactionsTable" class="table table-striped table-bordered">
+                            <table id="example1" class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -88,13 +88,10 @@
 
 <script>
     $(function () {
-      $("#dataTransactionsTable").DataTable({
+      $("#example1").DataTable({
         "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
-        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+        "buttons": ["copy", "csv", "excel", "pdf", "print"]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
-      
       $('#example2').DataTable({
         "paging": true,
         "lengthChange": false,
@@ -105,5 +102,6 @@
         "responsive": true,
       });
     });
-</script>
+  </script>
+
 @endsection
