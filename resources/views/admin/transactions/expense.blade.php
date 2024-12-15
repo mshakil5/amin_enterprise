@@ -58,10 +58,7 @@
                         <th>Description</th>
                         <th>Transaction Type</th>
                         <th>Payment Type</th>
-                        <th>Gross Amount</th>
-                        <th>Tax Rate</th>
-                        <th>Tax Amount</th>
-                        <th>Net Amount</th>
+                        <th>Amount</th>
                         <th><i class=""></i> Action</th>
                         @endslot
                         @endcomponent
@@ -123,27 +120,37 @@
                                 <label for="transaction_type" class="control-label">Transaction Type</label>
                                 <select class="form-control" id="transaction_type" name="transaction_type">
                                     <option value="">Select transaction type</option>
-                                    <option value="Current">Current</option>
-                                    <option value="Prepaid">Prepaid</option>
+                                    <option value="Current">New Exp</option>
+                                    {{-- <option value="Prepaid">Prepaid</option>
                                     <option value="Due">Due</option>
                                     <option value="Prepaid Adjust">Prepaid Adjust</option>
-                                    <option value="Due Adjust">Due Adjust</option>
+                                    <option value="Due Adjust">Due Adjust</option> --}}
                                 </select>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="amount" class="control-label">Amount</label>
                                 <input type="text" name="amount" class="form-control" id="amount">
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group" id="payment_type_container">
+                                <label for="payment_type" class="control-label">Payment Type</label>
+                                <select class="form-control" id="payment_type" name="payment_type">
+                                    <option value="">Select payment type</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="pre_adjust">
-                        <div class="row">
+                        <div class="row d-none">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="tax_rate" class="control-label">Tax %</label>
@@ -159,7 +166,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row d-none">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="at_amount" class="control-label">Total Amount</label>
@@ -167,19 +174,10 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="form-group" id="payment_type_container">
-                                    <label for="payment_type" class="control-label">Payment Type</label>
-                                    <select class="form-control" id="payment_type" name="payment_type">
-                                        <option value="">Select payment type</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Bank">Bank</option>
-                                    </select>
-                                </div>
-                            </div>
+                            
                         </div>
 
-                        <div class="row">
+                        <div class="row d-none">
                             <div class="col-md-6">
                                 <div class="form-group d-none" id="showpayable">
                                     <label for="" class="control-label">Payable Holder Name</label>
@@ -332,8 +330,8 @@
                 name: 'description'
             },
             {
-                data: 'transaction_type',
-                name: 'transaction_type'
+                data: 'tran_type',
+                name: 'tran_type'
             },
             {
                 data: 'payment_type',
@@ -342,18 +340,6 @@
             {
                 data: 'amount',
                 name: 'amount'
-            },
-            {
-                data: 'tax_rate',
-                name: 'tax_rate'
-            },
-            {
-                data: 'tax_amount',
-                name: 'tax_amount'
-            },
-            {
-                data: 'at_amount',
-                name: 'at_amount'
             },
             {
                 data: 'action',
@@ -397,7 +383,7 @@
                     } else {
                         $("#pre_adjust").show();
                     }
-                    $('#transaction_type').val(response.transaction_type);
+                    $('#transaction_type').val(response.tran_type);
                     $('#amount').val(response.amount);
                     $('#tax_rate').val(response.tax_rate);
                     $('#tax_amount').val(response.tax_amount);
