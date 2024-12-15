@@ -17,7 +17,7 @@ class EquityController extends Controller
     public function index(Request $request)
     {
         if($request->ajax()){
-            $transactions = Transaction::with('chartOfAccount', 'equityHolder')
+            $transactions = Transaction::with('chartOfAccount')
                 ->where('table_type', 'Equity');
 
             if ($request->filled('start_date')) {
@@ -39,11 +39,7 @@ class EquityController extends Controller
             return DataTables::of($transactions)
                 ->addColumn('chart_of_account', function ($transaction) {
                     return $transaction->chartOfAccount->account_name;
-                })
-                ->addColumn('share_holder_name', function ($transaction) {
-                    return $transaction->equityHolder ? $transaction->equityHolder->name : 'N/A';
-                })
-                ->make(true);
+                })->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Equity')->get();
         return view('admin.transactions.equity', compact('accounts'));
@@ -80,11 +76,9 @@ class EquityController extends Controller
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');
         $transaction->at_amount = $request->input('amount');
-        $transaction->transaction_type = $request->input('transaction_type');
+        $transaction->tran_type = $request->input('transaction_type');
         $transaction->payment_type = $request->input('payment_type');
-        $transaction->share_holder_id = $request->input('share_holder_id');
         $transaction->created_by = Auth()->user()->id;
-        $transaction->created_ip = request()->ip();
 
         $transaction->save();
         $transaction->tran_id = 'EQ' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -104,14 +98,13 @@ class EquityController extends Controller
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'ref' => $transaction->ref,
-            'transaction_type' => $transaction->transaction_type,
+            'tran_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
             'tax_rate' => $transaction->tax_rate,
             'tax_amount' => $transaction->tax_amount,
             'at_amount' => $transaction->at_amount,
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
-            'share_holder_id' => $transaction->share_holder_id,
         ];
         return response()->json($responseData);
     }
@@ -153,11 +146,9 @@ class EquityController extends Controller
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');
         $transaction->at_amount = $request->input('amount');
-        $transaction->transaction_type = $request->input('transaction_type');
+        $transaction->tran_type = $request->input('transaction_type');
         $transaction->payment_type = $request->input('payment_type');
-        $transaction->share_holder_id = $request->input('share_holder_id');
         $transaction->updated_by = Auth()->user()->id;
-        $transaction->updated_ip = request()->ip();
 
         $transaction->save();
 

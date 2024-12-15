@@ -58,8 +58,7 @@
                         <th>Description</th>
                         <th>Transaction Type</th>
                         <th>Payment Type</th>
-                        <th>Gross Amount</th>
-                        <th>Share Holder</th>
+                        <th>Amount</th>
                         <th><i class=""></i> Action</th>
                         @endslot
                         @endcomponent
@@ -98,10 +97,9 @@
                                     <option value="">Select chart of account</option>
                                     @php
                                         use App\Models\ChartOfAccount;
-                                        use App\Models\EquityHolder;
                                         $shareHolders = ChartOfAccount::where('account_head', 'Equity')->get();
-                                        $equityHolders = EquityHolder::latest()->get();
                                     @endphp
+                                    
                                     @foreach($shareHolders as $shareHolder)
                                         <option value="{{ $shareHolder->id }}">{{ $shareHolder->account_name }}</option>
                                     @endforeach
@@ -158,19 +156,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="share_holder_id" class="control-label">Share Holder</label>
-                                <select class="form-control" id="share_holder_id" name="share_holder_id">
-                                    <option value="">Select share holder</option>
-                                    @foreach($equityHolders as $equityHolder)
-                                        <option value="{{ $equityHolder->id }}">{{ $equityHolder->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label for="description" class="control-label">Description</label>
                                 <textarea class="form-control" id="description" rows="3" placeholder="Description" name="description"></textarea>
@@ -221,10 +207,9 @@
             {data: 'chart_of_account', name: 'chart_of_account'},
             {data: 'ref', name: 'ref'},
             {data: 'description', name: 'description'},
-            {data: 'transaction_type', name: 'transaction_type'},
+            {data: 'tran_type', name: 'tran_type'},
             {data: 'payment_type', name: 'payment_type'},
             {data: 'amount', name: 'amount'},
-            {data: 'share_holder_name', name: 'share_holder_name'},
             {
                 data: 'action',
                 name: 'action',
@@ -263,11 +248,10 @@
                     // console.log(response);
                     $('#date').val(response.date);
                     $('#ref').val(response.ref);
-                    $('#transaction_type').val(response.transaction_type);
+                    $('#transaction_type').val(response.tran_type);
                     $('#amount').val(response.amount);
                     $('#payment_type').val(response.payment_type);
                     $('#description').val(response.description);
-                    $('#share_holder_id').val(response.share_holder_id);
                     $('#chart_of_account_id').val(response.chart_of_account_id);
 
                     $('#chartModal .submit-btn').removeClass('save-btn').addClass('update-btn').text('Update').val(response.id);

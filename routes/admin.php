@@ -221,6 +221,14 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
         Route::get('expense/{id}', [ExpenseController::class, 'edit']);
         Route::put('expense/{id}', [ExpenseController::class, 'update']); 
 
+        // ledger
+        Route::get('ledger-accounts', [LedgerController::class, 'showLedgerAccounts'])->name('admin.ledgeraccount');
+        Route::get('ledger/asset-details/{id}', [LedgerController::class, 'asset']);
+        Route::get('ledger/expense-details/{id}', [LedgerController::class, 'expense']);
+        Route::get('ledger/income-details/{id}', [LedgerController::class, 'income']);
+        Route::get('ledger/liability-details/{id}', [LedgerController::class, 'liability']);
+        Route::get('ledger/equity-details/{id}', [LedgerController::class, 'equity']);
+
 
 
 
