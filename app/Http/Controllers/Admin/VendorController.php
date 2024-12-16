@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
+use App\Models\VendorSequenceNumber;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class VendorController extends Controller
 {
@@ -95,5 +97,42 @@ class VendorController extends Controller
         }else{
             return response()->json(['success'=>false,'message'=>'Delete Failed']);
         }
+    }
+
+    public function generateUniqueCode($vendorName)
+    {
+        $words = explode(' ', $vendorName);
+        $firstLetters = array_map(fn($word) => strtoupper($word[0]), $words);
+        $code = implode('', $firstLetters);
+        $uniqueCode = $code;
+
+        return $uniqueCode;
+    }
+
+    public function addSequenceNumber(Request $request)
+    {
+        $request->validate([
+            'vendorId' => 'required',
+            'challanqty' => 'required',
+            'sequence' => 'required',
+        ]);
+
+        $vendor = Vendor::where('id', $request->vendorId)->first();
+
+
+        $vendorName = $vendor->name;
+        $uniqueCode = $this->generateUniqueCode($vendorName);
+
+        $data = new VendorSequenceNumber();
+        $data->vendor_id = $request->vendorId;
+        $data->qty = $request->challanqty;
+        $data->sequence = $request->sequence;
+        $data->unique_id = $uniqueCode."_".$request->sequence."_".date('Y');
+        $data->date = date('Y-m-d');
+        $data->created_by = Auth::user()->id;
+        $data->save();
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data store Successfully.</b></div>";
+        return response()->json(['status'=> 300,'message'=>$message]);
     }
 }

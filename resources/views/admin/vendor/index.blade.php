@@ -118,6 +118,7 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>Add Sequence Number</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -128,6 +129,11 @@
                     <td style="text-align: center">{{$data->name}}</td>
                     <td style="text-align: center">{{$data->email}}</td>
                     <td style="text-align: center">{{$data->phone}}</td>
+                    <td style="text-align: center">
+                      
+                      <span class="btn btn-success btn-xs add-sq-btn" style="cursor: pointer;" data-id="{{ $data->id }}">+ add</span>
+
+                    </td>
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
@@ -151,13 +157,87 @@
 <!-- /.content -->
 
 
+<div class="modal fade" id="payModal" tabindex="-1" role="dialog" aria-labelledby="payModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="payModalLabel">Add sequence form</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form id="payForm">
+              <div class="modal-body">
+                <div class="permsg"></div>
+                  <div class="form-group">
+                      <label for="challanqty">Challan Qty <span style="color: red;">*</span></label>
+                      <input type="number" class="form-control" id="challanqty" name="challanqty" >
+                  </div>
+
+                  
+                  <div class="form-group">
+                    <label for="sequence">Sequence<span style="color: red;">*</span></label>
+                    <input type="number" class="form-control" id="sequence" name="sequence" >
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-warning">Create</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="tranModal" tabindex="-1" role="dialog" aria-labelledby="tranModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="tranModalLabel">Sequence number and quantity</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+
+
+          <div class="modal-body">
+            
+            <table id="trantable" class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Payment Type</th>
+                  <th>Payment Method</th>
+                  <th>Dr. Amount</th>
+                  <th>Cr. Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+                <tfoot>
+                  <p>Balance: <span id="balance"></span></p>
+                </tfoot>
+            </table>
+
+          </div>
+        
+          
+      </div>
+  </div>
+</div>
+
 @endsection
 @section('script')
 <script>
     $(function () {
       $("#example1").DataTable({
         "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"]
+        "buttons": ["copy", "csv", "excel", "pdf", "print"],
+        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
       $('#example2').DataTable({
         "paging": true,
@@ -307,6 +387,85 @@
           $('#createThisForm')[0].reset();
           $("#addBtn").val('Create');
       }
+
+      $("#contentContainer").on('click', '.add-sq-btn', function () {
+          var id = $(this).data('id');
+          $('#payModal').modal('show');
+          $('#payForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+
+              var form_data = new FormData();
+              form_data.append("vendorId", id);
+              form_data.append("challanqty", $("#challanqty").val());
+              form_data.append("sequence", $("#sequence").val());
+
+              if (!$("#challanqty").val()) {
+                  alert('Please enter challan quantity.');
+                  return;
+              }
+
+              if (!$("#sequence").val()) {
+                  alert('Please enter sequence number.');
+                  return;
+              }
+
+              $.ajax({
+                  url: '{{ URL::to('/admin/add-vendor-sequence') }}',
+                  method: 'POST',
+                  data:form_data,
+                  contentType: false,
+                  processData: false,
+                  // dataType: 'json',
+                  success: function (response) {
+                    if (response.status == 303) {
+                        $(".permsg").html(response.message);
+                    }else if(response.status == 300){
+
+                      $(".permsg").html(response.message);
+                      window.setTimeout(function(){location.reload()},2000)
+                    }
+                    
+                      console.log(response);
+                      $('#payModal').modal('hide');
+
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+          });
+      });
+
+      $('#payModal').on('hidden.bs.modal', function () {
+            $('#paymentAmount').val('');
+            $('#paymentNote').val('');
+        });
+
+
+      $("#contentContainer").on('click', '.trn-btn', function () {
+          var id = $(this).data('id');
+          $('#tranModal').modal('show');
+              console.log(id);
+              var form_data = new FormData();
+              form_data.append("vendorId", id);
+
+              $.ajax({
+                  url: '{{ URL::to('/admin/get-vendor-sequence') }}',
+                  method: 'POST',
+                  data:form_data,
+                  contentType: false,
+                  processData: false,
+                  // dataType: 'json',
+                  success: function (response) {
+                    console.log(response);
+                      $('#trantable tbody').html(response.data);
+                      $('#balance').html(response.balance);
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+        });
   });
 </script>
 @endsection
