@@ -93,6 +93,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/vendor-update', [VendorController::class, 'update']);
     Route::get('/vendor/{id}', [VendorController::class, 'delete']);
     Route::post('/add-vendor-sequence', [VendorController::class,'addSequenceNumber'])->name('addSequenceNumber');
+    Route::post('/get-vendor-sequence', [VendorController::class,'getSequenceNumber']);
+    Route::get('/vendor-sequence/{id}', [VendorController::class, 'sequencedelete']);
     
     Route::get('/client', [ClientController::class, 'index'])->name('admin.client');
     Route::post('/client', [ClientController::class, 'store']);

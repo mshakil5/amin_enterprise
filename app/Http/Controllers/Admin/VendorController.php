@@ -135,4 +135,52 @@ class VendorController extends Controller
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data store Successfully.</b></div>";
         return response()->json(['status'=> 300,'message'=>$message]);
     }
+
+
+    public function getSequenceNumber(Request $request)
+    {
+        
+        $vendor = Vendor::where('id', $request->vendorId)->first();
+
+        $data = VendorSequenceNumber::where('vendor_id',$request->vendorId)->get();
+        
+        $prop = '';
+        
+            foreach ($data as $tran){
+
+
+                // <!-- Single Property Start -->
+                $prop.= '<tr>
+                            <td>
+                                '.$tran->date.'
+                            </td>
+                            <td>
+                                '.$tran->qty.'
+                            </td>
+                            <td>
+                                '.$tran->sequence.'
+                            </td>
+                            <td>
+                                '.$tran->unique_id.'
+                            </td>
+                            <td>
+                                <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn" style="cursor:pointer">Delete</span>
+                            </td>
+                        </tr>';
+                        
+            }
+
+        return response()->json(['status'=> 300,'data'=>$prop, 'vendor'=>$vendor]);
+    }
+
+
+    public function sequencedelete($id)
+    {
+        if(VendorSequenceNumber::destroy($id)){
+            return response()->json(['success'=>true,'message'=>'Data has been deleted successfully']);
+        }else{
+            return response()->json(['success'=>false,'message'=>'Delete Failed']);
+        }
+    }
+
 }

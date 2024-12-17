@@ -133,6 +133,8 @@
                       
                       <span class="btn btn-success btn-xs add-sq-btn" style="cursor: pointer;" data-id="{{ $data->id }}">+ add</span>
 
+                      <span class="btn btn-info btn-xs view-btn" style="cursor: pointer;" data-id="{{ $data->id }}">View</span>
+
                     </td>
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
@@ -209,18 +211,16 @@
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Payment Type</th>
-                  <th>Payment Method</th>
-                  <th>Dr. Amount</th>
-                  <th>Cr. Amount</th>
+                  <th>Quantity</th>
+                  <th>Sequence</th>
+                  <th>Unique ID</th>
+                  <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
 
                 </tbody>
-                <tfoot>
-                  <p>Balance: <span id="balance"></span></p>
-                </tfoot>
+                
             </table>
 
           </div>
@@ -439,13 +439,13 @@
       $('#payModal').on('hidden.bs.modal', function () {
             $('#paymentAmount').val('');
             $('#paymentNote').val('');
-        });
+      });
 
 
-      $("#contentContainer").on('click', '.trn-btn', function () {
+      $("#contentContainer").on('click', '.view-btn', function () {
           var id = $(this).data('id');
           $('#tranModal').modal('show');
-              console.log(id);
+              // console.log(id);
               var form_data = new FormData();
               form_data.append("vendorId", id);
 
@@ -457,15 +457,45 @@
                   processData: false,
                   // dataType: 'json',
                   success: function (response) {
-                    console.log(response);
+                    // console.log(response);
                       $('#trantable tbody').html(response.data);
-                      $('#balance').html(response.balance);
                   },
                   error: function (xhr) {
                       console.log(xhr.responseText);
                   }
               });
-        });
+      });
+
+
+      var vsqurl = "{{URL::to('/admin/vendor-sequence')}}";
+      $("#trantable tbody").on('click', '.seqDeleteBtn', function () {
+          var id = $(this).data('rid');
+              console.log(id);
+            if(!confirm('Sure?')) return;
+
+            codeid = $(this).attr('rid');
+
+            info_url = vsqurl + '/'+codeid;
+            $.ajax({
+                url:info_url,
+                method: "GET",
+                type: "DELETE",
+                data:{
+                },
+                success: function(d){
+                    if(d.success) {
+                        alert(d.message);
+                        location.reload();
+                    }
+                },
+                error:function(d){
+                    console.log(d);
+                }
+            });
+      });
+
+
+
   });
 </script>
 @endsection
