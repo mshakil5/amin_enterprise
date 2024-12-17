@@ -221,6 +221,21 @@
                                             <label for="other_cost">Other cost</label>
                                             <input type="number" class="form-control" id="other_cost" name="other_cost" >
                                         </div>
+
+                                        <div class="form-group col-md-4">
+                                            <label for="sequence_id">Vendors Sequence Id </label> <br>
+                                            
+                                            <select name="sequence_id" id="sequence_id" class="form-control select2">
+                                              <option value="">Select</option>
+
+                                              @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
+                                                  
+                                              <option value="{{$vsequence->id}}">{{$vsequence->unique_id}}</option>
+                                              @endforeach
+                                              
+                                            </select>
+                                            
+                                        </div>
                                     </div>
                                 </div>
 
