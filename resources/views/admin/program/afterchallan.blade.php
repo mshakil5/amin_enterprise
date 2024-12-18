@@ -222,16 +222,15 @@
                                             <input type="number" class="form-control" id="other_cost" name="other_cost" >
                                         </div>
 
-                                        <div class="form-group col-md-4">
+                                        <div class="form-group col-md-12">
                                             <label for="sequence_id">Vendors Sequence Id </label> <br>
                                             
-                                            <select name="sequence_id" id="sequence_id" class="form-control select2">
+                                            <select name="sequence_id" id="sequence_id" class="form-control ">
                                               <option value="">Select</option>
 
-                                              @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
-                                                  
+                                              {{-- @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
                                               <option value="{{$vsequence->id}}">{{$vsequence->unique_id}}</option>
-                                              @endforeach
+                                              @endforeach --}}
                                               
                                             </select>
                                             
@@ -457,16 +456,21 @@
             e.preventDefault();
 
             var totalqtyasperchallan = $("#totalqtyasperchallan").val();
+            var prgmdtlid = $("#prgmdtlid").val();
+            var vendor = $("#vendor_id"+prgmdtlid).val();
 
             if (!totalqtyasperchallan) {
                 alert('Please input quantity as per challan first!');
                 $("#destid").val('');
                 return;
             }
+            console.log(vendor);
             var formData = new FormData();
             formData.append("destid", $("#destid").val());
             formData.append("ghat", $("#ghat_id").val());
             formData.append("challanqty", $("#totalqtyasperchallan").val());
+            formData.append("prgmdtlid", prgmdtlid);
+            formData.append("vendor", vendor);
 
             $.ajax({
                 url: '{{ route("admin.checkSlabRate") }}',
@@ -483,6 +487,7 @@
                         $dueAmnt = $("#destid").val();
                         $('#rateTable tbody').append(response.rate);
                         $("#totalamount").val(response.totalAmount);
+                        $("#sequence_id").html(response.vdata);
                         $("#totalDue").val(response.totalAmount - $dueAmnt);
                         
                         updateSummary();

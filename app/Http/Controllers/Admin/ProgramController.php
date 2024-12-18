@@ -17,6 +17,7 @@ use App\Models\ProgramDestination;
 use App\Models\DestinationSlabRate;
 use App\Models\Ghat;
 use App\Models\Transaction;
+use App\Models\VendorSequenceNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -785,8 +786,19 @@ class ProgramController extends Controller
 
     public function checkSlabRate(Request $request)
     {
+        $vsno = VendorSequenceNumber::where('qty', '>', 0)->where('vendor_id', $request->vendor)->get();
         $challanqty = $request->challanqty;
         $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+
+        if ($vsno) {
+            $vdata = '<option value="">Select</option>';
+            foreach ($vsno as $key => $vsvalue) {
+                $vdata.= '<option value="'.$vsvalue->id.'">'.$vsvalue->sequence.' ('.$vsvalue->date.')</option>';
+            }
+        } else {
+            $vdata = '<option value="">Select</option>';
+        }
+        
         
         if ($chkrate) {
             $prop = '';
@@ -823,7 +835,7 @@ class ProgramController extends Controller
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate found</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop, 'totalAmount' => $totalAmount]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop, 'totalAmount' => $totalAmount, 'vdata' => $vdata]);
 
 
         }else {

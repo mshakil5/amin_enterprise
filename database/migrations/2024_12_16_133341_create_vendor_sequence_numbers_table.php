@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('date')->nullable();
             $table->string('qty')->nullable();
+            $table->integer('markqty',100)->nullable();
+            $table->integer('notmarkqty',100)->nullable();
             $table->string('sequence')->nullable();
             $table->string('unique_id')->nullable();
             $table->unsignedBigInteger('vendor_id')->nullable();
