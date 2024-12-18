@@ -126,6 +126,7 @@ class VendorController extends Controller
         $data = new VendorSequenceNumber();
         $data->vendor_id = $request->vendorId;
         $data->qty = $request->challanqty;
+        $data->notmarkqty = $request->challanqty;
         $data->sequence = $request->sequence;
         $data->unique_id = $uniqueCode."_".$request->sequence."_".date('Y');
         $data->date = date('Y-m-d');

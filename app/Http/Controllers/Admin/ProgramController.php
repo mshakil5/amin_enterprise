@@ -389,8 +389,8 @@ class ProgramController extends Controller
         $currentpDtlIds = $program->programDetail->pluck('id')->toArray();
         $updatedpDtlIds = collect($request->program_detail_id)->filter()->toArray();
         $pIdsToDelete = array_diff($currentpDtlIds, $updatedpDtlIds);
+        $program->programDetail->advancePayment()->whereIn('program_detail_id', $pIdsToDelete)->delete();
         $program->programDetail()->whereIn('id', $pIdsToDelete)->delete();
-        // $program->programDetail->advancePayment()->whereIn('program_detail_id', $pIdsToDelete)->delete();
         
 
         foreach($vendorIds as $key => $value)
@@ -741,22 +741,22 @@ class ProgramController extends Controller
                                 <input type="text" class="form-control" id="truck_number'.$prgmdtl->id.'" value="'.$prgmdtl->truck_number.'">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="cashamount"  value="'.$prgmdtl->advancePayment->cashamount.'" readonly>
+                                <input type="number" class="form-control pcashamount" id="cashamount'.$prgmdtl->id.'"  value="'.$prgmdtl->advancePayment->cashamount.'" name="cashamount[]" readonly>
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="fuelqty'.$prgmdtl->id.'" name="fuelqty"  value="'.$prgmdtl->advancePayment->fuelqty.'">
+                                <input type="number" class="form-control pfuelqty" id="fuelqty'.$prgmdtl->id.'" name="fuelqty[]"  value="'.$prgmdtl->advancePayment->fuelqty.'">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="fuel_rate'.$prgmdtl->id.'" name="fuel_rate"  value="'.$prgmdtl->advancePayment->fuel_rate.'">
+                                <input type="number" class="form-control pfuel_rate" id="fuel_rate'.$prgmdtl->id.'" name="fuel_rate[]"  value="'.$prgmdtl->advancePayment->fuel_rate.'">
                             </td>
                             <td> 
-                                <input type="number" class="form-control" id="fuel_amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->fuelqty * $prgmdtl->advancePayment->fuel_rate.'">
+                                <input type="number" class="form-control pfuel_amount" id="fuel_amount'.$prgmdtl->id.'" readonly  name="fuel_amount[]" value="'.$prgmdtl->advancePayment->fuelqty * $prgmdtl->advancePayment->fuel_rate.'">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="fueltoken'.$prgmdtl->id.'" value="'.$prgmdtl->advancePayment->fueltoken.'">
+                                <input type="number" class="form-control" id="fueltoken'.$prgmdtl->id.'" value="'.$prgmdtl->advancePayment->fueltoken.'"  name="fueltoken[]">
                             </td>
                             <td>
-                                <input type="number" class="form-control" id="amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->amount.'">
+                                <input type="number" class="form-control pamount" id="amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->amount.'" name="pamount[]">
                             </td>
                             <td>
                                 <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-headerid="'.$prgmdtl->headerid.'" data-destqty="'.$prgmdtl->dest_qty.'" data-linecharge="'.$prgmdtl->line_charge.'" data-scale_fee="'.$prgmdtl->scale_fee.'" data-other_cost="'.$prgmdtl->other_cost.'" data-destination_id="'.$prgmdtl->destination_id.'" data-advid="'.$prgmdtl->advancePayment->id.'" data-due="'.$prgmdtl->due.'" data-additional_cost="'.$prgmdtl->additional_cost.'" data-carrying_bill="'.$prgmdtl->carrying_bill.'"><i class="fas fa-arrow-right"></i></span>
@@ -793,7 +793,7 @@ class ProgramController extends Controller
         if ($vsno) {
             $vdata = '<option value="">Select</option>';
             foreach ($vsno as $key => $vsvalue) {
-                $vdata.= '<option value="'.$vsvalue->id.'">'.$vsvalue->sequence.' ('.$vsvalue->date.')</option>';
+                $vdata.= '<option value="'.$vsvalue->id.'">'.$vsvalue->unique_id.' ('.$vsvalue->date.')</option>';
             }
         } else {
             $vdata = '<option value="">Select</option>';
@@ -895,6 +895,7 @@ class ProgramController extends Controller
         //importent
 
         $progrm->after_date = date('Y-m-d');
+        $progrm->vendor_sequence_number_id = $request->sequence_id;
         $progrm->destination_id = $request->destid;
         $progrm->ghat_id = $prgm->ghat_id;
         $progrm->program_id = $prgm->id;
@@ -913,9 +914,6 @@ class ProgramController extends Controller
         $progrm->due = $request->totalamount + $request->additionalCost - $fadv->amount; 
         $progrm->rate_status = 0;
         $progrm->save();
-
-
-        
 
             foreach($rates as $key => $value)
             {
@@ -941,8 +939,6 @@ class ProgramController extends Controller
                     $chalanRate->created_by = Auth::user()->id;
                     $chalanRate->save();
                 }
-                
-                
                 
             }
 

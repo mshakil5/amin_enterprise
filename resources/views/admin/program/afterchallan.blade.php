@@ -450,6 +450,25 @@
     });
 
 
+    $(document).on('input', '#programTable input.pfuelqty, #programTable input.pfuel_rate, #programTable input.pfuel_amount, #programTable input.pamount, #programTable input.pcashamount', function() {
+
+        var prgmdtlid = $('#prgmdtlid').val();
+        var cashamount = parseFloat($('#cashamount'+prgmdtlid).val()) || 0;
+        var fuelqty = parseFloat($('#fuelqty'+prgmdtlid).val()) || 0;
+        var fuel_rate = parseFloat($('#fuel_rate'+prgmdtlid).val()) || 0;
+        var fuel_amount = parseFloat($('#fuel_amount'+prgmdtlid).val()) || 0;
+        var amount = parseFloat($('#amount'+prgmdtlid).val()) || 0;
+
+        var fuelAdv = fuelqty * fuel_rate;
+        var totalAdv = fuelAdv + cashamount;
+        $('#fuel_amount'+prgmdtlid).val(fuelAdv);
+        $('#amount'+prgmdtlid).val(totalAdv);
+        $('#advanceAmnt').val(totalAdv);
+        updateSummary();
+        // console.log(fuelqty, fuel_rate, fuel_amount, amount);
+    });
+
+
     
     $(document).ready(function() {
         $(document).on('change', '#destid', function(e) {
@@ -472,6 +491,8 @@
             formData.append("prgmdtlid", prgmdtlid);
             formData.append("vendor", vendor);
 
+            $('#rateTable tbody').empty();
+
             $.ajax({
                 url: '{{ route("admin.checkSlabRate") }}',
                 method: 'POST',
@@ -493,7 +514,8 @@
                         updateSummary();
 
                     } else {
-                        $('#rateTable tbody').html(' ');
+
+                        $('#rateTable tbody').empty();
                         $("#totalamount").val(0);
                         $("#totalDue").val(0);
                     }
@@ -526,7 +548,6 @@
             $(this).attr('disabled', false);
 
             $('#programTable tbody').html('');
-            $('#rateTable tbody').html('');
             $("#addadvThisForm").hide();
             var formData = new FormData($('#createThisForm')[0]);
 
@@ -541,8 +562,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log(response);
-
+                    // console.log(response);
                     if (response.data == "empty") {
 
                         $("#mother_vassel_id").val('');
@@ -565,6 +585,10 @@
                         $(".ermsg").html(response.message);
                         $('#programTable tbody').append(response.data);
                         $('#rateTable tbody').append(response.prate);
+
+                        setTimeout(function() {
+                            $('.ermsg').fadeOut('slow');
+                        }, 3000);
 
                     }
                     
