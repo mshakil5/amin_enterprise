@@ -23,6 +23,7 @@
                     <div class="card-header">
                         <h3 class="card-title" id="cardTitle">Update New Program</h3>
                     </div>
+                    
                     <div class="card-body">
                         <div class="ermsg">
                             
@@ -30,187 +31,207 @@
                         
                         <form id="updateThisForm">
                             @csrf
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="client_id">Client <span style="color: red;">*</span>
-                                      <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
-                                    </label>
+
+                            <div class="row">
+                                <div class="col-sm-6">
                                     
-                                    <select name="client_id" id="client_id" class="form-control">
-                                      <option value="">Select</option>
-                                      @foreach ($clients as $client)
-                                      <option value="{{$client->id}}" {{$program->client_id == $client->id ? 'selected' : '' }}>{{$client->name}}</option>
-                                      @endforeach
-                                    </select>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="client_id">Client <span style="color: red;">*</span>
+                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                            </label>
+                                            
+                                            <select name="client_id" id="client_id" class="form-control select2">
+                                              <option value="">Select</option>
+                                              
+                                                @foreach ($clients as $client)
+                                                <option value="{{$client->id}}" {{$program->client_id == $client->id ? 'selected' : '' }}>{{$client->name}}</option>
+                                                @endforeach
+                                            </select>
+        
+                                            @error('client_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="date">Date</label>
+                                            <input type="date" class="form-control" id="date" name="date" value="{{ $program->date}}">
+                                            <input type="hidden" class="form-control" id="pid" name="pid" value="{{ $program->id}}">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="consignmentno">Consignment Number</label>
+                                            <input type="text" class="form-control" id="consignmentno" name="consignmentno"  value="{{ $program->consignmentno}}">
+                                        </div>
+                                        
+        
+                                        
+                                    </div>
+                                </div>
 
-                                    @error('client_id')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
+            
+                                <div class="col-sm-6">
                                     
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="date">Date <span style="color: red;">*</span></label>
-                                    <input type="date" class="form-control" id="date" name="date" value="{{ $program->date}}">
-                                    <span id="productCodeError" class="text-danger"></span>
-                                    <input type="hidden" class="form-control" id="pid" name="pid" value="{{ $program->id}}">
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="consignmentno">Consignment Number</label>
-                                    <input type="text" class="form-control" id="consignmentno" name="consignmentno"  value="{{ $program->consignmentno}}">
-                                </div>
-                                
-                                <div class="form-group col-md-2">
-                                    <label for="headerid">Header ID</label>
-                                    <input type="text" class="form-control" id="headerid" name="headerid" value="{{ $program->headerid}}">
-                                </div>
+                                    <div class="form-row">
 
-                                <div class="form-group col-md-2">
-                                  <label for="qty_per_challan">Qty per challan</label>
-                                  <input type="number" class="form-control" id="qty_per_challan" name="qty_per_challan"  value="{{ $program->qty_per_challan}}">
-                              </div>
-
-                            </div>
-
-                            <div class="form-row">
-
-                                <div class="form-group col-md-4">
-                                    <label for="mother_vassel_id">Mother Vassel <span style="color: red;">*</span>
-                                      <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
-                                    </label>
-                                    
-                                    <select name="mother_vassel_id" id="mother_vassel_id" class="form-control">
-                                      <option value="">Select</option>
-                                      @foreach ($mvassels as $mvassel)
-                                      <option value="{{$mvassel->id}}" {{$program->mother_vassel_id == $mvassel->id ? 'selected' : '' }}>{{$mvassel->name}}</option>
-                                      @endforeach
-                                    </select>
-
-                                    @error('mother_vassel_id')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                    
-                                </div>
-
-
-                                <div class="form-group col-md-4">
-                                    <label for="lighter_vassel_id">Lighter Vassel <span style="color: red;">*</span>
-                                      <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
-                                    </label>
-                                    
-                                    <select name="lighter_vassel_id" id="lighter_vassel_id" class="form-control">
-                                      <option value="">Select</option>
-                                      @foreach ($lvassels as $lvassel)
-                                      <option value="{{$lvassel->id}}" {{$program->lighter_vassel_id == $lvassel->id ? 'selected' : '' }}>{{$lvassel->name}}</option>
-                                      @endforeach
-                                    </select>
-
-                                    @error('lighter_vassel_id')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                    
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="camount">Contract Amount</label>
-                                    <input type="number" class="form-control" id="camount" name="camount" value="{{ $program->amount}}">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <label for="description">Note</label>
-                                    <textarea class="form-control" id="note" name="note">{{ $program->note}}</textarea>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group col-md-2">
-                                    <label for="vendor_id">Vendor</label>
-                                    <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Add New</span>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="truck_number">Truck Number</label>
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <label for="qty">Quantity</label>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="challan_no">Challan No</label>
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <label for="line_charge">Line Ch.</label>
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <label for="token_fee">Token Fee</label>
-                                </div>
-                                
-                                <div class="form-group col-md-1">
-                                  <label for="party_name">Party</label>
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <label for="amount">Amount</label>
-                                </div>
-
-                                <div class="form-group col-md-1">
-                                    <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
+                                        
+        
+                                        <div class="form-group col-md-4">
+                                            <label for="mother_vassel_id">Mother Vassel <span style="color: red;">*</span>
+                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                            </label>
+                                            
+                                            <select name="mother_vassel_id" id="mother_vassel_id" class="form-control select2">
+                                              <option value="">Select</option>
+                                              
+                                                @foreach ($mvassels as $mvassel)
+                                                <option value="{{$mvassel->id}}" {{$program->mother_vassel_id == $mvassel->id ? 'selected' : '' }}>{{$mvassel->name}}</option>
+                                                @endforeach
+                                            </select>
+        
+                                            @error('mother_vassel_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="lighter_vassel_id">Lighter Vassel
+                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                            </label>
+                                            
+                                            <select name="lighter_vassel_id" id="lighter_vassel_id" class="form-control select2">
+                                              <option value="">Select</option>
+                                              
+                                                @foreach ($lvassels as $lvassel)
+                                                <option value="{{$lvassel->id}}" {{$program->lighter_vassel_id == $lvassel->id ? 'selected' : '' }}>{{$lvassel->name}}</option>
+                                                @endforeach
+                                            </select>
+        
+                                            @error('lighter_vassel_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="ghat_id">Ghat<span style="color: red;">*</span>
+                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                            </label>
+                                            
+                                            <select name="ghat_id" id="ghat_id" class="form-control select2">
+                                              <option value="">Select</option>
+                                              @foreach ($ghats as $ghat)
+                                              <option value="{{$ghat->id}}"  {{$program->ghat_id == $ghat->id ? 'selected' : '' }}>{{$ghat->name}}</option>
+                                              @endforeach
+                                            </select>
+        
+                                            @error('ghat_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            
+                                        </div>
+        
+                                        {{-- <div class="form-group col-md-8">
+                                            <label for="description">Note</label>
+                                            <textarea class="form-control" id="note" name="note"></textarea>
+                                        </div> --}}
+                                    </div>
                                 </div>
                             </div>
                             
-                            @foreach ($program->programDetail as $key => $dtl)
+                            <table class="table table-bordered" id="programTable">
+                                <thead>
+                                    <tr>
+                                        <th>Vendor <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Add New</span></th>
+                                        <th>Truck#</th>
+                                        <th>Challan</th>
+                                        <th>Cash Adv</th>
+                                        <th>Fuel qty</th>
+                                        <th>Fuel rate</th>
+                                        <th>Fuel adv</th>
+                                        <th>Fuel token</th>
+                                        <th>Pump</th>
+                                        <th>Total</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
 
-                            <div class="form-row dynamic-row">
-                                <div class="form-group col-md-2">
-                                    <select class="form-control" name="vendor_id[]" id="vendor_id">
-                                        <option value="">Select Vendor</option>
-                                        @foreach ($vendors as $vendor)
-                                        <option value="{{$vendor->id}}" {{$dtl->vendor_id == $vendor->id ? 'selected' : '' }}>{{$vendor->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <input type="text" class="form-control" name="truck_number[]" value="{{$dtl->truck_number}}">
-                                    <input type="hidden" class="form-control" name="program_detail_id[]" value="{{$dtl->id}}">
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <input type="number" class="form-control" name="qty[]" value="{{$dtl->qty}}">
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <input type="number" class="form-control" name="challan_no[]" value="{{$dtl->challan_no}}">
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <input type="number" class="form-control" name="line_charge[]" value="{{$dtl->line_charge}}">
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <input type="number" class="form-control" name="token_fee[]" value="{{$dtl->token_fee}}">
-                                </div>
-                                
-                                <div class="form-group col-md-1">
-                                  <input type="text" class="form-control" name="party_name[]" value="{{$dtl->party_name}}">
-                                </div>
-                                <div class="form-group col-md-1">
-                                    <input type="number" class="form-control" name="amount[]" value="{{$dtl->amount}}">
-                                </div>
+                                    @foreach ($program->programDetail as $key => $pdtl)
+                                    <tr>
+                                        <td>
+                                            <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                                <option value="">Select Vendor</option>
+                                                @foreach ($vendors as $vendor)
+                                                <option value="{{$vendor->id}}" {{$pdtl->vendor_id == $vendor->id ? 'selected' : '' }}>{{$vendor->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" name="truck_number[]" value="{{$pdtl->truck_number}}" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control" name="challan_no[]" value="{{$pdtl->challan_no}}" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control cashamount" name="cashamount[]" value="{{$pdtl->advancePayment->cashamount}}" >
+                                            <input type="hidden" class="form-control" name="advancePaymentId[]" value="{{$pdtl->advancePayment->id}}" >
 
-                                <div class="form-group col-md-1">
-                                    <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
-                                </div>
-                            </div>
+                                            <input type="hidden" class="form-control" name="program_detail_id[]" value="{{$pdtl->id}}" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control fuelqty" name="fuelqty[]" value="{{$pdtl->advancePayment->fuelqty}}" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="{{$pdtl->advancePayment->fuel_rate}}">
+                                        </td>
+                                        <td> 
+                                            <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly value="{{$pdtl->advancePayment->fuelamount}}" >
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control" name="fueltoken[]" value="{{$pdtl->advancePayment->fueltoken}}" >
+                                        </td>
+                                        <td>
+                                            <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                                <option value="">Select</option>
+                                                @foreach ($pumps as $pump)
+                                                    <option value="{{$pump->id}}" {{$pdtl->advancePayment->petrol_pump_id == $pump->id ? 'selected' : '' }}>{{$pump->name}}</option>
+                                                @endforeach
+                                                </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control totalamount" name="amount[]" value="{{$pdtl->advancePayment->amount}}" readonly>
+                                        </td>
+                                        <td>
+                                            @if ($key == 0)
+                                                <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
+                                            @else
+                                            
+                                            <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                                                
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
 
-                            @endforeach
+                                    
 
-                            
-                            <div id="dynamic-rows">
 
-                            </div>
-
+                                </tbody>
+                            </table>
                             
 
                         </form>
                     </div>
                     <div class="card-footer">
-                      <button type="submit" form="updateThisForm" id="addBtn"  class="btn btn-secondary">Update</button>
+                      <button type="submit" form="updateThisForm" id="updateBtn"  class="btn btn-secondary">Update</button>
                           <div id="loader" style="display: none;">
                               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                               Loading...
@@ -233,73 +254,150 @@
 @section('script')
 
 
-
   <!-- Dynamic Row Script -->
-<script>
-  $(document).ready(function() {
-      $(document).on('click', '.add-row', function() {
-          let newRow = `
-          <div class="form-row dynamic-row">
-            
-              <div class="form-group col-md-2">
-                  <select class="form-control" name="vendor_id[]" id="vendor_id">
-                      <option value="">Select Vendor</option>
-                      @foreach ($vendors as $vendor)
-                      <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                      @endforeach
-                  </select>
-              </div>
-              <div class="form-group col-md-2">
-                  <input type="text" class="form-control" name="truck_number[]" >
-              </div>
-              <div class="form-group col-md-1">
-                  <input type="number" class="form-control" name="qty[]" >
-              </div>
-              <div class="form-group col-md-2">
-                  <input type="number" class="form-control" name="challan_no[]" >
-              </div>
-              <div class="form-group col-md-1">
-                  <input type="number" class="form-control" name="line_charge[]" >
-              </div>
-              <div class="form-group col-md-1">
-                  <input type="number" class="form-control" name="token_fee[]" >
-              </div>
-              
-              <div class="form-group col-md-1">
-                <input type="text" class="form-control" name="party_name[]" >
-              </div>
-              <div class="form-group col-md-1">
-                    <input type="number" class="form-control" name="amount[]" >
-                </div>
-              <div class="form-group col-md-1">
-                  <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
-              </div>
-
-          </div>`;
-
-          $('#dynamic-rows').append(newRow);
+  <script>
+    $(document).ready(function() {
+      // calculation
+      
+      function updateSummary() {
+          
+              var itemTotalAmount = 0;
+              var totalVatAmount = 0;
+  
+              $('#programTable tbody tr').each(function() {
+                  var fuelqty = parseFloat($(this).find('input.fuelqty').val()) || 0;
+                  var fuel_rate = parseFloat($(this).find('input.fuel_rate').val()) || 0;
+                  var cashamount = parseFloat($(this).find('input.cashamount').val()) || 0;
+  
+                  var totalPrice = (fuelqty * fuel_rate).toFixed(2);
+                  var totaladvance = (parseFloat(totalPrice) + parseFloat(cashamount)).toFixed(2);
+  
+                  $(this).find('input.fuel_amount').val(totalPrice);
+                  $(this).find('input.totalamount').val(totaladvance);
+  
+                  itemTotalAmount += parseFloat(totaladvance) || 0;
+              });
+  
+              // $('#item_total_amount').val(itemTotalAmount.toFixed(2) || '0.00');
+          }
+  
+  
+  
+  
+        $(document).on('click', '.add-row', function() {
+            let newRow = `
+                          <tr>
+                              <td>
+                                  <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                      <option value="">Select Vendor</option>
+                                      @foreach ($vendors as $vendor)
+                                      <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                      @endforeach
+                                  </select>
+                              </td>
+                              <td>
+                                  <input type="text" class="form-control" name="truck_number[]" >
+                              </td>
+                              <td>
+                                  <input type="number" class="form-control" name="challan_no[]" >
+                              </td>
+                              <td>
+                                  <input type="number" class="form-control cashamount" name="cashamount[]" >
+                              </td>
+                              <td>
+                                  <input type="number" class="form-control fuelqty" name="fuelqty[]" >
+                              </td>
+                              <td>
+                                  <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="105">
+                              </td>
+                              <td> 
+                                  <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
+                              </td>
+                              <td>
+                                  <input type="number" class="form-control" name="fueltoken[]" >
+                              </td>
+                              <td>
+                                  <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                      <option value="">Select</option>
+                                      @foreach ($pumps as $pump)
+                                          <option value="{{$pump->id}}">{{$pump->name}}</option>
+                                      @endforeach
+                                      </select>
+                              </td>
+                              <td>
+                                  <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
+                              </td>
+                              <td>
+                                  <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                              </td>
+                          </tr>`;
+  
+            $('#programTable tbody').append(newRow);
+        });
+  
+  
+          $(document).on('click', '.remove-row', function() {
+              $(this).closest('tr').remove();
+              updateSummary();
+          });
+  
+          $(document).on('input', '#programTable input.fuelqty, #programTable input.fuel_rate, #programTable input.cashamount', function() {
+              updateSummary();
+          });
+  
+  
+        
+    });
+  </script>
+  
+  
+  <!-- Create Program Start -->
+  {{-- <script>
+      $(document).ready(function() {
+          $(document).on('click', '#addBtn', function(e) {
+              e.preventDefault();
+  
+              $(this).attr('disabled', true);
+              $('#loader').show();
+  
+              var formData = new FormData($('#createThisForm')[0]);
+  
+              $.ajax({
+                  url: '{{ route("programStore") }}',
+                  method: 'POST',
+                  data: formData,
+                  contentType: false,
+                  processData: false,
+                  cache: false,
+                  headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                  success: function(response) {
+                      if (response.status == 400) {
+                          $(".ermsg").html(response.message);
+                      } else {
+                          $(".ermsg").html(response.message);
+                          window.setTimeout(function(){location.reload()},2000)
+                      }
+                  },
+                  error: function(xhr, status, error) {
+                      console.log(xhr.responseJSON.message);
+                  },
+                  complete: function() {
+                      $('#loader').hide();
+                      $('#addBtn').attr('disabled', false);
+                  }
+              });
+          });
+  
       });
+  </script> --}}
+  <!-- Create Program End -->
 
-      $(document).on('click', '.remove-row', function() {
-          $(this).closest('.dynamic-row').remove();
-      });
-  });
-</script>
-
-<script>
-  $(document).ready(function () {
-    
-      //header for csrf-token is must in laravel
-      $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
-      //
-
-  });
-</script>
-
-<!-- Create Program Start -->
+<!-- update Program Start -->
 <script>
     $(document).ready(function() {
-        $(document).on('click', '#addBtn', function(e) {
+        $(document).on('click', '#updateBtn', function(e) {
             e.preventDefault();
 
             $(this).attr('disabled', true);
@@ -322,7 +420,7 @@
 
                     console.log(response);
                     swal({
-                        text: "Created successfully",
+                        text: "Updated successfully",
                         icon: "success",
                         button: {
                             text: "OK",
@@ -368,7 +466,7 @@
         });
     });
 </script>
-<!-- Create Program End -->
+<!-- update Program End -->
 
 
 @endsection

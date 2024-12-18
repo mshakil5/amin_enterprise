@@ -98,9 +98,9 @@
                         <a class="btn btn-app"  href="{{route('admin.programEdit', $data->id)}}">
                             <i class="fas fa-edit" style="color: #2196f3;font-size:16px;"></i> Edit
                         </a>
-                        <a class="btn btn-app" id="deleteBtn" rid="{{ $data->id }}">
+                        {{-- <a class="btn btn-app" id="deleteBtn" rid="{{ $data->id }}">
                             <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
-                        </a>
+                        </a> --}}
 
                     </td>
                   </tr>
