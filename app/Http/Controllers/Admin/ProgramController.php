@@ -50,7 +50,8 @@ class ProgramController extends Controller
         $data = Program::with('programDetail','programDetail.programDestination','programDetail.programDestination.destinationSlabRate')->where('id', $id)->first();
         // dd($data);
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
-        return view('admin.program.details', compact('data','pumps'));
+        $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        return view('admin.program.details', compact('data','pumps','vendors'));
     }
 
     public function programVendor($id)
@@ -194,7 +195,7 @@ class ProgramController extends Controller
                     $transaction->payment_type = "Cash";
                     $transaction->date = date('Y-m-d');
                     $transaction->save();
-                    $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                     $transaction->save();
                 }
 
@@ -211,7 +212,7 @@ class ProgramController extends Controller
                     $transaction->payment_type = "Fuel";
                     $transaction->date = date('Y-m-d');
                     $transaction->save();
-                    $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                     $transaction->save();
                 }
 
@@ -221,6 +222,109 @@ class ProgramController extends Controller
 
         return response()->json(['status'=> 300,'message'=>$message,'program'=>$program]);
     }
+
+
+    public function addMoreChallan(Request $request)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'vendor_id.*' => 'required',
+            'truck_number.*' => 'required',
+            'challan_no.*' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
+
+        $vendorIds = $request->input('vendor_id');
+        $truckNumbers = $request->input('truck_number');
+        $challanNos = $request->input('challan_no');
+        $fuelqtys = $request->input('fuelqty');
+        $cashamounts = $request->input('cashamount');
+        $fuel_rates = $request->input('fuel_rate');
+        $fueltokens = $request->input('fueltoken');
+        $petrol_pump_ids = $request->input('petrol_pump_id');
+
+        $program = Program::where('id', $request->program_id)->first();
+
+        
+
+        foreach($vendorIds as $key => $value)
+            {
+                $invdtl = new ProgramDetail();
+                $invdtl->date = date('Y-m-d');
+                $invdtl->program_id = $program->id;
+                $invdtl->programid = $program->programid;
+                $invdtl->consignmentno = $program->consignmentno;
+                $invdtl->mother_vassel_id = $program->mother_vassel_id;
+                $invdtl->lighter_vassel_id = $program->lighter_vassel_id;
+                $invdtl->client_id = $program->client_id;
+                $invdtl->ghat_id = $program->ghat_id;
+                $invdtl->vendor_id = $vendorIds[$key]; 
+                $invdtl->truck_number = $truckNumbers[$key]; 
+                $invdtl->challan_no = $challanNos[$key]; 
+                $invdtl->created_by = Auth::user()->id;
+                $invdtl->save();
+
+
+                $fuelAmnt = $fuel_rates[$key] * $fuelqtys[$key];
+                $data = new AdvancePayment();
+                $data->program_id = $program->id;
+                $data->program_detail_id  = $invdtl->id;
+                $data->vendor_id = $vendorIds[$key];
+                $data->cashamount = $cashamounts[$key];
+                $data->petrol_pump_id = $petrol_pump_ids[$key];
+                $data->fuel_rate = $fuel_rates[$key];
+                $data->fuelqty = $fuelqtys[$key];
+                $data->fueltoken = $fueltokens[$key];
+                $data->fuelamount = $fuel_rates[$key] * $fuelqtys[$key];
+                $data->amount = $fuelAmnt + $cashamounts[$key];
+                $data->date = date('Y-m-d');
+                $data->save();
+
+                if ($cashamounts[$key] > 0) {
+                    $transaction = new Transaction();
+                    $transaction->client_id = $program->client_id;
+                    $transaction->mother_vassel_id = $program->mother_vassel_id;
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $invdtl->id;
+                    $transaction->vendor_id = $vendorIds[$key];
+                    $transaction->challan_no = $challanNos[$key]; 
+                    $transaction->amount = $cashamounts[$key];
+                    $transaction->tran_type = "Advance";
+                    $transaction->payment_type = "Cash";
+                    $transaction->date = date('Y-m-d');
+                    $transaction->save();
+                    $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+                }
+
+                if ($fuelAmnt > 0) {
+                    $transaction = new Transaction();
+                    $transaction->client_id = $program->client_id;
+                    $transaction->mother_vassel_id = $program->mother_vassel_id;
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $invdtl->id;
+                    $transaction->vendor_id = $vendorIds[$key];
+                    $transaction->challan_no = $challanNos[$key]; 
+                    $transaction->amount = $fuelAmnt;
+                    $transaction->tran_type = "Advance";
+                    $transaction->payment_type = "Fuel";
+                    $transaction->date = date('Y-m-d');
+                    $transaction->save();
+                    $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+                }
+
+                
+            }
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message,'program'=>$program]);
+    }
+
 
     public function programEdit($id)
     {
