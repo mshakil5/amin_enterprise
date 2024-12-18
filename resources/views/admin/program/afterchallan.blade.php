@@ -185,6 +185,9 @@
                         
 
                             <div class="row" id="headerDiv">
+                                <div class="col-sm-12">
+                                    <div class="afterchallanmsg"></div>
+                                </div>
                                 
                                 <div class="col-sm-6">
                                     
@@ -228,9 +231,9 @@
                                             <select name="sequence_id" id="sequence_id" class="form-control ">
                                               <option value="">Select</option>
 
-                                              {{-- @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
+                                              @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
                                               <option value="{{$vsequence->id}}">{{$vsequence->unique_id}}</option>
-                                              @endforeach --}}
+                                              @endforeach
                                               
                                             </select>
                                             
@@ -629,6 +632,7 @@
         due = $(this).attr('data-due');
         additional_cost = $(this).attr('data-additional_cost');
         carrying_bill = $(this).attr('data-carrying_bill');
+        vendor_sequence_number_id = $(this).attr('data-vendor_sequence_number_id');
 
         $("#advanceAmnt").val(advAmnt);
         $("#prgmdtlid").val(prgmDtlId);
@@ -642,6 +646,7 @@
         $("#totalDue").val(due);
         $("#additionalCost").val(additional_cost);
         $("#totalamount").val(carrying_bill);
+        $("#sequence_id").val(vendor_sequence_number_id);
         $("#headerDiv").show();
     });
     // return stock end
@@ -724,10 +729,10 @@
                 success: function(response) {
 
                     if (status == 400) {
-                        $(".ermsg").html(response.message);
+                        $(".afterchallanmsg").html(response.message);
                     } else {
                         console.log(response);
-                        $(".ermsg").html(response.message);
+                        $(".afterchallanmsg").html(response.message);
                         window.setTimeout(function(){location.reload()},2000)
                     }
 

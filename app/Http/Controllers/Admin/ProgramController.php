@@ -502,7 +502,7 @@ class ProgramController extends Controller
                         $transaction->payment_type = "Cash";
                         $transaction->date = date('Y-m-d');
                         $transaction->save();
-                        $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                        $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                         $transaction->save();
                     }
     
@@ -519,7 +519,7 @@ class ProgramController extends Controller
                         $transaction->payment_type = "Fuel";
                         $transaction->date = date('Y-m-d');
                         $transaction->save();
-                        $transaction->tran_id = 'RT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                        $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                         $transaction->save();
                     }
                 }
@@ -759,7 +759,7 @@ class ProgramController extends Controller
                                 <input type="number" class="form-control pamount" id="amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->amount.'" name="pamount[]">
                             </td>
                             <td>
-                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-headerid="'.$prgmdtl->headerid.'" data-destqty="'.$prgmdtl->dest_qty.'" data-linecharge="'.$prgmdtl->line_charge.'" data-scale_fee="'.$prgmdtl->scale_fee.'" data-other_cost="'.$prgmdtl->other_cost.'" data-destination_id="'.$prgmdtl->destination_id.'" data-advid="'.$prgmdtl->advancePayment->id.'" data-due="'.$prgmdtl->due.'" data-additional_cost="'.$prgmdtl->additional_cost.'" data-carrying_bill="'.$prgmdtl->carrying_bill.'"><i class="fas fa-arrow-right"></i></span>
+                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-headerid="'.$prgmdtl->headerid.'" data-destqty="'.$prgmdtl->dest_qty.'" data-linecharge="'.$prgmdtl->line_charge.'" data-scale_fee="'.$prgmdtl->scale_fee.'" data-other_cost="'.$prgmdtl->other_cost.'" data-destination_id="'.$prgmdtl->destination_id.'" data-advid="'.$prgmdtl->advancePayment->id.'" data-due="'.$prgmdtl->due.'" data-additional_cost="'.$prgmdtl->additional_cost.'" data-carrying_bill="'.$prgmdtl->carrying_bill.'" data-vendor_sequence_number_id="'.$prgmdtl->vendor_sequence_number_id.'"><i class="fas fa-arrow-right"></i></span>
                             </td>
                         </tr>';
             }
@@ -879,12 +879,33 @@ class ProgramController extends Controller
         $fadv->amount = $fadv->fuelamount + $fadv->cashamount;
         $fadv->save();
 
-        $tran = Transaction::where('advance_payment_id',$request->advPmtid)->where('payment_type','=','Fuel')->first();
-        if (isset($tran)) {
-            $tran->vendor_id = $request->vendor_id;
-            $tran->amount = $request->amount;
-            $tran->save();
+        if ($request->fuelqty) {
+            $tran = Transaction::where('advance_payment_id',$request->advPmtid)->where('payment_type','=','Fuel')->first();
+            if (isset($tran)) {
+                $tran->vendor_id = $request->vendor_id;
+                $tran->amount = $request->amount;
+                $tran->save();
+            }else{
+                $transaction = new Transaction();
+                $transaction->client_id = $prgm->client_id;
+                $transaction->mother_vassel_id = $prgm->mother_vassel_id;
+                $transaction->lighter_vassel_id = $prgm->lighter_vassel_id;
+                $transaction->advance_payment_id = $request->advPmtid;
+                $transaction->program_id = $prgm->id;
+                $transaction->program_detail_id = $prgmdtl->id;
+                $transaction->vendor_id = $request->vendor_id;
+                $transaction->challan_no = $prgmdtl->challan_no;
+                $transaction->amount = $request->fuelqty * $request->fuel_rate;
+                $transaction->tran_type = "Advance";
+                $transaction->payment_type = "Fuel";
+                $transaction->date = date('Y-m-d');
+                $transaction->save();
+                $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                $transaction->save();
+            }
         }
+
+        
 
         $progrm = ProgramDetail::find($request->prgmdtlid);
 
