@@ -85,6 +85,7 @@ class IncomeController extends Controller
         // $transaction->liability_id = $request->input('payable_holder_id');
         $transaction->payment_type = $request->input('payment_type');
         $transaction->income_id = $request->input('chart_of_account_id');
+        $transaction->mother_vassel_id = $request->input('mother_vassel_id');
         $transaction->created_by = Auth()->user()->id;
 
         $transaction->save();
@@ -150,6 +151,7 @@ class IncomeController extends Controller
         $transaction->at_amount = $request->input('at_amount');
         $transaction->tran_type = $request->input('transaction_type');
         $transaction->income_id = $request->input('chart_of_account_id');
+        $transaction->mother_vassel_id = $request->input('mother_vassel_id');
         $transaction->updated_by = Auth()->user()->id;
 
         if ($request->input('transaction_type') === 'Advance Adjust') {

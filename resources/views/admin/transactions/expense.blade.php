@@ -108,14 +108,14 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="ref" class="control-label">Reference</label>
                                 <input type="text" name="ref" class="form-control" id="ref">
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="transaction_type" class="control-label">Transaction Type</label>
                                 <select class="form-control" id="transaction_type" name="transaction_type">
@@ -125,6 +125,18 @@
                                     <option value="Due">Due</option>
                                     <option value="Prepaid Adjust">Prepaid Adjust</option>
                                     <option value="Due Adjust">Due Adjust</option> --}}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="mother_vassel_id" class="control-label">Mother Vessel</label>
+                                <select class="form-control" id="mother_vassel_id" name="mother_vassel_id">
+                                    <option value="">Select Mother Vessel</option>
+                                    @foreach (\App\Models\MotherVassel::where('status', 1)->select('id', 'name')->get() as $mv)
+                                    <option value="{{$mv->id}}">{{$mv->name}}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -391,6 +403,7 @@
                     $('#payment_type').val(response.payment_type);
                     $('#description').val(response.description);
 
+                    $('#mother_vassel_id').val(response.mother_vassel_id);
                     $('#chart_of_account_id').val(response.chart_of_account_id);
 
                     if (response.payment_type == 'Account Payable') {

@@ -231,7 +231,7 @@
             </a>
           </li>
 
-          <li class="nav-item">
+          {{-- <li class="nav-item">
             <a href="{{route('receivableLedger')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Expense Ledger</p>
@@ -243,7 +243,7 @@
               <i class="far fa-circle nav-icon"></i>
               <p>Income Ledger</p>
             </a>
-          </li>
+          </li> --}}
 
           
           
