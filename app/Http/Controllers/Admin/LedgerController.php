@@ -16,8 +16,11 @@ class LedgerController extends Controller
 {
     public function receivableLedger(Request $request)
     {
+        $clients = Client::orderby('id','DESC')->where('status', 1)->get();
+        $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $data = Transaction::where('status', 1)->get();
-        return view('admin.accounts.ledger.receivable', compact('data'));
+        return view('admin.accounts.ledger.receivable', compact('data','vendors', 'mvassels', 'clients'));
     }
 
     public function vendorLedger(Request $request)
