@@ -159,6 +159,9 @@ class VendorController extends Controller
                                 '.$tran->qty.'
                             </td>
                             <td>
+                                '.$tran->markqty.'
+                            </td>
+                            <td>
                                 '.$tran->sequence.'
                             </td>
                             <td>

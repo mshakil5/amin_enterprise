@@ -211,7 +211,8 @@
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Quantity</th>
+                  <th>Challan</th>
+                  <th>Challan Store</th>
                   <th>Sequence</th>
                   <th>Unique ID</th>
                   <th>Action</th>

@@ -905,6 +905,11 @@ class ProgramController extends Controller
             }
         }
 
+        $vsequence = VendorSequenceNumber::find($request->sequence_id);
+        $vsequence->markqty = $vsequence->markqty + 1;
+        $vsequence->notmarkqty = $vsequence->notmarkqty - 1;
+        $vsequence->save();
+
         
 
         $progrm = ProgramDetail::find($request->prgmdtlid);
