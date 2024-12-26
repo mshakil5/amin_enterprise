@@ -19,8 +19,10 @@ class LedgerController extends Controller
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
-        $data = Transaction::where('status', 1)->get();
-        return view('admin.accounts.ledger.receivable', compact('data','vendors', 'mvassels', 'clients'));
+        $data = Transaction::where('status', 1)->whereNull('table_type')->orderby('id','DESC')->get();
+        $drAmount = Transaction::where('status', 1)->whereNull('table_type')->where('tran_type','Received')->sum('amount');
+        $crAmount = Transaction::where('status', 1)->whereNull('table_type')->where('tran_type','Advance')->sum('amount');
+        return view('admin.accounts.ledger.receivable', compact('data','vendors', 'mvassels', 'clients','drAmount','crAmount'));
     }
 
     public function vendorLedger(Request $request)
