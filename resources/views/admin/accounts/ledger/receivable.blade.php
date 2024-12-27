@@ -2,6 +2,9 @@
 
 @section('content')
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
 
 
 <section class="content pt-3" id="contentContainer">
@@ -16,7 +19,7 @@
                     
                     <div class="card-body">
                         <div class="ermsg"> </div>
-                        <form action="{{route('vendorVasselLedger')}}" method="POST">
+                        <form action="{{route('receivableLedger.Search')}}" method="POST">
                             @csrf
 
                             <div class="row">
@@ -70,7 +73,7 @@
                 <div class="card card-secondary">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <h4> Ledger</h4>
+                            Ledger 
                         </h3>
                     </div>
                     <div class="card-body">
@@ -85,6 +88,9 @@
                         
                             <h4>Receivable Ledger</h4>
                         </div>
+                        @php
+                            $balance = $drAmount - $crAmount;
+                        @endphp
 
                         <div class="table-responsive">
                             <table id="dataTransactionsTable" class="table table-striped table-bordered">
@@ -102,9 +108,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php
-                                        $balance = $drAmount - $crAmount;
-                                    @endphp
+                                    
 
                                     @foreach($data as $index => $data)
                                         <tr>
@@ -148,24 +152,27 @@
 
 @section('script')
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.5/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.5/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+
 <script>
-    $(function () {
-
-    //   $("#dataTransactionsTable").DataTable({
-    //     "responsive": true, "lengthChange": false, "autoWidth": false,
-    //     "buttons": ["copy", "csv", "excel", "pdf", "print"],
-    //     "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]],
-    //   }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
+    $(document).ready(function () {
         $("#dataTransactionsTable").DataTable({
             responsive: true,
             lengthChange: false,
             autoWidth: false,
             buttons: ["copy", "csv", "excel", "pdf", "print"],
+            order: [[0, 'desc']], // Order by first column in descending order,
             lengthMenu: [[100, 50, 25, -1], [100, 50, 25, "All"]],
-            order: [[0, 'desc']], // Order by the first column (index 0) in descending order
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-      
+        }).buttons().container().appendTo('#dataTransactionsTable_wrapper .col-md-6:eq(0)');
     });
+
 </script>
 @endsection

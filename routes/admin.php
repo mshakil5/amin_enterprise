@@ -160,6 +160,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/vendor-ledger', [LedgerController::class, 'vendorLedger'])->name('vendorLedger');
     Route::post('/vendor-ledger', [LedgerController::class, 'vendorVasselLedger'])->name('vendorVasselLedger');
     Route::get('/ledger-receivable', [LedgerController::class, 'receivableLedger'])->name('receivableLedger');
+    Route::post('/ledger-receivable', [LedgerController::class, 'receivableLedger'])->name('receivableLedger.Search');
 
 
     // before posting challan report
