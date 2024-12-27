@@ -19,7 +19,7 @@
                     
                     <div class="card-body">
                         <div class="ermsg"> </div>
-                        <form action="{{route('receivableLedger.Search')}}" method="POST">
+                        <form action="{{route('advanceLedger.Search')}}" method="POST">
                             @csrf
 
                             <div class="row">
@@ -45,10 +45,15 @@
                                               @endforeach
                                             </select>
                                         </div>
-
-                                        
-                                        
-
+                                        <div class="form-group col-md-3">
+                                            <label for="vendor_id">Vendor</label>
+                                            <select name="vendor_id" id="vendor_id" class="form-control select2">
+                                              <option value="">Select</option>
+                                              @foreach ($vendors as $vendor)
+                                              <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                              @endforeach
+                                            </select>
+                                        </div>
                                         <div class="form-group col-md-3">
                                             <label>Action</label> <br>
                                             <button type="submit" class="btn btn-secondary">Check</button>
@@ -90,10 +95,10 @@
                             @endphp
                             <h2>{{ $company->company_name }}</h2>
                         
-                            <h4>Receivable Ledger</h4>
+                            <h4>Advance Ledger</h4>
                         </div>
                         @php
-                            $balance = $drAmount - $crAmount;
+                            $balance = $crAmount;
                         @endphp
 
                         <div class="table-responsive">
@@ -123,18 +128,13 @@
                                             <td>{{ $data->payment_type }}</td>
                                             <td>{{ $data->tran_type }}</td>
                                             @if(in_array($data->tran_type, ['Received']))
-                                            <td>{{ $data->amount }}</td>
-                                            <td></td>
-                                            <td>{{ $balance }}</td>
-                                            @php
-                                                $balance = $balance - $data->amount;
-                                            @endphp
+                                            
                                             @elseif(in_array($data->tran_type, ['Advance']))
                                             <td></td>
                                             <td>{{ $data->amount }}</td>
                                             <td>{{ $balance }}</td>
                                             @php
-                                                $balance = $balance + $data->amount;
+                                                $balance = $balance - $data->amount;
                                             @endphp
                                             @endif
                                         </tr>

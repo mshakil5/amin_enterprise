@@ -225,7 +225,7 @@
           </li>
 
           <li class="nav-item">
-            <a href="{{route('receivableLedger')}}" class="nav-link">
+            <a href="{{route('advanceLedger')}}" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Advance Ledger</p>
             </a>
