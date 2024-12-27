@@ -39,6 +39,16 @@ class ProgramDetail extends Model
         return $this->belongsTo(Ghat::class);
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function motherVassel()
+    {
+        return $this->belongsTo(MotherVassel::class);
+    }
+
 
     public function clientRate()
     {

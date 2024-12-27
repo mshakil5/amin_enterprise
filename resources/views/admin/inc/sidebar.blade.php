@@ -201,7 +201,7 @@
         </ul>
       </li>
 
-      <li class="nav-item">
+      <li class="nav-item {{ (request()->is('admin/ledger*')) ||  (request()->is('admin/ledger')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
           <p>
@@ -211,21 +211,21 @@
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="{{route('receivableLedger')}}" class="nav-link">
+            <a href="{{route('receivableLedger')}}" class="nav-link {{ (request()->is('admin/ledger-receivable')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Receivable Ledger</p>
             </a>
           </li>
           
           <li class="nav-item">
-            <a href="{{route('receivableLedger')}}" class="nav-link">
+            <a href="{{route('payableLedger')}}" class="nav-link {{ (request()->is('admin/ledger-payable')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Payable Ledger</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="{{route('advanceLedger')}}" class="nav-link">
+            <a href="{{route('advanceLedger')}}" class="nav-link {{ (request()->is('admin/ledger-advance')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Advance Ledger</p>
             </a>
