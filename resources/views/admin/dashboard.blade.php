@@ -238,13 +238,117 @@
     </div><!-- /.container-fluid -->
   </section>
 
+  <!-- Main content -->
+<section class="content" id="contentContainer">
+  <div class="container-fluid">
+    <!-- Main row -->
+    <div class="row">
+      <!-- Left col -->
+      <!-- Main content -->
+      <section class="col-lg-7">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <!-- /.card -->
+
+              <div class="card card-secondary">
+                <div class="card-header">
+                  <h3 class="card-title">All Data</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                  
+                  <table id="example1" class="table table-bordered table-striped">
+                    <thead class="bg-secondary">
+                        <tr>
+                            <th style="text-align: center">ID</th>
+                            <th style="text-align: center">Date</th>
+                            <th style="text-align: center">Description</th>
+                            <th style="text-align: center">Amount</th>
+                            {{-- <th style="text-align: center">Total Amount</th> --}}
+                        </tr>
+                    </thead>
+                    <tbody>
+                      @php
+                          use Carbon\Carbon;
+
+                          $tran = \App\Models\Transaction::where(function ($query) {
+                                    $query->where('tran_type', 'Advance')
+                                    ->where('date', Carbon::today()->format('Y-m-d'));
+                                })
+                                ->orWhere(function ($query) {
+                                    $query->where('table_type', 'Expenses')
+                                    ->where('date', Carbon::today()->format('Y-m-d'));
+                                })->get();
+
+                          $total = 0;
+                      @endphp
+                        @foreach ($tran as $key => $data)
+                        <tr>
+                            <td style="text-align: center">{{$data->tran_id ?? " " }}</td>
+                            <td style="text-align: center">{{$data->date ?? " " }}</td>
+                            <td style="text-align: center">{{$data->payment_type}}</td>
+                            <td style="text-align: center">{{$data->amount}}</td>
+                            {{-- <td style="text-align: center">{{$data->amount}}</td> --}}
+                        </tr>
+                        @php
+                            $total += $data->amount;
+                        @endphp
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td style="text-align: right">Total</td>
+                        <td style="text-align: center">{{$total}}</td>
+                      </tr>
+                    </tfoot>
+                </table>
+
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
+            <!-- /.col -->
+          </div>
+          <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+      </section>
+<!-- /.content -->
+      <!-- /.Left col -->
+      <!-- right col (We are only adding the ID to make the widgets sortable)-->
+      <section class="col-lg-5 connectedSortable">
+
+
+        
+        <!-- /.card -->
+      </section>
+      <!-- right col -->
+    </div>
+    <!-- /.row (main row) -->
+    
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+
+
 @endsection
 
 @section('script')
 
-
 <script>
-    
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print"],
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+  });
 </script>
 
 @endsection

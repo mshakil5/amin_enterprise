@@ -131,8 +131,8 @@
                 <tbody>
                     @foreach (\App\Models\ClientRate::get() as $key => $data)
                     <tr>
-                        <td style="text-align: center">{{$data->client->name}}</td>
-                        <td style="text-align: center">{{$data->ghat->name}}</td>
+                        <td style="text-align: center">{{$data->client->name ?? " " }}</td>
+                        <td style="text-align: center">{{$data->ghat->name ?? " " }}</td>
                         <td style="text-align: center">{{$data->destination->name}}</td>
                         <td style="text-align: center">{{$data->maxqty}}</td>
                         <td style="text-align: center">{{$data->below_rate_per_qty}}</td>
