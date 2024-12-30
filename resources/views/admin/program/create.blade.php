@@ -78,7 +78,7 @@
         
                                         <div class="form-group col-md-4">
                                             <label for="mother_vassel_id">Mother Vassel <span style="color: red;">*</span>
-                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#mvessselModal">Add New</span>
+                                              <span class="badge badge-success newmvessel" style="cursor: pointer;" >Add New</span>
                                             </label>
                                             
                                             <select name="mother_vassel_id" id="mother_vassel_id" class="form-control select2">
@@ -471,31 +471,40 @@
 <!-- Create mothervassel End -->
 <script>
     $(document).ready(function(){
-        $('#newmvBtn').click(function(){
-            var name = $('#name').val();
-            var code = $('#code').val();
-            var description = $('#description').val();
-            var _token = $("input[name='_token']").val();
-            $.ajax({
-                url: "{{ route('admin.mothervassel.store') }}",
-                type: "POST",
-                data: {
-                    name: name,
-                    code: code,
-                    description: description,
-                    _token: _token
-                },
-                success: function(response){
-                    console.log(response);
-                    if(response){
-                        $('#mother_vassel_id').append('<option value="'+response.data.id+'" selected>'+response.data.name+'</option>');
-                        $('#mvessselModal').modal('hide');
-                        $('#mvesselForm')[0].reset();
-                        alert('Data saved successfully');
+
+        $("#addThisFormContainer").on('click', '.newmvessel', function () {
+          var id = $(this).data('id');
+          $('#mvessselModal').modal('show');
+          $('#mvesselForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+
+                var name = $('#mothervesselname').val();
+                var code = $('#mothervesselcode').val();
+                var description = $('#mothervesseldescription').val();
+                var _token = $("input[name='_token']").val();
+
+                $.ajax({
+                    url: "{{ route('admin.mothervassel.store') }}",
+                    type: "POST",
+                    data: {
+                        name: name,
+                        code: code,
+                        description: description,
+                        _token: _token
+                    },
+                    success: function(response){
+                        console.log(response);
+                        if(response){
+                            $('#mother_vassel_id').append('<option value="'+response.data.id+'" selected>'+response.data.name+'</option>');
+                            $('#mvessselModal').modal('hide');
+                            $('#mvesselForm')[0].reset();
+                            alert('Data saved successfully');
+                        }
                     }
-                }
-            });
-        });
+                });
+          });
+      });
+
     });
 </script>
 @endsection

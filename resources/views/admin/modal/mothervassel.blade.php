@@ -18,7 +18,7 @@
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label>Name*</label>
-                        <input type="text" class="form-control" id="name" name="name">
+                        <input type="text" class="form-control" id="mothervesselname" name="name">
                       </div>
                     </div>
 
@@ -26,14 +26,14 @@
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label>Code</label>
-                        <input type="text" class="form-control" id="code" name="code">
+                        <input type="text" class="form-control" id="mothervesselcode" name="code">
                       </div>
                     </div>
 
                     <div class="col-sm-12">
                       <div class="form-group">
                         <label>Description</label>
-                        <input type="text" class="form-control" id="description" name="description">
+                        <input type="text" class="form-control" id="mothervesseldescription" name="description">
                       </div>
                     </div>
 
@@ -43,7 +43,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                    <button type="button" id="newmvBtn" class="btn btn-success">add</button>
+                    <button type="submit" id="newmvBtn" class="btn btn-success">add</button>
                 </div>
             </form>
         </div>
