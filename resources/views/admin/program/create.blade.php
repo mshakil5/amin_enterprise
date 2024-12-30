@@ -15,7 +15,7 @@
   <!-- /.content -->
 
 
-  <section class="content pt-3" id="addThisFormContainer">
+<section class="content pt-3" id="addThisFormContainer">
     <div class="container-fluid">
         <div class="row justify-content-md-center">
             <div class="col-md-12">
@@ -78,7 +78,7 @@
         
                                         <div class="form-group col-md-4">
                                             <label for="mother_vassel_id">Mother Vassel <span style="color: red;">*</span>
-                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#mvessselModal">Add New</span>
                                             </label>
                                             
                                             <select name="mother_vassel_id" id="mother_vassel_id" class="form-control select2">
@@ -97,7 +97,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="lighter_vassel_id">Lighter Vassel
-                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#lightervasselModal">Add New</span>
                                             </label>
                                             
                                             <select name="lighter_vassel_id" id="lighter_vassel_id" class="form-control select2">
@@ -275,7 +275,8 @@
     </div>
 </section>
 
-
+@include('admin.modal.mothervassel')
+@include('admin.modal.lightervassel')
 <!-- Destination-->
 <div class="modal fade" id="destModal" tabindex="-1" role="dialog" aria-labelledby="destModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -467,5 +468,34 @@
 </script>
 <!-- Create Program End -->
 
-
+<!-- Create mothervassel End -->
+<script>
+    $(document).ready(function(){
+        $('#newmvBtn').click(function(){
+            var name = $('#name').val();
+            var code = $('#code').val();
+            var description = $('#description').val();
+            var _token = $("input[name='_token']").val();
+            $.ajax({
+                url: "{{ route('admin.mothervassel.store') }}",
+                type: "POST",
+                data: {
+                    name: name,
+                    code: code,
+                    description: description,
+                    _token: _token
+                },
+                success: function(response){
+                    console.log(response);
+                    if(response){
+                        $('#mother_vassel_id').append('<option value="'+response.data.id+'" selected>'+response.data.name+'</option>');
+                        $('#mvessselModal').modal('hide');
+                        $('#mvesselForm')[0].reset();
+                        alert('Data saved successfully');
+                    }
+                }
+            });
+        });
+    });
+</script>
 @endsection

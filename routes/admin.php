@@ -62,7 +62,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
 
     Route::get('/mother-vassel', [MotherVasselController::class, 'index'])->name('admin.mothervassel');
-    Route::post('/mother-vassel', [MotherVasselController::class, 'store']);
+    Route::post('/mother-vassel', [MotherVasselController::class, 'store'])->name('admin.mothervassel.store');
     Route::get('/mother-vassel/{id}/edit', [MotherVasselController::class, 'edit']);
     Route::post('/mother-vassel-update', [MotherVasselController::class, 'update']);
     Route::get('/mother-vassel/{id}', [MotherVasselController::class, 'delete']);
