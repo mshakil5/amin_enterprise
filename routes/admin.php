@@ -69,7 +69,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
 
     Route::get('/lighter-vassel', [LighterVasselController::class, 'index'])->name('lightervassel');
-    Route::post('/lighter-vassel', [LighterVasselController::class, 'store']);
+    Route::post('/lighter-vassel', [LighterVasselController::class, 'store'])->name('admin.lightervassel.store');
     Route::get('/lighter-vassel/{id}/edit', [LighterVasselController::class, 'edit']);
     Route::post('/lighter-vassel-update', [LighterVasselController::class, 'update']);
     Route::get('/lighter-vassel/{id}', [LighterVasselController::class, 'delete']);

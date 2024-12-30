@@ -1,7 +1,7 @@
 
 
 
-<div class="modal fade" id="lightervasselModal" tabindex="-1" role="dialog" aria-labelledby="lightervasselModalLabel" aria-hidden="true">
+<div class="modal fade" id="lvessselModal" tabindex="-1" role="dialog" aria-labelledby="lightervasselModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -10,7 +10,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="mvesselForm">
+            <form id="lvesselForm">
                 <div class="modal-body">
                     
                    
@@ -21,7 +21,7 @@
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label>Name*</label>
-                        <input type="text" class="form-control" id="name" name="name">
+                        <input type="text" class="form-control" id="lightervesselname" name="name">
                       </div>
                     </div>
 
@@ -29,14 +29,14 @@
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label>Code</label>
-                        <input type="text" class="form-control" id="code" name="code">
+                        <input type="text" class="form-control" id="lightervesselcode" name="code">
                       </div>
                     </div>
 
                     <div class="col-sm-12">
                       <div class="form-group">
                         <label>Description</label>
-                        <input type="text" class="form-control" id="description" name="description">
+                        <input type="text" class="form-control" id="lightervesseldescription" name="description">
                       </div>
                     </div>
 
@@ -46,7 +46,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                    <button type="button" id="newlvBtn" class="btn btn-success">add</button>
+                    <button type="submit" id="newlvBtn" class="btn btn-success">add</button>
                 </div>
             </form>
         </div>

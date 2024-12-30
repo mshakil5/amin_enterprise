@@ -97,7 +97,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="lighter_vassel_id">Lighter Vassel
-                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#lightervasselModal">Add New</span>
+                                              <span class="badge badge-success newlvessel" style="cursor: pointer;" >Add New</span>
                                             </label>
                                             
                                             <select name="lighter_vassel_id" id="lighter_vassel_id" class="form-control select2">
@@ -471,18 +471,14 @@
 <!-- Create mothervassel End -->
 <script>
     $(document).ready(function(){
-
         $("#addThisFormContainer").on('click', '.newmvessel', function () {
-          var id = $(this).data('id');
           $('#mvessselModal').modal('show');
           $('#mvesselForm').off('submit').on('submit', function (event) {
               event.preventDefault();
-
                 var name = $('#mothervesselname').val();
                 var code = $('#mothervesselcode').val();
                 var description = $('#mothervesseldescription').val();
                 var _token = $("input[name='_token']").val();
-
                 $.ajax({
                     url: "{{ route('admin.mothervassel.store') }}",
                     type: "POST",
@@ -507,4 +503,43 @@
 
     });
 </script>
+<!-- Create mothervassel End -->
+
+
+<!-- Create lightervassel End -->
+<script>
+    $(document).ready(function(){
+        $("#addThisFormContainer").on('click', '.newlvessel', function () {
+          $('#lvessselModal').modal('show');
+          $('#lvesselForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+                var name = $('#lightervesselname').val();
+                var code = $('#lightervesselcode').val();
+                var description = $('#lightervesseldescription').val();
+                var _token = $("input[name='_token']").val();
+                $.ajax({
+                    url: "{{ route('admin.lightervassel.store') }}",
+                    type: "POST",
+                    data: {
+                        name: name,
+                        code: code,
+                        description: description,
+                        _token: _token
+                    },
+                    success: function(response){
+                        console.log(response);
+                        if(response){
+                            $('#lighter_vassel_id').append('<option value="'+response.data.id+'" selected>'+response.data.name+'</option>');
+                            $('#lvessselModal').modal('hide');
+                            $('#lvesselForm')[0].reset();
+                            alert('Data saved successfully');
+                        }
+                    }
+                });
+          });
+      });
+
+    });
+</script>
+<!-- Create lightervassel End -->
 @endsection
