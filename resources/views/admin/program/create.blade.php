@@ -145,7 +145,7 @@
                             <table class="table table-bordered" id="programTable">
                                 <thead>
                                     <tr>
-                                        <th>Vendor <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addColorModal">Add New</span></th>
+                                        <th>Vendor <span class="badge badge-success newvendor" style="cursor: pointer;">Add New</span></th>
                                         <th>Truck#</th>
                                         <th>Challan</th>
                                         <th>Cash Adv</th>
@@ -161,7 +161,7 @@
                                 <tbody>
                                     <tr>
                                         <td>
-                                            <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                            <select class="form-control vendorlist" name="vendor_id[]" id="vendor_id">
                                                 <option value="">Select Vendor</option>
                                                 @foreach ($vendors as $vendor)
                                                 <option value="{{$vendor->id}}">{{$vendor->name}}</option>
