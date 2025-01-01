@@ -69,7 +69,7 @@
     <div class="container-fluid">
         {{-- <div class="page-header"><a href="{{ url()->previous() }}" class="btn btn-secondary">Back</a></div> --}}
         <div class="row justify-content-md-center">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 <div class="card card-secondary">
                     <div class="card-header">
                         <h3 class="card-title">
@@ -90,6 +90,7 @@
                         </div>
                         @php
                             $balance = 0;
+                            $totalqty = 0;
                         @endphp
 
                         <div class="table-responsive">
@@ -101,6 +102,8 @@
                                         <th>Mother Vessel</th>
                                         <th>Truck Number</th>
                                         <th>Challan No</th>
+                                        <th>From-To</th>
+                                        <th>Qty</th>
                                         <th>Debit</th>
                                         <th>Credit</th>
                                         <th>Payable Amount</th>                                
@@ -116,18 +119,25 @@
                                             <td>{{ $data->motherVassel->name ?? 'N/A'  }}</td>
                                             <td>{{ $data->truck_number }}</td>
                                             <td>{{ $data->challan_no }}</td>
-                                            <td>{{ $data->carrying_bill }}</td>
+                                            <td>{{ $data->ghat->name ?? " " }}-{{$data->destination->name ?? " " }}</td>
+                                            <td>{{ $data->dest_qty }}</td>
                                             <td>{{ $data->advance }}</td>
+                                            <td>{{ $data->carrying_bill }}</td>
                                             <td>{{ number_format($data->carrying_bill - $data->advance, 2)}}</td>
                                             @php
                                                 $balance = $balance + $data->carrying_bill - $data->advance;
+                                                $totalqty = $totalqty + $data->dest_qty;
                                             @endphp
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="6"></td>
+                                        <td colspan="4"></td>
+                                        <td></td>
+                                        <td>Total Qty</td>
+                                        <td>{{ $totalqty }}</td>
+                                        <td></td>
                                         <td>Total Payable: </td>
                                         <td>{{ number_format($balance, 2)}}</td>
                                     </tr>
