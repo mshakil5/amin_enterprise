@@ -171,4 +171,27 @@
     });
 
 </script>
+<script>
+    $(document).ready(function() {
+        $('#mv_id').change(function() {
+            var mvId = $(this).val();
+            if (mvId) {
+                $.ajax({
+                    url: '/get-vendors-list/' + mvId,
+                    type: 'GET',
+                    success: function(data) {
+                        $('#mv_id').empty();
+                        $('#vendor_id').append('<option value="">Select Vendor</option>');
+                        $.each(data, function(key, value) {
+                            $('#vendor_id').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#vendor_id').empty();
+                $('#vendor_id').append('<option value="">Select Vendor</option>');
+            }
+        });
+    });
+</script>
 @endsection
