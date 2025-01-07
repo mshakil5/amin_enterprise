@@ -49,7 +49,7 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-2">
                                             <label for="mv_id">Mother Vassel<span style="color: red;">*</span> </label>
-                                            <select name="mv_id" id="mv_id" class="form-control">
+                                            <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
                                               <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
@@ -435,8 +435,9 @@
             var advanceAmnt = parseFloat($('#advanceAmnt').val()) || 0;
             // add other cost
         
-            var totalAdditionalCost = scale_fee + line_charge + other_cost;
-            var totalDue = totalAdditionalCost + itemTotalAmount - advanceAmnt;
+            var totalAdditionalCost = scale_fee;
+            var totalAdditionalIncome =  line_charge + other_cost;
+            var totalDue = totalAdditionalCost + itemTotalAmount - advanceAmnt - totalAdditionalIncome;
             $("#totalamount").val(itemTotalAmount);
             $("#additionalCost").val(totalAdditionalCost);
             $("#totalDue").val(totalDue);
@@ -728,7 +729,7 @@
                 },
                 success: function(response) {
 
-                    if (status == 400) {
+                    if (response.status == 400) {
                         $(".afterchallanmsg").html(response.message);
                     } else {
                         console.log(response);

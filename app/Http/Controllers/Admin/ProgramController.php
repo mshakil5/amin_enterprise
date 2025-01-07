@@ -75,10 +75,22 @@ class ProgramController extends Controller
             ])->groupBy('vendor_id')->get();
 
 
+            $billnotgenerate = ProgramDetail::select('vendor_id',
+                    DB::raw('SUM(dest_qty) as total_dest_qty'),
+                    DB::raw('SUM(line_charge) as total_line_charge'),
+                    DB::raw('SUM(carrying_bill) as total_carrying_bill'),
+                    DB::raw('SUM(scale_fee) as total_scale_fee'),
+                    DB::raw('SUM(advance) as total_advance'),
+                    DB::raw('SUM(other_cost) as total_other_cost'),
+                    DB::raw('SUM(due) as total_due'),
+                    DB::raw('COUNT(*) as vendor_count')
+            )->where([
+                ['generate_bill','=', '0'],
+                ['program_id','=', $pid]
+            ])->groupBy('vendor_id')->get();
 
 
-
-        return view('admin.program.vendor_report', compact('data','pid'));
+        return view('admin.program.vendor_report', compact('data','pid','billnotgenerate'));
     }
 
 

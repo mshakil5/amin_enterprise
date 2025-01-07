@@ -65,6 +65,7 @@
                                             <th>Sl</th>
                                             <th>Date</th>
                                             <th>Description</th>
+                                            <th>Type</th>
                                             <th>Bill#</th>                            
                                             <th>Challan#</th>                            
                                             <th>Debit</th>                            
@@ -83,18 +84,21 @@
                                                 <td> {{ $key + 1 }} </td>
                                                 <td>{{ \Carbon\Carbon::parse($cashbook->date)->format('d-m-Y') }}</td>
                                                 <td>
+                                                    {{ $cashbook->description }} 
+                                                </td>
+                                                <td>
                                                     {{ $cashbook->tran_type }} {{ $cashbook->payment_type }} 
                                                 </td>
                                                 <td>{{ $cashbook->bill_number }}</td>
                                                 <td>{{ $cashbook->challan_no }}</td>
-                                                @if(in_array($cashbook->tran_type, ['Current', 'Received']))
+                                                @if(in_array($cashbook->tran_type, ['Received']))
                                                 <td>{{ number_format($cashbook->amount, 2) }}</td>
                                                 <td></td>
                                                 <td>{{ number_format($balance, 2) }}</td>
                                                 @php
                                                     $balance = $balance - $cashbook->amount;
                                                 @endphp
-                                                @elseif(in_array($cashbook->tran_type, ['Advance', 'Payment', 'Prepaid']))
+                                                @elseif(in_array($cashbook->tran_type, ['Advance', 'Payment', 'Prepaid', 'Current']))
                                                 <td></td>
                                                 <td>{{ number_format($cashbook->amount, 2) }}</td>
                                                 <td>{{ number_format($balance, 2) }}</td>

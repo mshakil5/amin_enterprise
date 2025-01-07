@@ -55,7 +55,7 @@
                             <div class="col-md-12">
                                 <div class="text-center mb-4 company-name-container">
                                     
-                                    <h4>Day Cash Book</h4>
+                                    <h4>Day Bank Book</h4>
                                 </div>
                         
                                 
@@ -65,6 +65,7 @@
                                             <th>Sl</th>
                                             <th>Date</th>
                                             <th>Description</th>
+                                            <th>Type</th>
                                             <th>Bill#</th>                            
                                             <th>Challan#</th>                            
                                             <th>Debit</th>                            
@@ -83,18 +84,21 @@
                                                 <td> {{ $key + 1 }} </td>
                                                 <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
                                                 <td>
-                                                    {{ $data->tran_type }} {{ $data->payment_type }} 
+                                                    {{ $cashbook->description }} 
+                                                </td>
+                                                <td>
+                                                    {{ $cashbook->tran_type }} {{ $cashbook->payment_type }} 
                                                 </td>
                                                 <td>{{ $data->bill_number }}</td>
                                                 <td>{{ $data->challan_no }}</td>
-                                                @if(in_array($data->tran_type, ['Current', 'Received']))
+                                                @if(in_array($data->tran_type, ['Received']))
                                                 <td>{{ number_format($data->amount, 2) }}</td>
                                                 <td></td>
                                                 <td>{{ number_format($balance, 2) }}</td>
                                                 @php
                                                     $balance = $balance - $data->amount;
                                                 @endphp
-                                                @elseif(in_array($data->tran_type, ['Advance', 'Payment', 'Prepaid']))
+                                                @elseif(in_array($data->tran_type, ['Current', 'Advance', 'Payment', 'Prepaid']))
                                                 <td></td>
                                                 <td>{{ number_format($data->amount, 2) }}</td>
                                                 <td>{{ number_format($balance, 2) }}</td>

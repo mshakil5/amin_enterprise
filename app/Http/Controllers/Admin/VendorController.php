@@ -8,6 +8,7 @@ use App\Models\Vendor;
 use App\Models\VendorSequenceNumber;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class VendorController extends Controller
 {
@@ -187,4 +188,16 @@ class VendorController extends Controller
         }
     }
 
+    
+    
+    public function getVendorListByClientId($id)
+    {
+        
+
+            $vendors = Vendor::whereHas('programDetail', function($query) use ($id) {
+                $query->where('mother_vassel_id', $id);
+            })->get();
+
+        return response()->json(['status' => 300, 'vendors' => $vendors]);
+    }
 }

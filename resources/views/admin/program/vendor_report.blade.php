@@ -97,6 +97,74 @@
 </section>
 <!-- /.content -->
 
+
+<!-- Main content -->
+<section class="content" id="">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <!-- /.card -->
+
+        <div class="card card-secondary">
+          <div class="card-header">
+            <h3 class="card-title">Vendor List (Bill not generated.)</h3>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body">
+            <table id="example1" class="table table-bordered table-striped">
+              <thead>
+              <tr>
+                <th>Sl</th>
+                <th>Vendor</th>
+                <th>Qty</th>
+                <th>Carring Bill</th>
+                <th>Line Charge</th>
+                <th>Scale fee</th>
+                <th>Other Cost</th>
+                <th>Advance</th>
+                <th>Due</th>
+                <th>Total Paid</th>
+                
+              </tr>
+              </thead>
+              <tbody>
+                @foreach ($billnotgenerate as $key => $data)
+                @php
+                    $totalPaid = \App\Models\Transaction::where('vendor_id', $data->vendor_id)->where('program_id', $pid)->sum('amount')
+                @endphp
+                <tr>
+                  <td style="text-align: center">{{ $key + 1 }}</td>
+                  <td style="text-align: center">{{$data->vendor->name}}-{{$data->vendor_id}} ({{$data->vendor_count}})</td>
+                  <td style="text-align: center">{{$data->total_dest_qty}}</td>
+                  <td style="text-align: center">{{$data->total_carrying_bill}}</td>
+                  <td style="text-align: center">{{$data->total_line_charge}}</td>
+                  <td style="text-align: center">{{$data->total_scale_fee}}</td>
+                  <td style="text-align: center">{{$data->total_other_cost}}</td>
+                  <td style="text-align: center">{{$data->total_advance}}</td>
+                  <td style="text-align: center">
+                    @if ($data->total_carrying_bill > 0)
+                    {{$data->total_carrying_bill - $totalPaid}}
+                    @endif</td>
+                  <td style="text-align: center">{{$totalPaid}}</td>
+                  
+                </tr>
+                @endforeach
+              
+              </tbody>
+            </table>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
 <div class="modal fade" id="payModal" tabindex="-1" role="dialog" aria-labelledby="payModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
       <div class="modal-content">

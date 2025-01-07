@@ -35,10 +35,10 @@
                                         <div class="form-group col-md-3">
                                             <label for="vendor_id">Vendor</label>
                                             <select name="vendor_id" id="vendor_id" class="form-control select2">
-                                              <option value="">Select</option>
+                                              {{-- <option value="">Select</option>
                                               @foreach ($vendors as $vendor)
                                               <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                              @endforeach
+                                              @endforeach --}}
                                             </select>
                                         </div>
                                         <div class="form-group col-md-3">
@@ -175,14 +175,16 @@
     $(document).ready(function() {
         $('#mv_id').change(function() {
             var mvId = $(this).val();
+            $('#vendor_id').empty();
+            console.log(mvId);
             if (mvId) {
                 $.ajax({
-                    url: '/get-vendors-list/' + mvId,
+                    url: "{{URL::to('/admin/get-vendors-list')}}"+"/"+mvId,
                     type: 'GET',
                     success: function(data) {
-                        $('#mv_id').empty();
+                        // console.log(data);
                         $('#vendor_id').append('<option value="">Select Vendor</option>');
-                        $.each(data, function(key, value) {
+                        $.each(data.vendors, function(key, value) {
                             $('#vendor_id').append('<option value="' + value.id + '">' + value.name + '</option>');
                         });
                     }

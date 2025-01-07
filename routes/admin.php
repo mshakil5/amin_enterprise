@@ -88,6 +88,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     
     Route::get('/vendor', [VendorController::class, 'index'])->name('admin.vendor');
+    Route::get('/get-vendors-list/{id}', [VendorController::class, 'getVendorListByClientId'])->name('admin.getVendorListByClientId');
     Route::post('/vendor', [VendorController::class, 'store']);
     Route::get('/vendor/{id}/edit', [VendorController::class, 'edit']);
     Route::post('/vendor-update', [VendorController::class, 'update']);
