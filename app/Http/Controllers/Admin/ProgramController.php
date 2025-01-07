@@ -183,6 +183,9 @@ class ProgramController extends Controller
                 $data->date = date('Y-m-d');
                 $data->save();
 
+                $invdtl->advance = $data->amount;
+                $invdtl->save();
+
                 if ($cashamounts[$key] > 0) {
                     $transaction = new Transaction();
                     $transaction->client_id = $request->input('client_id');
@@ -193,7 +196,9 @@ class ProgramController extends Controller
                     $transaction->challan_no = $challanNos[$key]; 
                     $transaction->amount = $cashamounts[$key];
                     $transaction->tran_type = "Advance";
+                    $transaction->description = "Cash Advance to Vendor";
                     $transaction->payment_type = "Cash";
+                    $transaction->table_type = "AdvancePayment";
                     $transaction->date = date('Y-m-d');
                     $transaction->save();
                     $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -210,7 +215,9 @@ class ProgramController extends Controller
                     $transaction->challan_no = $challanNos[$key]; 
                     $transaction->amount = $fuelAmnt;
                     $transaction->tran_type = "Advance";
+                    $transaction->description = "Fuel Advance to Vendor";
                     $transaction->payment_type = "Fuel";
+                    $transaction->table_type = "AdvancePayment";
                     $transaction->date = date('Y-m-d');
                     $transaction->save();
                     $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -389,7 +396,7 @@ class ProgramController extends Controller
         $currentpDtlIds = $program->programDetail->pluck('id')->toArray();
         $updatedpDtlIds = collect($request->program_detail_id)->filter()->toArray();
         $pIdsToDelete = array_diff($currentpDtlIds, $updatedpDtlIds);
-        $program->programDetail->advancePayment()->whereIn('program_detail_id', $pIdsToDelete)->delete();
+        AdvancePayment::whereIn('program_detail_id', $pIdsToDelete)->delete();
         $program->programDetail()->whereIn('id', $pIdsToDelete)->delete();
         
 

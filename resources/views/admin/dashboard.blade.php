@@ -264,6 +264,7 @@
                             <th style="text-align: center">ID</th>
                             <th style="text-align: center">Date</th>
                             <th style="text-align: center">Description</th>
+                            <th style="text-align: center">Payment Type</th>
                             <th style="text-align: center">Amount</th>
                             {{-- <th style="text-align: center">Total Amount</th> --}}
                         </tr>
@@ -287,6 +288,10 @@
                         <tr>
                             <td style="text-align: center">{{$data->tran_id ?? " " }}</td>
                             <td style="text-align: center">{{$data->date ?? " " }}</td>
+                            <td style="text-align: center">{{$data->tran_type}}
+                              <br> {{$data->chartOfAccount->account_name ?? " "}}
+                              <br> <small>{{$data->description ?? " "}}</small>
+                            </td>
                             <td style="text-align: center">{{$data->payment_type}}</td>
                             <td style="text-align: center">{{$data->amount}}</td>
                             {{-- <td style="text-align: center">{{$data->amount}}</td> --}}
@@ -298,6 +303,7 @@
                     </tbody>
                     <tfoot>
                       <tr>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td style="text-align: right">Total</td>
