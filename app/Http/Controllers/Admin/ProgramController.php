@@ -52,7 +52,19 @@ class ProgramController extends Controller
         // dd($data);
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
-        return view('admin.program.details', compact('data','pumps','vendors'));
+
+        $vlist = AdvancePayment::select('vendor_id',
+                    DB::raw('SUM(fuelqty) as total_fuelqty'),
+                    DB::raw('SUM(fuelamount) as total_fuelamount'),
+                    DB::raw('SUM(cashamount) as total_cashamount'),
+                    DB::raw('SUM(amount) as total_amount'),
+                    DB::raw('COUNT(*) as vendor_count')
+            )->where([
+                ['program_id','=', $id]
+            ])->groupBy('vendor_id')->get();
+
+
+        return view('admin.program.details', compact('data','pumps','vendors','vlist'));
     }
 
     public function programVendor($id)
@@ -75,7 +87,7 @@ class ProgramController extends Controller
             ])->groupBy('vendor_id')->get();
 
 
-            $billnotgenerate = ProgramDetail::select('vendor_id',
+        $billnotgenerate = ProgramDetail::select('vendor_id',
                     DB::raw('SUM(dest_qty) as total_dest_qty'),
                     DB::raw('SUM(line_charge) as total_line_charge'),
                     DB::raw('SUM(carrying_bill) as total_carrying_bill'),

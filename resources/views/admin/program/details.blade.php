@@ -29,6 +29,10 @@
           <a href="{{route('billGenerating', $data->id)}}" class="btn btn-secondary my-3 ">Generate Bill</a>
           @endif
           <button type="button" class="btn btn-secondary my-3" id="newBtn">Add new</button>
+
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modal-lg">
+            Vendors Advance
+          </button>
           
       </div>
     </div>
@@ -340,6 +344,58 @@
 </section>
 <!-- /.content -->
 
+
+
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-secondary">
+          <h4 class="modal-title">Vendor advance</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead class="bg-secondary">
+                        <tr>
+                            <th style="text-align: center">SL</th>
+                            <th style="text-align: center">Vendor Name</th>
+                            <th style="text-align: center">Count of Advance</th>
+                            <th style="text-align: center">Cash Advance</th>
+                            <th style="text-align: center">Fuel Qty</th>
+                            <th style="text-align: center">Fuel Advance</th>
+                            <th style="text-align: center">Total Advance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($vlist as $key => $data)
+                            <tr>
+                                <td style="text-align: center">{{ $key + 1 }}</td>
+                                <td style="text-align: center">{{$data->vendor->name}}</td>
+                                <td style="text-align: center">{{$data->vendor_count}}</td>
+                                <td style="text-align: center">{{$data->total_cashamount}}</td>
+                                <td style="text-align: center">{{$data->total_fuelqty}}</td>
+                                <td style="text-align: center">{{$data->total_fuelamount}}</td>
+                                <td style="text-align: center">{{$data->total_amount}}</td>
+                            
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
 
 @endsection
 @section('script')
