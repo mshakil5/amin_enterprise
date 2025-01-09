@@ -382,10 +382,20 @@
                                 <td style="text-align: center">{{$data->total_fuelqty}}</td>
                                 <td style="text-align: center">{{$data->total_fuelamount}}</td>
                                 <td style="text-align: center">{{$data->total_amount}}</td>
-                            
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th style="text-align: center"></th>
+                            <th style="text-align: center"><b>Total</b></th>
+                            <th style="text-align: center">{{ $vlist->sum('vendor_count') }}</th>
+                            <th style="text-align: center">{{ $vlist->sum('total_cashamount') }}</th>
+                            <th style="text-align: center">{{ $vlist->sum('total_fuelqty') }}</th>
+                            <th style="text-align: center">{{ $vlist->sum('total_fuelamount') }}</th>
+                            <th style="text-align: center">{{ $vlist->sum('total_amount') }}</th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
