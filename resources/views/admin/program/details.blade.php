@@ -274,6 +274,7 @@
                   <th>Scale fee</th>
                   <th>Other Cost</th>
                   <th>Advance</th>
+                  <th>Adv. Fuel</th>
                   {{-- <th>Action</th> --}}
                 </tr>
                 </thead>
@@ -301,6 +302,7 @@
                     <td style="text-align: center">{{$data->scale_fee}}</td>
                     <td style="text-align: center">{{$data->other_cost}}</td>
                     <td style="text-align: center">{{$data->advance}}</td>
+                    <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
 
                     {{-- <td style="text-align: center">
                       <span class="badge badge-success adv-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">Advance Pay</span>
@@ -394,8 +396,8 @@
       <!-- /.modal-content -->
     </div>
     <!-- /.modal-dialog -->
-  </div>
-  <!-- /.modal -->
+</div>
+<!-- /.modal -->
 
 @endsection
 @section('script')
