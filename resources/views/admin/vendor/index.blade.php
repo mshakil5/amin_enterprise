@@ -138,7 +138,7 @@
                     </td>
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
-                      <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
+                      {{-- <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a> --}}
                     </td>
                   </tr>
                   @endforeach
@@ -177,10 +177,10 @@
                   </div>
 
                   
-                  <div class="form-group">
+                  {{-- <div class="form-group">
                     <label for="sequence">Sequence<span style="color: red;">*</span></label>
                     <input type="number" class="form-control" id="sequence" name="sequence" >
-                </div>
+                </div> --}}
 
               </div>
               <div class="modal-footer">
@@ -195,7 +195,7 @@
 
 
 <div class="modal fade" id="tranModal" tabindex="-1" role="dialog" aria-labelledby="tranModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
           <div class="modal-header">
               <h5 class="modal-title" id="tranModalLabel">Sequence number and quantity</h5>
@@ -204,9 +204,7 @@
               </button>
           </div>
 
-
           <div class="modal-body">
-            
             <table id="trantable" class="table table-bordered table-striped">
               <thead>
                 <tr>
@@ -219,14 +217,9 @@
                 </tr>
                 </thead>
                 <tbody>
-
                 </tbody>
-                
             </table>
-
           </div>
-        
-          
       </div>
   </div>
 </div>
@@ -398,17 +391,17 @@
               var form_data = new FormData();
               form_data.append("vendorId", id);
               form_data.append("challanqty", $("#challanqty").val());
-              form_data.append("sequence", $("#sequence").val());
+              // form_data.append("sequence", $("#sequence").val());
 
               if (!$("#challanqty").val()) {
                   alert('Please enter challan quantity.');
                   return;
               }
 
-              if (!$("#sequence").val()) {
-                  alert('Please enter sequence number.');
-                  return;
-              }
+              // if (!$("#sequence").val()) {
+              //     alert('Please enter sequence number.');
+              //     return;
+              // }
 
               $.ajax({
                   url: '{{ URL::to('/admin/add-vendor-sequence') }}',

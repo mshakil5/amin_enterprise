@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProgramDetail;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
 use App\Models\VendorSequenceNumber;
@@ -115,7 +116,6 @@ class VendorController extends Controller
         $request->validate([
             'vendorId' => 'required',
             'challanqty' => 'required',
-            'sequence' => 'required',
         ]);
 
         $vendor = Vendor::where('id', $request->vendorId)->first();
@@ -128,8 +128,9 @@ class VendorController extends Controller
         $data->vendor_id = $request->vendorId;
         $data->qty = $request->challanqty;
         $data->notmarkqty = $request->challanqty;
-        $data->sequence = $request->sequence;
-        $data->unique_id = $uniqueCode."_".$request->sequence."_".date('Y');
+        $lastSequence = VendorSequenceNumber::where('vendor_id', $request->vendorId)->max('sequence');
+        $data->sequence = $lastSequence ? $lastSequence + 1 : 1;
+        $data->unique_id = $uniqueCode."_".$data->sequence."_".date('Y');
         $data->date = date('Y-m-d');
         $data->created_by = Auth::user()->id;
         $data->save();
@@ -166,7 +167,7 @@ class VendorController extends Controller
                                 '.$tran->sequence.'
                             </td>
                             <td>
-                                '.$tran->unique_id.'
+                            <a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
                             </td>
                             <td>
                                 <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn" style="cursor:pointer">Delete</span>
@@ -192,12 +193,18 @@ class VendorController extends Controller
     
     public function getVendorListByClientId($id)
     {
-        
-
-            $vendors = Vendor::whereHas('programDetail', function($query) use ($id) {
-                $query->where('mother_vassel_id', $id);
-            })->get();
+        $vendors = Vendor::whereHas('programDetail', function($query) use ($id) {
+            $query->where('mother_vassel_id', $id);
+        })->get();
 
         return response()->json(['status' => 300, 'vendors' => $vendors]);
+    }
+
+    // getVendorWiseProgramList
+    public function getVendorWiseProgramList($id)
+    {
+        $data = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
+        
+        return view('admin.vendor.vendor_wise_program_list', compact('data'));
     }
 }
