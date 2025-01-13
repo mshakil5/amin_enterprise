@@ -86,6 +86,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/pump-update', [PumpController::class, 'update']);
     Route::get('/pump/{id}', [PumpController::class, 'delete']);
     Route::post('/add-fuel-bill-number', [PumpController::class, 'addFuelBillNumber'])->name('admin.addFuelBillNumber');
+    Route::post('/get-petrol-pump-bill', [PumpController::class, 'getFuelBillNumber']);
 
     
     Route::get('/vendor', [VendorController::class, 'index'])->name('admin.vendor');

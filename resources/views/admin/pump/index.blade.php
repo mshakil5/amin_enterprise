@@ -186,7 +186,7 @@
   <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="tranModalLabel">Sequence number and quantity</h5>
+              <h5 class="modal-title" id="tranModalLabel">Fuel bill number and quantity</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
               </button>
@@ -197,11 +197,10 @@
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Challan</th>
-                  <th>Challan Store</th>
-                  <th>Sequence</th>
+                  <th>Fuel Bill Number</th>
+                  <th>Invoice Qty</th>
+                  <th>Total Vehicle</th>
                   <th>Unique ID</th>
-                  <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -429,10 +428,10 @@
           $('#tranModal').modal('show');
               // console.log(id);
               var form_data = new FormData();
-              form_data.append("vendorId", id);
+              form_data.append("pumpId", id);
 
               $.ajax({
-                  url: '{{ URL::to('/admin/get-vendor-sequence') }}',
+                  url: '{{ URL::to('/admin/get-petrol-pump-bill') }}',
                   method: 'POST',
                   data:form_data,
                   contentType: false,

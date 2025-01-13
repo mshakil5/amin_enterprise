@@ -135,4 +135,40 @@ class PumpController extends Controller
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data store Successfully.</b></div>";
         return response()->json(['status'=> 300,'message'=>$message]);
     }
+
+    public function getFuelBillNumber(Request $request)
+    {
+        
+        $pump = PetrolPump::where('id', $request->pumpId)->first();
+
+        $data = FuelBill::where('petrol_pump_id',$request->pumpId)->orderby('id', 'DESC')->get();
+        
+        $prop = '';
+        
+            foreach ($data as $tran){
+
+
+                // <!-- Single Property Start -->
+                $prop.= '<tr>
+                            <td>
+                                '.$tran->date.'
+                            </td>
+                            <td>
+                                '.$tran->bill_number.'
+                            </td>
+                            <td>
+                                '.$tran->qty.'
+                            </td>
+                            <td>
+                                '.$tran->vehicle_count.'
+                            </td>
+                            <td>
+                                '.$tran->unique_id.'
+                            </td>
+                        </tr>';
+                        
+            }
+
+        return response()->json(['status'=> 300,'data'=>$prop, 'pump'=>$pump]);
+    }
 }
