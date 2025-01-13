@@ -353,7 +353,8 @@
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header bg-secondary">
-          <h4 class="modal-title">Vendor advance</h4>
+          <h4 class="modal-title">Mother Vessel: {{$data->motherVassel->name}}</h4>
+          
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -362,7 +363,7 @@
 
             
             <div class="row">
-                <div class="col-6">
+                <div class="col-4">
                     <div class="form-group">
                         <label for="searchdate">Select Date</label>
                         <select class="form-control" name="searchdate" id="searchdate">
@@ -373,8 +374,15 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-6">
+                <div class="col-2">
                     <button type="button" id="dateBtn" class="btn btn-secondary" style="margin-top: 32px;">Submit</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 text-center" id="advTitle">
+                    <h2>Vendor Advance Summary</h2>
+                    <h4>Details of vendor advances for the selected date</h4>
                 </div>
             </div>
 
@@ -594,6 +602,11 @@
                 },
                 success: function(response) {
                     console.log(response)
+                    $('#advTitle').html(`
+                        <h2>Vendor Advance Summary</h2>
+                        <h4>Mother Vessel: ${response.program.mother_vassel.name}</h4>
+                        <h4>Details of vendor advances for the selected date: ${selectedDate}</h4>
+                    `);
                     // Process the response and update the table
                     var tbody = $('#example3 tbody');
                     tbody.empty();

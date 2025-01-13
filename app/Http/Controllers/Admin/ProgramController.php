@@ -91,6 +91,9 @@ class ProgramController extends Controller
         $programId = $request->input('program_id');
         $date = $request->input('date');
 
+        // program details
+        $program = Program::with('motherVassel:id,name')->where('id', $programId)->first();
+
         $vendorAdvances = AdvancePayment::select('vendor_id',
                 DB::raw('SUM(fuelqty) as total_fuelqty'),
                 DB::raw('SUM(fuelamount) as total_fuelamount'),
@@ -103,7 +106,7 @@ class ProgramController extends Controller
             ['date', '=', $date]
             ])->groupBy('vendor_id')->get();
 
-        return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date]);
+        return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date, 'program' => $program]);
     }
 
     public function programVendor($id)
