@@ -52,6 +52,7 @@ class ProgramController extends Controller
         // dd($data);
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $motherVesselName = $data->motherVassel->name;
 
         $vlist = AdvancePayment::select('vendor_id',
                     DB::raw('SUM(fuelqty) as total_fuelqty'),
@@ -72,7 +73,7 @@ class ProgramController extends Controller
                     ->get();
                     
 
-        return view('admin.program.details', compact('data','pumps','vendors','vlist','dates'));
+        return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName'));
     }
 
     

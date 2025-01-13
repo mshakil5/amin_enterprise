@@ -447,11 +447,44 @@
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
       
-      $("#example3").DataTable({
-        "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
-        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
-      }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
+    $("#example3").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": [
+        {
+        extend: 'copy',
+        title: 'Vendor Advance Summary'
+        },
+        {
+        extend: 'csv',
+        title: 'Vendor Advance Summary'
+        },
+        {
+        extend: 'excel',
+        title: 'Vendor Advance Summary'
+        },
+        {
+        extend: 'pdf',
+        title: 'Mother Vessel: {{$motherVesselName}}',
+        customize: function (doc) {
+          doc.content.splice(0, 0, {
+            text: 'Vendor Advance Summary',
+            style: 'header',
+            alignment: 'center'
+          });
+        }
+        },
+        {
+        extend: 'print',
+        title: 'Mother Vessel: {{$motherVesselName}}',
+        customize: function (win) {
+          $(win.document.body).prepend(
+            '<h1 style="text-align:center;">Vendor Advance Summary</h1>'
+          );
+        }
+        }
+      ],
+      "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+    }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
 
       
       $('#example2').DataTable({
