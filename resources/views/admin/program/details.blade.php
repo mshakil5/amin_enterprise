@@ -65,7 +65,7 @@
                                       <div class="form-group col-md-4">
                                           <label for="client_id">Client </label>
                                           <p><b>{{$data->client->name }}</b></p>
-                                          <input type="hidden" name="program_id" value="{{$data->id}}">
+                                          <input type="hidden" name="program_id" id="program_id" value="{{$data->id}}">
                                       </div>
                                       <div class="form-group col-md-4">
                                           <label for="date">Date <span style="color: red;">*</span></label>
@@ -350,7 +350,7 @@
 
 
 <div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header bg-secondary">
           <h4 class="modal-title">Vendor advance</h4>
@@ -359,8 +359,27 @@
           </button>
         </div>
         <div class="modal-body">
+
+            
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label for="searchdate">Select Date</label>
+                        <select class="form-control" name="searchdate" id="searchdate">
+                            <option value="">Select Date</option>
+                            @foreach ($dates as $date)
+                                <option value="{{ $date->date }}">{{ $date->date }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <button type="button" id="dateBtn" class="btn btn-secondary" style="margin-top: 32px;">Submit</button>
+                </div>
+            </div>
+
             <div>
-                <table id="example1" class="table table-bordered table-striped">
+                <table id="example3" class="table table-bordered table-striped">
                     <thead class="bg-secondary">
                         <tr>
                             <th style="text-align: center">SL</th>
@@ -418,6 +437,13 @@
         "buttons": ["copy", "csv", "excel", "pdf", "print"],
         "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+      
+      $("#example3").DataTable({
+        "responsive": true, "lengthChange": false, "autoWidth": false,
+        "buttons": ["copy", "csv", "excel", "pdf", "print"],
+        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+      }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
 
       
       $('#example2').DataTable({
@@ -552,6 +578,57 @@
     //
 
 
+    // dateBtn search
+
+    $('#dateBtn').click(function() {
+        var selectedDate = $('#searchdate').val();
+        var program_id = $('#program_id').val();
+        console.log(selectedDate,  program_id );
+        if (selectedDate) {
+            $.ajax({
+                url: '{{ route("getAdvancePayments") }}',
+                method: 'POST',
+                data: { date: selectedDate, program_id: program_id },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log(response)
+                    // Process the response and update the table
+                    var tbody = $('#example3 tbody');
+                    tbody.empty();
+                    $.each(response.data, function(index, payment) {
+                        var row = `<tr>
+                            <td style="text-align: center">${index + 1}</td>
+                            <td style="text-align: center">${payment.vendor?.name ?? ''}</td>
+                            <td style="text-align: center">${payment.vendor_count}</td>
+                            <td style="text-align: center">${payment.total_cashamount}</td>
+                            <td style="text-align: center">${payment.total_fuelqty}</td>
+                            <td style="text-align: center">${payment.total_fuelamount}</td>
+                            <td style="text-align: center">${payment.total_amount}</td>
+                        </tr>`;
+                        tbody.append(row);
+                    });
+
+                    var tfoot = $('#example3 tfoot');
+                    tfoot.empty();
+                    var totalRow = `<tr>
+                        <th style="text-align: center"></th>
+                        <th style="text-align: center"><b>Total</b></th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.vendor_count, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_cashamount, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_fuelqty, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_fuelamount, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_amount, 0)}</th>
+                    </tr>`;
+                    tfoot.append(totalRow);
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                }
+            });
+        }
+    });
 
           
 

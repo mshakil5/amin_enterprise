@@ -64,7 +64,46 @@ class ProgramController extends Controller
             ])->groupBy('vendor_id')->get();
 
 
-        return view('admin.program.details', compact('data','pumps','vendors','vlist'));
+
+        $dates = AdvancePayment::select(DB::raw('DATE(date) as date'))
+                    ->where('program_id','=', $id)
+                    ->groupBy('date')
+                    ->orderBy('date', 'DESC')
+                    ->get();
+                    
+
+        return view('admin.program.details', compact('data','pumps','vendors','vlist','dates'));
+    }
+
+    
+    // getVendorAdvanceByDate
+    public function getVendorAdvanceByDate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'program_id' => 'required|integer',
+            'date' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 400, 'errors' => $validator->errors()]);
+        }
+
+        $programId = $request->input('program_id');
+        $date = $request->input('date');
+
+        $vendorAdvances = AdvancePayment::select('vendor_id',
+                DB::raw('SUM(fuelqty) as total_fuelqty'),
+                DB::raw('SUM(fuelamount) as total_fuelamount'),
+                DB::raw('SUM(cashamount) as total_cashamount'),
+                DB::raw('SUM(amount) as total_amount'),
+                DB::raw('COUNT(*) as vendor_count')
+            )->with('vendor:id,name')
+            ->where([
+            ['program_id', '=', $programId],
+            ['date', '=', $date]
+            ])->groupBy('vendor_id')->get();
+
+        return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date]);
     }
 
     public function programVendor($id)
