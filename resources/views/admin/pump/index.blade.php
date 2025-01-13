@@ -92,8 +92,9 @@
                 <thead>
                 <tr>
                   <th>Sl</th>
-                  <th>Name</th>
-                  <th>Location</th>
+                  <th style="text-align: center">Name</th>
+                  <th style="text-align: center">Location</th>
+                  <th style="text-align: center">Pump Invoice</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -103,6 +104,15 @@
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{$data->name}}</td>
                     <td style="text-align: center">{{$data->location}}</td>
+                    
+                    <td style="text-align: center">
+                      
+                      <span class="btn btn-success btn-xs add-sq-btn" style="cursor: pointer;" data-id="{{ $data->id }}">+ add</span>
+
+                      <span class="btn btn-info btn-xs view-btn" style="cursor: pointer;" data-id="{{ $data->id }}">View</span>
+
+                    </td>
+
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
@@ -124,6 +134,84 @@
     <!-- /.container-fluid -->
 </section>
 <!-- /.content -->
+
+
+<div class="modal fade" id="payModal" tabindex="-1" role="dialog" aria-labelledby="payModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="payModalLabel">Add sequence form</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form id="payForm">
+              <div class="modal-body">
+                <div class="permsg"></div>
+                
+                  <div class="form-group">
+                    <label for="date">Date<span style="color: red;">*</span></label>
+                    <input type="date" class="form-control" id="date" name="date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                  
+                  </div>
+                  <div class="form-group">
+                      <label for="bill_number">Fuel Bill Number <span style="color: red;">*</span></label>
+                      <input type="text" class="form-control" id="bill_number" name="bill_number" >
+                  </div>
+                  <div class="form-group">
+                      <label for="invqty">Invoice qty <span style="color: red;">*</span></label>
+                      <input type="number" class="form-control" id="invqty" name="invqty" >
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="vehicle_count">Total Vehicle<span style="color: red;">*</span></label>
+                    <input type="number" class="form-control" id="vehicle_count" name="vehicle_count" >
+                </div>
+
+                  
+
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-warning">Create</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="tranModal" tabindex="-1" role="dialog" aria-labelledby="tranModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="tranModalLabel">Sequence number and quantity</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+
+          <div class="modal-body">
+            <table id="trantable" class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Challan</th>
+                  <th>Challan Store</th>
+                  <th>Sequence</th>
+                  <th>Unique ID</th>
+                  <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+          </div>
+      </div>
+  </div>
+</div>
+
 
 
 @endsection
@@ -273,6 +361,92 @@
           $('#createThisForm')[0].reset();
           $("#addBtn").val('Create');
       }
+
+
+      $("#contentContainer").on('click', '.add-sq-btn', function () {
+          var id = $(this).data('id');
+          $('#payModal').modal('show');
+          $('#payForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+
+              var form_data = new FormData();
+              form_data.append("pumpId", id);
+              form_data.append("date", $("#date").val());
+              form_data.append("bill_number", $("#bill_number").val());
+              form_data.append("invqty", $("#invqty").val());
+              form_data.append("vehicle_count", $("#vehicle_count").val());
+
+              if (!$("#bill_number").val()) {
+                  alert('Please enter bill number.');
+                  return;
+              }
+
+              if (!$("#invqty").val()) {
+                  alert('Please enter quantity.');
+                  return;
+              }
+
+              if (!$("#vehicle_count").val()) {
+                  alert('Please enter total vehicle.');
+                  return;
+              }
+
+              $.ajax({
+                  url: '{{ URL::to('/admin/add-fuel-bill-number') }}',
+                  method: 'POST',
+                  data:form_data,
+                  contentType: false,
+                  processData: false,
+                  // dataType: 'json',
+                  success: function (response) {
+                    if (response.status == 303) {
+                        $(".permsg").html(response.message);
+                    }else if(response.status == 300){
+
+                      $(".permsg").html(response.message);
+                      window.setTimeout(function(){location.reload()},2000)
+                    }
+                    
+                      console.log(response);
+                      $('#payModal').modal('hide');
+
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+          });
+      });
+
+      $('#payModal').on('hidden.bs.modal', function () {
+            $('#paymentAmount').val('');
+            $('#paymentNote').val('');
+      });
+
+
+      $("#contentContainer").on('click', '.view-btn', function () {
+          var id = $(this).data('id');
+          $('#tranModal').modal('show');
+              // console.log(id);
+              var form_data = new FormData();
+              form_data.append("vendorId", id);
+
+              $.ajax({
+                  url: '{{ URL::to('/admin/get-vendor-sequence') }}',
+                  method: 'POST',
+                  data:form_data,
+                  contentType: false,
+                  processData: false,
+                  // dataType: 'json',
+                  success: function (response) {
+                    // console.log(response);
+                      $('#trantable tbody').html(response.data);
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+      });
   });
 </script>
 @endsection

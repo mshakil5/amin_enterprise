@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\FuelBill;
 use Illuminate\Http\Request;
 use App\Models\PetrolPump;
 use Illuminate\Support\Facades\Auth;
@@ -89,5 +90,49 @@ class PumpController extends Controller
         }else{
             return response()->json(['success'=>false,'message'=>'Delete Failed']);
         }
+    }
+
+    public function generateUniqueCode($petpumpName)
+    {
+        $words = explode(' ', $petpumpName);
+        $firstLetters = array_map(fn($word) => strtoupper($word[0]), $words);
+        $code = implode('', $firstLetters);
+        $uniqueCode = $code;
+
+        return $uniqueCode;
+    }
+
+    public function addFuelBillNumber(Request $request)
+    {
+        $request->validate([
+            'pumpId' => 'required',
+            'bill_number' => 'required',
+            'invqty' => 'required',
+            'vehicle_count' => 'required',
+        ]);
+
+        $petpump = PetrolPump::where('id', $request->pumpId)->first();
+
+
+        $petpumpName = $petpump->name;
+        $uniqueCode = $this->generateUniqueCode($petpumpName);
+
+        $data = new FuelBill();
+        $data->petrol_pump_id = $request->pumpId;
+        $data->qty = $request->invqty;
+        $data->notmarkqty = $request->invqty;
+        $data->bill_number = $request->bill_number;
+        $data->vehicle_count = $request->vehicle_count;
+
+        $lastSequence = FuelBill::where('petrol_pump_id', $request->pumpId)->max('sequence');
+        $data->sequence = $lastSequence ? $lastSequence + 1 : 1;
+        $data->unique_id = $uniqueCode."_".$data->sequence."_".date('Y');
+
+        $data->date = $request->date;
+        $data->created_by = Auth::user()->id;
+        $data->save();
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data store Successfully.</b></div>";
+        return response()->json(['status'=> 300,'message'=>$message]);
     }
 }
