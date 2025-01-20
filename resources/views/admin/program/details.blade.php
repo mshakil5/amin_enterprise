@@ -279,6 +279,15 @@
                 </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $totalfuelqty = 0;
+                        $totalcarrying_bill = 0;
+                        $totaladvance = 0;
+                        $totalother_cost = 0;
+                        $totalscale_fee = 0;
+                        $totalline_charge = 0;
+                        $totaldest_qty = 0;
+                    @endphp
                   @foreach ($data->programDetail as $key => $data)
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
@@ -303,6 +312,16 @@
                     <td style="text-align: center">{{$data->other_cost}}</td>
                     <td style="text-align: center">{{$data->advance}}</td>
                     <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
+
+                    @php
+                        $totalfuelqty += $data->advancePayment->fuelqty;
+                        $totalcarrying_bill += $data->carrying_bill;
+                        $totaladvance += $data->advance;
+                        $totalother_cost += $data->other_cost;
+                        $totalscale_fee += $data->scale_fee;
+                        $totalline_charge += $data->line_charge;
+                        $totaldest_qty += $data->dest_qty;
+                    @endphp
 
                     {{-- <td style="text-align: center">
                       <span class="badge badge-success adv-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">Advance Pay</span>
@@ -332,6 +351,27 @@
                   @endforeach
                 
                 </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center">{{$totaldest_qty}}</td>
+                        <td style="text-align: center">{{$totalcarrying_bill}}</td>
+                        <td style="text-align: center">{{$totalline_charge}}</td>
+                        <td style="text-align: center">{{$totalscale_fee}}</td>
+                        <td style="text-align: center">{{$totalother_cost}}</td>
+                        <td style="text-align: center">{{$totaladvance}}</td>
+                        <td style="text-align: center">{{$totalfuelqty}}</td>
+                    </tr>
+                </tfoot>
               </table>
             </div>
             <!-- /.card-body -->

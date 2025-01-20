@@ -19,6 +19,12 @@ class VendorController extends Controller
         return view('admin.vendor.index', compact('data'));
     }
 
+    public function vendorlist()
+    {
+        $data = Vendor::orderby('id','DESC')->get();
+        return response()->json(['status' => 200, 'vendors' => $data]);
+    }
+
     public function store(Request $request)
     {
         if(empty($request->name)){

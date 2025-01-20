@@ -113,6 +113,13 @@ class PumpController extends Controller
 
         $petpump = PetrolPump::where('id', $request->pumpId)->first();
 
+        $chkBillNumber = FuelBill::where('petrol_pump_id', $request->pumpId)->where('bill_number',$request->bill_number)->count();
+
+        if ($chkBillNumber > 0) {
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>This bill number has already added.</b></div>";
+            return response()->json(['status'=> 303,'message'=>$message]);
+        }
+
 
         $petpumpName = $petpump->name;
         $uniqueCode = $this->generateUniqueCode($petpumpName);

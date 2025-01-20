@@ -124,7 +124,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="serial" class="col-form-label">Serial</label>
+                                <label for="serial" class="col-form-label">Account Code</label>
                                 <input type="number" name="serial" class="form-control" id="serial" placeholder="Ex: 1">
                             </div>
                         </div>

@@ -2,6 +2,11 @@
 
 @section('content')
 
+<style>
+    .select2-container--default{
+        width: 240.562px !important;
+    }
+</style>
 <!-- Main content -->
 <section class="content pt-1" id="newBtnSection">
     <div class="container-fluid">
@@ -78,7 +83,6 @@
         
                                         <div class="form-group col-md-4">
                                             <label for="mother_vassel_id">Mother Vassel <span style="color: red;">*</span>
-                                              <span class="badge badge-success newmvessel" style="cursor: pointer;" >Add New</span>
                                             </label>
                                             
                                             <select name="mother_vassel_id" id="mother_vassel_id" class="form-control select2">
@@ -116,7 +120,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="ghat_id">Ghat<span style="color: red;">*</span>
-                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                              
                                             </label>
                                             
                                             <select name="ghat_id" id="ghat_id" class="form-control select2">
@@ -154,6 +158,7 @@
                                         <th>Fuel adv</th>
                                         <th>Fuel token</th>
                                         <th>Pump</th>
+                                        <th>Bill#</th>
                                         <th>Total</th>
                                         <th>Action</th>
                                     </tr>
@@ -161,11 +166,11 @@
                                 <tbody>
                                     <tr>
                                         <td>
-                                            <select class="form-control vendorlist" name="vendor_id[]" id="vendor_id">
-                                                <option value="">Select Vendor</option>
+                                            <select class="form-control vendorlist select2" name="vendor_id[]">
+                                                {{-- <option value="">Select Vendor</option>
                                                 @foreach ($vendors as $vendor)
                                                 <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                                @endforeach
+                                                @endforeach --}}
                                             </select>
                                         </td>
                                         <td>
@@ -190,12 +195,17 @@
                                             <input type="number" class="form-control" name="fueltoken[]" >
                                         </td>
                                         <td>
-                                            <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                            <select name="petrol_pump_id[]" class="form-control" >
                                                 <option value="">Select</option>
                                                 @foreach ($pumps as $pump)
                                                     <option value="{{$pump->id}}">{{$pump->name}}</option>
                                                 @endforeach
                                                 </select>
+                                        </td>
+                                        <td>
+                                            <select name="fuel_bill_id[]" class="form-control fuel_bill" >
+                                                <option value="">Select</option>
+                                            </select>
                                         </td>
                                         <td>
                                             <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
@@ -207,11 +217,11 @@
 
                                     <tr>
                                         <td>
-                                            <select class="form-control" name="vendor_id[]" id="vendor_id">
-                                                <option value="">Select Vendor</option>
+                                            <select class="form-control vendorlist select2" name="vendor_id[]">
+                                                {{-- <option value="">Select Vendor</option>
                                                 @foreach ($vendors as $vendor)
                                                 <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                                @endforeach
+                                                @endforeach --}}
                                             </select>
                                         </td>
                                         <td>
@@ -236,12 +246,17 @@
                                             <input type="number" class="form-control" name="fueltoken[]" >
                                         </td>
                                         <td>
-                                            <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                            <select name="petrol_pump_id[]" class="form-control" >
                                                 <option value="">Select</option>
                                                 @foreach ($pumps as $pump)
                                                     <option value="{{$pump->id}}">{{$pump->name}}</option>
                                                 @endforeach
-                                                </select>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="fuel_bill_id[]" class="form-control fuel_bill" >
+                                                <option value="">Select</option>
+                                            </select>
                                         </td>
                                         <td>
                                             <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
@@ -326,7 +341,32 @@
 @endsection
 @section('script')
 
+<script>
+    $(document).ready(function() {
+        function fetchVendors() {
+            $.ajax({
+                url: '{{ route("admin.getVendors") }}',
+                method: 'GET',
+                success: function(response) {
+                    if (response.status == 200) {
+                        let vendorOptions = '<option value="">Select Vendor</option>';
+                        $.each(response.vendors, function(index, vendor) {
+                            vendorOptions += `<option value="${vendor.id}">${vendor.name}</option>`;
+                          });
+                        $('.vendorlist').html(vendorOptions);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                }
+            });
+        }
 
+        fetchVendors();
+
+
+    });
+</script>
 
   <!-- Dynamic Row Script -->
 <script>
@@ -362,11 +402,7 @@
           let newRow = `
                         <tr>
                             <td>
-                                <select class="form-control" name="vendor_id[]" id="vendor_id">
-                                    <option value="">Select Vendor</option>
-                                    @foreach ($vendors as $vendor)
-                                    <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                    @endforeach
+                                <select class="form-control vendorlist select2" name="vendor_id[]">
                                 </select>
                             </td>
                             <td>
@@ -391,12 +427,17 @@
                                 <input type="number" class="form-control" name="fueltoken[]" >
                             </td>
                             <td>
-                                <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                <select name="petrol_pump_id[]" class="form-control" >
                                     <option value="">Select</option>
                                     @foreach ($pumps as $pump)
                                         <option value="{{$pump->id}}">{{$pump->name}}</option>
                                     @endforeach
                                     </select>
+                            </td>
+                            <td>
+                                <select name="fuel_bill_id[]" class="form-control fuel_bill" >
+                                    <option value="">Select</option>
+                                </select>
                             </td>
                             <td>
                                 <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>

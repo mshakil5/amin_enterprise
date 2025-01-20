@@ -26,7 +26,7 @@
                                 <div class="col-sm-12">
                                     
                                     <div class="form-row">
-                                        <div class="form-group col-md-3">
+                                        <div class="form-group col-md-2">
                                             <label for="client_id">Client</label>
                                             <select name="client_id" id="client_id" class="form-control select2">
                                               <option value="">Select</option>
@@ -54,7 +54,18 @@
                                               @endforeach
                                             </select>
                                         </div>
-                                        <div class="form-group col-md-3">
+
+                                        <div class="form-group col-md-2">
+                                            <label for="payment_type">Fuel/Cash</label>
+                                            <select name="payment_type" id="payment_type" class="form-control select2">
+                                              <option value="">Select</option>
+                                              <option value="Fuel">Fuel</option>
+                                              <option value="Cash">Cash</option>
+                                              
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group col-md-2">
                                             <label>Action</label> <br>
                                             <button type="submit" class="btn btn-secondary">Check</button>
                                         </div>
@@ -113,7 +124,7 @@
                                         <th>Transaction Type</th>
                                         <th>Debit</th>
                                         <th>Credit</th>
-                                        <th>Balance</th>                                
+                                        {{-- <th>Balance</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -132,7 +143,7 @@
                                             @elseif(in_array($data->tran_type, ['Advance']))
                                             <td></td>
                                             <td>{{ $data->amount }}</td>
-                                            <td>{{ $balance }}</td>
+                                            {{-- <td>{{ number_format($balance, 0) }}</td> --}}
                                             @php
                                                 $balance = $balance - $data->amount;
                                             @endphp
@@ -140,6 +151,18 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Total</th>
+                                        <th>{{$crAmount}}</th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
 

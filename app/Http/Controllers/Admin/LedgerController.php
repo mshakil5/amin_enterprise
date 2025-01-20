@@ -76,17 +76,11 @@ class LedgerController extends Controller
                             ->when($request->input('vendor_id'), function ($query) use ($request) {
                                 $query->where("vendor_id",$request->input('vendor_id'));
                             })
+                            ->when($request->input('payment_type'), function ($query) use ($request) {
+                                $query->where("payment_type",$request->input('payment_type'));
+                            })
                             ->get();
-        $drAmount = Transaction::where('status', 1)
-                            ->whereNull('table_type')
-                            ->where('tran_type','Received')
-                            ->when($request->input('client_id'), function ($query) use ($request) {
-                                $query->where("client_id",$request->input('client_id'));
-                            })
-                            ->when($request->input('mv_id'), function ($query) use ($request) {
-                                $query->where("mother_vassel_id",$request->input('mv_id'));
-                            })
-                            ->sum('amount');
+
         $crAmount = Transaction::where('status', 1)
                             ->whereNull('table_type')
                             ->where('tran_type','Advance')
@@ -99,11 +93,14 @@ class LedgerController extends Controller
                             ->when($request->input('vendor_id'), function ($query) use ($request) {
                                 $query->where("vendor_id",$request->input('vendor_id'));
                             })
+                            ->when($request->input('payment_type'), function ($query) use ($request) {
+                                $query->where("payment_type",$request->input('payment_type'));
+                            })
                             ->sum('amount');
 
 
 
-        return view('admin.accounts.ledger.advance', compact('data','vendors', 'mvassels', 'clients','drAmount','crAmount'));
+        return view('admin.accounts.ledger.advance', compact('data','vendors', 'mvassels', 'clients','crAmount'));
         
     }
 

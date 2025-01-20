@@ -54,7 +54,7 @@ class ChartOfAccountController extends Controller
             return response()->json(['status' => 303, 'message' => 'Contigent Field Is Required..!']);
         }
         if (empty($request->serial)) {
-            return response()->json(['status' => 303, 'message' => 'Serial Field Is Required..!']);
+            return response()->json(['status' => 303, 'message' => 'Account code Field Is Required..!']);
         }
 
         $existingAccount = ChartOfAccount::where('account_name', $request->account_name)
@@ -65,12 +65,12 @@ class ChartOfAccountController extends Controller
         }
 
         $existingSerial = ChartOfAccount::where('account_head', $request->account_head)
-                                    ->where('sub_account_head', $request->sub_account_head)
+                                    // ->where('sub_account_head', $request->sub_account_head)
                                     ->where('serial', $request->serial)
                                     ->first();
 
         if ($existingSerial) {
-            return response()->json(['status' => 303, 'message' => 'This serial number already exists for this account head and sub account head..!']);
+            return response()->json(['status' => 303, 'message' => 'This account code already exists..!']);
         }
 
         $chartOfAccount = new ChartOfAccount();
@@ -120,7 +120,7 @@ class ChartOfAccountController extends Controller
             return response()->json(['status' => 303, 'message' => 'Contigent Field Is Required..!']);
         }
         if (empty($request->serial)) {
-            return response()->json(['status' => 303, 'message' => 'Serial Field Is Required..!']);
+            return response()->json(['status' => 303, 'message' => 'Account code Field Is Required..!']);
         }
 
         $chartOfAccount = ChartOfAccount::find($id);
@@ -134,13 +134,13 @@ class ChartOfAccountController extends Controller
         }
 
         $existingAccount = ChartOfAccount::where('account_head', $request->account_head)
-            ->where('sub_account_head', $request->sub_account_head)
+            // ->where('sub_account_head', $request->sub_account_head)
             ->where('serial', $request->serial)
             ->where('id', '!=', $id)
             ->first();
 
         if ($existingAccount) {
-            return response()->json(['status' => 303, 'message' => 'This serial number already exists for this account head and sub account head..!']);
+            return response()->json(['status' => 303, 'message' => 'This account code already exists..!']);
         }
 
         $chartOfAccount->account_head = $request->account_head;

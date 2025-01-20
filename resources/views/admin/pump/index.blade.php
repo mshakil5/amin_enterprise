@@ -404,10 +404,10 @@
 
                       $(".permsg").html(response.message);
                       window.setTimeout(function(){location.reload()},2000)
+                      $('#payModal').modal('hide');
                     }
                     
                       console.log(response);
-                      $('#payModal').modal('hide');
 
                   },
                   error: function (xhr) {
