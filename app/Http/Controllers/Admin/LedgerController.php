@@ -144,18 +144,20 @@ class LedgerController extends Controller
 
             $program = ProgramDetail::with('advancePayment')->where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->get();
 
+            
             $pdids = $program->pluck('id')->toArray();
 
-            $cashAdv = Transaction::whereIn('program_detail_id', $pdids)->where('payment_type', 'Cash')->sum('amount');
-            $fuelAdv = Transaction::whereIn('program_detail_id', $pdids)->where('payment_type', 'Fuel')->sum('amount');
+            $cashAdv = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('cashamount');
+            $fuelAdv = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('fuelamount');
+
             $scalecost = ProgramDetail::where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->sum('scale_fee');
             $line_charge = ProgramDetail::where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->sum('line_charge');
             $carryingBill = ProgramDetail::where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->sum('carrying_bill');
             $carryingQty = ProgramDetail::where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->sum('dest_qty');
 
             // dd($cashAdv);
-            $vendors = Vendor::where('status', 1)->get();
-            $mvassels = MotherVassel::where('status', 1)->get();
+            $vendors = Vendor::where('id', $request->vendor_id)->first();
+            $mvassels = MotherVassel::where('id', $request->mv_id)->first();
             return view('admin.accounts.ledger.vendorVasselReport', compact('mvassels', 'vendors','fuelAdv','scalecost','carryingBill','carryingQty','line_charge','cashAdv'));
         }
         

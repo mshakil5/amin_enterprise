@@ -15,12 +15,12 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body">
+              <h4 class="text-center">{{$vendors->name}}</h4>
+              <h5 class="text-center">{{$vendors->mvassels}}</h5>
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
                   <th>Particular</th>
-                  <th>Mother Vessel</th>
-                  <th>Consign</th>
                   <th>Qty</th>
                   <th>Ltr</th>
                   <th>Trip</th>
@@ -38,8 +38,6 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
                     <td style="text-align: center">{{$cashAdv}}</td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center">{{$cashAdv}}</td>
@@ -52,8 +50,6 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
                     <td style="text-align: center">{{$fuelAdv}}</td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center">{{$cashAdv + $fuelAdv}}</td>
@@ -63,8 +59,6 @@
                     <td style="text-align: left">
                         Carrying bill
                     </td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
                     <td style="text-align: center">{{$carryingQty}}</td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
@@ -81,8 +75,6 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
                     <td style="text-align: center">{{$scalecost}}</td>
                     <td style="text-align: center">{{$cashAdv + $fuelAdv - $carryingBill - $scalecost}}</td>
                   </tr>
@@ -91,8 +83,6 @@
                     <td style="text-align: left">
                         Line charge deductable from vendor <br> <small>(if applicable)</small>
                     </td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
@@ -110,8 +100,6 @@
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
                     <td style="text-align: center">{{$cashAdv + $fuelAdv + $line_charge - $carryingBill - $scalecost}}</td>
                   </tr>
 
@@ -119,8 +107,6 @@
                     <td style="text-align: left">
                         Cash Discount
                     </td>
-                    <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center"></td>
@@ -147,5 +133,14 @@
 @endsection
 
 @section('script')
-
+<script>
+  $(document).ready(function() {
+    $('#example1').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+      ]
+    });
+  });
+</script>
 @endsection
