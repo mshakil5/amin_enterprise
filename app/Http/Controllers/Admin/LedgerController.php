@@ -149,6 +149,8 @@ class LedgerController extends Controller
 
             $cashAdv = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('cashamount');
             $fuelAdv = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('fuelamount');
+            $fuelQty = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('fuelqty');
+            $tripCount = AdvancePayment::whereIn('program_detail_id', $pdids)->count();
 
             $scalecost = ProgramDetail::where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->sum('scale_fee');
             $line_charge = ProgramDetail::where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->sum('line_charge');
@@ -158,7 +160,7 @@ class LedgerController extends Controller
             // dd($cashAdv);
             $vendors = Vendor::where('id', $request->vendor_id)->first();
             $mvassels = MotherVassel::where('id', $request->mv_id)->first();
-            return view('admin.accounts.ledger.vendorVasselReport', compact('mvassels', 'vendors','fuelAdv','scalecost','carryingBill','carryingQty','line_charge','cashAdv'));
+            return view('admin.accounts.ledger.vendorVasselReport', compact('mvassels', 'vendors','fuelAdv','scalecost','carryingBill','carryingQty','line_charge','cashAdv','tripCount','fuelQty'));
         }
         
     }

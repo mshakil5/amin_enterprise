@@ -16,7 +16,7 @@
             <!-- /.card-header -->
             <div class="card-body">
               <h4 class="text-center">{{$vendors->name}}</h4>
-              <h5 class="text-center">{{$vendors->mvassels}}</h5>
+              <h5 class="text-center">{{$mvassels->name}}</h5>
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
@@ -48,7 +48,7 @@
                         Fuel Advance
                     </td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$fuelQty}}</td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center">{{$fuelAdv}}</td>
                     <td style="text-align: center"></td>
@@ -61,7 +61,7 @@
                     </td>
                     <td style="text-align: center">{{$carryingQty}}</td>
                     <td style="text-align: center"></td>
-                    <td style="text-align: center"></td>
+                    <td style="text-align: center">{{$tripCount}}</td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center">{{$carryingBill}}</td>
                     <td style="text-align: center">{{$cashAdv + $fuelAdv - $carryingBill}}</td>
@@ -133,7 +133,7 @@
 @endsection
 
 @section('script')
-<script>
+{{-- <script>
   $(document).ready(function() {
     $('#example1').DataTable({
       dom: 'Bfrtip',
@@ -142,5 +142,5 @@
       ]
     });
   });
-</script>
+</script> --}}
 @endsection
