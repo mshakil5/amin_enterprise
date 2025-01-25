@@ -46,12 +46,14 @@ class ReportController extends Controller
 
         // $data = Program::with('programDetail','programDetail.programDestination','programDetail.programDestination.destinationSlabRate')->first();
 
-        $data = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('vendor_id', $vid)->where('mother_vassel_id', $mid)->get();
+        $data = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('vendor_id', $vid)->where('mother_vassel_id', $mid)->whereNotNull('headerid')->get();
+
+        $missingHeaderIds = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('vendor_id', $vid)->where('mother_vassel_id', $mid)->whereNull('headerid')->get();
         
         $vendor = Vendor::select('id','name')->where('id',$vid)->first();
         $motherVesselName = MotherVassel::where('id', $mid)->first()->name;
 
-        return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName'));
+        return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','missingHeaderIds'));
     }
 
 }
