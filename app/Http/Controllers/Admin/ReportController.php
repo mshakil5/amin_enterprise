@@ -17,8 +17,8 @@ class ReportController extends Controller
             $data = ProgramDetail::selectRaw('
                                         vendor_id,
                                         COUNT(*) as total_records,
-                                        SUM(CASE WHEN rate_status = 1 THEN 1 ELSE 0 END) as challan_received,
-                                        SUM(CASE WHEN rate_status = 0 THEN 1 ELSE 0 END) as challan_not_received
+                                        SUM(CASE WHEN dest_status = 1 THEN 1 ELSE 0 END) as challan_received,
+                                        SUM(CASE WHEN dest_status = 0 THEN 1 ELSE 0 END) as challan_not_received
                                     ')
                                     ->where('mother_vassel_id', $request->mv_id)
                                     ->groupBy('vendor_id')
