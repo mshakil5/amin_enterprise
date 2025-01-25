@@ -41,7 +41,7 @@ class PettyCashController extends Controller
 
 
             $pcash = PettyCash::where('id','1')->first();
-            $pcash->amount = $pcash->balance + $request->amount;
+            $pcash->amount = $pcash->amount + $request->amount;
             $pcash->save();
 
 
@@ -57,7 +57,7 @@ class PettyCashController extends Controller
         $where = [
             'id'=>$id
         ];
-        $info = Country::where($where)->get()->first();
+        $info = Transaction::where($where)->get()->first();
         return response()->json($info);
     }
 
@@ -65,7 +65,7 @@ class PettyCashController extends Controller
     {
 
         
-        if(empty($request->name)){
+        if(empty($request->amount)){
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" amount \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
@@ -74,10 +74,24 @@ class PettyCashController extends Controller
 
 
 
-        $data = Country::find($request->codeid);
-        $data->name = $request->name;
+        $data = Transaction::find($request->codeid);
+
+        $pcash = PettyCash::where('id','1')->first();
+        $pcash->amount = $pcash->amount - $data->amount;
+        $pcash->save();
+
+        $data->table_type = "Asset";
+        $data->tran_type = "Petty Cash In";
+        $data->date = $request->date;
+        $data->amount = $request->amount;
+        $data->payment_type = "Cash";
+        $data->description = "Cash transfer to Petty Cash";
         $data->updated_by = Auth::user()->id;
         if ($data->save()) {
+            $pcash = PettyCash::where('id','1')->first();
+            $pcash->amount = $pcash->amount + $request->amount;
+            $pcash->save();
+
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
             return response()->json(['status'=> 300,'message'=>$message]);
         }
