@@ -24,7 +24,7 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="mv_id">Mother Vassel </label>
-                                            <select name="mv_id" id="mv_id" class="form-control">
+                                            <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
                                               <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
@@ -81,7 +81,7 @@
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
-                    <td style="text-align: center">{{$data->total_records}}</td>
+                    <td style="text-align: center"><a href="{{route('challanPostingReport',['mid'=>$mid, 'vid' => $data->vendor->id])}}" class="btn btn-xs btn-success">{{$data->total_records}}</a></td>
                     <td style="text-align: center">{{$data->challan_received}}</td>
                     <td style="text-align: center">{{$data->challan_not_received}}</td>
                   </tr>
@@ -110,4 +110,14 @@
 
 @section('script')
 
+<script>
+    // $(function () {
+    //   $("#example1").DataTable({
+    //     "responsive": true,
+    //     "autoWidth": false,
+    //   });
+    // });
+
+
+</script>
 @endsection

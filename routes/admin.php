@@ -174,6 +174,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
 
     // before posting challan report
+    Route::get('/before-posting-challan-report/{vid}/{mid}', [ReportController::class, 'challanPostingReport'])->name('challanPostingReport');
     Route::get('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReport');
     Route::post('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReportshow');
 
