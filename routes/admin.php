@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\EquityController;
 use App\Http\Controllers\Admin\AssetController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ChartOfAccountController;
+use App\Http\Controllers\Admin\PettyCashController;
 use App\Http\Controllers\Admin\PLStatementController;
 
 /*------------------------------------------
@@ -59,6 +60,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/country/{id}/edit', [CountryController::class, 'edit']);
     Route::post('/country-update', [CountryController::class, 'update']);
     Route::get('/country/{id}', [CountryController::class, 'delete']);
+
+
+    // petty cash
+    Route::get('/petty-cash', [PettyCashController::class, 'index'])->name('admin.pettycash');
+    Route::post('/petty-cash', [PettyCashController::class, 'store']);
+    Route::get('/petty-cash/{id}/edit', [PettyCashController::class, 'edit']);
+    Route::post('/petty-cash-update', [PettyCashController::class, 'update']);
 
 
     Route::get('/mother-vassel', [MotherVasselController::class, 'index'])->name('admin.mothervassel');

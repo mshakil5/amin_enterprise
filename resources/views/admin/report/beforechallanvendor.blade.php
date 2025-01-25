@@ -76,6 +76,11 @@
                   <th>Challan Not Received</th>
                 </tr>
                 </thead>
+                @php
+                    $total_challan = 0;
+                    $total_challan_received = 0;
+                    $total_challan_not_received = 0;
+                @endphp
                 <tbody>
                   @foreach ($data as $key => $data)
                   <tr>
@@ -85,9 +90,24 @@
                     <td style="text-align: center">{{$data->challan_received}}</td>
                     <td style="text-align: center">{{$data->challan_not_received}}</td>
                   </tr>
+                  @php
+                      $total_challan += $data->total_records;
+                      $total_challan_received += $data->challan_received;
+                      $total_challan_not_received += $data->challan_not_received;
+                  @endphp
                   @endforeach
                 
                 </tbody>
+
+                <tfoot>
+                  <tr>
+                    <th style="text-align: center"></th>
+                    <th style="text-align: center">Total: </th>
+                    <th style="text-align: center">{{$total_challan}}</th>
+                    <th style="text-align: center">{{$total_challan_received}}</th>
+                    <th style="text-align: center">{{$total_challan_not_received}}</th>
+                  </tr>
+                </tfoot>
               </table>
             </div>
             <!-- /.card-body -->

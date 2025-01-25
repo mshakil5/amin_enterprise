@@ -29,10 +29,10 @@
         </a>
       </li> --}}
       <li class="nav-item">
-        <a href="{{route('admin.country')}}" class="nav-link {{ (request()->is('admin/country*')) ? 'active' : '' }}">
+        <a href="{{route('admin.pettycash')}}" class="nav-link {{ (request()->is('admin/petty-cash*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
           <p>
-            Country
+            Petty Cash
           </p>
         </a>
       </li>
