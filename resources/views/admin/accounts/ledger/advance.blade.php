@@ -31,7 +31,7 @@
                                             <select name="client_id" id="client_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($clients as $client)
-                                              <option value="{{$client->id}}">{{$client->name}}</option>
+                                              <option value="{{$client->id}}" @if ($client->id == $client_id) selected @endif>{{$client->name}}</option>
                                               @endforeach
                                             </select>
                                         </div>
@@ -41,7 +41,7 @@
                                             <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
-                                              <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
+                                              <option value="{{$mvassel->id}}" @if ($mvassel->id == $mvid) selected @endif>{{$mvassel->name}}</option>
                                               @endforeach
                                             </select>
                                         </div>
@@ -50,7 +50,7 @@
                                             <select name="vendor_id" id="vendor_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($vendors as $vendor)
-                                              <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                              <option value="{{$vendor->id}}" @if ($vendor->id == $vendor_id) selected @endif>{{$vendor->name}}</option>
                                               @endforeach
                                             </select>
                                         </div>
@@ -59,8 +59,8 @@
                                             <label for="payment_type">Fuel/Cash</label>
                                             <select name="payment_type" id="payment_type" class="form-control select2">
                                               <option value="">Select</option>
-                                              <option value="Fuel">Fuel</option>
-                                              <option value="Cash">Cash</option>
+                                              <option value="Fuel" @if ($payment_type == "Fuel") selected @endif>Fuel</option>
+                                              <option value="Cash" @if ($payment_type == "Cash") selected @endif>Cash</option>
                                               
                                             </select>
                                         </div>
@@ -141,8 +141,8 @@
                                             @if(in_array($data->tran_type, ['Received']))
                                             
                                             @elseif(in_array($data->tran_type, ['Advance']))
-                                            <td></td>
                                             <td>{{ $data->amount }}</td>
+                                            <td></td>
                                             {{-- <td>{{ number_format($balance, 0) }}</td> --}}
                                             @php
                                                 $balance = $balance - $data->amount;
@@ -158,9 +158,9 @@
                                         <th></th>
                                         <th></th>
                                         <th></th>
-                                        <th></th>
                                         <th>Total</th>
                                         <th>{{$crAmount}}</th>
+                                        <th></th>
                                     </tr>
                                 </tfoot>
                             </table>

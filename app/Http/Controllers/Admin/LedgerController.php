@@ -99,8 +99,12 @@ class LedgerController extends Controller
                             ->sum('amount');
 
 
+                            $mvid = $request->input('mv_id') ?? null;
+                            $vendor_id = $request->input('vendor_id') ?? null;
+                            $payment_type = $request->input('payment_type') ?? null;
+                            $client_id = $request->input('client_id') ?? null;
 
-        return view('admin.accounts.ledger.advance', compact('data','vendors', 'mvassels', 'clients','crAmount'));
+        return view('admin.accounts.ledger.advance', compact('data','vendors', 'mvassels', 'clients','crAmount','mvid','vendor_id','payment_type','client_id'));
         
     }
 
