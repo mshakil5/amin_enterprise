@@ -27,7 +27,7 @@
                                             <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
-                                              <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
+                                              <option value="{{$mvassel->id}}"  @if ($mvassel->id == $mid) selected @endif>{{$mvassel->name}}</option>
                                               @endforeach
                                             </select>
                                         </div>
@@ -66,6 +66,16 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body">
+              @php
+              if ($mid) {
+                $mvesselName = \App\Models\MotherVassel::where('id', $mid)->first()->name;        
+              }
+              @endphp
+
+              <h3 class="text-center">{{$mvesselName}}</h3>
+              
+
+
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>

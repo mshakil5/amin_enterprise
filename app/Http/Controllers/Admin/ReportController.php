@@ -34,7 +34,9 @@ class ReportController extends Controller
         } else {
             $vendors = Vendor::where('status', 1)->get();
             $mvassels = MotherVassel::where('status', 1)->get();
-            return view('admin.report.beforechallanvendor', compact('mvassels', 'vendors'));
+            
+            $mid = $request->mv_id ?? null;
+            return view('admin.report.beforechallanvendor', compact('mvassels', 'vendors','mid'));
         }
         
     }
