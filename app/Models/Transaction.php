@@ -29,5 +29,10 @@ class Transaction extends Model
         return $this->belongsTo(MotherVassel::class);
     }
 
+    public function programDetail()
+    {
+        return $this->belongsTo(ProgramDetail::class);
+    }
+
 
 }

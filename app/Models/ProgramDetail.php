@@ -54,4 +54,9 @@ class ProgramDetail extends Model
     {
         return $this->hasMany(ClientRate::class);
     }
+
+    public function transaction()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

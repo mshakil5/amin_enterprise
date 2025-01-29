@@ -259,6 +259,7 @@ class ProgramController extends Controller
                     $transaction->mother_vassel_id = $request->input('mother_vassel_id');
                     $transaction->program_id = $program->id;
                     $transaction->program_detail_id = $invdtl->id;
+                    $transaction->advance_payment_id = $data->id;
                     $transaction->vendor_id = $vendorIds[$key];
                     $transaction->challan_no = $challanNos[$key]; 
                     $transaction->amount = $cashamounts[$key];
@@ -278,6 +279,7 @@ class ProgramController extends Controller
                     $transaction->mother_vassel_id = $request->input('mother_vassel_id');
                     $transaction->program_id = $program->id;
                     $transaction->program_detail_id = $invdtl->id;
+                    $transaction->advance_payment_id = $data->id;
                     $transaction->vendor_id = $vendorIds[$key];
                     $transaction->challan_no = $challanNos[$key]; 
                     $transaction->amount = $fuelAmnt;
@@ -403,7 +405,7 @@ class ProgramController extends Controller
 
     public function programEdit($id)
     {
-        $program = Program::with('programDetail.advancePayment')->where('id', $id)->first();
+        $program = Program::with('programDetail.advancePayment','programDetail.transaction')->where('id', $id)->first();
 
         // dd($program );
         
@@ -420,6 +422,8 @@ class ProgramController extends Controller
 
     public function programUpdate(Request $request)
     {
+
+        $alldata = $request->all();
         
         $validator = Validator::make($request->all(), [
             'client_id' => 'required',
@@ -499,7 +503,8 @@ class ProgramController extends Controller
                     $data->save();
 
                     if ($cashamounts[$key] > 0) {
-                        $transaction = new Transaction();
+                        $chkCashTran = Transaction::where('program_detail_id', $invdtl->id)->where('payment_type', 'Cash')->first();
+                        $transaction = Transaction::find($chkCashTran->id);
                         $transaction->client_id = $request->input('client_id');
                         $transaction->mother_vassel_id = $request->input('mother_vassel_id');
                         $transaction->program_id = $program->id;
@@ -516,7 +521,8 @@ class ProgramController extends Controller
                     }
     
                     if ($fuelAmnt > 0) {
-                        $transaction = new Transaction();
+                        $chkFuelTran = Transaction::where('program_detail_id', $invdtl->id)->where('payment_type', 'Fuel')->first();
+                        $transaction = Transaction::find($chkFuelTran->id);
                         $transaction->client_id = $request->input('client_id');
                         $transaction->mother_vassel_id = $request->input('mother_vassel_id');
                         $transaction->program_id = $program->id;
@@ -603,7 +609,7 @@ class ProgramController extends Controller
 
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
 
-        return response()->json(['status'=> 300,'message'=>$message]);
+        return response()->json(['status'=> 300,'message'=>$message,'all'=>$alldata]);
     }
 
     public function prgmDelete($id)

@@ -167,6 +167,12 @@
                                     @foreach ($program->programDetail as $key => $pdtl)
                                     <tr>
                                         <td>
+                                            
+                                            @foreach ($pdtl->transaction as $tran)
+                                                <input type="hidden" value="{{$tran->id}}" name="tranid[]">
+                                            @endforeach
+
+
                                             <select class="form-control" name="vendor_id[]" id="vendor_id">
                                                 <option value="">Select Vendor</option>
                                                 @foreach ($vendors as $vendor)

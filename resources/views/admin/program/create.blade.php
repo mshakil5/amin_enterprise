@@ -42,7 +42,7 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="client_id">Client <span style="color: red;">*</span>
-                                              <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span>
+                                              {{-- <span class="badge badge-success" style="cursor: pointer;" data-toggle="modal" data-target="#addCategoryModal">Add New</span> --}}
                                             </label>
                                             
                                             <select name="client_id" id="client_id" class="form-control select2">
@@ -217,7 +217,7 @@
 
                                     <tr>
                                         <td>
-                                            <select class="form-control vendorlist select2" name="vendor_id[]">
+                                            <select class="form-control vendorlist" name="vendor_id[]">
                                                 {{-- <option value="">Select Vendor</option>
                                                 @foreach ($vendors as $vendor)
                                                 <option value="{{$vendor->id}}">{{$vendor->name}}</option>
@@ -341,32 +341,7 @@
 @endsection
 @section('script')
 
-<script>
-    $(document).ready(function() {
-        function fetchVendors() {
-            $.ajax({
-                url: '{{ route("admin.getVendors") }}',
-                method: 'GET',
-                success: function(response) {
-                    if (response.status == 200) {
-                        let vendorOptions = '<option value="">Select Vendor</option>';
-                        $.each(response.vendors, function(index, vendor) {
-                            vendorOptions += `<option value="${vendor.id}">${vendor.name}</option>`;
-                          });
-                        $('.vendorlist').html(vendorOptions);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseJSON.message);
-                }
-            });
-        }
 
-        fetchVendors();
-
-
-    });
-</script>
 
   <!-- Dynamic Row Script -->
 <script>
@@ -403,6 +378,10 @@
                         <tr>
                             <td>
                                 <select class="form-control vendorlist select2" name="vendor_id[]">
+                                    <option value="">Select Vendor</option>
+                                    @foreach ($vendors as $vendor)
+                                    <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                    @endforeach
                                 </select>
                             </td>
                             <td>
@@ -583,4 +562,37 @@
     });
 </script>
 <!-- Create lightervassel End -->
+
+
+
+
+<script>
+    $(document).ready(function() {
+        function fetchVendors() {
+            $.ajax({
+                url: '{{ route("admin.getVendors") }}',
+                method: 'GET',
+                success: function(response) {
+                    console.log(response);
+                    if (response.status == 200) {
+                        let vendorOptions = '<option value="">Select Vendor</option>';
+                        $.each(response.vendors, function(index, vendor) {
+                            vendorOptions += `<option value="${vendor.id}">${vendor.name}</option>`;
+                          });
+                        $('.vendorlist').html(vendorOptions);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                }
+            });
+        }
+
+        fetchVendors();
+
+
+    });
+</script>
+
+
 @endsection
