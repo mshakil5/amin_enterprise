@@ -38,6 +38,7 @@
                   <th>Program ID</th>
                   <th>Mother Vassel</th>
                   <th>Lighter Vassel</th>
+                  <th>Ghat</th>
                   <th>Consignment No.</th>
                   <th>Bill Generate</th>
                   <th>Vendor</th>
@@ -64,6 +65,11 @@
                     <td style="text-align: center">
                       @if ($data->lighter_vassel_id)
                         {{$data->lighterVassel->name}}
+                      @endif
+                    </td>
+                    <td style="text-align: center">
+                      @if ($data->ghat_id)
+                        {{$data->ghat->name}}
                       @endif
                     </td>
                     <td style="text-align: center">{{$data->consignmentno}}</td>

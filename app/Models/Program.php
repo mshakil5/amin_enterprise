@@ -29,4 +29,9 @@ class Program extends Model
         return $this->hasMany(ProgramDetail::class);
     }
 
+    public function ghat()
+    {
+        return $this->belongsTo(Ghat::class);
+    }
+
 }

@@ -177,8 +177,8 @@ class ProgramController extends Controller
         
         $validator = Validator::make($request->all(), [
             'client_id' => 'required',
-            'mother_vassel_id' => 'required',
-            'ghat_id' => 'required',
+            'mother_vassel_id' => 'required|unique:programs,mother_vassel_id,NULL,id,ghat_id,' . $request->ghat_id,
+            'ghat_id' => 'required|unique:programs,ghat_id,NULL,id,mother_vassel_id,' . $request->mother_vassel_id,
             'vendor_id.*' => 'required',
             'truck_number.*' => 'required',
             'challan_no.*' => 'required',

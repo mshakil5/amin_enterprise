@@ -34,7 +34,7 @@
                   @csrf
                   <input type="hidden" class="form-control" id="codeid" name="codeid">
                   <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-12">
                       <div class="form-group">
                         <label>Name*</label>
                         <input type="text" class="form-control" id="name" name="name">
@@ -42,7 +42,7 @@
                     </div>
 
                     
-                    <div class="col-sm-6">
+                    <div class="col-sm-6 d-none">
                       <div class="form-group">
                         <label>Code</label>
                         <input type="text" class="form-control" id="code" name="code">
@@ -204,7 +204,7 @@
           if($(this).val() == 'Update'){
               var form_data = new FormData();
               form_data.append("name", $("#name").val());
-              form_data.append("code", $("#code").val());
+              // form_data.append("code", $("#code").val());
               form_data.append("description", $("#description").val());
               form_data.append("codeid", $("#codeid").val());
               
@@ -270,7 +270,6 @@
       //Delete  
       function populateForm(data){
           $("#name").val(data.name);
-          $("#code").val(data.code);
           $("#description").val(data.description);
           $("#codeid").val(data.id);
           $("#addBtn").val('Update');
