@@ -15,6 +15,13 @@ class MotherVasselController extends Controller
         return view('admin.mothervassel.index', compact('data'));
     }
 
+    public function getConsignmentNumber(Request $request)
+    {
+
+        $data = MotherVassel::where('id', $request->mother_vassel_id)->first();
+        return response()->json(['status'=> 300,'data'=>$data]);
+    }
+
     public function store(Request $request)
     {
         if(empty($request->name)){
@@ -33,7 +40,7 @@ class MotherVasselController extends Controller
         $data->name = $request->name;
         $data->description = $request->description;
         $lastRecord = MotherVassel::orderBy('id', 'desc')->first();
-        $data->code = $lastRecord ? $lastRecord->id + 1 : 1;
+        $data->code = $lastRecord ? $lastRecord->code + 1 : 1;
         $data->created_by = Auth::user()->id;
         if ($data->save()) {
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Create Successfully.</b></div>";
@@ -72,6 +79,8 @@ class MotherVasselController extends Controller
 
         $data = MotherVassel::find($request->codeid);
         $data->name = $request->name;
+        $lastRecord = MotherVassel::orderBy('id', 'desc')->first();
+        $data->code = $lastRecord ? $lastRecord->code + 1 : 1;
         $data->description = $request->description;
         $data->updated_by = Auth::user()->id;
         if ($data->save()) {

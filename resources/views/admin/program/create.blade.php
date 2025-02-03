@@ -66,7 +66,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="consignmentno">Consignment Number</label>
-                                            <input type="text" class="form-control" id="consignmentno" name="consignmentno" >
+                                            <input type="text" class="form-control" id="consignmentno" name="consignmentno" readonly>
                                         </div>
                                         
         
@@ -562,6 +562,38 @@
     });
 </script>
 <!-- Create lightervassel End -->
+
+
+<!-- get consignment number End -->
+<script>
+$(document).ready(function() {
+    $('#mother_vassel_id').change(function() {
+        var motherVasselId = $(this).val();
+        if (motherVasselId) {
+            $.ajax({
+                url: '{{ route("admin.getConsignmentNumber") }}',
+                method: 'GET',
+                data: { mother_vassel_id: motherVasselId },
+                success: function(response) {
+                    console.log(response.data.code);
+                    if (response.status == 300) {
+                        $('#consignmentno').val(response.data.code);
+                    } else {
+                        $('#consignmentno').val('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                    $('#consignmentno').val('');
+                }
+            });
+        } else {
+            $('#consignmentno').val('');
+        }
+    });
+});
+</script>
+<!--  consignment number End -->
 
 
 
