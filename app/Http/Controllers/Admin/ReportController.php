@@ -44,8 +44,6 @@ class ReportController extends Controller
 
     public function challanPostingReport($vid, $mid)
     {
-        
-
         // $data = Program::with('programDetail','programDetail.programDestination','programDetail.programDestination.destinationSlabRate')->first();
 
         $data = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('vendor_id', $vid)->where('mother_vassel_id', $mid)->whereNotNull('headerid')->get();
@@ -56,6 +54,26 @@ class ReportController extends Controller
         $motherVesselName = MotherVassel::where('id', $mid)->first()->name;
 
         return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','missingHeaderIds'));
+    }
+
+    public function challanPostingDateReport($id)
+    {
+        $data = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('mother_vassel_id', $id)->whereNotNull('headerid')->get();
+        $data = $data->groupBy(function($item) {
+            return $item->created_at->format('Y-m-d');
+        });
+        dd($data);
+
+        // $mdata = DB::table('program_details')
+        //                 ->select(DB::raw('DATE_FORMAT(date, "%M-%Y") as month_year'), DB::raw('SUM(riyal_amount) as total'))
+        //                 ->where('status', 2)
+        //                 ->groupBy('month_year')
+        //                 ->orderBy('date', 'DESC')
+        //                 ->get();
+
+
+        $motherVesselName = MotherVassel::where('id', $id)->first()->name;
+        return view('admin.report.dailyposting', compact('data','motherVesselName'));
     }
 
 }

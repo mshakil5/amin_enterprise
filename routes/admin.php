@@ -187,6 +187,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReport');
     Route::post('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReportshow');
 
+    
+    Route::get('/challan-posting-date-report/{id}', [ReportController::class, 'challanPostingDateReport'])->name('challanPostingDateReport');
+
 
     // bill generating
     Route::get('/bill-generating/{id}', [GeneratingBillController::class, 'billGenerating'])->name('billGenerating');

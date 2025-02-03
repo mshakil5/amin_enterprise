@@ -108,7 +108,10 @@
                   @foreach ($data as $key => $data)
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
-                    <td style="text-align: center">{{$data->name}}</td>
+                    <td style="text-align: center">
+                      <a href="{{route('challanPostingDateReport', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">{{$data->name}}</a>
+                      
+                    </td>
                     <td style="text-align: center">{{$data->description}}</td>
                     <td style="text-align: center">{{$data->code}}</td>
                     <td style="text-align: center">

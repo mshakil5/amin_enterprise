@@ -113,9 +113,6 @@ class ProgramController extends Controller
     public function programVendor($id)
     {
         $pid = $id;
-
-
-
         $data = ProgramDetail::select('vendor_id',
                     DB::raw('SUM(dest_qty) as total_dest_qty'),
                     DB::raw('SUM(line_charge) as total_line_charge'),
