@@ -39,8 +39,15 @@ class MotherVasselController extends Controller
         $data = new MotherVassel;
         $data->name = $request->name;
         $data->description = $request->description;
-        $lastRecord = MotherVassel::orderBy('id', 'desc')->first();
-        $data->code = $lastRecord ? $lastRecord->code + 1 : 1;
+
+
+        $currentYear = date('Y');
+        $lastRecord = MotherVassel::whereYear('created_at', $currentYear)
+            ->orderBy('id', 'desc')
+            ->first();
+        $lastCode = $lastRecord ? intval(substr($lastRecord->code, 5)) : 0;
+        $data->code = $currentYear . '_' . str_pad($lastCode + 1, 2, '0', STR_PAD_LEFT);
+
         $data->created_by = Auth::user()->id;
         if ($data->save()) {
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Create Successfully.</b></div>";
@@ -79,8 +86,6 @@ class MotherVasselController extends Controller
 
         $data = MotherVassel::find($request->codeid);
         $data->name = $request->name;
-        $lastRecord = MotherVassel::orderBy('id', 'desc')->first();
-        $data->code = $lastRecord ? $lastRecord->code + 1 : 1;
         $data->description = $request->description;
         $data->updated_by = Auth::user()->id;
         if ($data->save()) {
