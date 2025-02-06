@@ -62,8 +62,11 @@ class ReportController extends Controller
         $data = $data->groupBy(function($item) {
             return $item->created_at->format('Y-m-d');
         });
-        dd($data);
 
+    
+
+
+        // dd($data);
         // $mdata = DB::table('program_details')
         //                 ->select(DB::raw('DATE_FORMAT(date, "%M-%Y") as month_year'), DB::raw('SUM(riyal_amount) as total'))
         //                 ->where('status', 2)
@@ -73,7 +76,7 @@ class ReportController extends Controller
 
 
         $motherVesselName = MotherVassel::where('id', $id)->first()->name;
-        return view('admin.report.dailyposting', compact('data','motherVesselName'));
+        return view('admin.report.dailyposting', compact('data','motherVesselName','id'));
     }
 
 }
