@@ -33,6 +33,10 @@
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modal-lg">
             Vendors Advance
           </button>
+
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quantitymodal">
+            Change Quantity
+          </button>
           
       </div>
     </div>
@@ -256,123 +260,130 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-              <table id="example1" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                  <th>Sl</th>
-                  <th>Bill Status</th>
-                  <th>Bill No</th>
-                  <th>Date</th>
-                  <th>Vendor</th>
-                  <th>Header ID</th>
-                  <th>Truck Number</th>
-                  <th>Challan no</th>
-                  <th>Destination</th>
-                  <th>Qty</th>
-                  <th>Carring Bill</th>
-                  <th>Line Charge</th>
-                  <th>Scale fee</th>
-                  <th>Other Cost</th>
-                  <th>Advance</th>
-                  <th>Adv. Fuel</th>
-                  {{-- <th>Action</th> --}}
-                </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $totalfuelqty = 0;
-                        $totalcarrying_bill = 0;
-                        $totaladvance = 0;
-                        $totalother_cost = 0;
-                        $totalscale_fee = 0;
-                        $totalline_charge = 0;
-                        $totaldest_qty = 0;
-                    @endphp
-                  @foreach ($data->programDetail as $key => $data)
-                  <tr>
-                    <td style="text-align: center">{{ $key + 1 }}</td>
-                    <td style="text-align: center">
-
-                      <label class="form-checkbox  grid layout">
-                        <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
-                      </label>
-
-                    </td>
-                    <td style="text-align: center">{{$data->bill_no}}</td>
-                    <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                    <td style="text-align: center">{{$data->vendor->name}}</td>
-                    <td style="text-align: center">{{$data->headerid}}</td>
-                    <td style="text-align: center">{{$data->truck_number}}</td>
-                    <td style="text-align: center">{{$data->challan_no}}</td>
-                    <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                    <td style="text-align: center">{{$data->dest_qty}}</td>
-                    <td style="text-align: center">{{$data->carrying_bill}}</td>
-                    <td style="text-align: center">{{$data->line_charge}}</td>
-                    <td style="text-align: center">{{$data->scale_fee}}</td>
-                    <td style="text-align: center">{{$data->other_cost}}</td>
-                    <td style="text-align: center">{{$data->advance}}</td>
-                    <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
-
-                    @php
-                        $totalfuelqty += $data->advancePayment->fuelqty;
-                        $totalcarrying_bill += $data->carrying_bill;
-                        $totaladvance += $data->advance;
-                        $totalother_cost += $data->other_cost;
-                        $totalscale_fee += $data->scale_fee;
-                        $totalline_charge += $data->line_charge;
-                        $totaldest_qty += $data->dest_qty;
-                    @endphp
-
-                    {{-- <td style="text-align: center">
-                      <span class="badge badge-success adv-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">Advance Pay</span>
-
-                      <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}">Transaction</span>
-
-                      @if ($data->programDestination)
-                        <a class="btn btn-app destUpBtn" id="destinationUpBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-pdid="{{ $data->programDestination->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
-                          <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
-                        </a>
-                      @else
-                        <a class="btn btn-app destBtn" id="destinationBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
-                          <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
-                        </a>
-                      @endif
-                    </td> --}}
-
-                    {{-- <td style="text-align: center">
-                        <a class="btn btn-app" id="trnEditBtn" rid="{{ $data->id }}">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
-                        <a class="btn btn-app" id="trndeleteBtn" rid="{{ $data->id }}">
-                            <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
-                        </a>
-                    </td> --}}
-                  </tr>
-                  @endforeach
-                
-                </tbody>
-
-                <tfoot>
+            <div style="overflow-x:auto;">
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
                     <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center">{{$totaldest_qty}}</td>
-                        <td style="text-align: center">{{$totalcarrying_bill}}</td>
-                        <td style="text-align: center">{{$totalline_charge}}</td>
-                        <td style="text-align: center">{{$totalscale_fee}}</td>
-                        <td style="text-align: center">{{$totalother_cost}}</td>
-                        <td style="text-align: center">{{$totaladvance}}</td>
-                        <td style="text-align: center">{{$totalfuelqty}}</td>
+                        <th>Sl</th>
+                        <th>Bill Status</th>
+                        <th>Bill No</th>
+                        <th>Date</th>
+                        <th>Vendor</th>
+                        <th>Header ID</th>
+                        <th>Truck Number</th>
+                        <th>Challan no</th>
+                        <th>Destination</th>
+                        <th>Qty</th>
+                        <th>Carring Bill</th>
+                        <th>Line Charge</th>
+                        <th>Scale fee</th>
+                        <th>Other Cost</th>
+                        <th>Advance</th>
+                        <th>Fuel qty</th>
+                        <th>Fuel token</th>
+                        <th>Pump name</th>
+                        {{-- <th>Action</th> --}}
                     </tr>
-                </tfoot>
-              </table>
+                    </thead>
+                    <tbody>
+                            @php
+                                    $totalfuelqty = 0;
+                                    $totalcarrying_bill = 0;
+                                    $totaladvance = 0;
+                                    $totalother_cost = 0;
+                                    $totalscale_fee = 0;
+                                    $totalline_charge = 0;
+                                    $totaldest_qty = 0;
+                            @endphp
+                        @foreach ($data->programDetail as $key => $data)
+                        <tr>
+                            <td style="text-align: center">{{ $key + 1 }}</td>
+                            <td style="text-align: center">
+
+                                <label class="form-checkbox  grid layout">
+                                    <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
+                                </label>
+
+                            </td>
+                            <td style="text-align: center">{{$data->bill_no}}</td>
+                            <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
+                            <td style="text-align: center">{{$data->vendor->name}}</td>
+                            <td style="text-align: center">{{$data->headerid}}</td>
+                            <td style="text-align: center">{{$data->truck_number}}</td>
+                            <td style="text-align: center">{{$data->challan_no}}</td>
+                            <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                            <td style="text-align: center">{{$data->dest_qty}}</td>
+                            <td style="text-align: center">{{$data->carrying_bill}}</td>
+                            <td style="text-align: center">{{$data->line_charge}}</td>
+                            <td style="text-align: center">{{$data->scale_fee}}</td>
+                            <td style="text-align: center">{{$data->other_cost}}</td>
+                            <td style="text-align: center">{{$data->advance}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fueltoken}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
+
+                            @php
+                                    $totalfuelqty += $data->advancePayment->fuelqty;
+                                    $totalcarrying_bill += $data->carrying_bill;
+                                    $totaladvance += $data->advance;
+                                    $totalother_cost += $data->other_cost;
+                                    $totalscale_fee += $data->scale_fee;
+                                    $totalline_charge += $data->line_charge;
+                                    $totaldest_qty += $data->dest_qty;
+                            @endphp
+
+                            {{-- <td style="text-align: center">
+                                <span class="badge badge-success adv-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">Advance Pay</span>
+
+                                <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}">Transaction</span>
+
+                                @if ($data->programDestination)
+                                    <a class="btn btn-app destUpBtn" id="destinationUpBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-pdid="{{ $data->programDestination->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
+                                        <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
+                                    </a>
+                                @else
+                                    <a class="btn btn-app destBtn" id="destinationBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
+                                        <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
+                                    </a>
+                                @endif
+                            </td> --}}
+
+                            {{-- <td style="text-align: center">
+                                    <a class="btn btn-app" id="trnEditBtn" rid="{{ $data->id }}">
+                                            <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a class="btn btn-app" id="trndeleteBtn" rid="{{ $data->id }}">
+                                            <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
+                                    </a>
+                            </td> --}}
+                        </tr>
+                        @endforeach
+                    
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center">{{$totaldest_qty}}</td>
+                            <td style="text-align: center">{{$totalcarrying_bill}}</td>
+                            <td style="text-align: center">{{$totalline_charge}}</td>
+                            <td style="text-align: center">{{$totalscale_fee}}</td>
+                            <td style="text-align: center">{{$totalother_cost}}</td>
+                            <td style="text-align: center">{{$totaladvance}}</td>
+                            <td style="text-align: center">{{$totalfuelqty}}</td>
+                            <td style="text-align: center"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
             </div>
             <!-- /.card-body -->
           </div>
@@ -475,6 +486,42 @@
     <!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
+
+
+<!-- /. qty change modal -->
+<div class="modal fade" id="quantitymodal">
+    <div class="modal-dialog modal-xs">
+      <div class="modal-content">
+        <div class="modal-header bg-secondary">
+          <h4 class="modal-title">Change quantity</h4>
+          
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+
+        </div>
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="newQty">Quantity</label>
+                        <input type="number" name="newQty" id="newQty" value="12" class="form-control">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button type="button" id="qtyBtn" class="btn btn-secondary">Submit</button>
+                </div>
+            </div>
+
+        </div>
+        
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.qty change modal -->
 
 @endsection
 @section('script')
@@ -660,11 +707,10 @@
 
 
     // dateBtn search
-
     $('#dateBtn').click(function() {
         var selectedDate = $('#searchdate').val();
         var program_id = $('#program_id').val();
-        console.log(selectedDate,  program_id );
+        // console.log(selectedDate,  program_id );
         if (selectedDate) {
             $.ajax({
                 url: '{{ route("getAdvancePayments") }}',
@@ -674,7 +720,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log(response)
+                    // console.log(response)
                     $('#advTitle').html(`
                         <h2>Vendor Advance Summary</h2>
                         <h4>Mother Vessel: ${response.program.mother_vassel.name}</h4>
@@ -715,6 +761,43 @@
             });
         }
     });
+
+    // change qty
+    $('#qtyBtn').click(function() {
+        console.log('work');
+        var newQty = $('#newQty').val();
+        var program_id = $('#program_id').val();
+
+        if (!newQty) {
+            alert('Quantity is required');
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("changeQuantity") }}',
+            method: 'POST',
+            data: { newQty: newQty, program_id: program_id },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status == 200) {
+                    alert('Quantity updated successfully');
+                    location.reload();
+                } else {
+                    alert('Failed to update quantity');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr.responseJSON.message);
+            }
+        });
+
+
+
+    });
+    
+
 
           
 

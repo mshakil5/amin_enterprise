@@ -153,6 +153,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/add-more-challan', [ProgramController::class, 'addMoreChallan'])->name('addMoreChallan');
     Route::post('/update-program', [ProgramController::class, 'programUpdate'])->name('programUpdate');
     Route::post('/get-vendor-advance-by-date', [ProgramController::class, 'getVendorAdvanceByDate'])->name('getAdvancePayments');
+    Route::post('/change-quantity', [ProgramController::class, 'changeQuantity'])->name('changeQuantity');
 
     // program after challan store
     Route::post('/program-after-challan-store', [ProgramController::class, 'afterPostProgramStore'])->name('after-challan-store');

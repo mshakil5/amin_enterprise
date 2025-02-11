@@ -48,7 +48,7 @@ class ProgramController extends Controller
 
     public function programDetail($id)
     {
-        $data = Program::with('programDetail','programDetail.programDestination','programDetail.programDestination.destinationSlabRate')->where('id', $id)->first();
+        $data = Program::with('programDetail','programDetail.programDestination','programDetail.advancePayment','programDetail.advancePayment.petrolPump','programDetail.programDestination.destinationSlabRate')->where('id', $id)->first();
         // dd($data);
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
@@ -108,6 +108,32 @@ class ProgramController extends Controller
             ])->groupBy('vendor_id')->get();
 
         return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date, 'program' => $program]);
+    }
+
+    // changeQuantity
+    public function changeQuantity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'program_id' => 'required|integer',
+            'newQty' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 400, 'errors' => $validator->errors()]);
+        }
+
+        $programId = $request->input('program_id');
+        $newQty = $request->input('newQty');
+
+        $programDetails = ProgramDetail::where('program_id', $request->program_id)->get();
+
+        foreach ($programDetails as $detail) {
+            $detail->old_qty = $detail->qty;
+            $detail->dest_qty = $newQty;
+            $detail->save(); 
+        }
+        
+        return response()->json(['status' => 200,  'program' => $programId]);
     }
 
     public function programVendor($id)

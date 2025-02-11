@@ -13,4 +13,9 @@ class AdvancePayment extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function petrolPump()
+    {
+        return $this->belongsTo(PetrolPump::class);
+    }
 }
