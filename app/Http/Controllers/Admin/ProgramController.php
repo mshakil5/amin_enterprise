@@ -128,13 +128,37 @@ class ProgramController extends Controller
         $programDetails = ProgramDetail::where('program_id', $request->program_id)->get();
 
         foreach ($programDetails as $detail) {
-            $detail->old_qty = $detail->qty;
+            $detail->old_qty = $detail->dest_qty;
             $detail->dest_qty = $newQty;
             $detail->save(); 
         }
         
         return response()->json(['status' => 200,  'program' => $programId]);
     }
+
+    public function undoChangeQuantity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'program_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 400, 'errors' => $validator->errors()]);
+        }
+
+        $programId = $request->input('program_id');
+
+        $programDetails = ProgramDetail::where('program_id', $request->program_id)->get();
+
+        foreach ($programDetails as $detail) {
+            $detail->dest_qty = $detail->old_qty;
+            $detail->old_qty = null;
+            $detail->save(); 
+        }
+        
+        return response()->json(['status' => 200,  'program' => $programId]);
+    }
+
 
     public function programVendor($id)
     {

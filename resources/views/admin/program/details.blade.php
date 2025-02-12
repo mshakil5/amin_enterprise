@@ -492,6 +492,7 @@
                 </div>
                 <div class="col-12">
                     <button type="button" id="qtyBtn" class="btn btn-secondary">Submit</button>
+                    <button type="button" id="undoBtn" class="btn btn-secondary">Undo</button>
                 </div>
             </div>
 
@@ -510,7 +511,23 @@
     $(function () {
       $("#example1").DataTable({
         "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
+        "buttons": [
+          "copy", 
+          "csv", 
+          "excel", 
+          {
+            extend: 'pdf',
+            customize: function (doc) {
+              doc.content.splice(0, 0, {
+                text: 'Program details',
+                style: 'header',
+                alignment: 'center'
+              });
+            },
+            filename: 'Program_Details'
+          }, 
+          "print"
+        ],
         "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
@@ -758,6 +775,34 @@
             url: '{{ route("changeQuantity") }}',
             method: 'POST',
             data: { newQty: newQty, program_id: program_id },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status == 200) {
+                    alert('Quantity updated successfully');
+                    location.reload();
+                } else {
+                    alert('Failed to update quantity');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr.responseJSON.message);
+            }
+        });
+
+
+
+    });
+
+    $('#undoBtn').click(function() {
+
+        var program_id = $('#program_id').val();
+
+        $.ajax({
+            url: '{{ route("undoChangeQuantity") }}',
+            method: 'POST',
+            data: {program_id: program_id},
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
