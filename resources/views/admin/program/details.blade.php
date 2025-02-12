@@ -2,6 +2,7 @@
 
 @section('content')
 
+
 <style>
   .form-checkbox {
       font-family: system-ui, sans-serif;
@@ -280,6 +281,7 @@
                         <th>Other Cost</th>
                         <th>Advance</th>
                         <th>Fuel qty</th>
+                        <th>Fuel Amount</th>
                         <th>Fuel token</th>
                         <th>Pump name</th>
                         {{-- <th>Action</th> --}}
@@ -319,6 +321,7 @@
                             <td style="text-align: center">{{$data->other_cost}}</td>
                             <td style="text-align: center">{{$data->advance}}</td>
                             <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelamount}}</td>
                             <td style="text-align: center">{{$data->advancePayment->fueltoken}}</td>
                             <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
 
@@ -332,30 +335,6 @@
                                     $totaldest_qty += $data->dest_qty;
                             @endphp
 
-                            {{-- <td style="text-align: center">
-                                <span class="badge badge-success adv-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">Advance Pay</span>
-
-                                <span class="badge badge-secondary trn-btn" style="cursor: pointer;" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}">Transaction</span>
-
-                                @if ($data->programDestination)
-                                    <a class="btn btn-app destUpBtn" id="destinationUpBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-pdid="{{ $data->programDestination->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
-                                        <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
-                                    </a>
-                                @else
-                                    <a class="btn btn-app destBtn" id="destinationBtn" rid="{{ $data->id }}" data-id="{{ $data->id }}" data-vendor-id="{{ $data->vendor_id }}" data-program-id="{{ $data->program_id }}">
-                                        <i class="fa fa-map-marker" aria-hidden="true"></i> Destination
-                                    </a>
-                                @endif
-                            </td> --}}
-
-                            {{-- <td style="text-align: center">
-                                    <a class="btn btn-app" id="trnEditBtn" rid="{{ $data->id }}">
-                                            <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a class="btn btn-app" id="trndeleteBtn" rid="{{ $data->id }}">
-                                            <i class="fa fa-trash-o" style="color: red; font-size:16px;"></i>Delete
-                                    </a>
-                            </td> --}}
                         </tr>
                         @endforeach
                     
@@ -379,6 +358,8 @@
                             <td style="text-align: center">{{$totalother_cost}}</td>
                             <td style="text-align: center">{{$totaladvance}}</td>
                             <td style="text-align: center">{{$totalfuelqty}}</td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                         </tr>
                     </tfoot>
