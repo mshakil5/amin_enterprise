@@ -319,20 +319,20 @@
                             <td style="text-align: center">{{$data->line_charge}}</td>
                             <td style="text-align: center">{{$data->scale_fee}}</td>
                             <td style="text-align: center">{{$data->other_cost}}</td>
-                            <td style="text-align: center">{{$data->advance}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->cashamount}}</td>
                             <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
                             <td style="text-align: center">{{$data->advancePayment->fuelamount}}</td>
                             <td style="text-align: center">{{$data->advancePayment->fueltoken}}</td>
                             <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
 
                             @php
-                                    $totalfuelqty += $data->advancePayment->fuelqty;
-                                    $totalcarrying_bill += $data->carrying_bill;
-                                    $totaladvance += $data->advance;
-                                    $totalother_cost += $data->other_cost;
-                                    $totalscale_fee += $data->scale_fee;
-                                    $totalline_charge += $data->line_charge;
-                                    $totaldest_qty += $data->dest_qty;
+                                $totalfuelqty += $data->advancePayment->fuelqty;
+                                $totalcarrying_bill += $data->carrying_bill;
+                                $totaladvance += $data->advance;
+                                $totalother_cost += $data->other_cost;
+                                $totalscale_fee += $data->scale_fee;
+                                $totalline_charge += $data->line_charge;
+                                $totaldest_qty += $data->dest_qty;
                             @endphp
 
                         </tr>

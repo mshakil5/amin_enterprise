@@ -147,7 +147,6 @@ class ProgramController extends Controller
         }
 
         $programId = $request->input('program_id');
-
         $programDetails = ProgramDetail::where('program_id', $request->program_id)->get();
 
         foreach ($programDetails as $detail) {
