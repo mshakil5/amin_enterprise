@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
 use App\Models\ChallanRate;
 use App\Models\Client;
+use App\Models\ClientRate;
 use App\Models\Destination;
 use App\Models\LighterVassel;
 use App\Models\MotherVassel;
@@ -111,7 +112,7 @@ class ProgramController extends Controller
     }
 
     // changeQuantity
-    public function changeQuantity(Request $request)
+    public function changeQuantity2(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'program_id' => 'required|integer',
@@ -134,6 +135,62 @@ class ProgramController extends Controller
         }
         
         return response()->json(['status' => 200,  'program' => $programId]);
+    }
+
+    public function changeQuantity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'program_id' => 'required|integer',
+            'newQty' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 400, 'errors' => $validator->errors()]);
+        }
+
+        $programId = $request->program_id;
+        $newQty = $request->newQty; // Expecting an array of new data
+
+        $program_details = ProgramDetail::where('program_id', $programId)->get();
+
+        DB::beginTransaction();
+
+        try {
+            // Get all program_details IDs related to the program
+            $programDetailIds = ProgramDetail::where('program_id', $programId)->pluck('id');
+
+            // Delete related challan_rates
+            ChallanRate::whereIn('program_detail_id', $programDetailIds)->delete();
+
+            // Insert new challan_rates
+            $newData = [];
+            foreach ($program_details as $program_detail) {
+                // check rate
+                $chkrate = ClientRate::where('ghat_id', $program_detail->ghat_id)->where('destination_id', $program_detail->destination_id)->first();
+                $newData[] = [
+                    'program_detail_id' => $program_detail->id, 
+                    'challan_no' => $program_detail->challan_no, 
+                    'rate_per_unit' => $chkrate->below_rate_per_qty,
+                    'qty' => $newQty,
+                    'total' => $newQty * $chkrate->below_rate_per_qty,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                    
+            }
+
+            // Bulk insert new records
+            if (!empty($newData)) {
+                ChallanRate::insert($newData);
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 200,'message' => 'Challan rates updated successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 400,'error' => 'Something went wrong', 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function undoChangeQuantity(Request $request)

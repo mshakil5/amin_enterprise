@@ -762,7 +762,7 @@
 
     // change qty
     $('#qtyBtn').click(function() {
-        console.log('work');
+        // console.log('work');
         var newQty = $('#newQty').val();
         var program_id = $('#program_id').val();
 
@@ -779,6 +779,7 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
+                // console.log(response);
                 if (response.status == 200) {
                     alert('Quantity updated successfully');
                     location.reload();
