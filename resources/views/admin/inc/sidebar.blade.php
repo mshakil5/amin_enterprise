@@ -128,7 +128,7 @@
         </a>
       </li>
 
-      <li class="nav-item {{ (request()->is('admin/program*')) ||  (request()->is('admin/add-program')) ? 'menu-open' : '' }}">
+      <li class="nav-item {{ (request()->is('admin/program*')) || (request()->is('admin/after-challan-rcv')) ||  (request()->is('admin/add-program')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
           <p>
@@ -140,13 +140,21 @@
           <li class="nav-item  ">
             <a href="{{route('admin.addProgram')}}" class="nav-link {{ (request()->is('admin/add-program')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
-              <p>Add Program</p>
+              <p>Before Challan Posting</p>
             </a>
           </li>
+
+          <li class="nav-item  ">
+            <a href="{{route('admin.afterPostProgram')}}" class="nav-link {{ (request()->is('admin/after-challan-rcv')) ? 'active' : '' }}">
+              <i class="far fa-circle nav-icon"></i>
+              <p>After Challan Posting</p>
+            </a>
+          </li>
+
           <li class="nav-item">
             <a href="{{route('admin.allProgram')}}" class="nav-link {{ (request()->is('admin/program*')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
-              <p>Programs</p>
+              <p>All Programs</p>
             </a>
           </li>
           
