@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
 use App\Models\ChallanRate;
+use App\Models\ChallanRateLog;
 use App\Models\Client;
 use App\Models\ClientRate;
 use App\Models\Destination;
@@ -158,6 +159,37 @@ class ProgramController extends Controller
         try {
             // Get all program_details IDs related to the program
             $programDetailIds = ProgramDetail::where('program_id', $programId)->pluck('id');
+            
+
+            // CHALLAN RATE backup
+            foreach ($program_details as $key => $pdtls) {
+
+                if($pdtls->ghat_id == Null || $pdtls->destination_id == Null ){
+                    continue;
+                }
+
+                $chkrate = ClientRate::where('ghat_id', $pdtls->ghat_id)->where('destination_id', $pdtls->destination_id)->first();
+                if (!$chkrate) {
+                    DB::rollBack();
+                    return response()->json(['status' => 400,'error' => 'Rate not found for ghat and destination'], 500);
+                }
+                $oldData[] = [
+                    'program_id' => $programId, 
+                    'program_detail_id' => $pdtls->id, 
+                    'challan_no' => $pdtls->challan_no, 
+                    'rate_per_unit' => $chkrate->below_rate_per_qty,
+                    'qty' => $newQty,
+                    'total' => $newQty * $chkrate->below_rate_per_qty,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                
+            }
+
+            // Bulk insert new records
+            if (!empty($oldData)) {
+                ChallanRateLog::insert($oldData);
+            }
 
             // Delete related challan_rates
             ChallanRate::whereIn('program_detail_id', $programDetailIds)->delete();
@@ -166,7 +198,16 @@ class ProgramController extends Controller
             $newData = [];
             foreach ($program_details as $program_detail) {
                 // check rate
+
+                if($program_detail->ghat_id == Null || $program_detail->destination_id == Null ){
+                    continue;
+                }
+
                 $chkrate = ClientRate::where('ghat_id', $program_detail->ghat_id)->where('destination_id', $program_detail->destination_id)->first();
+                if (!$chkrate) {
+                    DB::rollBack();
+                    return response()->json(['status' => 400,'error' => 'Rate not found for ghat and destination'], 500);
+                }
                 $newData[] = [
                     'program_detail_id' => $program_detail->id, 
                     'challan_no' => $program_detail->challan_no, 
