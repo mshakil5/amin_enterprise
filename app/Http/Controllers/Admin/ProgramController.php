@@ -168,18 +168,23 @@ class ProgramController extends Controller
                     continue;
                 }
 
-                $chkrate = ClientRate::where('ghat_id', $pdtls->ghat_id)->where('destination_id', $pdtls->destination_id)->first();
+                $chkrate = DestinationSlabRate::where('ghat_id', $pdtls->ghat_id)->where('destination_id', $pdtls->destination_id)->first();
+
+                $oldQty = ChallanRate::where('program_detail_id', $pdtls->id)->where('challan_no', $pdtls->challan_no)->first();
+
                 if (!$chkrate) {
                     DB::rollBack();
                     return response()->json(['status' => 400,'error' => 'Rate not found for ghat and destination'], 500);
                 }
                 $oldData[] = [
                     'program_id' => $programId, 
+                    // 'ghat_id' => $pdtls->ghat_id, 
+                    // 'destination_id' => $pdtls->destination_id, 
                     'program_detail_id' => $pdtls->id, 
                     'challan_no' => $pdtls->challan_no, 
                     'rate_per_unit' => $chkrate->below_rate_per_qty,
-                    'qty' => $newQty,
-                    'total' => $newQty * $chkrate->below_rate_per_qty,
+                    'qty' => $oldQty->qty,
+                    'total' => $oldQty->qty * $chkrate->below_rate_per_qty,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -203,7 +208,7 @@ class ProgramController extends Controller
                     continue;
                 }
 
-                $chkrate = ClientRate::where('ghat_id', $program_detail->ghat_id)->where('destination_id', $program_detail->destination_id)->first();
+                $chkrate = DestinationSlabRate::where('ghat_id', $program_detail->ghat_id)->where('destination_id', $program_detail->destination_id)->first();
                 if (!$chkrate) {
                     DB::rollBack();
                     return response()->json(['status' => 400,'error' => 'Rate not found for ghat and destination'], 500);
