@@ -492,7 +492,7 @@
                 </div>
                 <div class="col-12">
                     <button type="button" id="qtyBtn" class="btn btn-secondary">Submit</button>
-                    <button type="button" id="undoBtn" class="btn btn-secondary">Undo</button>
+                    {{-- <button type="button" id="undoBtn" class="btn btn-secondary">Undo</button> --}}
                 </div>
             </div>
 
