@@ -222,6 +222,13 @@ class ProgramController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+
+                $updatepdtls = ProgramDetail::find($program_detail->id);
+                $updatepdtls->old_qty = $updatepdtls->dest_qty;
+                $updatepdtls->old_carrying_bill = $updatepdtls->carrying_bill;
+                $updatepdtls->dest_qty = $newQty;
+                $updatepdtls->carrying_bill = $newQty * $chkrate->below_rate_per_qty;
+                $updatepdtls->save();
                     
             }
 
