@@ -576,6 +576,20 @@ class ProgramController extends Controller
     }
 
 
+    public function programDetailsEdit($id)
+    {
+        $clients = Client::orderby('id','DESC')->where('status', 1)->get();
+        $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $ghats = Ghat::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+        $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
+        $data = ProgramDetail::with('programDestination','programDestination.destinationSlabRate','advancePayment','challanRate')->where('id', $id)->first();
+
+        // dd($data);
+        return view('admin.program.programDetails', compact('data','clients','mvassels','lvassels','vendors','ghats','pumps'));
+    }
+
     public function programUpdate(Request $request)
     {
 

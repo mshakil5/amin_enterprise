@@ -54,8 +54,6 @@
                 <thead>
                 <tr>
                   <th>Sl</th>
-                  <th>Bill Status</th>
-                  <th>Bill No</th>
                   <th>Date</th>
                   <th>Vendor</th>
                   <th>Header ID</th>
@@ -69,7 +67,7 @@
                   <th>Other Cost</th>
                   <th>Advance</th>
                   <th>Adv. Fuel</th>
-                  {{-- <th>Action</th> --}}
+                  <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -85,14 +83,6 @@
                   @foreach ($data as $key => $data)
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
-                    <td style="text-align: center">
-
-                      <label class="form-checkbox  grid layout">
-                        <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
-                      </label>
-
-                    </td>
-                    <td style="text-align: center">{{$data->bill_no}}</td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
                     <td style="text-align: center">{{$data->headerid}}</td>
@@ -106,6 +96,9 @@
                     <td style="text-align: center">{{$data->other_cost}}</td>
                     <td style="text-align: center">{{$data->advance}}</td>
                     <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
+                    <td style="text-align: center">
+                      <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
+                    </td>
 
                     @php
                         $totalfuelqty += $data->advancePayment->fuelqty;
@@ -130,8 +123,6 @@
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
                         <th style="text-align: center">Total:</th>
                         <th style="text-align: center">{{$totaldest_qty}}</th>
                         <th style="text-align: center">{{$totalcarrying_bill}}</th>
@@ -140,6 +131,7 @@
                         <th style="text-align: center">{{$totalother_cost}}</th>
                         <th style="text-align: center">{{$totaladvance}}</th>
                         <th style="text-align: center">{{$totalfuelqty}}</th>
+                        <td style="text-align: center"></td>
                     </tr>
                 </tfoot>
               </table>
@@ -180,8 +172,6 @@
                 <thead>
                 <tr>
                   <th>Sl</th>
-                  <th>Bill Status</th>
-                  <th>Bill No</th>
                   <th>Date</th>
                   <th>Vendor</th>
                   <th>Header ID</th>
@@ -211,14 +201,6 @@
                   @foreach ($missingHeaderIds as $key => $data)
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
-                    <td style="text-align: center">
-
-                      <label class="form-checkbox  grid layout">
-                        <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
-                      </label>
-
-                    </td>
-                    <td style="text-align: center">{{$data->bill_no}}</td>
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">{{$data->vendor->name}}</td>
                     <td style="text-align: center">{{$data->headerid}}</td>
@@ -250,8 +232,6 @@
 
                 <tfoot>
                     <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
