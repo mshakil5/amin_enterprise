@@ -326,13 +326,13 @@
                             <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
 
                             @php
-                                $totalfuelqty += $data->advancePayment->fuelqty;
-                                $totalcarrying_bill += $data->carrying_bill;
-                                $totaladvance += $data->advance;
-                                $totalother_cost += $data->other_cost;
-                                $totalscale_fee += $data->scale_fee;
-                                $totalline_charge += $data->line_charge;
-                                $totaldest_qty += $data->dest_qty;
+                                $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
+                                $totalcarrying_bill += $data->carrying_bill ?? 0;
+                                $totaladvance += $data->advance ?? 0;
+                                $totalother_cost += $data->other_cost ?? 0;
+                                $totalscale_fee += $data->scale_fee ?? 0;
+                                $totalline_charge += $data->line_charge ?? 0;
+                                $totaldest_qty += $data->dest_qty ?? 0;
                             @endphp
 
                         </tr>
