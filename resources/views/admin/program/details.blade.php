@@ -319,10 +319,10 @@
                             <td style="text-align: center">{{$data->line_charge}}</td>
                             <td style="text-align: center">{{$data->scale_fee}}</td>
                             <td style="text-align: center">{{$data->other_cost}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->cashamount}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fuelamount}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fueltoken}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
                             <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
 
                             @php
@@ -437,10 +437,10 @@
                                 <td style="text-align: center">{{ $key + 1 }}</td>
                                 <td style="text-align: center">{{$data->vendor->name}}</td>
                                 <td style="text-align: center">{{$data->vendor_count}}</td>
-                                <td style="text-align: center">{{$data->total_cashamount}}</td>
-                                <td style="text-align: center">{{$data->total_fuelqty}}</td>
-                                <td style="text-align: center">{{$data->total_fuelamount}}</td>
-                                <td style="text-align: center">{{$data->total_amount}}</td>
+                                <td style="text-align: center">{{$data->total_cashamount  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->total_fuelqty  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->total_fuelamount  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->total_amount  ?? ""}}</td>
                             </tr>
                         @endforeach
                     </tbody>
