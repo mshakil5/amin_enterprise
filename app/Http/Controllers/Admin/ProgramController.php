@@ -1048,6 +1048,8 @@ class ProgramController extends Controller
         } else {
             $vdata = '<option value="">Select</option>';
         }
+
+        $alldata = $request->all();
         
         
         if ($chkrate) {
@@ -1091,7 +1093,7 @@ class ProgramController extends Controller
         }else {
             $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate not found</b></div>";
             $totalAmount = 0;
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>'', 'totalAmount' => $totalAmount]);
+            return response()->json(['status'=> 200,'message'=>$message, 'data'=>'', 'alldata' => $alldata]);
         }
         
     }

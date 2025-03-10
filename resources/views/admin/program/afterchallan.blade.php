@@ -385,8 +385,8 @@
                     <tbody>
                         @foreach (\App\Models\DestinationSlabRate::get() as $key => $slbrate)
                         <tr>
-                            <td style="text-align: center">{{$slbrate->ghat->name ?? null}}</td>
-                            <td style="text-align: center">{{$slbrate->destination->name}}</td>
+                            <td style="text-align: center">{{$slbrate->ghat->name ?? null}} - {{$slbrate->ghat_id}}</td>
+                            <td style="text-align: center">{{$slbrate->destination->name}} - {{$slbrate->destination_id}}</td>
                             <td style="text-align: center">{{$slbrate->maxqty}}</td>
                             <td style="text-align: center">{{$slbrate->below_rate_per_qty}}</td>
                             <td style="text-align: center">{{$slbrate->above_rate_per_qty}}</td>
@@ -508,21 +508,34 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    if (response.totalAmount > 0) {
-                        $dueAmnt = $("#destid").val();
-                        $('#rateTable tbody').append(response.rate);
-                        $("#totalamount").val(response.totalAmount);
-                        $("#sequence_id").html(response.vdata);
-                        $("#totalDue").val(response.totalAmount - $dueAmnt);
-                        
-                        updateSummary();
+                    console.log(response)
 
+                    if (response.status == 300) {
+                        if (response.totalAmount > 0) {
+                            $dueAmnt = $("#destid").val();
+                            $('#rateTable tbody').append(response.rate);
+                            $("#totalamount").val(response.totalAmount);
+                            $("#sequence_id").html(response.vdata);
+                            $("#totalDue").val(response.totalAmount - $dueAmnt);
+                            
+                            updateSummary();
+
+                        } else {
+
+                            $('#rateTable tbody').empty();
+                            $("#totalamount").val(0);
+                            $("#totalDue").val(0);
+                        }
                     } else {
 
                         $('#rateTable tbody').empty();
                         $("#totalamount").val(0);
                         $("#totalDue").val(0);
+                        $(".advermsg").html(response.message);
+                        
                     }
+
+                    
                     
                 },
                 error: function(xhr, status, error) {
