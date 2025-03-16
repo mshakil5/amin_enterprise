@@ -28,12 +28,12 @@ class ReportController extends Controller
                                     ->get();
 
             $vendors = Vendor::where('status', 1)->get();
-            $mvassels = MotherVassel::where('status', 1)->get();
+            $mvassels = MotherVassel::where('status', 1)->orderby('id', 'DESC')->get();
             $mid = $request->mv_id;
             return view('admin.report.beforechallanvendor', compact('mvassels', 'vendors','data','mid'));
         } else {
             $vendors = Vendor::where('status', 1)->get();
-            $mvassels = MotherVassel::where('status', 1)->get();
+            $mvassels = MotherVassel::where('status', 1)->orderby('id', 'DESC')->get();
             
             $mid = $request->mv_id ?? null;
             return view('admin.report.beforechallanvendor', compact('mvassels', 'vendors','mid'));

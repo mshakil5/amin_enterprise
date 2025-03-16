@@ -67,7 +67,6 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/petty-cash', [PettyCashController::class, 'store']);
     Route::get('/petty-cash/{id}/edit', [PettyCashController::class, 'edit']);
     Route::post('/petty-cash-update', [PettyCashController::class, 'update']);
-    Route::get('/petty-cash-delete/{id}', [PettyCashController::class, 'delete']);
 
 
     Route::get('/mother-vassel', [MotherVasselController::class, 'index'])->name('admin.mothervassel');
