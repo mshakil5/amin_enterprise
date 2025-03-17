@@ -187,33 +187,34 @@
                                             <input type="number" class="form-control" name="challan_no[]" value="{{$pdtl->challan_no}}" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control cashamount" name="cashamount[]" value="{{$pdtl->advancePayment->cashamount}}" >
-                                            <input type="hidden" class="form-control" name="advancePaymentId[]" value="{{$pdtl->advancePayment->id}}" >
+                                            <input type="number" class="form-control cashamount" name="cashamount[]" value="{{$pdtl->advancePayment->cashamount ?? ""}}" >
+                                            <input type="hidden" class="form-control" name="advancePaymentId[]" value="{{$pdtl->advancePayment->id ?? ""}}" >
 
                                             <input type="hidden" class="form-control" name="program_detail_id[]" value="{{$pdtl->id}}" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control fuelqty" name="fuelqty[]" value="{{$pdtl->advancePayment->fuelqty}}" >
+                                            <input type="number" class="form-control fuelqty" name="fuelqty[]" value="{{$pdtl->advancePayment->fuelqty ?? ""}}" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="{{$pdtl->advancePayment->fuel_rate}}">
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="{{$pdtl->advancePayment->fuel_rate ?? ""}}">
                                         </td>
                                         <td> 
-                                            <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly value="{{$pdtl->advancePayment->fuelamount}}" >
+                                            <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly value="{{$pdtl->advancePayment->fuelamount ?? ""}}" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control" name="fueltoken[]" value="{{$pdtl->advancePayment->fueltoken}}" >
+                                            <input type="number" class="form-control" name="fueltoken[]" value="{{$pdtl->advancePayment->fueltoken ?? ""}}" >
                                         </td>
                                         <td>
                                             <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
                                                 <option value="">Select</option>
                                                 @foreach ($pumps as $pump)
-                                                    <option value="{{$pump->id}}" {{$pdtl->advancePayment->petrol_pump_id == $pump->id ? 'selected' : '' }}>{{$pump->name}}</option>
+                                                    <option value="{{$pump->id}}" @if (isset($pdtl->advancePayment->petrol_pump_id))
+                                                        {{$pdtl->advancePayment->petrol_pump_id == $pump->id ? 'selected' : '' }} @endif >{{$pump->name}}</option>
                                                 @endforeach
                                                 </select>
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control totalamount" name="amount[]" value="{{$pdtl->advancePayment->amount}}" readonly>
+                                            <input type="number" class="form-control totalamount" name="amount[]" value="{{$pdtl->advancePayment->amount ?? ""}}" readonly>
                                         </td>
                                         <td>
                                             @if ($key == 0)
