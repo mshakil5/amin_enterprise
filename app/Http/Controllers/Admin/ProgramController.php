@@ -634,11 +634,12 @@ class ProgramController extends Controller
         $program->save();
 
 
-        $currentpDtlIds = $program->programDetail->pluck('id')->toArray();
-        $updatedpDtlIds = collect($request->program_detail_id)->filter()->toArray();
-        $pIdsToDelete = array_diff($currentpDtlIds, $updatedpDtlIds);
-        AdvancePayment::whereIn('program_detail_id', $pIdsToDelete)->delete();
-        $program->programDetail()->whereIn('id', $pIdsToDelete)->delete();
+        // if program details delete option add then this part will needed
+        // $currentpDtlIds = $program->programDetail->pluck('id')->toArray();
+        // $updatedpDtlIds = collect($request->program_detail_id)->filter()->toArray();
+        // $pIdsToDelete = array_diff($currentpDtlIds, $updatedpDtlIds);
+        // AdvancePayment::whereIn('program_detail_id', $pIdsToDelete)->delete();
+        // $program->programDetail()->whereIn('id', $pIdsToDelete)->delete();
         
 
         foreach($vendorIds as $key => $value)

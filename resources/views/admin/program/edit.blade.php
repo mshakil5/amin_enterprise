@@ -221,7 +221,7 @@
                                                 <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
                                             @else
                                             
-                                            <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
+                                            {{-- <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button> --}}
                                                 
                                             @endif
                                         </td>
