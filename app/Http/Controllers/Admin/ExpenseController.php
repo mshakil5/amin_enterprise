@@ -47,6 +47,12 @@ class ExpenseController extends Controller
         return view('admin.transactions.expense', compact('accounts'));
     }
 
+    public function voucher(Request $request, $id)
+    {
+        $data = Transaction::with('chartOfAccount')->where('id', $id)->first();
+        return view('admin.transactions.expVoucher', compact('data'));
+    }
+
     public function store(Request $request)
     {
 

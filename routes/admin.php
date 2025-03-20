@@ -252,6 +252,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
         Route::post('expense', [ExpenseController::class, 'store']);
         Route::get('expense/{id}', [ExpenseController::class, 'edit']);
         Route::put('expense/{id}', [ExpenseController::class, 'update']); 
+        Route::get('expense-voucher/{id}', [ExpenseController::class, 'voucher'])->name('admin.expense.voucher');
 
         // ledger
         Route::get('ledger-accounts', [LedgerController::class, 'showLedgerAccounts'])->name('admin.ledgeraccount');
