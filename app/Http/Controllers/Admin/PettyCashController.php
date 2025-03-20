@@ -31,6 +31,7 @@ class PettyCashController extends Controller
         $data->tran_type = "Petty Cash In";
         $data->date = $request->date;
         $data->amount = $request->amount;
+        $data->note = $request->description;
         $data->payment_type = "Cash";
         $data->description = "Cash transfer to Petty Cash";
         $data->created_by = Auth::user()->id;
@@ -84,6 +85,7 @@ class PettyCashController extends Controller
         $data->tran_type = "Petty Cash In";
         $data->date = $request->date;
         $data->amount = $request->amount;
+        $data->note = $request->description;
         $data->payment_type = "Cash";
         $data->description = "Cash transfer to Petty Cash";
         $data->updated_by = Auth::user()->id;

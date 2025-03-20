@@ -46,6 +46,16 @@
                         <input type="number" class="form-control" id="amount" name="amount">
                       </div>
                     </div>
+
+                    
+                    <div class="col-sm-12">
+                      <div class="form-group">
+                        <label>Note</label>
+                        <textarea name="description" id="description" class="form-control"  cols="30" rows="5"></textarea>
+                      </div>
+                    </div>
+
+
                   </div>
 
                   
@@ -112,6 +122,7 @@
                   <th>Sl</th>
                   <th>Date</th>
                   <th>Amount</th>
+                  <th>Note</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -121,6 +132,7 @@
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">{{$data->date}}</td>
                     <td style="text-align: center">{{$data->amount}}</td>
+                    <td style="text-align: center">{{$data->note}}</td>
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       
@@ -191,6 +203,7 @@
               var form_data = new FormData();
               form_data.append("amount", $("#amount").val());
               form_data.append("date", $("#date").val());
+              form_data.append("description", $("#description").val());
               $.ajax({
                 url: url,
                 method: "POST",
@@ -217,6 +230,7 @@
               var form_data = new FormData();
               form_data.append("date", $("#date").val());
               form_data.append("amount", $("#amount").val());
+              form_data.append("description", $("#description").val());
               form_data.append("codeid", $("#codeid").val());
               
               $.ajax({
@@ -283,6 +297,7 @@
       function populateForm(data){
           $("#date").val(data.date);
           $("#amount").val(data.amount);
+          $("#description").val(data.note);
           $("#codeid").val(data.id);
           $("#addBtn").val('Update');
           $("#addBtn").html('Update');
