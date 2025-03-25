@@ -14,15 +14,10 @@
           <li class="breadcrumb-item"><a href="#">Home</a></li>
           <li class="breadcrumb-item active">Dashboard</li>
         </ol>
-      </div><!-- /.col -->
-    </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
+      </div>
+    </div>
+  </div>
 </div>
-<!-- /.content-header -->
-
-@if(in_array('1', json_decode(auth()->user()->role->permission)))
-
-  <!-- content area -->
   <section class="content d-none">
     <div class="container-fluid">
       <!-- Small boxes (Stat box) -->
@@ -240,26 +235,19 @@
     </div><!-- /.container-fluid -->
   </section>
 
-  <!-- Main content -->
+  @if(in_array('1', json_decode(auth()->user()->role->permission)))
   <section class="content" id="contentContainer">
     <div class="container-fluid">
-      <!-- Main row -->
       <div class="row">
-        <!-- Left col -->
-        <!-- Main content -->
         <section class="col-lg-7">
           <div class="container-fluid">
             <div class="row">
               <div class="col-12">
-                <!-- /.card -->
-
                 <div class="card card-secondary">
                   <div class="card-header">
                     <h3 class="card-title">All Data</h3>
                   </div>
-                  <!-- /.card-header -->
-                  <div class="card-body">
-                    
+                  <div class="card-body">                
                     <table id="example1" class="table table-bordered table-striped">
                       <thead class="bg-secondary">
                           <tr>
@@ -273,15 +261,13 @@
                       </thead>
                       <tbody>
                         @php
-                            use Carbon\Carbon;
-
                             $tran = \App\Models\Transaction::where(function ($query) {
                                       $query->where('tran_type', 'Advance')
-                                      ->where('date', Carbon::today()->format('Y-m-d'));
+                                      ->where('date', \Carbon\Carbon::today()->format('Y-m-d'));
                                   })
                                   ->orWhere(function ($query) {
                                       $query->where('table_type', 'Expenses')
-                                      ->where('date', Carbon::today()->format('Y-m-d'));
+                                      ->where('date', \Carbon\Carbon::today()->format('Y-m-d'));
                                   })->get();
 
                             $total = 0;
@@ -325,26 +311,13 @@
           </div>
           <!-- /.container-fluid -->
         </section>
-  <!-- /.content -->
-        <!-- /.Left col -->
-        <!-- right col (We are only adding the ID to make the widgets sortable)-->
         <section class="col-lg-5 connectedSortable">
-
-
-          
-          <!-- /.card -->
         </section>
-        <!-- right col -->
       </div>
-      <!-- /.row (main row) -->
-      
-      <!-- /.row -->
     </div>
-    <!-- /.container-fluid -->
   </section>
-  <!-- /.content -->
+  @endif
 
-@endif
 
 @endsection
 
