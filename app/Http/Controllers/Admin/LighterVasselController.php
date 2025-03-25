@@ -11,6 +11,9 @@ class LighterVasselController extends Controller
 {
     public function index()
     {
+        if (!(in_array('5', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $data = LighterVassel::orderby('id','DESC')->get();
         return view('admin.lightervassel.index', compact('data'));
     }

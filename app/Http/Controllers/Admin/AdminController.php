@@ -6,13 +6,19 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
 
 class AdminController extends Controller
 {
     public function getAdmin()
     {
+        if (!(in_array('2', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
+
         $data = User::where('is_type', '1')->orderby('id','DESC')->get();
-        return view('admin.admin.index', compact('data'));
+        $role = Role::orderby('id','DESC')->get();
+        return view('admin.admin.index', compact('data','role'));
     }
 
     public function adminStore(Request $request)
@@ -42,6 +48,11 @@ class AdminController extends Controller
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
+        if(empty($request->role_id)){            
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Role\" field..!</b></div>"; 
+            return response()->json(['status'=> 303,'message'=>$message]);
+            exit();
+        }
         $chkemail = User::where('email',$request->email)->first();
         if($chkemail){
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>This email already added.</b></div>";
@@ -56,6 +67,7 @@ class AdminController extends Controller
         $data->house_number = $request->house_number;
         $data->street_name = $request->street_name;
         $data->town = $request->town;
+        $data->role_id = $request->role_id;
         $data->is_type = "1";
         $data->postcode = $request->postcode;
         if(isset($request->password)){
@@ -111,6 +123,12 @@ class AdminController extends Controller
             exit();
         }
 
+        if(empty($request->role_id)){            
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \"Role\" field..!</b></div>"; 
+            return response()->json(['status'=> 303,'message'=>$message]);
+            exit();
+        }
+
 
         $data = User::find($request->codeid);
         $data->name = $request->name;
@@ -120,6 +138,7 @@ class AdminController extends Controller
         $data->house_number = $request->house_number;
         $data->street_name = $request->street_name;
         $data->town = $request->town;
+        $data->role_id = $request->role_id;
         $data->postcode = $request->postcode;
         if(isset($request->password)){
             $data->password = Hash::make($request->password);

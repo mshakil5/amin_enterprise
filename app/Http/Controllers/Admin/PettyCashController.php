@@ -13,6 +13,9 @@ class PettyCashController extends Controller
 {
     public function index()
     {
+        if (!(in_array('3', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $balance = PettyCash::where('id','1')->first();
         $transactions = Transaction::where('table_type', 'Asset')->where('tran_type', 'Petty Cash In')->orderby('id', 'DESC')->get();
         return view('admin.pettycash.index', compact('balance','transactions'));

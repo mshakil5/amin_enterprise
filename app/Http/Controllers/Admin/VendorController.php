@@ -15,6 +15,9 @@ class VendorController extends Controller
 {
     public function index()
     {
+        if (!(in_array('8', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $data = Vendor::orderby('id','DESC')->get();
         return view('admin.vendor.index', compact('data'));
     }

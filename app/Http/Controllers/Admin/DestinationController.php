@@ -14,6 +14,9 @@ class DestinationController extends Controller
 {
     public function index()
     {
+        if (!(in_array('10', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $data = Destination::orderby('id','DESC')->get();
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         return view('admin.destination.index', compact('data','clients'));
@@ -117,6 +120,9 @@ class DestinationController extends Controller
 
     public function slabRateIndex()
     {
+        if (!(in_array('11', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $data = Destination::orderby('id','DESC')->get();
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         return view('admin.destination.slabrate', compact('data','clients'));

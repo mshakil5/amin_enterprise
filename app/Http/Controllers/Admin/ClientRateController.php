@@ -14,6 +14,9 @@ class ClientRateController extends Controller
     
     public function index()
     {
+        if (!(in_array('12', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $data = ClientRate::orderby('id','DESC')->get();
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         return view('admin.clientrate.index', compact('data','clients'));

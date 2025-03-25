@@ -15,7 +15,9 @@ class ExpenseController extends Controller
 {
     public function index(Request $request)
     {
-        
+      if (!(in_array('20', json_decode(auth()->user()->role->permission)))) {
+        return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+      }
         if($request->ajax()){
             $transactions = Transaction::with('chartOfAccount')
                 ->whereIn('table_type', ['Expenses', 'Cogs']);

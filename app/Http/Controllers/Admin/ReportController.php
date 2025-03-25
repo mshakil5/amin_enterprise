@@ -15,6 +15,10 @@ class ReportController extends Controller
 {
     public function challanPostingVendorReport(Request $request)
     {
+        if (!(in_array('15', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
+
         if ($request->mv_id) {
             $data = ProgramDetail::selectRaw('
                                         vendor_id,

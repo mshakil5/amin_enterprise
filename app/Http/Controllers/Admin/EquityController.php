@@ -16,6 +16,9 @@ class EquityController extends Controller
 {
     public function index(Request $request)
     {
+        if (!(in_array('23', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         if($request->ajax()){
             $transactions = Transaction::with('chartOfAccount')
                 ->where('table_type', 'Equity');

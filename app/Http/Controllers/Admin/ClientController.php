@@ -11,6 +11,9 @@ class ClientController extends Controller
 {
     public function index()
     {
+        if (!(in_array('9', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $data = Client::orderby('id','DESC')->get();
         return view('admin.client.index', compact('data'));
     }

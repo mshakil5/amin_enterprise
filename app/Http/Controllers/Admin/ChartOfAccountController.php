@@ -16,6 +16,9 @@ class ChartOfAccountController extends Controller
 {
     public function index(Request $request)
     {
+        if (!(in_array('18', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         if ($request->ajax()) {
             $query = ChartOfAccount::where('status', 1);
 

@@ -12,6 +12,7 @@
           </p>
         </a>
       </li>
+      @if(in_array('2', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('alladmin')}}" class="nav-link {{ (request()->is('admin/new-admin*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -20,6 +21,7 @@
           </p>
         </a>
       </li>
+      @endif
       {{-- <li class="nav-item">
         <a href="{{route('admin.agent')}}" class="nav-link {{ (request()->is('admin/agent*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -28,6 +30,7 @@
           </p>
         </a>
       </li> --}}
+      @if(in_array('3', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.pettycash')}}" class="nav-link {{ (request()->is('admin/petty-cash*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -36,6 +39,9 @@
           </p>
         </a>
       </li>
+      @endif
+
+      @if(in_array('4', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.mothervassel')}}" class="nav-link {{ (request()->is('admin/mother-vassel*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -44,6 +50,9 @@
           </p>
         </a>
       </li>
+      @endif
+
+      @if(in_array('5', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('lightervassel')}}" class="nav-link {{ (request()->is('admin/lighter-vassel*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -52,8 +61,9 @@
           </p>
         </a>
       </li>
-
+      @endif
       
+      @if(in_array('6', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.ghat')}}" class="nav-link {{ (request()->is('admin/ghat*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -62,8 +72,9 @@
           </p>
         </a>
       </li>
-
+      @endif
             
+      @if(in_array('7', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.pump')}}" class="nav-link {{ (request()->is('admin/pump*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -72,8 +83,9 @@
           </p>
         </a>
       </li>
-
+      @endif
       
+      @if(in_array('8', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.vendor')}}" class="nav-link {{ (request()->is('admin/vendor*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -82,7 +94,9 @@
           </p>
         </a>
       </li>
+      @endif
 
+      @if(in_array('9', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.client')}}" class="nav-link {{ (request()->is('admin/client')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -91,7 +105,9 @@
           </p>
         </a>
       </li>
+      @endif
 
+      @if(in_array('10', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.destination')}}" class="nav-link {{ (request()->is('admin/destination*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -100,7 +116,9 @@
           </p>
         </a>
       </li>
+      @endif
 
+      @if(in_array('11', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.slabrate')}}" class="nav-link {{ (request()->is('admin/slab-rate*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -109,7 +127,9 @@
           </p>
         </a>
       </li>
+      @endif
 
+      @if(in_array('12', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.clientrate')}}" class="nav-link {{ (request()->is('admin/client-rate*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -118,7 +138,9 @@
           </p>
         </a>
       </li>
+      @endif
 
+      @if(in_array('13', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.getBill')}}" class="nav-link {{ (request()->is('admin/bill*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -127,7 +149,9 @@
           </p>
         </a>
       </li>
+      @endif
 
+      @if(in_array('14', json_decode(auth()->user()->role->permission)))
       <li class="nav-item {{ (request()->is('admin/program*')) || (request()->is('admin/after-challan-rcv')) ||  (request()->is('admin/add-program')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
@@ -160,6 +184,7 @@
           
         </ul>
       </li>
+      @endif
 
       {{-- <li class="nav-item">
         <a href="#" class="nav-link">
@@ -180,6 +205,7 @@
         </ul>
       </li> --}}
 
+      @if(in_array('15', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
@@ -201,14 +227,12 @@
               <p>Vendor Ledger</p>
             </a>
           </li>
-          
-          
-
-          
-          
+             
         </ul>
       </li>
+      @endif
 
+      @if(in_array('16', json_decode(auth()->user()->role->permission)))
       <li class="nav-item {{ (request()->is('admin/ledger*')) ||  (request()->is('admin/ledger')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link">
           <i class="nav-icon fas fa-chart-pie"></i>
@@ -257,51 +281,72 @@
           
         </ul>
       </li>
+      @endif
 
-      <a href="{{ route('admin.ledgeraccount') }}" class="nav-link {{ (request()->is('admin/ledger-accounts*')) ? 'active' : '' }}">
-          <i class="fa fa-users"></i>
-          <p>Ledger</p>
-      </a>
+      @if(in_array('17', json_decode(auth()->user()->role->permission)))
+      <li class="nav-item">
+          <a href="{{ route('admin.ledgeraccount') }}" class="nav-link {{ (request()->is('admin/ledger-accounts*')) ? 'active' : '' }}">
+              <i class="fa fa-users"></i>
+              <p>Ledger</p>
+          </a>
+      </li>
+      @endif
 
-      
+      @if(in_array('18', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{ route('admin.addchartofaccount') }}" class="nav-link {{ (request()->is('admin/chart-of-account*')) ? 'active' : '' }}">
             <i class="fa fa-users"></i>
             <p>Chart Of Accounts</p>
         </a>
       </li>
+      @endif
       
+      @if(in_array('19', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
-        <a href="{{ route('admin.income') }}" class="nav-link {{ (request()->is('admin/income')) ? 'active' : '' }}">
-            <i class="fa fa-users"></i>
-            <p>Income</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{{ route('admin.expense') }}" class="nav-link {{ (request()->is('admin/expense*')) ? 'active' : '' }}">
-            <i class="fa fa-users"></i>
-            <p>Expense</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{{ route('admin.asset') }}" class="nav-link {{ (request()->is('admin/asset*')) ? 'active' : '' }}">
-            <i class="fa fa-users"></i>
-            <p>Assets</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{{ route('admin.liabilities') }}" class="nav-link {{ (request()->is('admin/liabilities*')) ? 'active' : '' }}">
-            <i class="fa fa-users"></i>
-            <p>Liabilities</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{{ route('admin.equity') }}" class="nav-link {{ (request()->is('admin/equity*')) ? 'active' : '' }}">
-            <i class="fa fa-users"></i>
-            <p>Equity</p>
-        </a>
-    </li>
+          <a href="{{ route('admin.income') }}" class="nav-link {{ (request()->is('admin/income')) ? 'active' : '' }}">
+              <i class="fa fa-users"></i>
+              <p>Income</p>
+          </a>
+      </li>
+      @endif
 
+      @if(in_array('20', json_decode(auth()->user()->role->permission)))
+      <li class="nav-item">
+          <a href="{{ route('admin.expense') }}" class="nav-link {{ (request()->is('admin/expense*')) ? 'active' : '' }}">
+              <i class="fa fa-users"></i>
+              <p>Expense</p>
+          </a>
+      </li>
+      @endif
+
+      @if(in_array('21', json_decode(auth()->user()->role->permission)))
+      <li class="nav-item">
+          <a href="{{ route('admin.asset') }}" class="nav-link {{ (request()->is('admin/asset*')) ? 'active' : '' }}">
+              <i class="fa fa-users"></i>
+              <p>Assets</p>
+          </a>
+      </li>
+      @endif
+
+      @if(in_array('22', json_decode(auth()->user()->role->permission)))
+      <li class="nav-item">
+          <a href="{{ route('admin.liabilities') }}" class="nav-link {{ (request()->is('admin/liabilities*')) ? 'active' : '' }}">
+              <i class="fa fa-users"></i>
+              <p>Liabilities</p>
+          </a>
+      </li>
+      @endif
+
+      @if(in_array('23', json_decode(auth()->user()->role->permission)))
+      <li class="nav-item">
+          <a href="{{ route('admin.equity') }}" class="nav-link {{ (request()->is('admin/equity*')) ? 'active' : '' }}">
+              <i class="fa fa-users"></i>
+              <p>Equity</p>
+          </a>
+      </li>
+      @endif
+
+      @if(in_array('24', json_decode(auth()->user()->role->permission)))
       <li class="nav-item  {{ (request()->is('admin/cash-book')) ? 'menu-open' : '' }}{{ (request()->is('admin/bank-book')) ? 'menu-open' : '' }}">
         <a href="#" class="nav-link {{ (request()->is('admin/cash-book')) ? 'active' : '' }}{{ (request()->is('admin/bank-book')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-chart-pie"></i>
@@ -326,9 +371,9 @@
           
         </ul>
       </li>
+      @endif
 
-
-      
+      @if(in_array('25', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{ route('admin.profitAndLossStatement') }}" class="nav-link {{ (request()->is('admin/profit-statement')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -337,6 +382,16 @@
           </p>
         </a>
       </li>
+      @endif
+
+      @if(in_array('26', json_decode(auth()->user()->role->permission)))
+      <li class="nav-item">
+          <a href="{{ route('admin.role') }}" class="nav-link {{ (request()->is('admin/role*')) ? 'active' : '' }}">
+              <i class="nav-icon fas fa-user-shield"></i>
+              <p>Roles & Permissions</p>
+          </a>
+      </li>
+      @endif
 
       {{-- <li class="nav-item">
         <a href="#" class="nav-link ">

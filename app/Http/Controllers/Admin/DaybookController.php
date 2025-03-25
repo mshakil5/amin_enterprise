@@ -10,6 +10,9 @@ class DaybookController extends Controller
 {
     public function cashbook(Request $request)
     {
+        if (!(in_array('24', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $vendor_id = $request->input('vendor_id');
@@ -70,6 +73,9 @@ class DaybookController extends Controller
 
     public function bankbook(Request $request)
     {
+        if (!(in_array('24', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $vendor_id = $request->input('vendor_id');

@@ -30,6 +30,9 @@ class ProgramController extends Controller
 
     public function allPrograms()
     {
+      if (!(in_array('14', json_decode(auth()->user()->role->permission)))) {
+        return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+      }
         $data = Program::
         withCount([
             'programDetail as unique_challan_count' => function ($query) {
@@ -307,6 +310,9 @@ class ProgramController extends Controller
 
     public function createProgram()
     {
+        if (!(in_array('14', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
@@ -318,6 +324,9 @@ class ProgramController extends Controller
 
     public function afterPostProgram()
     {
+        if (!(in_array('14', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
