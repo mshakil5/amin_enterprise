@@ -39,6 +39,7 @@
                                         <th>Debit</th>
                                         <th>Credit</th>
                                         <th>Balance</th>                                
+                                        <th>Voucher</th>                                
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,6 +70,11 @@
                                                 $balance = $balance - $data->at_amount;
                                             @endphp
                                             @endif
+                                            <td>
+                                                <a href="{{ route('admin.expense.voucher', ['id' => $data->id]) }}" target="_blank" class="btn btn-info btn-xs" title="Voucher">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i> Voucher
+                                                </a>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

@@ -40,19 +40,25 @@
 </head>
 <body>
     <div class="container">
-        <button class="btn btn-secondary mb-3 print-btn" onclick="window.print()">Print</button>
+        <button class="btn btn-secondary my-3 print-btn" onclick="window.print()">Print</button>
         <div class="voucher">
             <div class="header">
                 <h4>M/S. AMIN ENTERPRISE</h4>
                 <p>IMS Momtaz Tower (4th Floor), 1022, Strand Road, Chattogram.<br>
                 Phone: 01713-603882, Email: aminent.bd1@gmail.com</p>
             </div>
-            <div class="voucher-title">DEBIT VOUCHER</div>
+            @php
+                $debitTables = ['Liabilities', 'Expenses'];
+                $isDebit = !$data->table_type || in_array($data->table_type, $debitTables);
+            @endphp
+
+            <div class="voucher-title">{{ $isDebit ? 'DEBIT VOUCHER' : 'CREDIT VOUCHER' }}</div>
+
             <div class="row mb-2">
                 <div class="col">Voucher No: <strong>{{$data->tran_id}}</strong></div>
                 <div class="col text-end">Date: <strong>{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y') }}</strong></div>
             </div>
-            <div class="mb-2"><strong>Debit:</strong> {{$data->chartOfAccount->account_name}} </div>
+            <div class="mb-2"><strong>{{ $data->client?->name }}:</strong> {{$data->chartOfAccount?->account_name}} </div>
 
             <table class="table table-bordered">
                 <thead>

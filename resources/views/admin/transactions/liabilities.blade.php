@@ -258,12 +258,18 @@
                 name: 'action',
                 orderable: false,
                 searchable: false,
-                render: function (data, type, row, meta) {
-                    let button = `<button type="button" class="btn btn-warning btn-xs edit-btn" data-toggle="modal" data-target="#chartModal" value="${row.id}" title="Edit" data-purpose='1'><i class="fa fa-edit" aria-hidden="true"></i> Edit</button>`;
-                    if (row.amount < 0) {
-                    }
-                    return button;
-                }
+                render: function(data, type, row, meta) {
+                let button = `<button type="button" class="btn btn-warning btn-xs edit-btn" data-toggle="modal" data-target="#chartModal" value="${row.id}" title="Edit" data-purpose='1'><i class="fa fa-edit" aria-hidden="true"></i> Edit</button>`;
+
+                let voucherUrl = "{{ route('admin.expense.voucher', ['id' => '__id__']) }}".replace('__id__', row.id);
+                
+                button += `<a href="${voucherUrl}" target="blank" class="btn btn-info btn-xs" title="Voucher"><i class="fa fa-info-circle" aria-hidden="true"></i> Voucher</a>`;
+
+                if (row.amount < 0) {}
+                
+                return button;
+            }
+
             },
         ]
     });
