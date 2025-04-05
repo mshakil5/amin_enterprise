@@ -58,7 +58,14 @@ class ReportController extends Controller
         $vendor = Vendor::select('id','name')->where('id',$vid)->first();
         $motherVesselName = MotherVassel::where('id', $mid)->first()->name;
 
-        return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','missingHeaderIds'));
+        $duePaymentTransaction = Transaction::where('vendor_id', $vid)
+                                  ->where('mother_vassel_id', $mid)
+                                  ->where('description', 'Carrying Bill')
+                                  ->where('tran_type', 'Due Payment')
+                                  ->select('amount')
+                                  ->first();
+
+        return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','missingHeaderIds', 'mid', 'vid', 'duePaymentTransaction'));
     }
 
     public function challanPostingDateReport($id)
@@ -106,6 +113,26 @@ class ReportController extends Controller
         DB::commit();
     
         return redirect()->back()->with('success', 'Record deleted successfully!');
+    }
+
+    public function storeDuePayment(Request $request)
+    {
+        $dueAmount = $request->input('due_amount');
+        $transaction = new Transaction();
+        $transaction->amount = $dueAmount;
+        $transaction->tran_type = "Due Payment";
+        $transaction->description = "Carrying Bill";
+        // $transaction->payment_type = ;
+        $transaction->table_type = "Due Payment";
+        $transaction->mother_vassel_id  = $request->mother_vessel_id;
+        $transaction->vendor_id = $request->vendor_id;
+        $transaction->client_id = $request->client_id;
+        $transaction->date = date('Y-m-d');
+        $transaction->save();
+        $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+        $transaction->save();
+
+        return redirect()->back()->with('success', 'Due payment submitted successfully!');
     }
 
 }

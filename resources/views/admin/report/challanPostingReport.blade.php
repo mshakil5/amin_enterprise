@@ -54,6 +54,48 @@
                         {{ session('success') }}
                     </div>
                 @endif
+                @php
+                    $totalcarrying_bill = $data->sum('carrying_bill');
+                    $totaladvance = $data->sum('advance');  
+                    $totalDue = $totalcarrying_bill - $totaladvance;    
+                @endphp
+
+                @if ($duePaymentTransaction != null && $duePaymentTransaction->amount > 0)
+                  <button type="button" class="btn btn-success mb-3">
+                    Due Payment Received: {{ number_format($duePaymentTransaction->amount, 2) }}
+                </button>
+                @elseif ($totalDue > 0)
+                <button type="button" class="btn btn-warning mb-3" data-toggle="modal" data-target="#duePaymentModal">
+                    Due Payment: {{ number_format($totalDue, 2) }}
+                </button>
+                @endif
+
+                <form action="{{ route('due.payment.store') }}" method="POST">
+                  @csrf
+                  <div class="modal fade" id="duePaymentModal" tabindex="-1" role="dialog" aria-labelledby="duePaymentModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                          <h5 class="modal-title">Due Payment</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span>&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <h4>Total Due: <strong>{{ number_format($totalDue, 2) }} Tk</strong></h4>
+                          <input type="hidden" name="due_amount" value="{{ $totalDue }}">
+                          <input type="hidden" name="mother_vessel_id" value="{{ $mid }}">
+                          <input type="hidden" name="vendor_id" value="{{ $vid }}">
+                          <input type="hidden" name="client_id" value="{{ optional($data->first())->client_id }}">
+                        </div>
+                        <div class="modal-footer">
+                          <button type="submit" class="btn btn-warning">Pay</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>                
 
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
