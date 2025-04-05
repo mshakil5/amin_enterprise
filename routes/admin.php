@@ -191,6 +191,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReport');
     Route::post('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReportshow');
 
+    Route::delete('/program-details/{id}', [ReportController::class, 'deleteProgramDetails'])->name('programDetails.delete');
     
     Route::get('/challan-posting-date-report/{id}', [ReportController::class, 'challanPostingDateReport'])->name('challanPostingDateReport');
     

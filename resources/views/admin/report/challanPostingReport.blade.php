@@ -49,6 +49,11 @@
                 <h3 class="text-center">{{$motherVesselName}}</h3>
                 <h4 class="text-center">{{$vendor->name}}</h4>
 
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
@@ -100,6 +105,11 @@
                     <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
                     <td style="text-align: center">
                       <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
+                        <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
+                      </form>
                     </td>
 
                     @php
@@ -222,6 +232,11 @@
 
                     <td style="text-align: center">
                       <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
+                      <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
+                      </form>
                     </td>
                     @php
                         $totalfuelqty += $data->advancePayment->fuelqty;

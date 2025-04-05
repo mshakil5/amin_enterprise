@@ -10,6 +10,7 @@ use App\Models\ProgramDetail;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Transaction;
 
 class ReportController extends Controller
 {
@@ -81,6 +82,30 @@ class ReportController extends Controller
 
         $motherVesselName = MotherVassel::where('id', $id)->first()->name;
         return view('admin.report.dailyposting', compact('data','motherVesselName','id'));
+    }
+
+    public function deleteProgramDetails($id)
+    {
+        DB::beginTransaction();
+    
+        $data = ProgramDetail::findOrFail($id);
+        
+        $transaction = Transaction::where('program_detail_id', $id)->first();
+        $advance_payment = AdvancePayment::where('program_detail_id', $id)->first();
+        
+        if ($transaction) {
+            $transaction->delete();
+        }
+    
+        if ($advance_payment) {
+            $advance_payment->delete();
+        }
+    
+        $data->delete();
+
+        DB::commit();
+    
+        return redirect()->back()->with('success', 'Record deleted successfully!');
     }
 
 }
