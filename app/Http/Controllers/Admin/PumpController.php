@@ -181,4 +181,33 @@ class PumpController extends Controller
 
         return response()->json(['status'=> 300,'data'=>$prop, 'pump'=>$pump]);
     }
+
+    public function updateMarkQty(Request $request)
+    {
+        $validated = $request->validate([
+            'petrol_pump_id' => 'required|integer',
+            'total_qty' => 'required|numeric',
+            'unique_id' => 'required',
+        ]);
+
+        $fuelBil = FuelBill::where('petrol_pump_id', $validated['petrol_pump_id'])
+                          ->where('unique_id', $validated['unique_id'])
+                          ->first();
+
+          if ($fuelBil) {
+            $oldMarkQty = $fuelBil->markqty;
+    
+            $qtyDifference = $validated['total_qty'] - $oldMarkQty;
+    
+            $fuelBil->markqty = $validated['total_qty'];
+            $fuelBil->notmarkqty -= $qtyDifference;
+    
+            $fuelBil->save();
+    
+            return redirect()->back()->with('success', 'Fuel bill updated successfully!');
+        }
+
+        return redirect()->back()->with('error', 'No record found for the given petrol pump and unique ID.');
+    }
+
 }

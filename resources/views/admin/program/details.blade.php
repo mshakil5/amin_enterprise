@@ -261,12 +261,36 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body">
+
+              @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+              @endif
+
+              @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+              @endif
+
+              @if($errors->any())
+                  <div class="alert alert-danger">
+                      <ul>
+                          @foreach($errors->all() as $error)
+                              {{ $error }} <br>
+                          @endforeach
+                      </ul>
+                  </div>
+              @endif
+
             <div style="overflow-x:auto;">
                 <table id="example1" class="table table-bordered table-striped">
                     <thead>
                     <tr>
                         <th>Sl</th>
                         <th>Bill Status</th>
+                        <th>Petrol Pump</th>
                         <th>Bill No</th>
                         <th>Date</th>
                         <th>Vendor</th>
@@ -306,6 +330,22 @@
                                     <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
                                 </label>
 
+                            </td>
+
+                            @php
+                                $uniqueIds = $data->advancePayment->petrolPump
+                                    ? \App\Models\FuelBill::where('petrol_pump_id', $data->advancePayment->petrolPump->id)
+                                        ->pluck('unique_id')
+                                        ->implode(',')
+                                    : '';
+                            @endphp
+                            <td style="text-align: center">
+                                <label class="form-checkbox grid layout">
+                                    <input type="checkbox" class="petrol-checkbox custom-checkbox" 
+                                    data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
+                                    data-unique-ids="{{ $uniqueIds }}"
+                                    data-qty="{{ $data->advancePayment->fuelqty ?? '' }}">
+                                </label>
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>
                             <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
@@ -361,6 +401,24 @@
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                        </tr>
+                        <tr id="pump-form-row" style="display: none;">
+                          <td colspan="20" style="text-align: center;">
+                              <form id="pump-action-form" action="{{ route('petrol.pump.mark.qty') }}" method="POST" style="display: flex; justify-content: center; align-items: center;">
+                                  @csrf
+                                  <input type="hidden" name="petrol_pump_id" id="petrol_pump_id">
+                                  <input type="hidden" name="total_qty" id="total_qty">
+                          
+                                  <select name="unique_id" id="unique-id-display" class="form-control" style="width: 200px; margin-right: 10px;">
+                                      <option value="">Select Unique ID</option>
+                                  </select>
+                          
+                                  <button type="submit" class="btn btn-primary">
+                                      <i class="fas fa-check-circle"></i> Submit for Petrol Pump
+                                  </button>
+                              </form>
+                          </td>
                         </tr>
                     </tfoot>
                 </table>
@@ -507,6 +565,58 @@
 
 @endsection
 @section('script')
+
+<script>
+  $(document).ready(function () {
+      let selectedPumpId = null;
+
+      $('.petrol-checkbox').on('change', function () {
+          const currentPumpId = $(this).data('pump-id');
+          const uniqueIds = $(this).data('unique-ids');
+
+          if (this.checked) {
+              if (!selectedPumpId) {
+                  selectedPumpId = currentPumpId;
+              }
+
+              if (selectedPumpId !== currentPumpId) {
+                  alert('Only same petrol pump can be selected!');
+                  $(this).prop('checked', false);
+                  return;
+              }
+          } else {
+              const anyChecked = $('.petrol-checkbox:checked');
+              if (anyChecked.length === 0) {
+                  selectedPumpId = null;
+              }
+          }
+
+          const checkedCount = $('.petrol-checkbox:checked').length;
+          const checkedBoxes = $('.petrol-checkbox:checked');
+          if (checkedCount > 0) {
+              $('#pump-form-row').show();
+              $('#petrol_pump_id').val(selectedPumpId);
+
+              const optionsHtml = uniqueIds
+                  .split(',')
+                  .map(id => `<option value="${id}">${id}</option>`)
+                  .join('');
+              $('#unique-id-display').html('<option value="">Select Unique ID</option>' + optionsHtml);
+
+              let totalQty = 0;
+              checkedBoxes.each(function () {
+                  totalQty += parseFloat($(this).data('qty')) || 0;
+              });
+              $('#total_qty').val(totalQty);
+          } else {
+              $('#pump-form-row').hide();
+              $('#unique-id-display').empty();
+              $('#total_qty').val('');
+          }
+      });
+  });
+</script>
+  
 <script>
     $(function () {
       $("#example1").DataTable({
