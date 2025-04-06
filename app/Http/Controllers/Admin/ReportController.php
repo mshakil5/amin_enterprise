@@ -63,7 +63,7 @@ class ReportController extends Controller
                                   ->where('description', 'Carrying Bill')
                                   ->where('tran_type', 'Due Payment')
                                   ->select('amount')
-                                  ->first();
+                                  ->sum('amount');
 
         return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','missingHeaderIds', 'mid', 'vid', 'duePaymentTransaction'));
     }

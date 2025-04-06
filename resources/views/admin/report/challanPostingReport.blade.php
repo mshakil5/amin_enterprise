@@ -57,14 +57,15 @@
                 @php
                     $totalcarrying_bill = $data->sum('carrying_bill');
                     $totaladvance = $data->sum('advance');  
-                    $totalDue = $totalcarrying_bill - $totaladvance;    
+                    $totalDue = $totalcarrying_bill - $totaladvance - $duePaymentTransaction;    
                 @endphp
 
-                @if ($duePaymentTransaction != null && $duePaymentTransaction->amount > 0)
+                @if ($duePaymentTransaction != null && $duePaymentTransaction > 0)
                   <button type="button" class="btn btn-success mb-3">
-                    Due Payment Received: {{ number_format($duePaymentTransaction->amount, 2) }}
+                    Due Payment Paid: {{ number_format($duePaymentTransaction, 2) }}
                 </button>
-                @elseif ($totalDue > 0)
+                @endif
+                @if ($totalDue > 0)
                 <button type="button" class="btn btn-warning mb-3" data-toggle="modal" data-target="#duePaymentModal">
                     Due Payment: {{ number_format($totalDue, 2) }}
                 </button>
@@ -147,11 +148,11 @@
                     <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
                     <td style="text-align: center">
                       <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
-                        <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;">
-                          @csrf
-                          @method('DELETE')
-                          <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
-                      </form>
+                        <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;" class="d-none">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
+                        </form>
                     </td>
 
                     @php
