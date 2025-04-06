@@ -11,6 +11,8 @@ class ProgramDetail extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $guarded = [];
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

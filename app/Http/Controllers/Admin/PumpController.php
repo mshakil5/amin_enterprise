@@ -7,6 +7,7 @@ use App\Models\FuelBill;
 use Illuminate\Http\Request;
 use App\Models\PetrolPump;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ProgramDetail;
 
 class PumpController extends Controller
 {
@@ -188,6 +189,7 @@ class PumpController extends Controller
             'petrol_pump_id' => 'required|integer',
             'total_qty' => 'required|numeric',
             'unique_id' => 'required',
+            'program_detail_ids' => 'required|json',
         ]);
 
         $fuelBil = FuelBill::where('petrol_pump_id', $validated['petrol_pump_id'])
@@ -203,6 +205,14 @@ class PumpController extends Controller
             $fuelBil->notmarkqty -= $qtyDifference;
     
             $fuelBil->save();
+
+            $programDetailIds = json_decode($validated['program_detail_ids'], true);
+
+            foreach ($programDetailIds as $id) {
+                ProgramDetail::where('id', $id)->update([
+                    'fuel_bill_id' => $fuelBil->id
+                ]);
+            }
     
             return redirect()->back()->with('success', 'Fuel bill updated successfully!');
         }

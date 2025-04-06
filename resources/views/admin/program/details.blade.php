@@ -344,7 +344,8 @@
                                     <input type="checkbox" class="petrol-checkbox custom-checkbox" 
                                     data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
                                     data-unique-ids="{{ $uniqueIds }}"
-                                    data-qty="{{ $data->advancePayment->fuelqty ?? '' }}">
+                                    data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
+                                    data-program-detail-id="{{ $data->id }}" @if($data->fuel_bill_id) checked disabled @endif>
                                 </label>
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>
@@ -409,6 +410,7 @@
                                   @csrf
                                   <input type="hidden" name="petrol_pump_id" id="petrol_pump_id">
                                   <input type="hidden" name="total_qty" id="total_qty">
+                                  <input type="hidden" id="program_detail_ids" name="program_detail_ids">
                           
                                   <select name="unique_id" id="unique-id-display" class="form-control" style="width: 200px; margin-right: 10px;">
                                       <option value="">Select Unique ID</option>
@@ -604,14 +606,19 @@
               $('#unique-id-display').html('<option value="">Select Unique ID</option>' + optionsHtml);
 
               let totalQty = 0;
+              selectedProgramDetailIds = [];
               checkedBoxes.each(function () {
                   totalQty += parseFloat($(this).data('qty')) || 0;
+                  const progId = $(this).data('program-detail-id');
+                  if (progId) selectedProgramDetailIds.push(progId);
               });
               $('#total_qty').val(totalQty);
+              $('#program_detail_ids').val(JSON.stringify(selectedProgramDetailIds)); 
           } else {
               $('#pump-form-row').hide();
               $('#unique-id-display').empty();
               $('#total_qty').val('');
+              $('#program_detail_ids').val('');
           }
       });
   });
