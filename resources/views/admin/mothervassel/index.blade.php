@@ -101,6 +101,7 @@
                   <th>Name</th>
                   <th>Description</th>
                   <th>Consignment</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -114,6 +115,13 @@
                     </td>
                     <td style="text-align: center">{{$data->description}}</td>
                     <td style="text-align: center">{{$data->code}}</td>
+                    <td style="text-align: center">
+                        <select class="status-dropdown form-control" data-id="{{ $data->id }}">
+                            <option value="1" {{ $data->status == 1 ? 'selected' : '' }}>Running</option>
+                            <option value="2" {{ $data->status == 2 ? 'selected' : '' }}>Completed</option>
+                        </select>
+                    </td>
+
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       {{-- <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a> --}}
@@ -289,6 +297,29 @@
           $('#createThisForm')[0].reset();
           $("#addBtn").val('Create');
       }
+
+      $('.status-dropdown').change(function() {
+          var status = $(this).val();
+          var id = $(this).data('id');
+          // console.log(status, id);
+
+          $.ajax({
+              url: '/admin/mother-vassel/status/' + id,
+              type: 'POST',
+              data: {
+                  status: status,
+                  _token: '{{ csrf_token() }}'
+              },
+              success: function(response) {
+                  alert(response.message);
+                  location.reload();
+                  pagetop();
+              },
+              error: function(xhr , status, error) {
+              }
+          });
+      });
+
   });
 </script>
 @endsection

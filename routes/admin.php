@@ -77,6 +77,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/mother-vassel-update', [MotherVasselController::class, 'update']);
     Route::get('/mother-vassel/{id}', [MotherVasselController::class, 'delete']);
 
+    Route::post('/mother-vassel/status/{id}', [MotherVasselController::class, 'updateStatus']);
+
 
     Route::get('/lighter-vassel', [LighterVasselController::class, 'index'])->name('lightervassel');
     Route::post('/lighter-vassel', [LighterVasselController::class, 'store'])->name('admin.lightervassel.store');

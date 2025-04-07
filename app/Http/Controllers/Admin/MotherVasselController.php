@@ -109,4 +109,21 @@ class MotherVasselController extends Controller
             return response()->json(['success'=>false,'message'=>'Delete Failed']);
         }
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required',
+        ]);
+
+        $data = MotherVassel::find($id);
+        if ($data) {
+            $data->status = $request->status;
+            $data->save();
+            $message ="Status Updated Successfully";
+            return response()->json(['status'=> 300,'message'=>$message]);
+        }
+
+        return response()->json(['success' => false], 404);
+    }
 }

@@ -137,7 +137,7 @@ class VendorController extends Controller
         $data->vendor_id = $request->vendorId;
         $data->qty = $request->challanqty;
         $data->notmarkqty = $request->challanqty;
-        $lastSequence = VendorSequenceNumber::where('vendor_id', $request->vendorId)->max('sequence');
+        $lastSequence = VendorSequenceNumber::where('vendor_id', $request->vendorId)->where('created_at', 'like', date('Y'.'%'))->max('sequence');
         $data->sequence = $lastSequence ? $lastSequence + 1 : 1;
         $data->unique_id = $uniqueCode."_".$data->sequence."_".date('Y');
         $data->date = date('Y-m-d');

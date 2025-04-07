@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('country_name')->nullable();
             $table->string('code')->nullable();
             $table->string('description')->nullable();
-            $table->boolean('status')->default(1);
+            $table->boolean('status')->default(1); //1=>Running, 2=>Completed
             $table->string('updated_by')->nullable();
             $table->string('created_by')->nullable();
             $table->timestamps();
