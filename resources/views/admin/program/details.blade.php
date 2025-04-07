@@ -333,11 +333,9 @@
                             </td>
 
                             @php
-                                $uniqueIds = $data->advancePayment->petrolPump
-                                    ? \App\Models\FuelBill::where('petrol_pump_id', $data->advancePayment->petrolPump->id)
+                                $uniqueIds = $data->advancePayment->petrolPump ?? '' ? \App\Models\FuelBill::where('petrol_pump_id', $data->advancePayment->petrolPump->id)
                                         ->pluck('unique_id')
-                                        ->implode(',')
-                                    : '';
+                                        ->implode(',') : '';
                             @endphp
                             <td style="text-align: center">
                                 <label class="form-checkbox grid layout">

@@ -135,7 +135,7 @@ class PumpController extends Controller
         $data->bill_number = $request->bill_number;
         $data->vehicle_count = $request->vehicle_count;
 
-        $lastSequence = FuelBill::where('petrol_pump_id', $request->pumpId)->max('sequence');
+        $lastSequence = FuelBill::where('petrol_pump_id', $request->pumpId)->where('created_at', 'like', date('Y'.'%'))->max('sequence');
         $data->sequence = $lastSequence ? $lastSequence + 1 : 1;
         $data->unique_id = $uniqueCode."_".$data->sequence."_".date('Y');
 
