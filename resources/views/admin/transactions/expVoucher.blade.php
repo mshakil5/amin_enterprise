@@ -79,12 +79,24 @@
             </table>
 
 
+            @php
+              use Rmunate\Utilities\SpellNumber;
+              
+              $rawAmount = SpellNumber::value($data->at_amount)
+                  ->locale('en')
+                  ->toLetters();
+
+              $textAmont = str_ireplace(' and zero', '', $rawAmount);
+              
+              $inWords = ucwords($textAmont) . ' (Taka Only)';
+            @endphp
 
 
             <hr>
             <div class="amount-box">Total: <strong>{{$data->at_amount}}/-</strong></div>
-            {{-- <div class="mt-3"><strong>Taka (In Words):</strong> One Hundred Forty (Taka Only).</div> --}}
+            <div class="mt-3"><strong>Taka (In Words):</strong> {{$inWords}}.</div>
             <div class="row mt-4">
+                <div class="col">Checked by: <br> ________</div>
                 <div class="col">Received by: <br> ________</div>
                 <div class="col">Prepared by: <br> ________</div>
                 <div class="col">Approved by: <br> ________</div>

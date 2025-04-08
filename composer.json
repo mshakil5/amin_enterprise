@@ -14,6 +14,7 @@
         "laravelcollective/html": "^6.4",
         "maatwebsite/excel": "^1.1",
         "phpoffice/phpspreadsheet": "^3.5",
+        "rmunate/spell-number": "^4.2",
         "yajra/laravel-datatables-oracle": "^10.11"
     },
     "require-dev": {
