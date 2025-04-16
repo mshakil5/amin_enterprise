@@ -120,7 +120,7 @@ class ExpenseController extends Controller
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'ref' => $transaction->ref,
-            'transaction_type' => $transaction->transaction_type,
+            'transaction_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
             'tax_rate' => $transaction->tax_rate,
             'tax_amount' => $transaction->tax_amount,
@@ -128,6 +128,7 @@ class ExpenseController extends Controller
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
             'payable_holder_id' => $transaction->liability_id,
+            'mother_vassel_id' => $transaction->mother_vassel_id,
         ];
         return response()->json($responseData);
     }

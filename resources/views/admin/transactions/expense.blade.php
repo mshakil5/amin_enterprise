@@ -132,7 +132,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="mother_vassel_id" class="control-label">Mother Vessel</label>
-                                <select class="form-control" id="mother_vassel_id" name="mother_vassel_id">
+                                <select class="form-control select2" id="mother_vassel_id" name="mother_vassel_id">
                                     <option value="">Select Mother Vessel</option>
                                     @foreach (\App\Models\MotherVassel::where('status', 1)->select('id', 'name')->get() as $mv)
                                     <option value="{{$mv->id}}">{{$mv->name}}</option>
@@ -402,7 +402,7 @@
                     } else {
                         $("#pre_adjust").show();
                     }
-                    $('#transaction_type').val(response.tran_type);
+                    $('#transaction_type').val(response.transaction_type);
                     $('#amount').val(response.amount);
                     $('#tax_rate').val(response.tax_rate);
                     $('#tax_amount').val(response.tax_amount);
@@ -410,7 +410,7 @@
                     $('#payment_type').val(response.payment_type);
                     $('#description').val(response.description);
 
-                    $('#mother_vassel_id').val(response.mother_vassel_id);
+                    $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
                     $('#chart_of_account_id').val(response.chart_of_account_id);
 
                     if (response.payment_type == 'Account Payable') {

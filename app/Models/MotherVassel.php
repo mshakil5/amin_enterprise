@@ -10,4 +10,9 @@ class MotherVassel extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

@@ -72,44 +72,77 @@
                                   </tr>
                               </thead>
                               <tbody>
-                                  @php
-                                      $total_dr = 0;
-                                      $total_cr = 0;
-                                  @endphp
-                                  <tr>
-                                      <td>101</td>
-                                      <td>Vendor 1</td>
-                                      <td>5000</td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td>102</td>
-                                      <td>Vendor 2</td>
-                                      <td></td>
-                                      <td>2000</td>
-                                  </tr>
-                                  <tr>
-                                      <td>103</td>
-                                      <td>Vendor 3</td>
-                                      <td>3000</td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td>104</td>
-                                      <td>Vendor 4</td>
-                                      <td></td>
-                                      <td>4000</td>
-                                  </tr>
-
-                                  @php
-                                      $total_dr = 5000 + 3000;
-                                      $total_cr = 2000 + 4000;
-                                  @endphp
 
                                   <tr>
-                                      <td colspan="2"><strong>Total</strong></td>
-                                      <td><strong>{{ $total_dr }}</strong></td>
-                                      <td><strong>{{ $total_cr }}</strong></td>
+                                      <td></td>
+                                      <td class="text-bold">Openings</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td></td>
+                                      <td>Cash</td>
+                                      <td></td>
+                                      <td>0</td>
+                                  </tr>
+                                  <tr>
+                                      <td></td>
+                                      <td>Bank</td>
+                                      <td></td>
+                                      <td>0</td>
+                                  </tr>
+                                  <tr>
+                                      <td></td>
+                                      <td class="text-bold">NON CURRENT ASSETS</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td></td>
+                                      <td class="text-bold">INVESTMENTS</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td></td>
+                                      <td class="text-bold">CURRENT ASSETS</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td></td>
+                                      <td>Receivables from BSRM</td>
+                                      <td>2529680</td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+
+                                  <tr>
+                                      <td></td>
+                                      <td>EXPENSES</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+
+                                  @foreach ($expenses as $expense)
+                                    <tr>
+                                        <td></td>
+                                        <td>{{ $expense->chartOfAccount->account_name }}</td>
+                                        <td></td>
+                                        <td>{{ $expense->amount }}</td>
+                                    </tr>
+                                  @endforeach
+
+                                  <tr>
+                                      <td></td>
+                                      <td></td>
+                                      <td><strong> 50000 </strong></td>
+                                      <td><strong>10000</strong></td>
                                   </tr>
                               </tbody>
                           </table>
