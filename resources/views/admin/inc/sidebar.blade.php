@@ -384,6 +384,16 @@
       </li>
       @endif
 
+      <li class="nav-item">
+        <a href="{{ route('admin.trialBalance') }}" class="nav-link {{ (request()->is('admin/trial-balance')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Trial Balance
+          </p>
+        </a>
+      </li>
+
+
       @if(in_array('26', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
           <a href="{{ route('admin.role') }}" class="nav-link {{ (request()->is('admin/role*')) ? 'active' : '' }}">

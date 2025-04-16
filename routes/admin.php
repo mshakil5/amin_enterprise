@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\ChartOfAccountController;
 use App\Http\Controllers\Admin\PettyCashController;
 use App\Http\Controllers\Admin\PLStatementController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\TrialBalanceController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -273,6 +274,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
         // pl statement
         Route::get('profit-statement', [PLStatementController::class, 'profitAndLossStatement'])->name('admin.profitAndLossStatement');
 
+        // Trial balance
+        Route::match(['get', 'post'], 'trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
 
         // roles and permission
         Route::get('role', [RoleController::class, 'index'])->name('admin.role');
