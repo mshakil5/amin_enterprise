@@ -333,17 +333,20 @@
                             </td>
 
                             @php
-                                $uniqueIds = $data->advancePayment->petrolPump ?? '' ? \App\Models\FuelBill::where('petrol_pump_id', $data->advancePayment->petrolPump->id)
-                                        ->pluck('unique_id')
-                                        ->implode(',') : '';
+                                $fuelBills = $data->advancePayment->petrolPump ?? '' 
+                                    ? \App\Models\FuelBill::with('petrolPump:id,name') // eager load name
+                                        ->where('petrol_pump_id', $data->advancePayment->petrolPump->id)
+                                        ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
+                                    : collect();
                             @endphp
                             <td style="text-align: center">
                                 <label class="form-checkbox grid layout">
-                                    <input type="checkbox" class="petrol-checkbox custom-checkbox" 
-                                    data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
-                                    data-unique-ids="{{ $uniqueIds }}"
-                                    data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
-                                    data-program-detail-id="{{ $data->id }}" @if($data->fuel_bill_id) checked disabled @endif>
+                                  <input type="checkbox" class="petrol-checkbox custom-checkbox" 
+                                  data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
+                                  data-fuel-bills='@json($fuelBills)'
+                                  data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
+                                  data-program-detail-id="{{ $data->id }}" 
+                                  @if($data->fuel_bill_id) checked disabled @endif>
                                 </label>
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>
@@ -410,7 +413,7 @@
                                   <input type="hidden" name="total_qty" id="total_qty">
                                   <input type="hidden" id="program_detail_ids" name="program_detail_ids">
                           
-                                  <select name="unique_id" id="unique-id-display" class="form-control" style="width: 200px; margin-right: 10px;">
+                                  <select name="unique_id" id="unique-id-display" class="form-control" style="width: 350px; margin-right: 10px;" required>
                                       <option value="">Select Unique ID</option>
                                   </select>
                           
@@ -571,54 +574,57 @@
       let selectedPumpId = null;
 
       $('.petrol-checkbox').on('change', function () {
-          const currentPumpId = $(this).data('pump-id');
-          const uniqueIds = $(this).data('unique-ids');
+    const currentPumpId = $(this).data('pump-id');
+    const fuelBills = $(this).data('fuel-bills'); 
+    console.log(fuelBills);
 
-          if (this.checked) {
-              if (!selectedPumpId) {
-                  selectedPumpId = currentPumpId;
-              }
+    if (this.checked) {
+        if (!selectedPumpId) {
+            selectedPumpId = currentPumpId;
+        }
 
-              if (selectedPumpId !== currentPumpId) {
-                  alert('Only same petrol pump can be selected!');
-                  $(this).prop('checked', false);
-                  return;
-              }
-          } else {
-              const anyChecked = $('.petrol-checkbox:checked');
-              if (anyChecked.length === 0) {
-                  selectedPumpId = null;
-              }
-          }
+        if (selectedPumpId !== currentPumpId) {
+            alert('Only same petrol pump can be selected!');
+            $(this).prop('checked', false);
+            return;
+        }
+    } else {
+        if ($('.petrol-checkbox:checked').length === 0) {
+            selectedPumpId = null;
+        }
+    }
 
-          const checkedCount = $('.petrol-checkbox:checked').length;
-          const checkedBoxes = $('.petrol-checkbox:checked');
-          if (checkedCount > 0) {
-              $('#pump-form-row').show();
-              $('#petrol_pump_id').val(selectedPumpId);
+    const checkedBoxes = $('.petrol-checkbox:checked');
+    if (checkedBoxes.length > 0) {
+        $('#pump-form-row').show();
+        $('#petrol_pump_id').val(selectedPumpId);
 
-              const optionsHtml = uniqueIds
-                  .split(',')
-                  .map(id => `<option value="${id}">${id}</option>`)
-                  .join('');
-              $('#unique-id-display').html('<option value="">Select Unique ID</option>' + optionsHtml);
+        let optionsHtml = `<option value="">Select Unique ID</option>`;
+        fuelBills.forEach(fb => {
+            optionsHtml += `<option value="${fb.unique_id}">
+                ${fb.unique_id} - ${fb.petrol_pump.name} - ${fb.qty}L - Bill#${fb.bill_number}
+            </option>`;
+        });
+        $('#unique-id-display').html(optionsHtml);
 
-              let totalQty = 0;
-              selectedProgramDetailIds = [];
-              checkedBoxes.each(function () {
-                  totalQty += parseFloat($(this).data('qty')) || 0;
-                  const progId = $(this).data('program-detail-id');
-                  if (progId) selectedProgramDetailIds.push(progId);
-              });
-              $('#total_qty').val(totalQty);
-              $('#program_detail_ids').val(JSON.stringify(selectedProgramDetailIds)); 
-          } else {
-              $('#pump-form-row').hide();
-              $('#unique-id-display').empty();
-              $('#total_qty').val('');
-              $('#program_detail_ids').val('');
-          }
-      });
+        let totalQty = 0;
+        selectedProgramDetailIds = [];
+        checkedBoxes.each(function () {
+            totalQty += parseFloat($(this).data('qty')) || 0;
+            const progId = $(this).data('program-detail-id');
+            if (progId) selectedProgramDetailIds.push(progId);
+        });
+
+        $('#total_qty').val(totalQty);
+        $('#program_detail_ids').val(JSON.stringify(selectedProgramDetailIds));
+    } else {
+        $('#pump-form-row').hide();
+        $('#unique-id-display').empty();
+        $('#total_qty').val('');
+        $('#program_detail_ids').val('');
+    }
+});
+
   });
 </script>
   

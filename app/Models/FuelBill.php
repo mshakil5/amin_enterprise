@@ -10,4 +10,9 @@ class FuelBill extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    public function petrolPump()
+    {
+        return $this->belongsTo(PetrolPump::class);
+    }
 }
