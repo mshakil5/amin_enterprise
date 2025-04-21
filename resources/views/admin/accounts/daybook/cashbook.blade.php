@@ -25,7 +25,9 @@
                                         <select name="vendor_id" id="vendor_id" class="form-control select2">
                                           <option value="">Select</option>
                                           @foreach (\App\Models\Vendor::where('status', 1)->get() as $vendor)
-                                          <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                          <option value="{{ $vendor->id }}" {{ (request()->input('vendor_id') == $vendor->id) ? 'selected' : '' }}>
+                                              {{ $vendor->name }}
+                                          </option>
                                           @endforeach
                                         </select>
                                     </div>
@@ -34,7 +36,9 @@
                                         <select name="mv_id" id="mv_id" class="form-control select2">
                                           <option value="">Select</option>
                                           @foreach (\App\Models\MotherVassel::where('status', 1)->get() as $mvassel)
-                                          <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
+                                          <option value="{{ $mvassel->id }}" {{ (request()->input('mv_id') == $mvassel->id) ? 'selected' : '' }}>
+                                              {{ $mvassel->name }}
+                                          </option>
                                           @endforeach
                                         </select>
                                     </div>
@@ -49,11 +53,14 @@
                                         <input type="date" class="form-control" name="end_date" value="{{ request()->input('end_date') }}">
                                     </div>
 
-                                    <button type="submit" class="btn btn-secondary">Search</button>
+                                    <div class="col-md-1">
+                                        <label class="label label-primary" style="visibility:hidden;">Action</label>
+                                        <button type="submit" class="btn btn-secondary btn-block">Search</button>
+                                    </div>
                                 </form>
                             </div>
                             <div class="col-md-12">
-                                <div class="text-center mb-4 company-name-container">
+                                <div class="text-center my-4 company-name-container">
                                     
                                     <h4>Day Cash Book</h4>
                                 </div>
@@ -66,6 +73,7 @@
                                             <th>Date</th>
                                             <th>Description</th>
                                             <th>Type</th>
+                                            <th>Voucher</th>
                                             <th>Bill#</th>                            
                                             <th>Challan#</th>                            
                                             <th>Debit</th>                            
@@ -88,6 +96,11 @@
                                                 </td>
                                                 <td>
                                                     {{ $cashbook->tran_type }} {{ $cashbook->payment_type }} 
+                                                </td>
+                                                <td>
+                                                  <a href="{{ route('admin.expense.voucher', $cashbook->id) }}" target="_blank" class="btn btn-info btn-xs" title="Voucher">
+                                                      <i class="fa fa-info-circle" aria-hidden="true"></i> Voucher
+                                                  </a>
                                                 </td>
                                                 <td>{{ $cashbook->bill_number }}</td>
                                                 <td>{{ $cashbook->challan_no }}</td>

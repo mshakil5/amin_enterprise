@@ -226,62 +226,62 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('chart-of-account/{id}/change-status', [ChartOfAccountController::class, 'changeStatus']);
 
 
-        //Income
-        Route::get('income', [IncomeController::class, 'index'])->name('admin.income');
-        Route::post('incomes', [IncomeController::class, 'index'])->name('admin.income.filter');
-        Route::post('income', [IncomeController::class, 'store']);
-        Route::get('income/{id}', [IncomeController::class, 'edit']);
-        Route::put('income/{id}', [IncomeController::class, 'update']); 
+    //Income
+    Route::get('income', [IncomeController::class, 'index'])->name('admin.income');
+    Route::post('incomes', [IncomeController::class, 'index'])->name('admin.income.filter');
+    Route::post('income', [IncomeController::class, 'store']);
+    Route::get('income/{id}', [IncomeController::class, 'edit']);
+    Route::put('income/{id}', [IncomeController::class, 'update']); 
+
+    //Liability
+    Route::get('liabilities', [LiabilityController::class, 'index'])->name('admin.liabilities');
+    Route::post('liability', [LiabilityController::class, 'index'])->name('admin.liability.filter');
+    Route::post('liabilities', [LiabilityController::class, 'store']);
+    Route::get('liabilities/{id}', [LiabilityController::class, 'edit']);
+    Route::put('liabilities/{id}', [LiabilityController::class, 'update']);
+
+    //Equity
+    Route::get('equity', [EquityController::class, 'index'])->name('admin.equity');
+    Route::post('equities', [EquityController::class, 'index'])->name('admin.equity.filter');
+    Route::post('equity', [EquityController::class, 'store']);
+    Route::get('equity/{id}', [EquityController::class, 'edit']);
+    Route::put('equity/{id}', [EquityController::class, 'update']);
     
-        //Liability
-        Route::get('liabilities', [LiabilityController::class, 'index'])->name('admin.liabilities');
-        Route::post('liability', [LiabilityController::class, 'index'])->name('admin.liability.filter');
-        Route::post('liabilities', [LiabilityController::class, 'store']);
-        Route::get('liabilities/{id}', [LiabilityController::class, 'edit']);
-        Route::put('liabilities/{id}', [LiabilityController::class, 'update']);
-    
-        //Equity
-        Route::get('equity', [EquityController::class, 'index'])->name('admin.equity');
-        Route::post('equities', [EquityController::class, 'index'])->name('admin.equity.filter');
-        Route::post('equity', [EquityController::class, 'store']);
-        Route::get('equity/{id}', [EquityController::class, 'edit']);
-        Route::put('equity/{id}', [EquityController::class, 'update']);
-        
-        //Asset
-        Route::get('asset', [AssetController::class, 'index'])->name('admin.asset');
-        Route::post('assets', [AssetController::class, 'index'])->name('admin.asset.filter');
-        Route::post('asset', [AssetController::class, 'store']);
-        Route::get('asset/{id}', [AssetController::class, 'edit']);
-        Route::put('asset/{id}', [AssetController::class, 'update']); 
-    
-        //Expense
-        Route::get('expense', [ExpenseController::class, 'index'])->name('admin.expense');
-        Route::post('expenses', [ExpenseController::class, 'index'])->name('admin.expense.filter');
-        Route::post('expense', [ExpenseController::class, 'store']);
-        Route::get('expense/{id}', [ExpenseController::class, 'edit']);
-        Route::put('expense/{id}', [ExpenseController::class, 'update']); 
-        Route::get('expense-voucher/{id}', [ExpenseController::class, 'voucher'])->name('admin.expense.voucher');
+    //Asset
+    Route::get('asset', [AssetController::class, 'index'])->name('admin.asset');
+    Route::post('assets', [AssetController::class, 'index'])->name('admin.asset.filter');
+    Route::post('asset', [AssetController::class, 'store']);
+    Route::get('asset/{id}', [AssetController::class, 'edit']);
+    Route::put('asset/{id}', [AssetController::class, 'update']); 
 
-        // ledger
-        Route::get('ledger-accounts', [LedgerController::class, 'showLedgerAccounts'])->name('admin.ledgeraccount');
-        Route::get('ledger/asset-details/{id}', [LedgerController::class, 'asset']);
-        Route::get('ledger/expense-details/{id}', [LedgerController::class, 'expense']);
-        Route::get('ledger/income-details/{id}', [LedgerController::class, 'income']);
-        Route::get('ledger/liability-details/{id}', [LedgerController::class, 'liability']);
-        Route::get('ledger/equity-details/{id}', [LedgerController::class, 'equity']);
+    //Expense
+    Route::get('expense', [ExpenseController::class, 'index'])->name('admin.expense');
+    Route::post('expenses', [ExpenseController::class, 'index'])->name('admin.expense.filter');
+    Route::post('expense', [ExpenseController::class, 'store']);
+    Route::get('expense/{id}', [ExpenseController::class, 'edit']);
+    Route::put('expense/{id}', [ExpenseController::class, 'update']); 
+    Route::get('expense-voucher/{id}', [ExpenseController::class, 'voucher'])->name('admin.expense.voucher');
+
+    // ledger
+    Route::get('ledger-accounts', [LedgerController::class, 'showLedgerAccounts'])->name('admin.ledgeraccount');
+    Route::get('ledger/asset-details/{id}', [LedgerController::class, 'asset']);
+    Route::get('ledger/expense-details/{id}', [LedgerController::class, 'expense']);
+    Route::get('ledger/income-details/{id}', [LedgerController::class, 'income']);
+    Route::get('ledger/liability-details/{id}', [LedgerController::class, 'liability']);
+    Route::get('ledger/equity-details/{id}', [LedgerController::class, 'equity']);
 
 
-        // pl statement
-        Route::get('profit-statement', [PLStatementController::class, 'profitAndLossStatement'])->name('admin.profitAndLossStatement');
+    // pl statement
+    Route::get('profit-statement', [PLStatementController::class, 'profitAndLossStatement'])->name('admin.profitAndLossStatement');
 
-        // Trial balance
-        Route::match(['get', 'post'], 'trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
+    // Trial balance
+    Route::match(['get', 'post'], 'trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
 
-        // roles and permission
-        Route::get('role', [RoleController::class, 'index'])->name('admin.role');
-        Route::post('role', [RoleController::class, 'store'])->name('admin.rolestore');
-        Route::get('role/{id}', [RoleController::class, 'edit'])->name('admin.roleedit');
-        Route::post('role-update', [RoleController::class, 'update'])->name('admin.roleupdate');
+    // roles and permission
+    Route::get('role', [RoleController::class, 'index'])->name('admin.role');
+    Route::post('role', [RoleController::class, 'store'])->name('admin.rolestore');
+    Route::get('role/{id}', [RoleController::class, 'edit'])->name('admin.roleedit');
+    Route::post('role-update', [RoleController::class, 'update'])->name('admin.roleupdate');
 
 
 

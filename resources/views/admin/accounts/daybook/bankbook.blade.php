@@ -49,11 +49,14 @@
                                         <input type="date" class="form-control" name="end_date" value="{{ request()->input('end_date') }}">
                                     </div>
 
-                                    <button type="submit" class="btn btn-secondary">Search</button>
+                                    <div class="col-md-1">
+                                        <label class="label label-primary" style="visibility:hidden;">Action</label>
+                                        <button type="submit" class="btn btn-secondary btn-block">Search</button>
+                                    </div>
                                 </form>
                             </div>
                             <div class="col-md-12">
-                                <div class="text-center mb-4 company-name-container">
+                                <div class="text-center my-4 company-name-container">
                                     
                                     <h4>Day Bank Book</h4>
                                 </div>
@@ -66,6 +69,7 @@
                                             <th>Date</th>
                                             <th>Description</th>
                                             <th>Type</th>
+                                            <th>Voucher</th>
                                             <th>Bill#</th>                            
                                             <th>Challan#</th>                            
                                             <th>Debit</th>                            
@@ -84,11 +88,16 @@
                                                 <td> {{ $key + 1 }} </td>
                                                 <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
                                                 <td>
-                                                    {{ $cashbook->description }} 
+                                                    {{ $data->description }} 
                                                 </td>
                                                 <td>
-                                                    {{ $cashbook->tran_type }} {{ $cashbook->payment_type }} 
+                                                    {{ $data->tran_type }} {{ $data->payment_type }} 
                                                 </td>
+                                                <td>
+                                                    <a href="{{ route('admin.expense.voucher', $data->id) }}" target="_blank" class="btn btn-info btn-xs" title="Voucher">
+                                                        <i class="fa fa-info-circle" aria-hidden="true"></i> Voucher
+                                                    </a>
+                                                  </td>
                                                 <td>{{ $data->bill_number }}</td>
                                                 <td>{{ $data->challan_no }}</td>
                                                 @if(in_array($data->tran_type, ['Received']))
