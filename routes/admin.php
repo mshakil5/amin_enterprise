@@ -29,6 +29,8 @@ use App\Http\Controllers\Admin\PettyCashController;
 use App\Http\Controllers\Admin\PLStatementController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TrialBalanceController;
+use App\Http\Controllers\Admin\IncomeStatementController;
+use App\Http\Controllers\Admin\FinancialStatementController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -282,6 +284,14 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('role', [RoleController::class, 'store'])->name('admin.rolestore');
     Route::get('role/{id}', [RoleController::class, 'edit'])->name('admin.roleedit');
     Route::post('role-update', [RoleController::class, 'update'])->name('admin.roleupdate');
+
+    // Balance Sheet
+    Route::get('balance-sheet', [FinancialStatementController::class, 'balanceSheet'])->name('admin.balancesheet');
+    Route::post('balance-sheet', [FinancialStatementController::class, 'balanceSheetReport'])->name('admin.balancesheet.report');
+
+    // income statement
+    Route::get('income-statement', [IncomeStatementController::class, 'incomeStatement'])->name('admin.incomestatement');
+    Route::post('income-statement', [IncomeStatementController::class, 'incomeStatementSearch'])->name('admin.incomestatement.report');
 
 
 
