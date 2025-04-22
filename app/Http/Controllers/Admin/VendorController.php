@@ -212,8 +212,11 @@ class VendorController extends Controller
     // getVendorWiseProgramList
     public function getVendorWiseProgramList($id)
     {
+        $vendorSequenceNumber = VendorSequenceNumber::where('id', $id)->first();
+        // dd($vendorSequenceNumber);
+        $vendor = Vendor::where('id', $vendorSequenceNumber->vendor_id)->first();
         $data = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
         
-        return view('admin.vendor.vendor_wise_program_list', compact('data'));
+        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber'));
     }
 }
