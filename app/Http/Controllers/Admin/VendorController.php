@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MotherVassel;
 use App\Models\ProgramDetail;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
@@ -216,7 +217,12 @@ class VendorController extends Controller
         // dd($vendorSequenceNumber);
         $vendor = Vendor::where('id', $vendorSequenceNumber->vendor_id)->first();
         $data = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
+        $motherVasselId = optional($data->first())->mother_vassel_id;
+
+        $motherVassel  = MotherVassel::where('id', $motherVasselId)->first();
         
-        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber'));
+
+        
+        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber','motherVassel'));
     }
 }

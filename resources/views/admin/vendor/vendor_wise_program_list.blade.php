@@ -49,6 +49,7 @@
               <div style="text-align: center; margin-bottom: 20px;">
                 <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
                 <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
+                <h5>Mother Vessel: {{ $motherVassel->name ?? 'N/A' }}</h5>
               </div>
 
               <table id="example1" class="table table-bordered table-striped">
@@ -69,7 +70,7 @@
                     <th>Line Charge</th>
                     <th>Scale fee</th>
                     <th>Other Cost</th>
-                    <th>Advance</th>
+                    <th>Cash Advance</th>
                     <th>Fuel qty</th>
                     <th>Fuel Amount</th>
                     <th>Fuel token</th>
@@ -173,24 +174,23 @@
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                     </tr>
-                    <tr id="pump-form-row" style="display: none;">
-                      <td colspan="20" style="text-align: center;">
-                          <form id="pump-action-form" action="{{ route('petrol.pump.mark.qty') }}" method="POST" style="display: flex; justify-content: center; align-items: center;">
-                              @csrf
-                              <input type="hidden" name="petrol_pump_id" id="petrol_pump_id">
-                              <input type="hidden" name="total_qty" id="total_qty">
-                              <input type="hidden" id="program_detail_ids" name="program_detail_ids">
-                      
-                              <select name="unique_id" id="unique-id-display" class="form-control" style="width: 350px; margin-right: 10px;" required>
-                                  <option value="">Select Unique ID</option>
-                              </select>
-                      
-                              <button type="submit" class="btn btn-primary">
-                                  <i class="fas fa-check-circle"></i> Submit for Petrol Pump
-                              </button>
-                          </form>
+                    <tr>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"  colspan="8">
+                          <strong>Total Vendor's Payable: {{$totalcarrying_bill + $totalscale_fee - $totaladvance}}</strong>
                       </td>
-                    </tr>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                  </tr>
                 </tfoot>
             </table>
 
@@ -219,7 +219,8 @@
 @section('script')
 <script>
     $(function () {
-
+      const topTitle = `Mother Vessel: {{ $motherVassel->name ?? 'N/A' }}\nVendor: {{ $vendor->name ?? 'N/A' }}\nSequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}`;
+      const bottomFooter = `Total Vendor's Payable: {{ number_format($totalcarrying_bill + $totalscale_fee - $totaladvance, 2) }}`;
 
       $("#example1").DataTable({
         responsive: true,
@@ -230,32 +231,52 @@
             extend: 'copy',
             footer: true,
             title: 'Vendor Report',
-            messageTop: 'Vendor: {{ $vendor->name ?? "N/A" }}\nSequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}'
+            messageTop: topTitle,
+            messageBottom: bottomFooter,
           },
           {
             extend: 'csv',
             footer: true,
             title: 'Vendor Report',
-            messageTop: 'Vendor: {{ $vendor->name ?? "N/A" }} | Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}'
+            messageTop: topTitle,
+            messageBottom: bottomFooter,
           },
           {
-            extend: 'excel',
+            extend: 'excelHtml5',
             footer: true,
             title: 'Vendor Report',
-            messageTop: 'Vendor: {{ $vendor->name ?? "N/A" }}\nSequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}'
+            messageTop: function () {
+              return 'Mother Vessel: {{ $motherVassel->name ?? "N/A" }}\n' +' | '+
+                    'Vendor: {{ $vendor->name ?? "N/A" }}\n'  +' | '+
+                    'Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}';
+            },
+            messageBottom: bottomFooter,
           },
+
           {
             extend: 'pdf',
             footer: true,
             title: 'Vendor Report',
-            messageTop: 'Vendor: {{ $vendor->name ?? "N/A" }}\nSequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}',
+            messageTop: topTitle,
             customize: function (doc) {
+              // Insert title in the center manually for PDF
               doc.content.splice(0, 0, {
                 alignment: 'center',
                 margin: [0, 0, 0, 12],
                 text: [
+                  { text: 'Mother Vessel: {{ $motherVassel->name ?? "N/A" }}\n', fontSize: 12 },
                   { text: 'Vendor: {{ $vendor->name ?? "N/A" }}\n', fontSize: 12 },
-                  { text: 'Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}', fontSize: 10 }
+                  { text: 'Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}\n\n', fontSize: 12 }
+                ]
+              });
+
+              // Add footer manually
+              doc.content.push({
+                alignment: 'center',
+                margin: [0, 20, 0, 0],
+                text: [
+                  { text: 'Total Fuel Amount: {{ $totalfuelamount }} | Total Fuel Qty: {{ $totalfuelqty }}\n', fontSize: 10 },
+                  { text: 'Total Vendor\'s Payable: {{ $totalcarrying_bill + $totalscale_fee - $totaladvance }}', fontSize: 10 }
                 ]
               });
             }
@@ -263,25 +284,28 @@
           {
             extend: 'print',
             footer: true,
-            title: 'Vendor Report',
-            messageTop: '<div style="text-align: center; margin-bottom: 20px;"><h4>Vendor: {{ $vendor->name ?? "N/A" }}</h4><h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}</h5></div>'
+            title: '',
+            messageTop: function () {
+              return `
+                <div style="text-align: center; margin-bottom: 20px;">
+                  <h4>Mother Vessel: {{ $motherVassel->name ?? "N/A" }}</h4>
+                  <h5>Vendor: {{ $vendor->name ?? "N/A" }}</h5>
+                  <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}</h5>
+                </div>`;
+            },
+            messageBottom: function () {
+              return `
+                <div style="text-align: center; margin-top: 20px;">
+                  <strong>Total Fuel Amount: {{ $totalfuelamount }} | Total Fuel Qty: {{ $totalfuelqty }}</strong><br>
+                  <strong>Total Vendor's Payable: {{ $totalcarrying_bill + $totalscale_fee - $totaladvance }}</strong>
+                </div>`;
+            }
           }
         ],
         lengthMenu: [[100, -1, 50, 25], [100, "All", 50, 25]]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
-
-      
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
     });
+
 </script>
 
 <script>
