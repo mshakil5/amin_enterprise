@@ -108,14 +108,14 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="ref" class="control-label">Reference</label>
                                 <input type="text" name="ref" class="form-control" id="ref">
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="transaction_type" class="control-label">Transaction Type</label>
                                 <select class="form-control" id="transaction_type" name="transaction_type">
@@ -129,10 +129,22 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="client_id" class="control-label">Client</label>
+                                <select class="form-control" id="client_id" name="client_id">
+                                    <option value="">Select client</option>
+                                    @foreach (\App\Models\Client::where('status', 1)->select('id', 'name')->get() as $client)
+                                    <option value="{{$client->id}}">{{$client->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="mother_vassel_id" class="control-label">Mother Vessel</label>
-                                <select class="form-control select2" id="mother_vassel_id" name="mother_vassel_id">
+                                <select class="form-control" id="mother_vassel_id" name="mother_vassel_id">
                                     <option value="">Select Mother Vessel</option>
                                     @foreach (\App\Models\MotherVassel::where('status', 1)->select('id', 'name')->get() as $mv)
                                     <option value="{{$mv->id}}">{{$mv->name}}</option>
@@ -140,6 +152,8 @@
                                 </select>
                             </div>
                         </div>
+
+
                     </div>
 
                     <div class="row">
@@ -321,6 +335,7 @@
             }
         },
         deferRender: true,
+        order: [[1, 'desc']], // Order by the 'date' column in descending order
         columns: [{
                 data: 'tran_id',
                 name: 'tran_id'
@@ -412,6 +427,7 @@
 
                     $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
                     $('#chart_of_account_id').val(response.chart_of_account_id);
+                    $('#client_id').val(response.client_id);
 
                     if (response.payment_type == 'Account Payable') {
                         $('#showpayable').show();

@@ -87,6 +87,7 @@ class ExpenseController extends Controller
         $transaction->tran_id = strtoupper(Str::random(2)) . date('Y') . str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->client_id = $request->input('client_id');
         $transaction->table_type = $request->input('table_type');
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
@@ -119,6 +120,7 @@ class ExpenseController extends Controller
             'id' => $transaction->id,
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
+            'client_id' => $transaction->client_id,
             'ref' => $transaction->ref,
             'transaction_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
@@ -160,6 +162,7 @@ class ExpenseController extends Controller
 
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->client_id = $request->input('client_id');
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');
