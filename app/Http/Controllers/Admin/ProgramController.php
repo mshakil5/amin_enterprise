@@ -523,7 +523,7 @@ class ProgramController extends Controller
                 $data->fueltoken = $fueltokens[$key];
                 $data->fuelamount = $fuel_rates[$key] * $fuelqtys[$key];
                 $data->amount = $fuelAmnt + $cashamounts[$key];
-                $data->date = date('Y-m-d');
+                $data->date = $request->input('newDate');
                 $data->save();
 
                 if ($cashamounts[$key] > 0) {
