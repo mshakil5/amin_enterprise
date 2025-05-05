@@ -59,7 +59,15 @@
                     <td style="text-align: left">
                         Carrying bill
                     </td>
-                    <td style="text-align: center">{{$carryingQty}}</td>
+                    <td style="text-align: center">
+                      @if ($carryingQty > 0)
+                        <a href="{{ route('admin.program.details', ['vendor_id' => $vendors->id, 'mvassel_id' => $mvassels->id]) }}" class="btn btn-block btn-info btn-xs">
+                          <span>{{ $carryingQty }}</span>
+                        </a>
+                      @else
+                        <span>{{ $carryingQty }}</span>
+                      @endif
+                    </td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center">{{$tripCount}}</td>
                     <td style="text-align: center"></td>

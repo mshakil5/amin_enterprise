@@ -149,6 +149,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // program
     Route::get('/program', [ProgramController::class, 'allPrograms'])->name('admin.allProgram');
     Route::get('/program/{id}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
+    Route::get('/programdetails', [ProgramController::class, 'vendorWiseProgramDetails'])->name('admin.program.details');
     Route::get('/program-vendor/{id}', [ProgramController::class, 'programVendor'])->name('admin.programVendorList');
     Route::get('/program-edit/{id}', [ProgramController::class, 'programEdit'])->name('admin.programEdit');
     Route::get('/program-details-edit/{id}', [ProgramController::class, 'programDetailsEdit'])->name('admin.programDetailsEdit');

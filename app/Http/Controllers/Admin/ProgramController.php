@@ -81,6 +81,26 @@ class ProgramController extends Controller
         return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName'));
     }
 
+    public function vendorWiseProgramDetails(Request $request)
+    {
+        $vid = $request->vendor_id;
+        $mid = $request->mvassel_id;
+
+        $data = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('vendor_id', $vid)->where('mother_vassel_id', $mid)->get();
+        
+        $vendor = Vendor::select('id','name')->where('id',$vid)->first();
+        $motherVesselName = MotherVassel::where('id', $mid)->first()->name;
+
+        $duePaymentTransaction = Transaction::where('vendor_id', $vid)
+                                  ->where('mother_vassel_id', $mid)
+                                  ->where('description', 'Carrying Bill')
+                                  ->where('tran_type', 'Due Payment')
+                                  ->select('amount')
+                                  ->sum('amount');
+        $missingHeaderIds = collect([]);
+        return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','mid', 'vid', 'duePaymentTransaction', 'missingHeaderIds'));
+    }
+
     
     // getVendorAdvanceByDate
     public function getVendorAdvanceByDate(Request $request)

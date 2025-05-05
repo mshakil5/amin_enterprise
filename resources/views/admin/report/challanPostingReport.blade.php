@@ -207,6 +207,7 @@
 
 
 <!-- Main content -->
+@if (isset($missingHeaderIds) && $missingHeaderIds->count() > 0)  
 <section class="content" id="contentContainer">
     <div class="container-fluid">
       <div class="row">
@@ -328,6 +329,7 @@
     </div>
     <!-- /.container-fluid -->
 </section>
+@endif  
 <!-- /.content -->
 
 @endsection
