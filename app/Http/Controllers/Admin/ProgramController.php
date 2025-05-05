@@ -496,7 +496,7 @@ class ProgramController extends Controller
         foreach($vendorIds as $key => $value)
             {
                 $invdtl = new ProgramDetail();
-                $invdtl->date = date('Y-m-d');
+                $invdtl->date = $request->input('newDate');
                 $invdtl->program_id = $program->id;
                 $invdtl->programid = $program->programid;
                 $invdtl->consignmentno = $program->consignmentno;
@@ -537,7 +537,7 @@ class ProgramController extends Controller
                     $transaction->amount = $cashamounts[$key];
                     $transaction->tran_type = "Advance";
                     $transaction->payment_type = "Cash";
-                    $transaction->date = date('Y-m-d');
+                    $transaction->date = $request->input('newDate');
                     $transaction->save();
                     $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                     $transaction->save();
@@ -554,7 +554,7 @@ class ProgramController extends Controller
                     $transaction->amount = $fuelAmnt;
                     $transaction->tran_type = "Advance";
                     $transaction->payment_type = "Fuel";
-                    $transaction->date = date('Y-m-d');
+                    $transaction->date = $request->input('newDate');
                     $transaction->save();
                     $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                     $transaction->save();

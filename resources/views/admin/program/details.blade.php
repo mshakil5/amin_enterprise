@@ -108,6 +108,11 @@
                                           @endif </b></p>
                                           
                                       </div>
+
+                                      <div class="form-group col-md-4">
+                                          <label>New Date <span class="text-danger">*</span></label>
+                                          <input type="date" name="newDate" class="form-control" value="{{ date('Y-m-d') }}" id="newDate" required>
+                                      </div>
                                   </div>
                               </div>
                           </div>
