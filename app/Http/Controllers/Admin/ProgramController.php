@@ -1046,7 +1046,7 @@ class ProgramController extends Controller
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan found.</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program, 'prgmdtls'=>$prgmdtls, 'prate'=>$prate]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program, 'prgmdtls'=>$prgmdtls, 'prate'=>$prate, 'program_detail_id'=>$chkprgmid->id, 'chkprgmid' => $chkprgmid]);
 
 
         } else {
@@ -1054,10 +1054,11 @@ class ProgramController extends Controller
 
             $program = 'empty';
             $data = 'empty';
+            $chkprgmid = 'empty';
 
             $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan No not  found.</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program, 'program_detail_id'=> $chkprgmid]);
         }
         
     }
@@ -1257,6 +1258,32 @@ class ProgramController extends Controller
         
     }
 
+
+
+    public function singleProgramdetailUpdate(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($request->all(), [
+            'program_detail_id' => 'required',
+        ]);
+        
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
+
+        $progrm = ProgramDetail::find($request->program_detail_id);
+        $progrm->lighter_vassel_id = $request->lighter_vassel_id;
+        $progrm->ghat_id = $request->ghat_id;
+        $progrm->save();
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data updated</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message]);
+        
+        
+    }
 
 
 }

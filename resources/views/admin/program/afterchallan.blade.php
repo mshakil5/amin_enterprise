@@ -107,6 +107,18 @@
                                             <label for="consignmentno">Consignment Number</label>
                                             <input type="text" class="form-control" id="consignmentno" name="consignmentno" >
                                         </div>
+
+                                        <div class="form-group col-md-4">
+                                            <label for="mother_vassel_id">Mother Vassel</label>
+                                            
+                                            <select name="mother_vassel_id" id="mother_vassel_id" class="form-control">
+                                              <option value="">Select</option>
+                                              @foreach ($mvassels as $mvassel)
+                                              <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
+                                              @endforeach
+                                            </select>
+                                            
+                                        </div>
                                         
         
                                         
@@ -120,17 +132,7 @@
 
                                         
         
-                                        <div class="form-group col-md-4">
-                                            <label for="mother_vassel_id">Mother Vassel</label>
-                                            
-                                            <select name="mother_vassel_id" id="mother_vassel_id" class="form-control">
-                                              <option value="">Select</option>
-                                              @foreach ($mvassels as $mvassel)
-                                              <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
-                                              @endforeach
-                                            </select>
-                                            
-                                        </div>
+                                        
                                         <div class="form-group col-md-4">
                                             <label for="lighter_vassel_id">Lighter Vassel </label>
                                             
@@ -154,6 +156,19 @@
                                             </select>
                                             
                                         </div>
+
+                                        <div class="form-group col-md-4">
+                                            <input type="hidden" id="program_detail_id" >
+                                            <label for="">Update </label> <br>
+                                            <button type="button" id="updatebtn" form="" class="btn btn-secondary">Update</button>
+                                            <div id="loader" style="display: none;">
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                Loading...
+                                            </div>
+                                            
+                                        </div>
+
+                                        
         
                                     </div>
                                 </div>
@@ -595,9 +610,10 @@
                         $("#addadvThisForm").show();
                         $("#headerDiv").hide();
                         // $("#totalAmount").val(response.totalAmount);
+                        $("#program_detail_id").val(response.program_detail_id);
                         $("#mother_vassel_id").val(response.program.mother_vassel_id);
                         $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
-                        $("#ghat_id").val(response.program.ghat_id);
+                        $("#ghat_id").val(response.chkprgmid.ghat_id);
                         $("#consignmentno").val(response.program.consignmentno);
                         $(".ermsg").html(response.message);
                         $('#programTable tbody').append(response.data);
@@ -762,6 +778,57 @@
                 }
             });
         });
+
+
+
+         $(document).on('click', '#updatebtn', function(e) {
+            e.preventDefault();
+
+            $(this).attr('disabled', true);
+            $('#loader').show();
+            
+            var formData = new FormData($('#addadvThisForm')[0]);
+            formData.append("mother_vassel_id", $('#mother_vassel_id').val());
+            formData.append("lighter_vassel_id", $('#lighter_vassel_id').val());
+            formData.append("ghat_id", $('#ghat_id').val());
+            formData.append("program_detail_id", $('#program_detail_id').val());
+
+            $.ajax({
+                url: '{{ route("single-programdetail-update") }}',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // console.log(response);
+                    if (response.status == 400) {
+                        $(".ermsg").html(response.message);
+                    } else {
+                        
+                        $(".ermsg").html(response.message);
+                        setTimeout(function() {
+                            $('.ermsg').fadeOut('slow');
+                        }, 2000);
+                        window.setTimeout(function(){location.reload()},2000)
+                    }
+
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                    // console.error(xhr.responseText);
+                },
+                complete: function() {
+                    $('#loader').hide();
+                    $('#addBtn').attr('disabled', false);
+                }
+            });
+        });
+
+
 
     });
 </script>

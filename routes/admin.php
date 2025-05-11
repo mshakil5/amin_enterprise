@@ -167,6 +167,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     // program after challan store
     Route::post('/program-after-challan-store', [ProgramController::class, 'afterPostProgramStore'])->name('after-challan-store');
+    Route::post('/single-programdetail-update', [ProgramController::class, 'singleProgramdetailUpdate'])->name('single-programdetail-update');
 
     // billing
     Route::get('/bill', [TransactionController::class,'getBill'])->name('admin.getBill');
