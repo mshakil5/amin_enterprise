@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class ProgramController extends Controller
 {
@@ -810,6 +811,144 @@ class ProgramController extends Controller
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
 
         return response()->json(['status'=> 300,'message'=>$message,'all'=>$alldata]);
+    }
+
+
+    public function programUpdate_new(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'client_id' => 'required',
+                'mother_vassel_id' => 'required',
+                'ghat_id' => 'required',
+                'vendor_id.*' => 'required',
+                'truck_number.*' => 'required',
+                'challan_no.*' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $errorMessage = "<div class='alert alert-warning'><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+                return response()->json(['status' => 400, 'message' => $errorMessage]);
+            }
+
+            $program = Program::find($request->pid);
+            if (!$program) {
+                return response()->json(['status' => 404, 'message' => "<div class='alert alert-danger'>Program not found.</div>"]);
+            }
+
+            $program->update([
+                'date' => $request->input('date'),
+                'client_id' => $request->input('client_id'),
+                'mother_vassel_id' => $request->input('mother_vassel_id'),
+                'lighter_vassel_id' => $request->input('lighter_vassel_id'),
+                'ghat_id' => $request->input('ghat_id'),
+                'consignmentno' => $request->input('consignmentno'),
+                'note' => $request->input('note', null),
+                'created_by' => auth()->id(),
+            ]);
+
+            $fields = [
+                'vendor_id', 'truck_number', 'challan_no', 'fuelqty',
+                'cashamount', 'fuel_rate', 'fueltoken', 'petrol_pump_id',
+                'program_detail_id', 'advancePaymentId'
+            ];
+
+            foreach ($request->input('vendor_id') as $key => $vendorId) {
+                $data = [];
+                foreach ($fields as $field) {
+                    $data[$field] = $request->input($field)[$key] ?? null;
+                }
+
+                $programDetail = isset($data['program_detail_id']) ? ProgramDetail::find($data['program_detail_id']) : new ProgramDetail();
+                if (!$programDetail) {
+                    continue;
+                }
+
+                $programDetail->fill([
+                    'date' => $request->input('date'),
+                    'program_id' => $program->id,
+                    'consignmentno' => $request->input('consignmentno'),
+                    'mother_vassel_id' => $request->input('mother_vassel_id'),
+                    'lighter_vassel_id' => $request->input('lighter_vassel_id'),
+                    'client_id' => $request->input('client_id'),
+                    'ghat_id' => $request->input('ghat_id'),
+                    'vendor_id' => $vendorId,
+                    'truck_number' => $data['truck_number'],
+                    'challan_no' => $data['challan_no'],
+                    'updated_by' => auth()->id(),
+                ])->save();
+
+                // Advance Payment
+                $fuelAmnt = ($data['fuel_rate'] ?? 0) * ($data['fuelqty'] ?? 0);
+                $adv = isset($data['advancePaymentId']) ? AdvancePayment::find($data['advancePaymentId']) : new AdvancePayment();
+                if ($adv) {
+                    $adv->fill([
+                        'program_id' => $program->id,
+                        'program_detail_id' => $programDetail->id,
+                        'vendor_id' => $vendorId,
+                        'cashamount' => $data['cashamount'],
+                        'petrol_pump_id' => $data['petrol_pump_id'],
+                        'fuel_rate' => $data['fuel_rate'],
+                        'fuelqty' => $data['fuelqty'],
+                        'fueltoken' => $data['fueltoken'],
+                        'fuelamount' => $fuelAmnt,
+                        'amount' => $fuelAmnt + ($data['cashamount'] ?? 0),
+                        'date' => date('Y-m-d'),
+                    ])->save();
+                }
+
+                // Transactions
+                if ($data['cashamount'] > 0) {
+                    $trans = Transaction::where('program_detail_id', $programDetail->id)
+                        ->where('payment_type', 'Cash')->first() ?? new Transaction();
+                    $trans->fill([
+                        'client_id' => $request->input('client_id'),
+                        'mother_vassel_id' => $request->input('mother_vassel_id'),
+                        'program_id' => $program->id,
+                        'program_detail_id' => $programDetail->id,
+                        'vendor_id' => $vendorId,
+                        'challan_no' => $data['challan_no'],
+                        'amount' => $data['cashamount'],
+                        'tran_type' => 'Advance',
+                        'payment_type' => 'Cash',
+                        'date' => date('Y-m-d'),
+                    ])->save();
+                    $trans->tran_id = 'RT' . date('ymd') . str_pad($trans->id, 4, '0', STR_PAD_LEFT);
+                    $trans->save();
+                }
+
+                if ($fuelAmnt > 0) {
+                    $trans = Transaction::where('program_detail_id', $programDetail->id)
+                        ->where('payment_type', 'Fuel')->first() ?? new Transaction();
+                    $trans->fill([
+                        'client_id' => $request->input('client_id'),
+                        'mother_vassel_id' => $request->input('mother_vassel_id'),
+                        'program_id' => $program->id,
+                        'program_detail_id' => $programDetail->id,
+                        'vendor_id' => $vendorId,
+                        'challan_no' => $data['challan_no'],
+                        'amount' => $fuelAmnt,
+                        'tran_type' => 'Advance',
+                        'payment_type' => 'Fuel',
+                        'date' => date('Y-m-d'),
+                    ])->save();
+                    $trans->tran_id = 'FT' . date('ymd') . str_pad($trans->id, 4, '0', STR_PAD_LEFT);
+                    $trans->save();
+                }
+            }
+
+            return response()->json([
+                'status' => 300,
+                'message' => "<div class='alert alert-success'><b>Data Updated Successfully.</b></div>",
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Program Update Failed: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => "<div class='alert alert-danger'><b>Error:</b> {$e->getMessage()}</div>"
+            ]);
+        }
     }
 
     public function prgmDelete($id)

@@ -11,6 +11,16 @@ class Program extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $fillable = [
+        'client_id',
+        'mother_vassel_id',
+        'lighter_vassel_id',
+        'ghat_id',
+        'program_date',
+        'description',
+        'status',
+    ];
+
     public function client()
     {
         return $this->belongsTo(Client::class);

@@ -11,6 +11,20 @@ class ProgramDetail extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $fillable = [
+        'vendor_id',
+        'destination_id',
+        'ghat_id',
+        'client_id',
+        'mother_vassel_id',
+        'program_name',
+        'start_date',
+        'end_date',
+        'status',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
     protected $guarded = [];
 
     public function vendor()

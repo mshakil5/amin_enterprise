@@ -404,10 +404,66 @@
 <!-- update Program Start -->
 <script>
     $(document).ready(function() {
+        // $(document).on('click', '#updateBtn', function(e) {
+        //     e.preventDefault();
+
+        //     $(this).attr('disabled', true);
+        //     $('#loader').show();
+
+        //     var formData = new FormData($('#updateThisForm')[0]);
+
+        //     $.ajax({
+        //         url: '{{ route("programUpdate") }}',
+        //         method: 'POST',
+        //         data: formData,
+        //         contentType: false,
+        //         processData: false,
+        //         cache: false,
+        //         headers: {
+        //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        //         },
+        //         success: function(response) {
+                    
+        //             // console.log(response);
+
+
+        //             swal({
+        //                 text: "Updated successfully",
+        //                 icon: "success",
+        //                 button: {
+        //                     text: "OK",
+        //                     className: "swal-button--confirm"
+        //                 }
+        //             }).then(() => {
+        //                 location.reload();
+        //             });
+        //         },
+        //         error: function(xhr, status, error) {
+        //             // console.log(xhr.responseJSON.message);
+        //             // console.error(xhr.responseText);
+
+        //             let errorMessage = 'An unknown error occurred';
+        //             if (xhr.responseJSON && xhr.responseJSON.message) {
+        //                 errorMessage = xhr.responseJSON.message;
+        //             }
+        //             console.log(errorMessage); // Or handle the error however your app does
+
+
+
+        //         },
+        //         complete: function() {
+        //             $('#loader').hide();
+        //             $('#addBtn').attr('disabled', false);
+        //         }
+        //     });
+        // });
+
+
         $(document).on('click', '#updateBtn', function(e) {
             e.preventDefault();
 
-            $(this).attr('disabled', true);
+            let $btn = $(this);
+            $btn.prop('disabled', true);
             $('#loader').show();
 
             var formData = new FormData($('#updateThisForm')[0]);
@@ -423,8 +479,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    
-
                     console.log(response);
                     swal({
                         text: "Updated successfully",
@@ -437,13 +491,19 @@
                         location.reload();
                     });
                 },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseJSON.message);
-                    // console.error(xhr.responseText);
+                error: function(xhr) {
+                    let errorMessage = 'An unknown error occurred';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        errorMessage = xhr.responseText;
+                    }
+                    console.error('AJAX Error:', errorMessage);
+                    $('#responseDiv').html(errorMessage);
                 },
                 complete: function() {
                     $('#loader').hide();
-                    $('#addBtn').attr('disabled', false);
+                    $btn.prop('disabled', false);
                 }
             });
         });
