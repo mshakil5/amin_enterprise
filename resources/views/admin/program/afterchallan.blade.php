@@ -158,13 +158,7 @@
                                         </div>
 
                                         <div class="form-group col-md-4">
-                                            <input type="hidden" id="program_detail_id" >
-                                            <label for="">Update </label> <br>
-                                            <button type="button" id="updatebtn" form="" class="btn btn-secondary">Update</button>
-                                            <div id="loader" style="display: none;">
-                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Loading...
-                                            </div>
+                                            
                                             
                                         </div>
 
@@ -301,6 +295,14 @@
                                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                         Loading...
                                     </div>
+
+                                    <input type="hidden" id="program_detail_id" >
+                                            {{-- <label for="">Update </label> <br> --}}
+                                    <button type="button" id="updatebtn" form="" class="btn btn-secondary">Update</button>
+                                    <div id="loader" style="display: none;">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </div>
                                     
                                 </div>
 
@@ -375,6 +377,8 @@
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                     Loading...
                                 </div>
+
+                                
                             </div>
                             
                         </div>
@@ -786,8 +790,16 @@
 
             $(this).attr('disabled', true);
             $('#loader').show();
-            
+            var prgmdtlid = $('#program_detail_id').val();
             var formData = new FormData($('#addadvThisForm')[0]);
+            formData.append("vendor_id", $('#vendor_id'+prgmdtlid).val());
+            formData.append("truck_number", $('#truck_number'+prgmdtlid).val());
+            formData.append("fuelqty", $('#fuelqty'+prgmdtlid).val());
+            formData.append("fuel_rate", $('#fuel_rate'+prgmdtlid).val());
+            formData.append("fuel_amount", $('#fuel_amount'+prgmdtlid).val());
+            formData.append("amount", $('#amount'+prgmdtlid).val());
+            formData.append("fueltoken", $('#fueltoken'+prgmdtlid).val());
+
             formData.append("mother_vassel_id", $('#mother_vassel_id').val());
             formData.append("lighter_vassel_id", $('#lighter_vassel_id').val());
             formData.append("ghat_id", $('#ghat_id').val());
@@ -804,15 +816,12 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    // console.log(response);
+                    console.log(response);
                     if (response.status == 400) {
-                        $(".ermsg").html(response.message);
+                        $(".afterchallanmsg").html(response.message);
                     } else {
-                        
-                        $(".ermsg").html(response.message);
-                        setTimeout(function() {
-                            $('.ermsg').fadeOut('slow');
-                        }, 2000);
+                        console.log(response);
+                        $(".afterchallanmsg").html(response.message);
                         window.setTimeout(function(){location.reload()},2000)
                     }
 

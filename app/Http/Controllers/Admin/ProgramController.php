@@ -1398,8 +1398,79 @@ class ProgramController extends Controller
     }
 
 
-
     public function singleProgramdetailUpdate(Request $request)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'program_detail_id' => 'required',
+        ]);
+        
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
+
+        $prgmdtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
+        $prgm = Program::where('id', $prgmdtl->program_id)->first();
+
+        
+        $data = $request->all();
+
+        $fadv = AdvancePayment::find($request->advPmtid);
+        $fadv->vendor_id = $request->vendor_id;
+        $fadv->fuelqty = $request->fuelqty;
+        $fadv->fuel_rate = $request->fuel_rate;
+        $fadv->fueltoken = $request->fueltoken;
+        $fadv->fuelamount = $request->fuelqty * $request->fuel_rate;
+        $fadv->amount = $fadv->fuelamount + $fadv->cashamount;
+        $fadv->save();
+
+        if ($request->fuelqty) {
+            $tran = Transaction::where('advance_payment_id',$request->advPmtid)->where('payment_type','=','Fuel')->first();
+            if (isset($tran)) {
+                $tran->vendor_id = $request->vendor_id;
+                $tran->amount = $request->amount;
+                $tran->save();
+            }else{
+                $transaction = new Transaction();
+                $transaction->client_id = $prgm->client_id;
+                $transaction->mother_vassel_id = $prgm->mother_vassel_id;
+                $transaction->lighter_vassel_id = $prgm->lighter_vassel_id;
+                $transaction->advance_payment_id = $request->advPmtid;
+                $transaction->program_id = $prgm->id;
+                $transaction->program_detail_id = $prgmdtl->id;
+                $transaction->vendor_id = $request->vendor_id;
+                $transaction->challan_no = $prgmdtl->challan_no;
+                $transaction->amount = $request->fuelqty * $request->fuel_rate;
+                $transaction->tran_type = "Advance";
+                $transaction->payment_type = "Fuel";
+                $transaction->date = date('Y-m-d');
+                $transaction->save();
+                $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                $transaction->save();
+            }
+        }
+
+        $progrm = ProgramDetail::find($request->prgmdtlid);
+        $progrm->ghat_id = $prgm->ghat_id;
+        $progrm->truck_number = $request->truck_number; 
+        $progrm->challan_no = $prgmdtl->challan_no;
+        $progrm->additional_cost = $request->additionalCost;
+        $progrm->advance = $fadv->amount; 
+        $progrm->rate_status = 0;
+        $progrm->save();
+
+            
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data updated.</b></div>";
+
+        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data]);
+        
+        
+    }
+
+
+    public function singleProgramdetailUpdate_old(Request $request)
     {
         $data = $request->all();
 
@@ -1417,9 +1488,12 @@ class ProgramController extends Controller
         $progrm->ghat_id = $request->ghat_id;
         $progrm->save();
 
+
+
+
         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data updated</b></div>";
 
-        return response()->json(['status'=> 300,'message'=>$message]);
+        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data]);
         
         
     }
