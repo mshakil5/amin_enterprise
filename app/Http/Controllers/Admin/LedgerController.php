@@ -160,9 +160,14 @@ class LedgerController extends Controller
 
             // dd($request->all());
 
-            $program = ProgramDetail::with('advancePayment')->where('vendor_id', $request->vendor_id)->where('mother_vassel_id', $request->mv_id)->get();
+            $program = ProgramDetail::with('advancePayment')
+                        ->where('vendor_id', $request->vendor_id)
+                        ->where('mother_vassel_id', $request->mv_id)
+                        ->when($request->input('ghat_id'), function ($query) use ($request) {
+                            $query->where('ghat_id', $request->input('ghat_id'));
+                        })
+                        ->get();
 
-            
             $pdids = $program->pluck('id')->toArray();
 
             $cashAdv = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('cashamount');

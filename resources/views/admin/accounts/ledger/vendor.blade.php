@@ -49,6 +49,17 @@
                                               @endforeach
                                             </select>
                                         </div>
+
+                                        <div class="form-group col-md-3">
+                                            <label for="ghat_id">Ghat </label>
+                                            <select name="ghat_id" id="ghat_id" class="form-control select2">
+                                              <option value="">Select</option>
+                                              @foreach (\App\Models\Ghat::where('status', 1)->orderby('id', 'DESC')->get() as $ghat)
+                                              <option value="{{$ghat->id}}">{{$ghat->name}}</option>
+                                              @endforeach
+                                            </select>
+                                        </div>
+
                                         <div class="form-group col-md-3">
                                             <label>Action</label> <br>
                                             <button type="submit" class="btn btn-secondary">Check</button>
