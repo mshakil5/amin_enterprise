@@ -67,6 +67,9 @@
                       @else
                         <span>{{ $carryingQty }}</span>
                       @endif
+                        <br>
+                        <a href="{{route('challanPostingReport',['mid'=>$mvassels->id, 'vid' => $vendors->id])}}" class="btn btn-xs btn-success">list</a>
+
                     </td>
                     <td style="text-align: center"></td>
                     <td style="text-align: center">{{$tripCount}}</td>
