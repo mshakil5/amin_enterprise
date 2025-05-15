@@ -6,7 +6,7 @@
 <section class="content pt-3" id="contentContainer">
     <div class="container-fluid">
         <div class="row justify-content-md-center">
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <div class="card card-secondary">
                     <div class="card-header">
                         <h3 class="card-title" id="cardTitle">After challan receive posting program</h3>
@@ -22,7 +22,7 @@
                                 <div class="col-sm-12">
                                     
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-3">
                                             <label for="mv_id">Mother Vassel </label>
                                             <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
@@ -31,6 +31,18 @@
                                               @endforeach
                                             </select>
                                         </div>
+
+                                        <div class="form-group col-md-3">
+                                            <label for="ghat_id">Ghat </label>
+                                            <select name="ghat_id" id="ghat_id" class="form-control select2">
+                                              <option value="">Select</option>
+                                              @foreach (\App\Models\Ghat::where('status', 1)->orderby('id', 'DESC')->get() as $ghat)
+                                              <option value="{{$ghat->id}}">{{$ghat->name}}</option>
+                                              @endforeach
+                                            </select>
+                                        </div>
+
+
                                         <div class="form-group col-md-6">
                                             <label>Action</label> <br>
                                             <button type="submit" class="btn btn-secondary">Check</button>

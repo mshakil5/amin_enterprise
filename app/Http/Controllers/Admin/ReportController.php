@@ -29,6 +29,9 @@ class ReportController extends Controller
                                         SUM(CASE WHEN dest_status = 0 THEN 1 ELSE 0 END) as challan_not_received_status
                                     ')
                                     ->where('mother_vassel_id', $request->mv_id)
+                                    ->when($request->input('ghat_id'), function ($query) use ($request) {
+                                        $query->where('ghat_id', $request->input('ghat_id'));
+                                    })
                                     ->groupBy('vendor_id')
                                     ->get();
 
