@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\FuelBill;
+use App\Models\MotherVassel;
 use Illuminate\Http\Request;
 use App\Models\PetrolPump;
 use Illuminate\Support\Facades\Auth;
@@ -174,7 +175,7 @@ class PumpController extends Controller
                                 '.$tran->vehicle_count.'
                             </td>
                             <td>
-                                '.$tran->unique_id.'
+                            <a class="btn btn-success btn-xs" href="'.route('admin.pump.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
                             </td>
                         </tr>';
                         
@@ -218,6 +219,17 @@ class PumpController extends Controller
         }
 
         return redirect()->back()->with('error', 'No record found for the given petrol pump and unique ID.');
+    }
+
+    // getVendorWiseProgramList
+    public function getPumpWiseProgramList($id)
+    {
+        $pumpSequenceNumber = FuelBill::where('id', $id)->first();
+        $pump = PetrolPump::where('id', $pumpSequenceNumber->petrol_pump_id)->first();
+        $data = ProgramDetail::where('fuel_bill_id', $id)->get();
+        $motherVasselId = optional($data->first())->mother_vassel_id;
+        $motherVassel  = MotherVassel::where('id', $motherVasselId)->first();
+        return view('admin.pump.fuelbill_wise_program_list', compact('data','pump','pumpSequenceNumber','motherVassel'));
     }
 
 }

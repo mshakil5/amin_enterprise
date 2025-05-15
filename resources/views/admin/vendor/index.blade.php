@@ -464,7 +464,7 @@
       var vsqurl = "{{URL::to('/admin/vendor-sequence')}}";
       $("#trantable tbody").on('click', '.seqDeleteBtn', function () {
           var id = $(this).data('rid');
-              console.log(id);
+              console.log("test" + id);
             if(!confirm('Sure?')) return;
 
             codeid = $(this).attr('rid');
