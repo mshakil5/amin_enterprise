@@ -120,11 +120,11 @@
                 <tbody>
                     @foreach (\App\Models\DestinationSlabRate::get() as $key => $data)
                     <tr>
-                        <td style="text-align: center">{{$data->ghat->name}}</td>
-                        <td style="text-align: center">{{$data->destination->name}}</td>
-                        <td style="text-align: center">{{$data->maxqty}}</td>
-                        <td style="text-align: center">{{$data->below_rate_per_qty}}</td>
-                        <td style="text-align: center">{{$data->above_rate_per_qty}}</td>
+                        <td style="text-align: center">{{$data->ghat->name ?? ""}}</td>
+                        <td style="text-align: center">{{$data->destination->name ?? ""}}</td>
+                        <td style="text-align: center">{{$data->maxqty ?? ""}}</td>
+                        <td style="text-align: center">{{$data->below_rate_per_qty ?? ""}}</td>
+                        <td style="text-align: center">{{$data->above_rate_per_qty ?? ""}}</td>
                         <td style="text-align: center">
                           <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                           <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
