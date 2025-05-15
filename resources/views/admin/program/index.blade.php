@@ -53,26 +53,26 @@
                     <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                     <td style="text-align: center">
                       @if (isset($data->client_id))
-                      {{$data->client->name}}
+                      {{$data->client->name ?? ""}}
                       @endif
                     </td>
                     <td style="text-align: center">{{$data->programid}}</td>
                     <td style="text-align: center">
                       @if (isset($data->mother_vassel_id))
-                        {{$data->motherVassel->name}}
+                        {{$data->motherVassel->name ?? ""}}
                       @endif
                     </td>
                     <td style="text-align: center">
                       @if ($data->lighter_vassel_id)
-                        {{$data->lighterVassel->name}}
+                        {{$data->lighterVassel->name ?? ""}}
                       @endif
                     </td>
                     <td style="text-align: center">
                       @if ($data->ghat_id)
-                        {{$data->ghat->name}}
+                        {{$data->ghat->name ?? ""}}
                       @endif
                     </td>
-                    <td style="text-align: center">{{$data->consignmentno}}</td>
+                    <td style="text-align: center">{{$data->consignmentno ?? ""}}</td>
                     <td style="text-align: center">
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
 
