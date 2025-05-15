@@ -104,7 +104,7 @@
 
                                           
                                           <p><b>  @if (isset($data->ghat_id))
-                                              {{\App\Models\Ghat::where('id', $data->ghat_id)->first()->name}}
+                                              {{\App\Models\Ghat::where('id', $data->ghat_id)->first()->name ?? ""}}
                                           @endif </b></p>
                                           
                                       </div>
