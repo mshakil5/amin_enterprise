@@ -190,7 +190,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" name="truck_number[]" value="{{$pdtl->truck_number}}" >
+                                            <input type="text" class="form-control" name="truck_number[]" value="{{strtoupper($pdtl->truck_number)}}" >
                                         </td>
                                         <td>
                                             <input type="number" class="form-control" name="challan_no[]" value="{{$pdtl->challan_no}}" >
@@ -389,6 +389,24 @@
 
 @endsection
 @section('script')
+
+<script>
+  $(document).ready(function () {
+    function calculateAmounts() {
+      let cashAmount = parseFloat($('#modal_cashamount').val()) || 0;
+      let fuelQty = parseFloat($('#modal_fuelqty').val()) || 0;
+      let fuelRate = parseFloat($('#modal_fuel_rate').val()) || 0;
+
+      let fuelAmount = fuelQty * fuelRate;
+      let totalAmount = cashAmount + fuelAmount;
+
+      $('#modal_fuel_amount').val(fuelAmount.toFixed(2));
+      $('#modal_amount').val(totalAmount.toFixed(2));
+    }
+
+    $('#modal_cashamount, #modal_fuelqty, #modal_fuel_rate').on('input', calculateAmounts);
+  });
+</script>
 
 <script>
 $(document).on('click', '.edit-btn', function() {

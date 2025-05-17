@@ -117,7 +117,7 @@
                                   <tr>
                                     <td style="text-align: center">{{ $key + 1 }}</td>
                                     <td style="text-align: center">{{$data->vendor->name}}</td>
-                                    <td style="text-align: center">{{$data->truck_number}}</td>
+                                    <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
                                     <td style="text-align: center">{{$data->challan_no}}</td>
                                     <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
                                     <td style="text-align: center">{{$data->dest_qty}}</td>

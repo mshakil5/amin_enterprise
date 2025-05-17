@@ -66,7 +66,7 @@
                     <td style="text-align: center">{{$data->header_id}}</td>
                     <td style="text-align: center">{{$data->bill_no}}</td>
                     <td style="text-align: center">{{$data->date}}</td>
-                    <td style="text-align: center">{{$data->truck_number}}</td>
+                    <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
                     <td style="text-align: center">{{$data->destination}}-{{$data->from_location }}</td>
                     <td style="text-align: center">{{$data->to_location}}</td>
                     <td style="text-align: center">{{$data->shipping_method}}</td>

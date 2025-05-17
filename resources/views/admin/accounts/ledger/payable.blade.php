@@ -113,7 +113,7 @@
                                             <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
                                             <td>{{ $data->client->name ?? 'N/A' }} </td>
                                             <td>{{ $data->motherVassel->name ?? 'N/A'  }}</td>
-                                            <td>{{ $data->truck_number }}</td>
+                                            <td>{{ strtoupper($data->truck_number) }}</td>
                                             <td>{{ $data->challan_no }}</td>
                                             <td>{{ $data->ghat->name ?? " " }}-{{$data->destination->name ?? " " }}</td>
                                             <td>{{ $data->dest_qty }}</td>
