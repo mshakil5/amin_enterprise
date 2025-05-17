@@ -813,6 +813,73 @@ class ProgramController extends Controller
         return response()->json(['status'=> 300,'message'=>$message,'all'=>$alldata]);
     }
 
+    public function updateSingleRow(Request $request)
+    {
+        $request->validate([
+            'program_detail_id' => 'required|exists:program_details,id',
+            'advance_payment_id' => 'required|exists:advance_payments,id',
+            'vendor_id' => 'required|exists:vendors,id',
+            'truck_number' => 'required|string',
+            'challan_no' => 'required|numeric',
+            'cashamount' => 'nullable|numeric',
+            'fuelqty' => 'nullable|numeric',
+            'fuel_rate' => 'nullable|numeric',
+            'petrol_pump_id' => 'nullable|exists:petrol_pumps,id',
+            'fueltoken' => 'nullable|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $programDetail = ProgramDetail::findOrFail($request->program_detail_id);
+            $programDetail->vendor_id = $request->vendor_id;
+            $programDetail->truck_number = $request->truck_number;
+            $programDetail->challan_no = $request->challan_no;
+            $programDetail->updated_by = auth()->id();
+            $programDetail->save();
+
+            $fuelAmount = ($request->fuel_rate ?? 0) * ($request->fuelqty ?? 0);
+            $advancePayment = AdvancePayment::findOrFail($request->advance_payment_id);
+            $advancePayment->vendor_id = $request->vendor_id;
+            $advancePayment->cashamount = $request->cashamount ?? 0;
+            $advancePayment->petrol_pump_id = $request->petrol_pump_id;
+            $advancePayment->fuel_rate = $request->fuel_rate ?? 0;
+            $advancePayment->fuelqty = $request->fuelqty ?? 0;
+            $advancePayment->fueltoken = $request->fueltoken;
+            $advancePayment->fuelamount = $fuelAmount;
+            $advancePayment->amount = ($request->cashamount ?? 0) + $fuelAmount;
+            $advancePayment->save();
+
+            $cashTran = Transaction::where('program_detail_id', $request->program_detail_id)
+                ->where('payment_type', 'Cash')
+                ->first();
+
+            if ($cashTran) {
+                $cashTran->vendor_id = $request->vendor_id;
+                $cashTran->challan_no = $request->challan_no;
+                $cashTran->amount = $request->cashamount ?? 0;
+                $cashTran->save();
+            }
+
+            $fuelTran = Transaction::where('program_detail_id', $request->program_detail_id)
+                ->where('payment_type', 'Fuel')
+                ->first();
+
+            if ($fuelTran) {
+                $fuelTran->vendor_id = $request->vendor_id;
+                $fuelTran->challan_no = $request->challan_no;
+                $fuelTran->amount = $fuelAmount;
+                $fuelTran->save();
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
 
     public function programUpdate_new(Request $request)
     {

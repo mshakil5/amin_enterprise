@@ -166,6 +166,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/change-quantity', [ProgramController::class, 'changeQuantity'])->name('changeQuantity');
     Route::post('/undo-change-quantity', [ProgramController::class, 'undoChangeQuantity'])->name('undoChangeQuantity');
 
+    Route::post('program/update-single-row', [ProgramController::class, 'updateSingleRow'])->name('admin.program.update-single-row');
+
     // program after challan store
     Route::post('/program-after-challan-store', [ProgramController::class, 'afterPostProgramStore'])->name('after-challan-store');
     Route::post('/single-programdetail-update', [ProgramController::class, 'singleProgramdetailUpdate'])->name('single-programdetail-update');

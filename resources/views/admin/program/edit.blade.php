@@ -16,6 +16,15 @@
 
 
   <section class="content pt-3" id="addThisFormContainer">
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
     <div class="container-fluid">
         <div class="row justify-content-md-center">
             <div class="col-md-12">
@@ -224,6 +233,24 @@
                                             {{-- <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button> --}}
                                                 
                                             @endif
+
+                                            <button type="button" class="btn btn-sm btn-primary edit-btn" 
+                                                data-id="{{ $pdtl->id }}"
+                                                data-vendor_id="{{ $pdtl->vendor_id }}"
+                                                data-truck_number="{{ $pdtl->truck_number }}"
+                                                data-challan_no="{{ $pdtl->challan_no }}"
+                                                data-cashamount="{{ $pdtl->advancePayment->cashamount ?? '' }}"
+                                                data-fuelqty="{{ $pdtl->advancePayment->fuelqty ?? '' }}"
+                                                data-fuel_rate="{{ $pdtl->advancePayment->fuel_rate ?? '' }}"
+                                                data-fuel_amount="{{ $pdtl->advancePayment->fuelamount ?? '' }}"
+                                                data-fueltoken="{{ $pdtl->advancePayment->fueltoken ?? '' }}"
+                                                data-petrol_pump_id="{{ $pdtl->advancePayment->petrol_pump_id ?? '' }}"
+                                                data-amount="{{ $pdtl->advancePayment->amount ?? '' }}"
+                                                data-advance_payment_id="{{ $pdtl->advancePayment->id ?? '' }}"
+                                                data-toggle="modal" data-target="#editModal">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
                                         </td>
                                     </tr>
                                     @endforeach
@@ -255,11 +282,132 @@
 </section>
 
 
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Edit Program Detail</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{{ route('admin.program.update-single-row') }}" method="POST">
+        @csrf
+        <div class="modal-body">
+          <input type="hidden" name="program_detail_id" id="program_detail_id">
+          <input type="hidden" name="advance_payment_id" id="advance_payment_id">
 
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Vendor</label>
+                <select class="form-control" name="vendor_id" id="modal_vendor_id">
+                  <option value="">Select Vendor</option>
+                  @foreach ($vendors as $vendor)
+                    <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Truck Number</label>
+                <input type="text" class="form-control" name="truck_number" id="modal_truck_number">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Challan No</label>
+                <input type="number" class="form-control" name="challan_no" id="modal_challan_no">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Cash Amount</label>
+                <input type="number" class="form-control" name="cashamount" id="modal_cashamount" readonly>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Fuel Quantity</label>
+                <input type="number" class="form-control" name="fuelqty" id="modal_fuelqty">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Fuel Rate</label>
+                <input type="number" class="form-control" name="fuel_rate" id="modal_fuel_rate">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Fuel Amount</label>
+                <input type="number" class="form-control" name="fuel_amount" id="modal_fuel_amount">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Fuel Token</label>
+                <input type="number" class="form-control" name="fueltoken" id="modal_fueltoken">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Petrol Pump</label>
+                <select name="petrol_pump_id" class="form-control" id="modal_petrol_pump_id">
+                  <option value="">Select</option>
+                  @foreach ($pumps as $pump)
+                    <option value="{{ $pump->id }}">{{ $pump->name }}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Total Amount</label>
+            <input type="number" class="form-control" name="amount" id="modal_amount">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 @endsection
 @section('script')
 
+<script>
+$(document).on('click', '.edit-btn', function() {
+  $('#program_detail_id').val($(this).data('id'));
+  $('#advance_payment_id').val($(this).data('advance_payment_id'));
+  $('#modal_vendor_id').val($(this).data('vendor_id'));
+  $('#modal_truck_number').val($(this).data('truck_number'));
+  $('#modal_challan_no').val($(this).data('challan_no'));
+  $('#modal_cashamount').val($(this).data('cashamount'));
+  $('#modal_fuelqty').val($(this).data('fuelqty'));
+  $('#modal_fuel_rate').val($(this).data('fuel_rate'));
+  $('#modal_fuel_amount').val($(this).data('fuel_amount'));
+  $('#modal_fueltoken').val($(this).data('fueltoken'));
+  $('#modal_petrol_pump_id').val($(this).data('petrol_pump_id'));
+  $('#modal_amount').val($(this).data('amount'));
+
+  $('#editModal').modal('show');
+});
+</script>
 
   <!-- Dynamic Row Script -->
   <script>
