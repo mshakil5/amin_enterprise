@@ -327,7 +327,7 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label>Cash Amount</label>
-                <input type="number" class="form-control" name="cashamount" id="modal_cashamount" readonly>
+                <input type="number" class="form-control" name="cashamount" id="modal_cashamount">
               </div>
             </div>
           </div>

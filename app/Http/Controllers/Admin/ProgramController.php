@@ -838,6 +838,8 @@ class ProgramController extends Controller
             $programDetail->updated_by = auth()->id();
             $programDetail->save();
 
+            $program = Program::where('id', $programDetail->program_id)->first();
+
             $fuelAmount = ($request->fuel_rate ?? 0) * ($request->fuelqty ?? 0);
             $advancePayment = AdvancePayment::findOrFail($request->advance_payment_id);
             $advancePayment->vendor_id = $request->vendor_id;
@@ -850,27 +852,65 @@ class ProgramController extends Controller
             $advancePayment->amount = ($request->cashamount ?? 0) + $fuelAmount;
             $advancePayment->save();
 
-            $cashTran = Transaction::where('program_detail_id', $request->program_detail_id)
-                ->where('payment_type', 'Cash')
-                ->first();
+            if ($request->cashamount) {
+                $cashTran = Transaction::where('program_detail_id', $request->program_detail_id)
+                            ->where('payment_type', 'Cash')
+                            ->first();
 
-            if ($cashTran) {
-                $cashTran->vendor_id = $request->vendor_id;
-                $cashTran->challan_no = $request->challan_no;
-                $cashTran->amount = $request->cashamount ?? 0;
-                $cashTran->save();
+                if ($cashTran) {
+                    $cashTran->vendor_id = $request->vendor_id;
+                    $cashTran->challan_no = $request->challan_no;
+                    $cashTran->amount = $request->cashamount ?? 0;
+                    $cashTran->save();
+                }else {
+                    $transaction = new Transaction();
+                    $transaction->client_id = $program->client_id;
+                    $transaction->mother_vassel_id = $program->mother_vassel_id;
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $request->program_detail_id;
+                    $transaction->vendor_id = $request->vendor_id;
+                    $transaction->challan_no = $request->challan_no;
+                    $transaction->amount = $request->cashamount ?? 0;
+                    $transaction->tran_type = "Advance";
+                    $transaction->payment_type = "Cash";
+                    $transaction->date = date('Y-m-d');
+                    $transaction->save();
+                    $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+                }
             }
 
-            $fuelTran = Transaction::where('program_detail_id', $request->program_detail_id)
-                ->where('payment_type', 'Fuel')
-                ->first();
+            
 
-            if ($fuelTran) {
-                $fuelTran->vendor_id = $request->vendor_id;
-                $fuelTran->challan_no = $request->challan_no;
-                $fuelTran->amount = $fuelAmount;
-                $fuelTran->save();
+            if ($request->fuelqty) {
+                $fuelTran = Transaction::where('program_detail_id', $request->program_detail_id)
+                            ->where('payment_type', 'Fuel')
+                            ->first();
+
+                if ($fuelTran) {
+                    $fuelTran->vendor_id = $request->vendor_id;
+                    $fuelTran->challan_no = $request->challan_no;
+                    $fuelTran->amount = $fuelAmount;
+                    $fuelTran->save();
+                }else {
+                    
+                    $transaction = new Transaction();
+                    $transaction->client_id = $program->client_id;
+                    $transaction->mother_vassel_id = $program->mother_vassel_id;
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $request->program_detail_id;
+                    $transaction->vendor_id = $request->vendor_id;
+                    $transaction->challan_no = $request->challan_no; 
+                    $transaction->amount = $fuelAmount;
+                    $transaction->tran_type = "Advance";
+                    $transaction->payment_type = "Fuel";
+                    $transaction->date = date('Y-m-d');
+                    $transaction->save();
+                    $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+                }
             }
+            
 
             DB::commit();
 
