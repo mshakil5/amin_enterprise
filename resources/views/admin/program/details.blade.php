@@ -575,6 +575,91 @@
 @section('script')
 
 <script>
+
+$(document).ready(function () {
+
+    let selectedRows = {}; // key = program_detail_id, value = checkbox data
+
+    let selectedPumpId = null;
+
+    $('.petrol-checkbox').on('change', function () {
+        const checkbox = $(this);
+        const programDetailId = checkbox.data('program-detail-id');
+        const pumpId = checkbox.data('pump-id');
+        const fuelBills = checkbox.data('fuel-bills');
+        const qty = parseFloat(checkbox.data('qty')) || 0;
+
+        if (this.checked) {
+            // Ensure only one pump ID is selected
+            if (!selectedPumpId) {
+                selectedPumpId = pumpId;
+            } else if (selectedPumpId !== pumpId) {
+                alert('Only same petrol pump can be selected!');
+                checkbox.prop('checked', false);
+                return;
+            }
+
+            selectedRows[programDetailId] = {
+                pumpId: pumpId,
+                fuelBills: fuelBills,
+                qty: qty
+            };
+        } else {
+            delete selectedRows[programDetailId];
+
+            if (Object.keys(selectedRows).length === 0) {
+                selectedPumpId = null;
+            }
+        }
+
+        // Update UI
+        const selectedCount = Object.keys(selectedRows).length;
+        if (selectedCount > 0) {
+            $('#pump-form-row').show();
+
+            $('#petrol_pump_id').val(selectedPumpId);
+
+            // Use fuelBills from the last checked checkbox (this is optional logic)
+            let optionsHtml = `<option value="">Select Unique ID</option>`;
+            fuelBills.forEach(fb => {
+                optionsHtml += `<option value="${fb.unique_id}">
+                    ${fb.unique_id} - ${fb.petrol_pump.name} - ${fb.qty}L - Bill#${fb.bill_number}
+                </option>`;
+            });
+            $('#unique-id-display').html(optionsHtml);
+
+            let totalQty = 0;
+            const selectedIds = [];
+
+            Object.keys(selectedRows).forEach(id => {
+                totalQty += selectedRows[id].qty;
+                selectedIds.push(id);
+            });
+
+            $('#total_qty').val(totalQty);
+            $('#program_detail_ids').val(JSON.stringify(selectedIds));
+            console.log(selectedIds);
+        } else {
+            $('#pump-form-row').hide();
+            $('#unique-id-display').empty();
+            $('#total_qty').val('');
+            $('#program_detail_ids').val('');
+        }
+    });
+
+    $('#example1').on('draw.dt', function () {
+        $('.petrol-checkbox').each(function () {
+            const programId = $(this).data('program-detail-id');
+            if (selectedRows[programId]) {
+                $(this).prop('checked', true);
+            }
+        });
+    });
+});
+
+</script>
+
+{{-- <script>
   $(document).ready(function () {
       let selectedPumpId = null;
 
@@ -631,7 +716,7 @@
         });
 
   });
-</script>
+</script> --}}
   
 <script>
     $(function () {
