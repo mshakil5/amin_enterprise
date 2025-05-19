@@ -145,8 +145,14 @@
                     <td>{{$data->role->name ?? ''}}</td>
                     
                     <td style="text-align: center">
-                      <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
-                      <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
+
+                      @if (Auth::user()->id == $data->id)
+                        <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
+                      @endif
+
+                      {{-- <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a> --}}
+
+
                     </td>
                   </tr>
                   @endforeach
@@ -228,19 +234,7 @@
                     if (d.status == 303) {
                         $(".ermsg").html(d.message);
                     }else if(d.status == 300){
-
-                      $(function() {
-                          var Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                          });
-                          Toast.fire({
-                            icon: 'success',
-                            title: 'Data create successfully.'
-                          });
-                        });
+                        $(".ermsg").html(d.message);
                       window.setTimeout(function(){location.reload()},2000)
                     }
                 },
@@ -275,18 +269,7 @@
                           $(".ermsg").html(d.message);
                           pagetop();
                       }else if(d.status == 300){
-                        $(function() {
-                          var Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                          });
-                          Toast.fire({
-                            icon: 'success',
-                            title: 'Data updated successfully.'
-                          });
-                        });
+                          $(".ermsg").html(d.message);
                           window.setTimeout(function(){location.reload()},2000)
                       }
                   },
