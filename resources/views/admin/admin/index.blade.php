@@ -327,6 +327,7 @@
           $("#addBtn").html('Update');
           $("#addThisFormContainer").show(300);
           $("#newBtn").hide(100);
+          $("#role_id").hide();
       }
       function clearform(){
           $('#createThisForm')[0].reset();
