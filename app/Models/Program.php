@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Program extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory, LogsActivity , SoftDeletes;
 
     protected $fillable = [
         'client_id',
@@ -20,6 +21,17 @@ class Program extends Model
         'description',
         'status',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->logExcept(['updated_at'])
+            ->setDescriptionForEvent(fn(string $eventName) => "Program was {$eventName}")
+            ->useLogName('program');
+    }
 
     public function client()
     {

@@ -5,27 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProgramDetail extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
-
-    protected $fillable = [
-        'vendor_id',
-        'destination_id',
-        'ghat_id',
-        'client_id',
-        'mother_vassel_id',
-        'program_name',
-        'start_date',
-        'end_date',
-        'status',
-        'created_at',
-        'updated_at',
-        'deleted_at',
-    ];
+    use HasFactory, LogsActivity, SoftDeletes;
     protected $guarded = [];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->logExcept(['updated_at'])
+            ->setDescriptionForEvent(fn(string $eventName) => "Program detail was {$eventName}")
+            ->useLogName('program_detail');
+    }
 
     public function vendor()
     {
