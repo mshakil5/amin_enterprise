@@ -1314,7 +1314,7 @@ class ProgramController extends Controller
 
     public function checkSlabRate(Request $request)
     {
-        $vsno = VendorSequenceNumber::where('qty', '>', 0)->where('vendor_id', $request->vendor)->get();
+        $vsno = VendorSequenceNumber::where('status', 1)->where('vendor_id', $request->vendor)->get();
         $challanqty = $request->challanqty;
         $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
 
