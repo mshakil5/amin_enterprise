@@ -300,7 +300,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label>Vendor</label>
+                <label>Vendor</label> <br>
                 <select class="form-control" name="vendor_id" id="modal_vendor_id">
                   <option value="">Select Vendor</option>
                   @foreach ($vendors as $vendor)
@@ -375,7 +375,7 @@
 
           <div class="form-group">
             <label>Total Amount</label>
-            <input type="number" class="form-control" name="amount" id="modal_amount">
+            <input type="number" class="form-control" name="amount" id="modal_amount" readonly>
           </div>
         </div>
         <div class="modal-footer">
