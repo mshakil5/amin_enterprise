@@ -1216,6 +1216,7 @@ class ProgramController extends Controller
     public function checkChallan(Request $request)
     {
         
+        session()->put('mv_id', $request->mv_id);
         $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('rate_status',0)->where('challan_no', $request->challan_no)->where('mother_vassel_id', $request->mv_id)->first();
         
         if ($chkprgmid) {
@@ -1383,6 +1384,7 @@ class ProgramController extends Controller
             'prgmdtlid' => 'required',
             'destid' => 'required',
             'headerid' => 'required',
+            'sequence_id' => 'required',
         ]);
         
         if ($validator->fails()) {

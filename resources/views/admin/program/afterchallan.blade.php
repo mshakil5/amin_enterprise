@@ -51,9 +51,12 @@
                                             <label for="mv_id">Mother Vassel<span style="color: red;">*</span> </label>
                                             <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
-                                              @foreach ($mvassels as $mvassel)
-                                              <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
-                                              @endforeach
+                                                @foreach ($mvassels as $mvassel)
+                                                    <option value="{{ $mvassel->id }}" 
+                                                        {{ session('mv_id') == $mvassel->id ? 'selected' : '' }}>
+                                                        {{ $mvassel->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         {{-- <div class="form-group col-md-2">
