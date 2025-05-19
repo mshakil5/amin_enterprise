@@ -19,15 +19,15 @@
               <h5 class="text-center">{{$mvassels->name}}</h5>
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
-                <tr>
-                  <th>Particular</th>
-                  <th>Qty</th>
-                  <th>Ltr</th>
-                  <th>Trip</th>
-                  <th>Dr.</th>
-                  <th>Cr.</th>
-                  <th>Balance</th>
-                </tr>
+                  <tr>
+                    <th>Particular</th>
+                    <th>Qty</th>
+                    <th>Ltr</th>
+                    <th>Trip</th>
+                    <th>Dr.</th>
+                    <th>Cr.</th>
+                    <th>Balance</th>
+                  </tr>
                 </thead>
                 <tbody>
                     
@@ -127,9 +127,29 @@
                   </tr>
                 
                 </tbody>
+
+
+                <tbody>
+                  <tr>
+                    <td>
+                      Vendor sequence id: 
+                    </td>
+                    <td colspan="6">
+                      @foreach ($vendorSequence as $vendorSequenceitem)
+                          <a class="btn btn-xs btn-success" href="{{route('admin.vendor.sequence.show', $vendorSequenceitem->id)}}">{{$vendorSequenceitem->unique_id}}</a>
+                      @endforeach
+                    </td>
+                  </tr>
+                </tbody>
+
+
+
               </table>
             </div>
             <!-- /.card-body -->
+
+
+
           </div>
           <!-- /.card -->
         </div>
@@ -144,7 +164,7 @@
 @endsection
 
 @section('script')
-{{-- <script>
+<script>
   $(document).ready(function() {
     $('#example1').DataTable({
       dom: 'Bfrtip',
@@ -153,5 +173,5 @@
       ]
     });
   });
-</script> --}}
+</script>
 @endsection

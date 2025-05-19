@@ -10,6 +10,7 @@ use App\Models\MotherVassel;
 use App\Models\ProgramDetail;
 use App\Models\Transaction;
 use App\Models\Vendor;
+use App\Models\VendorSequenceNumber;
 use Illuminate\Http\Request;
 
 class LedgerController extends Controller
@@ -169,6 +170,10 @@ class LedgerController extends Controller
                         ->get();
 
             $pdids = $program->pluck('id')->toArray();
+            $vendorSequenceIDs = $program->pluck('vendor_sequence_number_id')->toArray();
+
+            $vendorSequence = VendorSequenceNumber::whereIn('id', $vendorSequenceIDs)->where('vendor_id', $request->vendor_id)->get();
+
 
             $cashAdv = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('cashamount');
             $fuelAdv = AdvancePayment::whereIn('program_detail_id', $pdids)->sum('fuelamount');
@@ -183,7 +188,7 @@ class LedgerController extends Controller
             // dd($cashAdv);
             $vendors = Vendor::where('id', $request->vendor_id)->first();
             $mvassels = MotherVassel::where('id', $request->mv_id)->first();
-            return view('admin.accounts.ledger.vendorVasselReport', compact('mvassels', 'vendors','fuelAdv','scalecost','carryingBill','carryingQty','line_charge','cashAdv','tripCount','fuelQty'));
+            return view('admin.accounts.ledger.vendorVasselReport', compact('mvassels', 'vendors','fuelAdv','scalecost','carryingBill','carryingQty','line_charge','cashAdv','tripCount','fuelQty','vendorSequence'));
         }
         
     }
