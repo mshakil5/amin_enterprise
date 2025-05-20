@@ -81,11 +81,16 @@
             <!-- /.card-header -->
             <div class="card-body">
 
+
+              @foreach ($data as $motherVassel => $pdtl)
+                  
+
               <div style="text-align: center; margin-bottom: 20px;">
                 <h4>Pump: {{ $pump->name ?? 'N/A' }}</h4>
                 <h5>Sequence Number: {{ $pumpSequenceNumber->unique_id ?? 'N/A' }}</h5>
-                <h5>Mother Vessel: {{ $motherVassel->name ?? 'N/A' }}</h5>
+                <h5>Mother Vessel: {{ $motherVassel ?? 'N/A' }}</h5>
               </div>
+
 
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
@@ -115,24 +120,22 @@
                 </thead>
                 <tbody>
                         @php
-                                $totalfuelamount = 0;
-                                $totalfuelqty = 0;
-                                $totalcarrying_bill = 0;
-                                $totaladvance = 0;
-                                $totalother_cost = 0;
-                                $totalscale_fee = 0;
-                                $totalline_charge = 0;
-                                $totaldest_qty = 0;
+                            $totalfuelamount = 0;
+                            $totalfuelqty = 0;
+                            $totalcarrying_bill = 0;
+                            $totaladvance = 0;
+                            $totalother_cost = 0;
+                            $totalscale_fee = 0;
+                            $totalline_charge = 0;
+                            $totaldest_qty = 0;
                         @endphp
-                    @foreach ($data as $key => $data)
+                    @foreach ($pdtl as $key => $data)
                     <tr>
                         <td style="text-align: center">{{ $key + 1 }}</td>
                         <td style="text-align: center">
-
                             <label class="form-checkbox  grid layout">
                                 <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
                             </label>
-
                         </td>
 
                         @php
@@ -142,6 +145,8 @@
                                     ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
                                 : collect();
                         @endphp
+
+
                         <td style="text-align: center">
                             <label class="form-checkbox grid layout">
                               <input type="checkbox" class="petrol-checkbox custom-checkbox" 
@@ -152,6 +157,8 @@
                               @if($data->fuel_bill_id) checked disabled @endif>
                             </label>
                         </td>
+
+                        
                         <td style="text-align: center">{{$data->bill_no}}</td>
                         <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                         <td style="text-align: center">{{$data->vendor->name}}</td>
@@ -226,13 +233,11 @@
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
                   </tr>
-
-                  
-
                 </tfoot>
-            </table>
+              </table>
 
 
+              @endforeach
 
               
             </div>

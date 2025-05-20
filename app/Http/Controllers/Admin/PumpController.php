@@ -226,10 +226,23 @@ class PumpController extends Controller
     {
         $pumpSequenceNumber = FuelBill::where('id', $id)->first();
         $pump = PetrolPump::where('id', $pumpSequenceNumber->petrol_pump_id)->first();
-        $data = ProgramDetail::where('fuel_bill_id', $id)->get();
-        $motherVasselId = optional($data->first())->mother_vassel_id;
-        $motherVassel  = MotherVassel::where('id', $motherVasselId)->first();
-        return view('admin.pump.fuelbill_wise_program_list', compact('data','pump','pumpSequenceNumber','motherVassel'));
+        $pdtls = ProgramDetail::where('fuel_bill_id', $id)->get();
+
+        $motherVasselIds = $pdtls->pluck('mother_vassel_id')->unique()->filter()->toArray();
+        
+        $motherVassels = MotherVassel::whereIn('id', $motherVasselIds)->get();
+
+        // Group ProgramDetails by mother_vassel_id
+        $data = ProgramDetail::where('fuel_bill_id', $id)
+            ->get()
+            ->groupBy(function ($item) use ($motherVassels) {
+            $motherVassel = $motherVassels->where('id', $item->mother_vassel_id)->first();
+            return $motherVassel ? $motherVassel->name : 'Unknown';
+            });
+
+    
+
+        return view('admin.pump.fuelbill_wise_program_list', compact('data','pump','pumpSequenceNumber'));
     }
 
 }
