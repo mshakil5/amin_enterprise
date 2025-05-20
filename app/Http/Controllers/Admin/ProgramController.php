@@ -45,7 +45,7 @@ class ProgramController extends Controller
             'programDetail as not_generate_bill_count' => function ($query) {
                 $query->where('generate_bill', 0);
             }
-        ])->orderby('id','DESC')->get();
+        ])->where('status', 1)->orderby('id','DESC')->get();
 
         // dd( $data );
 
