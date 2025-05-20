@@ -81,6 +81,17 @@
             <!-- /.card-header -->
             <div class="card-body">
 
+              @php
+                  $totalfuelamount = 0;
+                  $totalfuelqty = 0;
+                  $totalcarrying_bill = 0;
+                  $totaladvance = 0;
+                  $totalother_cost = 0;
+                  $totalscale_fee = 0;
+                  $totalline_charge = 0;
+                  $totaldest_qty = 0;
+              @endphp
+
 
               @foreach ($data as $motherVassel => $pdtl)
                   
@@ -119,16 +130,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                        @php
-                            $totalfuelamount = 0;
-                            $totalfuelqty = 0;
-                            $totalcarrying_bill = 0;
-                            $totaladvance = 0;
-                            $totalother_cost = 0;
-                            $totalscale_fee = 0;
-                            $totalline_charge = 0;
-                            $totaldest_qty = 0;
-                        @endphp
+                        
                     @foreach ($pdtl as $key => $data)
                     <tr>
                         <td style="text-align: center">{{ $key + 1 }}</td>
@@ -158,7 +160,7 @@
                             </label>
                         </td>
 
-                        
+
                         <td style="text-align: center">{{$data->bill_no}}</td>
                         <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                         <td style="text-align: center">{{$data->vendor->name}}</td>
@@ -210,11 +212,11 @@
                         <td style="text-align: center">{{$totalline_charge}}</td>
                         <td style="text-align: center">{{$totalscale_fee}}</td>
                         <td style="text-align: center">{{$totalother_cost}}</td>
-                        <td style="text-align: center">{{$totaladvance}}</td>
+                        <td style="text-align: center">{{$totaladvance - $totalfuelamount}}</td>
                         <td style="text-align: center">{{$totalfuelqty}}</td>
                         <td style="text-align: center">{{$totalfuelamount}}</td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
+                        <td style="text-align: center"><b>Total adv:</b></td>
+                        <td style="text-align: center"><b>{{$totaladvance}}</b></td>
                     </tr>
                     <tr>
                       <td style="text-align: center"></td>
@@ -439,12 +441,11 @@
                 },
                 success: function(response) {
 
-                        console.log(response);
                     if (response.status == 400) {
                         $(".ermsg").html(response.message);
                     } else {
                         $(".ermsg").html(response.message);
-                        // window.setTimeout(function(){location.reload()},2000)
+                        window.setTimeout(function(){location.reload()},2000)
                     }
 
                     
