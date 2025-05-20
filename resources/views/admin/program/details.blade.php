@@ -935,6 +935,13 @@ $(document).ready(function () {
                         <h4>Mother Vessel: ${response.program.mother_vassel.name}</h4>
                         <h4>Details of vendor advances for the selected date: ${selectedDate}</h4>
                     `);
+
+                    // Destroy the old DataTable instance
+                    if ($.fn.DataTable.isDataTable('#example3')) {
+                        $('#example3').DataTable().destroy();
+                    }
+
+
                     // Process the response and update the table
                     var tbody = $('#example3 tbody');
                     tbody.empty();
@@ -963,6 +970,54 @@ $(document).ready(function () {
                         <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_amount, 0)}</th>
                     </tr>`;
                     tfoot.append(totalRow);
+
+
+                    // Re-initialize DataTable
+                    $('#example3').DataTable({
+                        "responsive": true,
+                        "lengthChange": false,
+                        "autoWidth": false,
+                        "destroy": true,
+                        "buttons": [
+                            {
+                                extend: 'copy',
+                                title: 'Vendor Advance Summary'
+                            },
+                            {
+                                extend: 'csv',
+                                title: 'Vendor Advance Summary'
+                            },
+                            {
+                                extend: 'excel',
+                                title: 'Vendor Advance Summary'
+                            },
+                            {
+                                extend: 'pdf',
+                                title: `Mother Vessel: ${response.program.mother_vassel.name}`,
+                                customize: function (doc) {
+                                    doc.content.splice(0, 0, {
+                                        text: 'Vendor Advance Summary',
+                                        style: 'header',
+                                        alignment: 'center'
+                                    });
+                                }
+                            },
+                            {
+                                extend: 'print',
+                                title: `Mother Vessel: ${response.program.mother_vassel.name}`,
+                                customize: function (win) {
+                                    $(win.document.body).prepend(
+                                        '<h1 style="text-align:center;">Vendor Advance Summary</h1>'
+                                    );
+                                }
+                            }
+                        ],
+                        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+                    }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
+
+
+
+
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseJSON.message);
