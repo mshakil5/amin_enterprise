@@ -1510,6 +1510,56 @@ class ProgramController extends Controller
     }
 
 
+
+
+    public function changeProgramFuelRate(Request $request)
+    {
+        
+        $validator = Validator::make($request->all(), [
+            'fuel_rate' => 'required',
+            'fuel_bill_id' => 'required',
+        ]);
+        
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
+
+        $prgmdtls = ProgramDetail::where('fuel_bill_id', $request->fuel_bill_id)->get();
+        $data = $request->all();
+
+        foreach ($prgmdtls as $key => $prgmdtl) {
+
+
+            $fadv = AdvancePayment::find($prgmdtl->advancePayment->id);
+            $fadv->fuel_rate = $request->fuel_rate;
+            $fadv->fuelamount = $fadv->fuelqty * $request->fuel_rate;
+            $fadv->amount = $fadv->fuelamount + $fadv->cashamount;
+            $fadv->save();
+
+            $progrm = ProgramDetail::find($prgmdtl->id);
+            $progrm->advance = $fadv->amount; 
+            $progrm->due = $progrm->carrying_bill + $progrm->additional_cost - $fadv->amount; 
+            $progrm->save();
+
+            if ($request->fuel_rate) {
+                $tran = Transaction::where('advance_payment_id', $fadv->id)->where('payment_type','=','Fuel')->first();
+                if (isset($tran)) {
+                    $tran->amount = $fadv->fuelamount; 
+                    $tran->save();
+                }
+            }
+
+
+        }
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Fuel rate change for this sequence id.</b></div>";
+        return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data]);
+        
+        
+    }
+
+
     public function singleProgramdetailUpdate(Request $request)
     {
         

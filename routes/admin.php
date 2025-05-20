@@ -172,6 +172,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/program-after-challan-store', [ProgramController::class, 'afterPostProgramStore'])->name('after-challan-store');
     Route::post('/single-programdetail-update', [ProgramController::class, 'singleProgramdetailUpdate'])->name('single-programdetail-update');
 
+    // change fuel rate from pump unique id
+    Route::post('/change-program-fuel-rate', [ProgramController::class, 'changeProgramFuelRate'])->name('change-program-fuel-rate');
+
     // billing
     Route::get('/bill', [TransactionController::class,'getBill'])->name('admin.getBill');
     Route::post('/check-bill', [TransactionController::class, 'checkBill'])->name('admin.checkBill');

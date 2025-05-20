@@ -39,6 +39,41 @@
         <div class="col-12">
           <!-- /.card -->
 
+          <div class="card card-secondary mb-3">
+            <div class="card-header">
+              <h3 class="card-title">Change all challan fuel rate</h3>
+            </div>
+            <!-- /.card-header -->
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="ermsg"></div>
+                <form id="rateChangeForm">
+                  @csrf
+
+
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <label>Fuel Rate*</label>
+                        <input type="number" name="fuel_rate" class="form-control" >
+                        <input type="number" name="fuel_bill_id" class="form-control" value="{{ $pumpSequenceNumber->id ?? '' }}" hidden>
+                      </div>
+                    </div>
+                  </div>
+
+                  
+                </form>
+              </div>
+
+              <!-- /.card-body -->
+              <div class="card-footer">
+                  <button type="button" id="frateBtn" class="btn btn-secondary">Submit</button>
+              </div>
+              <!-- /.card-footer -->
+          </div>
+
+
+
           <div class="card card-secondary">
             <div class="card-header">
               <h3 class="card-title">Trip list (Sequence wise)</h3>
@@ -130,7 +165,7 @@
                         <td style="text-align: center">{{$data->scale_fee}}</td>
                         <td style="text-align: center">{{$data->other_cost}}</td>
                         <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
+                        <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}} * {{$data->advancePayment->fuel_rate ?? ""}}</td>
                         <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
                         <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
                         <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
@@ -191,6 +226,9 @@
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
                   </tr>
+
+                  
+
                 </tfoot>
             </table>
 
@@ -378,7 +416,44 @@
     //
 
 
+        $(document).on('click', '#frateBtn', function(e) {
+            e.preventDefault();
 
+            var formData = new FormData($('#rateChangeForm')[0]);
+            
+
+            $.ajax({
+                url: '{{ route("change-program-fuel-rate") }}',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+
+                        console.log(response);
+                    if (response.status == 400) {
+                        $(".ermsg").html(response.message);
+                    } else {
+                        $(".ermsg").html(response.message);
+                        // window.setTimeout(function(){location.reload()},2000)
+                    }
+
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                    // console.error(xhr.responseText);
+                },
+                complete: function() {
+                    $('#loader').hide();
+                    $('#addBtn').attr('disabled', false);
+                }
+            });
+        });
           
 
 
