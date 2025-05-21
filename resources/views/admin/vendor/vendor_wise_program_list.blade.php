@@ -174,11 +174,11 @@
                         <td style="text-align: center">{{$totalline_charge}}</td>
                         <td style="text-align: center">{{$totalscale_fee}}</td>
                         <td style="text-align: center">{{$totalother_cost}}</td>
-                        <td style="text-align: center">{{$totaladvance}}</td>
+                        <td style="text-align: center">{{$totaladvance - $totalfuelamount}}</td>
                         <td style="text-align: center">{{$totalfuelqty}}</td>
                         <td style="text-align: center">{{$totalfuelamount}}</td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
+                        <td style="text-align: center"><b>Total adv:</b></td>
+                        <td style="text-align: center"><b>{{$totaladvance}}</b></td>
                     </tr>
                     <tr>
                       <td style="text-align: center"></td>
