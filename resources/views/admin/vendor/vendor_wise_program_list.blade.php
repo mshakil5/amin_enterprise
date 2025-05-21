@@ -68,7 +68,7 @@
                 <h5>Mother Vessel: {{ $motherVassel ?? 'N/A' }}</h5>
               </div>
 
-              <table id="example1" class="table table-bordered table-striped">
+              <table class="table table-bordered table-striped datatable">
                 <thead>
                 <tr>
                     <th>Sl</th>
@@ -225,96 +225,51 @@
 
 @endsection
 @section('script')
+
+
 <script>
     $(function () {
-      const topTitle = `Mother Vessel: {{ $motherVassel->name ?? 'N/A' }}\nVendor: {{ $vendor->name ?? 'N/A' }}\nSequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}`;
-      const bottomFooter = `Total Vendor's Payable: {{ number_format($totalcarrying_bill + $totalscale_fee - $totaladvance, 2) }}`;
+        $('.datatable').each(function (index) {
+            const table = $(this).DataTable({
+                responsive: true,
+                lengthChange: false,
+                autoWidth: false,
+                buttons: [
+                    {
+                        extend: 'copy',
+                        footer: true,
+                        title: 'Vendor Report',
+                    },
+                    {
+                        extend: 'csv',
+                        footer: true,
+                        title: 'Vendor Report',
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        footer: true,
+                        title: 'Vendor Report',
+                    },
+                    {
+                        extend: 'pdf',
+                        footer: true,
+                        title: 'Vendor Report',
+                    },
+                    {
+                        extend: 'print',
+                        footer: true,
+                        title: 'Vendor Report',
+                    }
+                ],
+                lengthMenu: [[100, -1, 50, 25], [100, "All", 50, 25]]
+            });
 
-      $("#example1").DataTable({
-        responsive: true,
-        lengthChange: false,
-        autoWidth: false,
-        buttons: [
-          {
-            extend: 'copy',
-            footer: true,
-            title: 'Vendor Report',
-            messageTop: topTitle,
-            messageBottom: bottomFooter,
-          },
-          {
-            extend: 'csv',
-            footer: true,
-            title: 'Vendor Report',
-            messageTop: topTitle,
-            messageBottom: bottomFooter,
-          },
-          {
-            extend: 'excelHtml5',
-            footer: true,
-            title: 'Vendor Report',
-            messageTop: function () {
-              return 'Mother Vessel: {{ $motherVassel->name ?? "N/A" }}\n' +' | '+
-                    'Vendor: {{ $vendor->name ?? "N/A" }}\n'  +' | '+
-                    'Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}';
-            },
-            messageBottom: bottomFooter,
-          },
-
-          {
-            extend: 'pdf',
-            footer: true,
-            title: 'Vendor Report',
-            messageTop: topTitle,
-            customize: function (doc) {
-              // Insert title in the center manually for PDF
-              doc.content.splice(0, 0, {
-                alignment: 'center',
-                margin: [0, 0, 0, 12],
-                text: [
-                  { text: 'Mother Vessel: {{ $motherVassel->name ?? "N/A" }}\n', fontSize: 12 },
-                  { text: 'Vendor: {{ $vendor->name ?? "N/A" }}\n', fontSize: 12 },
-                  { text: 'Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}\n\n', fontSize: 12 }
-                ]
-              });
-
-              // Add footer manually
-              doc.content.push({
-                alignment: 'center',
-                margin: [0, 20, 0, 0],
-                text: [
-                  { text: 'Total Fuel Amount: {{ $totalfuelamount }} | Total Fuel Qty: {{ $totalfuelqty }}\n', fontSize: 10 },
-                  { text: 'Total Vendor\'s Payable: {{ $totalcarrying_bill + $totalscale_fee - $totaladvance }}', fontSize: 10 }
-                ]
-              });
-            }
-          },
-          {
-            extend: 'print',
-            footer: true,
-            title: '',
-            messageTop: function () {
-              return `
-                <div style="text-align: center; margin-bottom: 20px;">
-                  <h4>Mother Vessel: {{ $motherVassel->name ?? "N/A" }}</h4>
-                  <h5>Vendor: {{ $vendor->name ?? "N/A" }}</h5>
-                  <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? "N/A" }}</h5>
-                </div>`;
-            },
-            messageBottom: function () {
-              return `
-                <div style="text-align: center; margin-top: 20px;">
-                  <strong>Total Fuel Amount: {{ $totalfuelamount }} | Total Fuel Qty: {{ $totalfuelqty }}</strong><br>
-                  <strong>Total Vendor's Payable: {{ $totalcarrying_bill + $totalscale_fee - $totaladvance }}</strong>
-                </div>`;
-            }
-          }
-        ],
-        lengthMenu: [[100, -1, 50, 25], [100, "All", 50, 25]]
-      }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            // Append buttons to each table's wrapper
+            table.buttons().container().appendTo($(this).closest('.dataTables_wrapper').find('.col-md-6:eq(0)'));
+        });
     });
-
 </script>
+
 
 <script>
   $(document).ready(function () {
