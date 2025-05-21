@@ -229,7 +229,7 @@
 
           <div class="card card-secondary">
             <div class="card-header">
-              <h3 class="card-title">Vendor trip list (Sequence wise)</h3>
+              <h3 class="card-title">Vendor trip list (Sequence wise all data ) </h3>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
