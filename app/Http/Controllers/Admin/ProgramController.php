@@ -1230,10 +1230,12 @@ class ProgramController extends Controller
             $program = Program::where('id', $chkprgmid->program_id)->first();
             $vendors = Vendor::select('id', 'name')->orderby('id', 'DESC')->get();
             $prop = '';
+            $ghatID = $chkprgmid->ghat_id;
+            
         
             foreach ($prgmdtls as $prgmdtl){
                 // <!-- Single Property Start -->
-
+                
                 if (isset($prgmdtl->destination_id)) {
                     $challanRate = ChallanRate::where('program_detail_id', $prgmdtl->id)->where('challan_no', $request->challan_no)->get();
 
@@ -1293,7 +1295,7 @@ class ProgramController extends Controller
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan found.</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program, 'prgmdtls'=>$prgmdtls, 'prate'=>$prate, 'program_detail_id'=>$chkprgmid->id, 'chkprgmid' => $chkprgmid]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program, 'prgmdtls'=>$prgmdtls, 'prate'=>$prate, 'program_detail_id'=>$chkprgmid->id, 'chkprgmid' => $chkprgmid, 'ghatID' => $ghatID]);
 
 
         } else {
@@ -1449,15 +1451,21 @@ class ProgramController extends Controller
         $progrm = ProgramDetail::find($request->prgmdtlid);
 
         //importent
-        if ($progrm->destination_id != $request->destid) {
-            $dltoldchallanrate = ChallanRate::where('challan_no', $progrm->challan_no)->where('program_detail_id', $progrm->id)->delete();
+        // Delete old challan rates if destination or ghat has changed
+        if (
+            $progrm->destination_id != $request->destid ||
+            $progrm->ghat_id != $request->ghat_id
+        ) {
+            ChallanRate::where('challan_no', $progrm->challan_no)
+                        ->where('program_detail_id', $progrm->id)
+                        ->delete();
         }
         //importent
 
         $progrm->after_date = date('Y-m-d');
         $progrm->vendor_sequence_number_id = $request->sequence_id;
         $progrm->destination_id = $request->destid;
-        $progrm->ghat_id = $prgm->ghat_id;
+        $progrm->ghat_id = $request->ghat_id;
         $progrm->program_id = $prgm->id;
         $progrm->vendor_id = $request->vendor_id; 
         $progrm->truck_number = $request->truck_number; 

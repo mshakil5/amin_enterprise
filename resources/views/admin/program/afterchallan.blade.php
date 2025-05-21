@@ -601,7 +601,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    // console.log(response);
+                    console.log(response);
                     if (response.data == "empty") {
 
                         $("#mother_vassel_id").val('');
@@ -620,7 +620,7 @@
                         $("#program_detail_id").val(response.program_detail_id);
                         $("#mother_vassel_id").val(response.program.mother_vassel_id);
                         $("#lighter_vassel_id").val(response.program.lighter_vassel_id);
-                        $("#ghat_id").val(response.chkprgmid.ghat_id);
+                        $("#ghat_id").val(response.ghatID);
                         $("#consignmentno").val(response.program.consignmentno);
                         $(".ermsg").html(response.message);
                         $('#programTable tbody').append(response.data);
@@ -738,12 +738,14 @@
         $(document).on('click', '#afterChallanBtn', function(e) {
             e.preventDefault();
 
-            // $(this).attr('disabled', true);
-            // $('#loader').show();
+            $(this).attr('disabled', true);
+            $('#loader').show();
+
             var prgmdtlid = $('#prgmdtlid').val();
+            var ghat_id = $('#ghat_id').val();
 
+            console.log(prgmdtlid);
 
-            // console.log(prgmdtlid, vendorid, truck_number, fuelqty, fuel_rate, fuel_amount, tamount, fueltoken, tamount,);
             var formData = new FormData($('#addadvThisForm')[0]);
             formData.append("vendor_id", $('#vendor_id'+prgmdtlid).val());
             formData.append("truck_number", $('#truck_number'+prgmdtlid).val());
@@ -752,6 +754,7 @@
             formData.append("fuel_amount", $('#fuel_amount'+prgmdtlid).val());
             formData.append("amount", $('#amount'+prgmdtlid).val());
             formData.append("fueltoken", $('#fueltoken'+prgmdtlid).val());
+            formData.append("ghat_id", $('#ghat_id').val());
 
             $.ajax({
                 url: '{{ route("after-challan-store") }}',
@@ -764,6 +767,8 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
+                    $('#loader').hide();
+                    $('#afterChallanBtn').attr('disabled', false);
 
                     if (response.status == 400) {
                         $(".afterchallanmsg").html(response.message);
@@ -776,12 +781,14 @@
                     
                 },
                 error: function(xhr, status, error) {
+                    $('#loader').hide();
+                    $('#afterChallanBtn').attr('disabled', false);
                     console.log(xhr.responseJSON.message);
                     // console.error(xhr.responseText);
                 },
                 complete: function() {
                     $('#loader').hide();
-                    $('#addBtn').attr('disabled', false);
+                    $('#afterChallanBtn').attr('disabled', false);
                 }
             });
         });
