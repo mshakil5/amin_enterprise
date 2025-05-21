@@ -233,8 +233,9 @@ class VendorController extends Controller
             return $motherVassel ? $motherVassel->name : 'Unknown';
             });
         
+        $alldata = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
 
         
-        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber'));
+        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber','alldata'));
     }
 }

@@ -220,7 +220,192 @@
 
 
 
+<!-- Main content -->
+<section class="content mt-3" id="newBtnSection">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <!-- /.card -->
 
+          <div class="card card-secondary">
+            <div class="card-header">
+              <h3 class="card-title">Vendor trip list (Sequence wise)</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+
+              
+
+             
+
+
+
+              <div style="text-align: center; margin-bottom: 20px;">
+                <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
+                <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
+              </div>
+
+              <table class="table table-bordered table-striped datatable">
+                <thead>
+                <tr>
+                    <th>Sl</th>
+                    <th>Bill Status</th>
+                    <th>Petrol Pump</th>
+                    <th>Bill No</th>
+                    <th>Date</th>
+                    <th>Vendor</th>
+                    <th>Header ID</th>
+                    <th>Truck Number</th>
+                    <th>Challan no</th>
+                    <th>Destination</th>
+                    <th>Qty</th>
+                    <th>Carring Bill</th>
+                    <th>Line Charge</th>
+                    <th>Scale fee</th>
+                    <th>Other Cost</th>
+                    <th>Cash Advance</th>
+                    <th>Fuel qty</th>
+                    <th>Fuel Amount</th>
+                    <th>Fuel token</th>
+                    <th>Pump name</th>
+                    {{-- <th>Action</th> --}}
+                </tr>
+                </thead>
+                <tbody>
+
+                     @php
+                        $alltotalfuelamount = 0;
+                        $alltotalfuelqty = 0;
+                        $alltotalcarrying_bill = 0;
+                        $alltotaladvance = 0;
+                        $alltotalother_cost = 0;
+                        $alltotalscale_fee = 0;
+                        $alltotalline_charge = 0;
+                        $alltotaldest_qty = 0;
+                    @endphp
+
+
+                    @foreach ($alldata as $key => $data)
+                    <tr>
+                        <td style="text-align: center">{{ $key + 1 }}</td>
+                        <td style="text-align: center">
+
+                            <label class="form-checkbox  grid layout">
+                                <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
+                            </label>
+
+                        </td>
+
+                        @php
+                            $fuelBills = $data->advancePayment->petrolPump ?? '' 
+                                ? \App\Models\FuelBill::with('petrolPump:id,name') // eager load name
+                                    ->where('petrol_pump_id', $data->advancePayment->petrolPump->id)
+                                    ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
+                                : collect();
+                        @endphp
+                        <td style="text-align: center">
+                            <label class="form-checkbox grid layout">
+                              <input type="checkbox" class="petrol-checkbox custom-checkbox" 
+                              data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
+                              data-fuel-bills='@json($fuelBills)'
+                              data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
+                              data-program-detail-id="{{ $data->id }}" 
+                              @if($data->fuel_bill_id) checked disabled @endif>
+                            </label>
+                        </td>
+                        <td style="text-align: center">{{$data->bill_no}}</td>
+                        <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
+                        <td style="text-align: center">{{$data->vendor->name}}</td>
+                        <td style="text-align: center">{{$data->headerid}}</td>
+                        <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
+                        <td style="text-align: center">{{$data->challan_no}}</td>
+                        <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                        <td style="text-align: center">{{$data->dest_qty}}</td>
+                        <td style="text-align: center">{{$data->carrying_bill}}</td>
+                        <td style="text-align: center">{{$data->line_charge}}</td>
+                        <td style="text-align: center">{{$data->scale_fee}}</td>
+                        <td style="text-align: center">{{$data->other_cost}}</td>
+                        <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
+                        <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
+                        <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
+                        <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
+                        <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
+
+                        @php
+                            $alltotalfuelamount += $data->advancePayment->fuelamount ?? 0;
+                            $alltotalfuelqty += $data->advancePayment->fuelqty ?? 0;
+                            $alltotalcarrying_bill += $data->carrying_bill ?? 0;
+                            $alltotaladvance += $data->advance ?? 0;
+                            $alltotalother_cost += $data->other_cost ?? 0;
+                            $alltotalscale_fee += $data->scale_fee ?? 0;
+                            $alltotalline_charge += $data->line_charge ?? 0;
+                            $alltotaldest_qty += $data->dest_qty ?? 0;
+                        @endphp
+
+                    </tr>
+                    @endforeach
+                
+                </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center">{{$alltotaldest_qty}}</td>
+                        <td style="text-align: center">{{$alltotalcarrying_bill}}</td>
+                        <td style="text-align: center">{{$alltotalline_charge}}</td>
+                        <td style="text-align: center">{{$alltotalscale_fee}}</td>
+                        <td style="text-align: center">{{$alltotalother_cost}}</td>
+                        <td style="text-align: center">{{$alltotaladvance - $alltotalfuelamount}}</td>
+                        <td style="text-align: center">{{$alltotalfuelqty}}</td>
+                        <td style="text-align: center">{{$alltotalfuelamount}}</td>
+                        <td style="text-align: center"><b>Total adv:</b></td>
+                        <td style="text-align: center"><b>{{$alltotaladvance}}</b></td>
+                    </tr>
+                    <tr>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"  colspan="8">
+                          <strong>Total Vendor's Payable: {{$alltotalcarrying_bill + $alltotalscale_fee - $alltotaladvance}}</strong>
+                      </td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                      <td style="text-align: center"></td>
+                  </tr>
+                </tfoot>
+              </table>
+
+
+
+
+              
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
 
 
 @endsection
