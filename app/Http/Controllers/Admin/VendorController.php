@@ -161,6 +161,8 @@ class VendorController extends Controller
         
             foreach ($data as $tran){
 
+                $programCount = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->count();
+
 
                 // <!-- Single Property Start -->
                 $prop.= '<tr>
@@ -171,7 +173,7 @@ class VendorController extends Controller
                                 '.$tran->qty.'
                             </td>
                             <td>
-                                '.$tran->markqty.'
+                                '.$programCount.'
                             </td>
                             <td>
                                 '.$tran->sequence.'
