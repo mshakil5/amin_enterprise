@@ -214,15 +214,25 @@ class VendorController extends Controller
     public function getVendorWiseProgramList($id)
     {
         $vendorSequenceNumber = VendorSequenceNumber::where('id', $id)->first();
-        // dd($vendorSequenceNumber);
+        
         $vendor = Vendor::where('id', $vendorSequenceNumber->vendor_id)->first();
-        $data = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
-        $motherVasselId = optional($data->first())->mother_vassel_id;
+        $pdtls = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
 
-        $motherVassel  = MotherVassel::where('id', $motherVasselId)->first();
+        $motherVasselIds = $pdtls->pluck('mother_vassel_id')->unique()->filter()->toArray();
+        
+        $motherVassels = MotherVassel::whereIn('id', $motherVasselIds)->get();
+
+
+        // Group ProgramDetails by mother_vassel_id
+        $data = ProgramDetail::where('vendor_sequence_number_id', $id)
+            ->get()
+            ->groupBy(function ($item) use ($motherVassels) {
+            $motherVassel = $motherVassels->where('id', $item->mother_vassel_id)->first();
+            return $motherVassel ? $motherVassel->name : 'Unknown';
+            });
         
 
         
-        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber','motherVassel'));
+        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber'));
     }
 }

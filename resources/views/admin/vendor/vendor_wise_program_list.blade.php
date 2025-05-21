@@ -46,10 +46,26 @@
             <!-- /.card-header -->
             <div class="card-body">
 
+              
+
+              @php
+                  $totalfuelamount = 0;
+                  $totalfuelqty = 0;
+                  $totalcarrying_bill = 0;
+                  $totaladvance = 0;
+                  $totalother_cost = 0;
+                  $totalscale_fee = 0;
+                  $totalline_charge = 0;
+                  $totaldest_qty = 0;
+              @endphp
+
+
+              @foreach ($data as $motherVassel => $pdtl)
+
               <div style="text-align: center; margin-bottom: 20px;">
                 <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
                 <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
-                <h5>Mother Vessel: {{ $motherVassel->name ?? 'N/A' }}</h5>
+                <h5>Mother Vessel: {{ $motherVassel ?? 'N/A' }}</h5>
               </div>
 
               <table id="example1" class="table table-bordered table-striped">
@@ -79,17 +95,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                        @php
-                                $totalfuelamount = 0;
-                                $totalfuelqty = 0;
-                                $totalcarrying_bill = 0;
-                                $totaladvance = 0;
-                                $totalother_cost = 0;
-                                $totalscale_fee = 0;
-                                $totalline_charge = 0;
-                                $totaldest_qty = 0;
-                        @endphp
-                    @foreach ($data as $key => $data)
+                    @foreach ($pdtl as $key => $data)
                     <tr>
                         <td style="text-align: center">{{ $key + 1 }}</td>
                         <td style="text-align: center">
@@ -192,9 +198,11 @@
                       <td style="text-align: center"></td>
                   </tr>
                 </tfoot>
-            </table>
+              </table>
 
 
+
+              @endforeach
 
               
             </div>
