@@ -1460,6 +1460,14 @@ class ProgramController extends Controller
                         ->where('program_detail_id', $progrm->id)
                         ->delete();
         }
+
+        if (
+            $progrm->dest_qty != $request->totalqtyasperchallan
+        ) {
+            ChallanRate::where('challan_no', $progrm->challan_no)
+                        ->where('program_detail_id', $progrm->id)
+                        ->delete();
+        }
         //importent
 
         $progrm->after_date = date('Y-m-d');
