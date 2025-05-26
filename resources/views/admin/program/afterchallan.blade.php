@@ -775,7 +775,7 @@
                     } else {
                         console.log(response);
                         $(".afterchallanmsg").html(response.message);
-                        // window.setTimeout(function(){location.reload()},2000)
+                        window.setTimeout(function(){location.reload()},2000)
                     }
 
                     
