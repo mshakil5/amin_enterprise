@@ -12,6 +12,29 @@ class AdvancePayment extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
+
+    protected $fillable = [
+        'vendor_id',
+        'fuelqty',
+        'fuel_rate',
+        'fueltoken',
+        'fuelamount',
+        'amount',
+        'date',
+        'petrol_pump_id',
+        'cashamount',
+        'receiver_name',
+        'payment_type',
+        'program_id',
+        'program_detail_id',
+        'client_id',
+        'status',
+        'updated_by',
+        'created_by',
+        'deleted_at',
+    ];
+
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

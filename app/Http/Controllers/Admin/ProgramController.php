@@ -1379,7 +1379,7 @@ class ProgramController extends Controller
     }
 
 
-    public function afterPostProgramStore(Request $request)
+    public function afterPostProgramStore_old(Request $request)
     {
         
         $validator = Validator::make($request->all(), [
@@ -1445,9 +1445,6 @@ class ProgramController extends Controller
             $vsequence->save();
         }
         
-
-        
-
         $progrm = ProgramDetail::find($request->prgmdtlid);
 
         //importent
@@ -1525,6 +1522,150 @@ class ProgramController extends Controller
         
     }
 
+
+    public function afterPostProgramStore(Request $request)
+    {
+        // Step 1: Validate input
+        $validator = Validator::make($request->all(), [
+            'prgmdtlid' => 'required|integer',
+            'destid' => 'required|integer',
+            'headerid' => 'required|integer',
+            'sequence_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessage = "<div class='alert alert-warning'>
+                                <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+                                <b>" . implode("<br>", $validator->errors()->all()) . "</b>
+                            </div>";
+            return response()->json(['status' => 400, 'message' => $errorMessage]);
+        }
+
+        // Step 2: Fetch related program data
+        $programDetail = ProgramDetail::findOrFail($request->prgmdtlid);
+        $program = Program::findOrFail($programDetail->program_id);
+
+        // Step 3: Update Advance Payment
+        $advancePayment = AdvancePayment::findOrFail($request->advPmtid);
+        $advancePayment->fill([
+            'vendor_id'   => $request->vendor_id,
+            'fuelqty'     => $request->fuelqty,
+            'fuel_rate'   => $request->fuel_rate,
+            'fueltoken'   => $request->fueltoken,
+            'fuelamount'  => $request->fuelqty * $request->fuel_rate,
+        ]);
+        $advancePayment->amount = $advancePayment->fuelamount + $advancePayment->cashamount;
+        $advancePayment->save();
+
+        // Step 4: Create or update Fuel Transaction
+        if ($request->fuelqty) {
+            $transaction = Transaction::firstOrNew([
+                'advance_payment_id' => $request->advPmtid,
+                'payment_type'       => 'Fuel'
+            ]);
+
+            $transaction->fill([
+                'client_id'          => $program->client_id,
+                'mother_vassel_id'   => $program->mother_vassel_id,
+                'lighter_vassel_id'  => $program->lighter_vassel_id,
+                'program_id'         => $program->id,
+                'program_detail_id'  => $programDetail->id,
+                'vendor_id'          => $request->vendor_id,
+                'challan_no'         => $programDetail->challan_no,
+                'amount'             => $request->fuelqty * $request->fuel_rate,
+                'tran_type'          => 'Advance',
+                'date'               => now()->format('Y-m-d'),
+            ]);
+
+            $transaction->save();
+
+            if (!$transaction->tran_id) {
+                $transaction->tran_id = 'FA' . now()->format('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                $transaction->save();
+            }
+        }
+
+        // Step 5: Update Vendor Sequence
+        if ($request->sequence_id) {
+            $sequence = VendorSequenceNumber::find($request->sequence_id);
+            if ($sequence) {
+                $sequence->increment('markqty');
+                $sequence->decrement('notmarkqty');
+            }
+        }
+
+        // Step 6: Update ProgramDetail with new values
+        $programDetail->fill([
+            'after_date'                => now()->format('Y-m-d'),
+            'vendor_sequence_number_id'=> $request->sequence_id,
+            'destination_id'           => $request->destid,
+            'ghat_id'                  => $request->ghat_id,
+            'vendor_id'                => $request->vendor_id,
+            'truck_number'             => $request->truck_number,
+            'headerid'                 => $request->headerid,
+            'dest_qty'                 => $request->totalqtyasperchallan,
+            'line_charge'              => $request->line_charge,
+            'scale_fee'                => $request->scale_fee,
+            'other_cost'               => $request->other_cost,
+            'transportcost'            => $request->totalamount,
+            'carrying_bill'            => $request->totalamount,
+            'additional_cost'          => $request->additionalCost,
+            'advance'                  => $advancePayment->amount,
+            'due'                      => ($request->totalamount + $request->additionalCost) - $advancePayment->amount,
+            'rate_status'              => 0,
+        ]);
+
+        // Check for destination or quantity change
+        if (
+            $programDetail->destination_id != $request->destid ||
+            $programDetail->ghat_id != $request->ghat_id ||
+            $programDetail->dest_qty != $request->totalqtyasperchallan
+        ) {
+            
+        }
+
+        ChallanRate::where('challan_no', $programDetail->challan_no)
+                    ->where('program_detail_id', $programDetail->id)
+                    ->delete();
+
+        $programDetail->save();
+
+        // Step 7: Create or update ChallanRates
+        $rates = $request->input('rate', []);
+        $qtys = $request->input('qty', []);
+        $oldIds = $request->input('challanrateid', []);
+
+        foreach ($rates as $index => $rate) {
+            $qty = $qtys[$index] ?? 0;
+            $total = $rate * $qty;
+
+            $challanRate = isset($oldIds[$index])
+                ? ChallanRate::find($oldIds[$index])
+                : new ChallanRate();
+
+            $challanRate->fill([
+                'program_detail_id' => $programDetail->id,
+                'challan_no'        => $programDetail->challan_no,
+                'qty'               => $qty,
+                'rate_per_unit'     => $rate,
+                'total'             => $total,
+                'created_by'        => Auth::id(),
+            ])->save();
+        }
+
+        // Step 8: Return success response
+        $message = "<div class='alert alert-success'>
+                        <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+                        <b>Challan completed.</b>
+                    </div>";
+
+        return response()->json([
+            'status'  => 300,
+            'message' => $message,
+            'programDetail' => $programDetail,
+            'data'    => $request->all()
+        ]);
+    }
 
 
 

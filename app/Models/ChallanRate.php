@@ -10,4 +10,19 @@ class ChallanRate extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    // app/Models/ChallanRate.php
+
+    protected $fillable = [
+        'program_detail_id',
+        'challan_no',
+        'qty',
+        'rate_per_unit',
+        'total',
+        'status',
+        'updated_by',
+        'created_by',
+        'deleted_at',
+    ];
+
 }

@@ -13,6 +13,48 @@ class ProgramDetail extends Model
     use HasFactory, LogsActivity, SoftDeletes;
     protected $guarded = [];
 
+    protected $fillable = [
+        'date',
+        'programid',
+        'consignmentno',
+        'program_id',
+        'fuel_bill_id',
+        'mother_vassel_id',
+        'lighter_vassel_id',
+        'client_id',
+        'dest_status',
+        'tran_status',
+        'after_date',
+        'vendor_sequence_number_id',
+        'destination_id',
+        'ghat_id',
+        'vendor_id',
+        'truck_number',
+        'headerid',
+        'old_qty',
+        'dest_qty',
+        'challan_no',
+        'line_charge',
+        'scale_fee',
+        'other_cost',
+        'transportcost',
+        'carrying_bill',
+        'old_carrying_bill',
+        'additional_cost',
+        'advance',
+        'due',
+        'rate_status',
+        'status',
+        'note',
+        'bill_no',
+        'generate_bill',
+        'bill_status',
+        'updated_by',
+        'created_by',
+        'deleted_at',
+    ];
+
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

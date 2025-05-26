@@ -299,13 +299,12 @@
                                         Loading...
                                     </div>
 
-                                    <input type="hidden" id="program_detail_id" >
-                                            {{-- <label for="">Update </label> <br> --}}
+                                    {{-- <input type="hidden" id="program_detail_id" >
                                     <button type="button" id="updatebtn" form="" class="btn btn-secondary">Update</button>
                                     <div id="loader" style="display: none;">
                                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                         Loading...
-                                    </div>
+                                    </div> --}}
                                     
                                 </div>
 
@@ -581,6 +580,8 @@
     $(document).ready(function() {
         $(document).on('click', '#checkBtn', function(e) {
             e.preventDefault();
+            $('#programTable tbody').html('');
+            $('#rateTable tbody').html('');
 
             $(this).attr('disabled', true);
             $('#loader').show();
@@ -744,8 +745,6 @@
             var prgmdtlid = $('#prgmdtlid').val();
             var ghat_id = $('#ghat_id').val();
 
-            console.log(prgmdtlid);
-
             var formData = new FormData($('#addadvThisForm')[0]);
             formData.append("vendor_id", $('#vendor_id'+prgmdtlid).val());
             formData.append("truck_number", $('#truck_number'+prgmdtlid).val());
@@ -767,6 +766,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
+                        console.log(response);
                     $('#loader').hide();
                     $('#afterChallanBtn').attr('disabled', false);
 
@@ -775,7 +775,7 @@
                     } else {
                         console.log(response);
                         $(".afterchallanmsg").html(response.message);
-                        window.setTimeout(function(){location.reload()},2000)
+                        // window.setTimeout(function(){location.reload()},2000)
                     }
 
                     
