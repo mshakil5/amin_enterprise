@@ -249,14 +249,13 @@
                 <thead>
                 <tr>
                     <th>Sl</th>
-                    <th>Bill Status</th>
                     <th>Petrol Pump</th>
-                    <th>Bill No</th>
                     <th>Date</th>
                     <th>Vendor</th>
                     <th>Header ID</th>
                     <th>Truck Number</th>
                     <th>Challan no</th>
+                    <th>Mother Vessel</th>
                     <th>Destination</th>
                     <th>Qty</th>
                     <th>Carring Bill</th>
@@ -288,13 +287,6 @@
                     @foreach ($alldata as $key => $data)
                     <tr>
                         <td style="text-align: center">{{ $key + 1 }}</td>
-                        <td style="text-align: center">
-
-                            <label class="form-checkbox  grid layout">
-                                <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
-                            </label>
-
-                        </td>
 
                         @php
                             $fuelBills = $data->advancePayment->petrolPump ?? '' 
@@ -313,12 +305,12 @@
                               @if($data->fuel_bill_id) checked disabled @endif>
                             </label>
                         </td>
-                        <td style="text-align: center">{{$data->bill_no}}</td>
                         <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                        <td style="text-align: center">{{$data->vendor->name}}</td>
+                        <td style="text-align: center">{{$data->vendor->name ?? ''}}</td>
                         <td style="text-align: center">{{$data->headerid}}</td>
                         <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
                         <td style="text-align: center">{{$data->challan_no}}</td>
+                        <td style="text-align: center">{{$data->motherVassel->name ?? ''}}</td>
                         <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
                         <td style="text-align: center">{{$data->dest_qty}}</td>
                         <td style="text-align: center">{{$data->carrying_bill}}</td>
@@ -358,7 +350,6 @@
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
                         <td style="text-align: center">{{$alltotaldest_qty}}</td>
                         <td style="text-align: center">{{$alltotalcarrying_bill}}</td>
                         <td style="text-align: center">{{$alltotalline_charge}}</td>
@@ -371,7 +362,6 @@
                         <td style="text-align: center"><b>{{$alltotaladvance}}</b></td>
                     </tr>
                     <tr>
-                      <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>

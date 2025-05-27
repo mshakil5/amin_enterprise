@@ -182,7 +182,7 @@ class VendorController extends Controller
                             <a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
                             </td>
                             <td>
-                                <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn" style="cursor:pointer">Delete</span>
+                                <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn d-none" style="cursor:pointer">Delete</span>
                             </td>
                         </tr>';
                         
