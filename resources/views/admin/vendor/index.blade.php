@@ -212,6 +212,7 @@
                   <th>Challan</th>
                   <th>Challan Store</th>
                   <th>Sequence</th>
+                  <th>Due/Advance</th>
                   <th>Unique ID</th>
                   <th>Action</th>
                 </tr>

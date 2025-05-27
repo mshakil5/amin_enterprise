@@ -162,6 +162,20 @@ class VendorController extends Controller
             foreach ($data as $tran){
 
                 $programCount = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->count();
+                $totalCarringCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
+                $totalAdvance = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('advance');
+                $totalDue = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('due');
+                $totalScaleFee = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('scale_fee');
+                $totalLineCharge = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('line_charge');
+                $totalOtherCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('other_cost');
+                $totalTransportCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('transportcost');
+                $totalCarryingBill = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
+                $totalAdditionalCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('additional_cost');
+
+                $balance = $totalCarringCost + $totalScaleFee - ($totalAdvance + $totalOtherCost);
+
+
+
 
 
                 // <!-- Single Property Start -->
@@ -177,6 +191,9 @@ class VendorController extends Controller
                             </td>
                             <td>
                                 '.$tran->sequence.'
+                            </td>
+                            <td>
+                                '.$balance.'
                             </td>
                             <td>
                             <a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
