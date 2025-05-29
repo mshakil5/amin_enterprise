@@ -117,6 +117,12 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/add-vendor-sequence', [VendorController::class,'addSequenceNumber'])->name('addSequenceNumber');
     Route::post('/get-vendor-sequence', [VendorController::class,'getSequenceNumber']);
     Route::get('/vendor-sequence/{id}', [VendorController::class, 'sequencedelete']);
+
+    // approved and checked sequence 
+    Route::post('/vendor-sequence-approved', [VendorController::class,'addSequenceNumberApproved']);
+    Route::post('/vendor-sequence-checked', [VendorController::class,'addSequenceNumberChecked']);
+
+    // approved and checked sequence 
     
     Route::get('/client', [ClientController::class, 'index'])->name('admin.client');
     Route::post('/client', [ClientController::class, 'store']);

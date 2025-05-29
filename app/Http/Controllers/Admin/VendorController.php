@@ -201,6 +201,32 @@ class VendorController extends Controller
                             <td>
                                 <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn d-none" style="cursor:pointer">Delete</span>
                             </td>
+                            <td>
+                                <label class="form-checkbox  grid layout">';
+
+                                    if($tran->checked == 1){
+                                       $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox" data-vsid="'.$tran->id.'" checked disabled/>';
+                                    }else{
+                                       $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox checkedBtn" data-vsid="'.$tran->id.'"/>';
+                                    }
+
+                        $prop.= '</label>
+                            </td>
+                            <td>
+                                <label class="form-checkbox  grid layout">';
+                                
+                                    if($tran->approved == 1){
+                                       $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox" data-vsid="'.$tran->id.'" checked disabled/>';
+                                    }else{
+                                       $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox approvedBtn" data-vsid="'.$tran->id.'"/>';
+                                    }
+
+                        $prop.= '</label>
+                                <div id="loader'.$tran->id.'" style="display: none;">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Loading...
+                                </div>
+                            </td>
                         </tr>';
                         
             }
@@ -255,4 +281,39 @@ class VendorController extends Controller
         
         return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber','alldata'));
     }
+
+
+    public function addSequenceNumberApproved(Request $request)
+    {
+        $request->validate([
+            'vsId' => 'required',
+        ]);
+
+        $data = VendorSequenceNumber::find($request->vsId);
+        $data->approved = 1;
+        $data->approved_date = date('Y-m-d');
+        $data->approved_by = Auth::user()->id;
+        $data->save();
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Sequence number approved successfully.</b></div>";
+        return response()->json(['status'=> 300,'message'=>$message]);
+    }
+
+    public function addSequenceNumberChecked(Request $request)
+    {
+        $request->validate([
+            'vsId' => 'required',
+        ]);
+
+        $data = VendorSequenceNumber::find($request->vsId);
+        $data->checked = 1;
+        $data->checked_date = date('Y-m-d');
+        $data->checked_by = Auth::user()->id;
+        $data->save();
+
+        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Sequence number checked successfully.</b></div>";
+        return response()->json(['status'=> 300,'message'=>$message]);
+    }
+
+
 }

@@ -2,6 +2,23 @@
 
 @section('content')
 
+<style>
+  .form-checkbox {
+      font-family: system-ui, sans-serif;
+      font-size: 2rem;
+      font-weight: bold;
+      line-height: 1.1;
+      display: grid;
+      grid-template-columns: 1em auto;
+      gap: 0.5em;
+    }
+
+    .custom-checkbox {
+      height: 30px;
+    }
+</style>
+
+
 <!-- Main content -->
 <section class="content mt-3" id="newBtnSection">
     <div class="container-fluid">
@@ -195,7 +212,7 @@
 
 
 <div class="modal fade" id="tranModal" tabindex="-1" role="dialog" aria-labelledby="tranModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
           <div class="modal-header">
               <h5 class="modal-title" id="tranModalLabel">Sequence number and quantity</h5>
@@ -205,6 +222,7 @@
           </div>
 
           <div class="modal-body">
+            <div class="seqErrmsg"></div>
             <table id="trantable" class="table table-bordered table-striped">
               <thead>
                 <tr>
@@ -215,6 +233,8 @@
                   <th>Due/Advance</th>
                   <th>Unique ID</th>
                   <th>Action</th>
+                  <th>Checked By</th>
+                  <th>Approved By</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -465,11 +485,8 @@
       var vsqurl = "{{URL::to('/admin/vendor-sequence')}}";
       $("#trantable tbody").on('click', '.seqDeleteBtn', function () {
           var id = $(this).data('rid');
-              console.log("test" + id);
             if(!confirm('Sure?')) return;
-
             codeid = $(this).attr('rid');
-
             info_url = vsqurl + '/'+codeid;
             $.ajax({
                 url:info_url,
@@ -488,6 +505,64 @@
                 }
             });
       });
+
+      var appurl = "{{URL::to('/admin/vendor-sequence-approved')}}";
+      $("#trantable tbody").on('click', '.approvedBtn', function () {
+          var id = $(this).data('vsid');
+          $(this).attr('disabled', true);
+          $('#loader').show();
+
+          var form_data = new FormData();
+          form_data.append("vsId", id);
+
+          $.ajax({
+              url: appurl,
+              method: 'POST',
+              data:form_data,
+              contentType: false,
+              processData: false,
+              success: function (response) {
+                if (response.status == 303) {
+                    $(".seqErrmsg").html(response.message);
+                }else if(response.status == 300){
+                  $(".seqErrmsg").html(response.message);
+                }
+              },
+              error: function (xhr) {
+                  console.log(xhr.responseText);
+              }
+          });
+      });
+
+
+      var chkurl = "{{URL::to('/admin/vendor-sequence-checked')}}";
+      $("#trantable tbody").on('click', '.checkedBtn', function () {
+          var id = $(this).data('vsid');
+          $(this).attr('disabled', true);
+          $('#loader').show();
+
+          var form_data = new FormData();
+          form_data.append("vsId", id);
+
+          $.ajax({
+              url: chkurl,
+              method: 'POST',
+              data:form_data,
+              contentType: false,
+              processData: false,
+              success: function (response) {
+                if (response.status == 303) {
+                    $(".seqErrmsg").html(response.message);
+                }else if(response.status == 300){
+                  $(".seqErrmsg").html(response.message);
+                }
+              },
+              error: function (xhr) {
+                  console.log(xhr.responseText);
+              }
+          });
+      });
+
 
 
 
