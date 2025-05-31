@@ -1639,9 +1639,11 @@ class ProgramController extends Controller
             $qty = $qtys[$index] ?? 0;
             $total = $rate * $qty;
 
-            $challanRate = isset($oldIds[$index])
-                ? ChallanRate::find($oldIds[$index])
-                : new ChallanRate();
+            // $challanRate = isset($oldIds[$index])
+            //     ? ChallanRate::find($oldIds[$index])
+            //     : new ChallanRate();
+
+            $challanRate = new ChallanRate();
 
             $challanRate->fill([
                 'program_detail_id' => $programDetail->id,
