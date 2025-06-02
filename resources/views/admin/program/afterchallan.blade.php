@@ -508,7 +508,8 @@
                 $("#destid").val('');
                 return;
             }
-            console.log(vendor);
+            
+
             var formData = new FormData();
             formData.append("destid", $("#destid").val());
             formData.append("ghat", $("#ghat_id").val());
@@ -517,6 +518,10 @@
             formData.append("vendor", vendor);
 
             $('#rateTable tbody').empty();
+
+            // setTimeout(function() {
+            //     $('#rateTable tbody').html('<tr><td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div> Loading...</td></tr>');
+            // }, 500);
 
             $.ajax({
                 url: '{{ route("admin.checkSlabRate") }}',
