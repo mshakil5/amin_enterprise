@@ -852,6 +852,22 @@
             });
         });
 
+        // Clear specific fields when certain inputs change
+        $(document).on('input change', '#totalqtyasperchallan', function() {
+            // Clear rate table and summary fields
+            $('#rateTable tbody').empty();
+            $('#totalamount').val('');
+            $('#additionalCost').val('');
+            $('#advanceAmnt').val('');
+            $('#totalDue').val('');
+            $('#destid').val('');
+        });
+
+        // Optionally, clear vendor sequence when destination changes
+        $(document).on('change', '#destid', function() {
+            $('#sequence_id').val('');
+        });
+
 
 
     });

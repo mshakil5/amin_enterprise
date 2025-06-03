@@ -1620,9 +1620,11 @@ class ProgramController extends Controller
             $programDetail->destination_id != $request->destid ||
             $programDetail->ghat_id != $request->ghat_id ||
             $programDetail->dest_qty != $request->totalqtyasperchallan
-        ) {
-            
-        }
+        ) {}
+
+        $dstnID = $request->destid;
+        $ghatID = $request->ghat_id;
+        $cQty = $request->totalqtyasperchallan;
 
         ChallanRate::where('challan_no', $programDetail->challan_no)
                     ->where('program_detail_id', $programDetail->id)
@@ -1631,29 +1633,8 @@ class ProgramController extends Controller
         $programDetail->save();
 
         // Step 7: Create or update ChallanRates
-        $rates = $request->input('rate', []);
-        $qtys = $request->input('qty', []);
-        $oldIds = $request->input('challanrateid', []);
-
-        foreach ($rates as $index => $rate) {
-            $qty = $qtys[$index] ?? 0;
-            $total = $rate * $qty;
-
-            // $challanRate = isset($oldIds[$index])
-            //     ? ChallanRate::find($oldIds[$index])
-            //     : new ChallanRate();
-
-            $challanRate = new ChallanRate();
-
-            $challanRate->fill([
-                'program_detail_id' => $programDetail->id,
-                'challan_no'        => $programDetail->challan_no,
-                'qty'               => $qty,
-                'rate_per_unit'     => $rate,
-                'total'             => $total,
-                'created_by'        => Auth::id(),
-            ])->save();
-        }
+        
+        $this->challanRateUpdate($cQty, $dstnID, $ghatID, $programDetail);
 
         // Step 8: Return success response
         $message = "<div class='alert alert-success'>
@@ -1667,6 +1648,54 @@ class ProgramController extends Controller
             'programDetail' => $programDetail,
             'data'    => $request->all()
         ]);
+    }
+
+    public function challanRateUpdate($cQty, $dstnID, $ghatID, $programDetail)
+    {
+
+        $chkrate = DestinationSlabRate::where('destination_id', $dstnID)
+            ->where('ghat_id', $ghatID)
+            ->first();
+
+            $totalAmount = 0;
+            if ($cQty > $chkrate->maxqty) {
+                
+                $aboveqty = $cQty - $chkrate->maxqty;
+                $totalAmount = $totalAmount + $chkrate->above_rate_per_qty * $aboveqty + $chkrate->below_rate_per_qty * $chkrate->maxqty;
+
+                $challanBelowRate = new ChallanRate();
+                $challanBelowRate->fill([
+                    'program_detail_id' => $programDetail->id,
+                    'challan_no'        => $programDetail->challan_no,
+                    'qty'               => $chkrate->maxqty,
+                    'rate_per_unit'     => $chkrate->below_rate_per_qty,
+                    'total'             => $chkrate->below_rate_per_qty * $chkrate->maxqty,
+                    'created_by'        => Auth::id(),
+                ])->save();
+
+                $challanAboveRate = new ChallanRate();
+                $challanAboveRate->fill([
+                    'program_detail_id' => $programDetail->id,
+                    'challan_no'        => $programDetail->challan_no,
+                    'qty'               => $aboveqty,
+                    'rate_per_unit'     => $chkrate->above_rate_per_qty,
+                    'total'             => $chkrate->above_rate_per_qty * $aboveqty,
+                    'created_by'        => Auth::id(),
+                ])->save();
+
+            } else {
+
+                $challanBelowRate = new ChallanRate();
+                $challanBelowRate->fill([
+                    'program_detail_id' => $programDetail->id,
+                    'challan_no'        => $programDetail->challan_no,
+                    'qty'               => $cQty,
+                    'rate_per_unit'     => $chkrate->below_rate_per_qty,
+                    'total'             => $chkrate->below_rate_per_qty * $cQty,
+                    'created_by'        => Auth::id(),
+                ])->save();
+            }
+
     }
 
 
