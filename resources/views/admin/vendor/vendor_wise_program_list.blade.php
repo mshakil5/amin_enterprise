@@ -48,6 +48,11 @@
 
               
 
+
+
+              @foreach ($data as $motherVassel => $pdtl)
+
+              
               @php
                   $totalfuelamount = 0;
                   $totalfuelqty = 0;
@@ -58,9 +63,6 @@
                   $totalline_charge = 0;
                   $totaldest_qty = 0;
               @endphp
-
-
-              @foreach ($data as $motherVassel => $pdtl)
 
               <div style="text-align: center; margin-bottom: 20px;">
                 <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
@@ -130,14 +132,14 @@
                         <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
                         <td style="text-align: center">{{$data->challan_no}}</td>
                         <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                        <td style="text-align: center">{{$data->dest_qty}}</td>
-                        <td style="text-align: center">{{$data->carrying_bill}}</td>
-                        <td style="text-align: center">{{$data->line_charge}}</td>
-                        <td style="text-align: center">{{$data->scale_fee}}</td>
-                        <td style="text-align: center">{{$data->other_cost}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
+                        <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->other_cost, 2) }}</td>
+                        <td style="text-align: center">{{ isset($data->advancePayment->cashamount) ? number_format($data->advancePayment->cashamount, 2) : "" }}</td>
+                        <td style="text-align: center">{{ isset($data->advancePayment->fuelqty) ? number_format($data->advancePayment->fuelqty, 2) : "" }}</td>
+                        <td style="text-align: center">{{ isset($data->advancePayment->fuelamount) ? number_format($data->advancePayment->fuelamount, 2) : "" }}</td>
                         <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
                         <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
 
@@ -169,16 +171,16 @@
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
-                        <td style="text-align: center">{{$totaldest_qty}}</td>
-                        <td style="text-align: center">{{$totalcarrying_bill}}</td>
-                        <td style="text-align: center">{{$totalline_charge}}</td>
-                        <td style="text-align: center">{{$totalscale_fee}}</td>
-                        <td style="text-align: center">{{$totalother_cost}}</td>
-                        <td style="text-align: center">{{$totaladvance - $totalfuelamount}}</td>
-                        <td style="text-align: center">{{$totalfuelqty}}</td>
-                        <td style="text-align: center">{{$totalfuelamount}}</td>
+                        <td style="text-align: center">{{ number_format($totaldest_qty, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($totalcarrying_bill, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($totalline_charge, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($totalscale_fee, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($totalother_cost, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($totaladvance - $totalfuelamount, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($totalfuelqty, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($totalfuelamount, 2) }}</td>
                         <td style="text-align: center"><b>Total adv:</b></td>
-                        <td style="text-align: center"><b>{{$totaladvance}}</b></td>
+                        <td style="text-align: center"><b>{{ number_format($totaladvance, 2) }}</b></td>
                     </tr>
                     <tr>
                       <td style="text-align: center"></td>
@@ -312,14 +314,14 @@
                         <td style="text-align: center">{{$data->challan_no}}</td>
                         <td style="text-align: center">{{$data->motherVassel->name ?? ''}}</td>
                         <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                        <td style="text-align: center">{{$data->dest_qty}}</td>
-                        <td style="text-align: center">{{$data->carrying_bill}}</td>
-                        <td style="text-align: center">{{$data->line_charge}}</td>
-                        <td style="text-align: center">{{$data->scale_fee}}</td>
-                        <td style="text-align: center">{{$data->other_cost}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
+                        <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($data->other_cost, 2) }}</td>
+                        <td style="text-align: center">{{ isset($data->advancePayment->cashamount) ? number_format($data->advancePayment->cashamount, 2) : "" }}</td>
+                        <td style="text-align: center">{{ isset($data->advancePayment->fuelqty) ? number_format($data->advancePayment->fuelqty, 2) : "" }}</td>
+                        <td style="text-align: center">{{ isset($data->advancePayment->fuelamount) ? number_format($data->advancePayment->fuelamount, 2) : "" }}</td>
                         <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
                         <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
 
@@ -350,16 +352,16 @@
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
-                        <td style="text-align: center">{{$alltotaldest_qty}}</td>
-                        <td style="text-align: center">{{$alltotalcarrying_bill}}</td>
-                        <td style="text-align: center">{{$alltotalline_charge}}</td>
-                        <td style="text-align: center">{{$alltotalscale_fee}}</td>
-                        <td style="text-align: center">{{$alltotalother_cost}}</td>
-                        <td style="text-align: center">{{$alltotaladvance - $alltotalfuelamount}}</td>
-                        <td style="text-align: center">{{$alltotalfuelqty}}</td>
-                        <td style="text-align: center">{{$alltotalfuelamount}}</td>
+                        <td style="text-align: center">{{ number_format($alltotaldest_qty, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotalcarrying_bill, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotalline_charge, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotalscale_fee, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotalother_cost, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotaladvance - $alltotalfuelamount, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotalfuelqty, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotalfuelamount, 2) }}</td>
                         <td style="text-align: center"><b>Total adv:</b></td>
-                        <td style="text-align: center"><b>{{$alltotaladvance}}</b></td>
+                        <td style="text-align: center"><b>{{ number_format($alltotaladvance, 2) }}</b></td>
                     </tr>
                     <tr>
                       <td style="text-align: center"></td>
