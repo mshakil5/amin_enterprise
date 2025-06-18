@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MotherVassel;
 use App\Models\ProgramDetail;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
 use App\Models\VendorSequenceNumber;
@@ -315,5 +316,38 @@ class VendorController extends Controller
         return response()->json(['status'=> 300,'message'=>$message]);
     }
 
+
+    public function addWalletBalance(Request $request)
+    {
+        $request->validate([
+            'vendorId' => 'required',
+            'walletamount' => 'required',
+        ]);
+
+        $transaction = new Transaction();
+        $transaction->amount =  $request->walletamount;
+        $transaction->at_amount =  $request->walletamount;
+        $transaction->tran_type = "Wallet";
+        $transaction->description = "Add Wallet Balance";
+        $transaction->note = "Add Wallet Balance";
+        $transaction->payment_type = $request->payment_type;
+        $transaction->table_type = "Expense";
+        $transaction->vendor_id = $request->vendorId;
+        $transaction->date = date('Y-m-d');
+        $transaction->save();
+        $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+        if ($transaction->save()) {
+           
+            $vendor = Vendor::where('id', $request->vendorId)->first();
+            $vendor->balance += $request->walletamount;
+            $vendor->save();
+            $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Vendor balance increased Successfully.</b></div>";
+            return response()->json(['status'=> 300,'message'=>$message]);
+        }
+
+        
+
+        
+    }
 
 }

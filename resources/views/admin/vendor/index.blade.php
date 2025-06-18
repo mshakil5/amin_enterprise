@@ -135,6 +135,8 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>Advance Balance</th>
+                  <th>Wallet</th>
                   <th>Add Sequence Number</th>
                   <th>Action</th>
                 </tr>
@@ -146,6 +148,14 @@
                     <td style="text-align: center">{{$data->name}}</td>
                     <td style="text-align: center">{{$data->email}}</td>
                     <td style="text-align: center">{{$data->phone}}</td>
+                    <td style="text-align: center">{{$data->balance}}</td>
+                    <td style="text-align: center">
+                      
+                      <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Wallet</span>
+
+                      <span class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" data-id="{{ $data->id }}">Transaction</span>
+
+                    </td>
                     <td style="text-align: center">
                       
                       <span class="btn btn-success btn-xs add-sq-btn" style="cursor: pointer;" data-id="{{ $data->id }}">+ add</span>
@@ -241,6 +251,43 @@
                 </tbody>
             </table>
           </div>
+      </div>
+  </div>
+</div>
+
+
+<!-- Modal for add money -->
+<div class="modal fade" id="addWalletModal" tabindex="-1" role="dialog" aria-labelledby="addWalletLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="addWalletLabel">Add balance to wallet</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form id="addWalletForm">
+              <div class="modal-body">
+                <div class="permsg"></div>
+                  <div class="form-group">
+                      <label for="walletamount">Amount <span style="color: red;">*</span></label>
+                      <input type="number" class="form-control" id="walletamount" name="walletamount" >
+                  </div>
+                  <div class="form-group">
+                      <label for="walletamount">Payment Type <span style="color: red;">*</span></label>
+                      <select name="payment_type" id="payment_type" class="form-control">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank">Bank</option>
+                      </select>
+                  </div>
+
+
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-warning">Add Money</button>
+              </div>
+          </form>
       </div>
   </div>
 </div>
@@ -419,10 +466,6 @@
                   return;
               }
 
-              // if (!$("#sequence").val()) {
-              //     alert('Please enter sequence number.');
-              //     return;
-              // }
 
               $.ajax({
                   url: '{{ URL::to('/admin/add-vendor-sequence') }}',
@@ -563,6 +606,55 @@
           });
       });
 
+
+      // vendor wallet add
+      $("#contentContainer").on('click', '.add-money-btn', function () {
+          var id = $(this).data('id');
+          $('#addWalletModal').modal('show');
+          $('#addWalletForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+
+              var form_data = new FormData();
+              form_data.append("vendorId", id);
+              form_data.append("walletamount", $("#walletamount").val());
+              form_data.append("payment_type", $("#payment_type").val());
+              // form_data.append("sequence", $("#sequence").val());
+
+              if (!$("#walletamount").val()) {
+                  alert('Please enter wallet amount.');
+                  return;
+              }
+
+              if (!$("#payment_type").val()) {
+                  alert('Please enter payment type.');
+                  return;
+              }
+
+
+              $.ajax({
+                  url: '{{ URL::to('/admin/add-vendor-wallet-balance') }}',
+                  method: 'POST',
+                  data:form_data,
+                  contentType: false,
+                  processData: false,
+                  // dataType: 'json',
+                  success: function (response) {
+                    if (response.status == 303) {
+                        $(".permsg").html(response.message);
+                    }else if(response.status == 300){
+
+                      $(".permsg").html(response.message);
+                      window.setTimeout(function(){location.reload()},2000)
+                    }
+                    
+
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+          });
+      });
 
 
 

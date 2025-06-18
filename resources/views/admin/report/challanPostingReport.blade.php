@@ -54,6 +54,13 @@
                         {{ session('success') }}
                     </div>
                 @endif
+
+                @if(session('error'))
+                    <div class="alert alert-warning">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 @php
                     $totalcarrying_bill = $data->sum('carrying_bill');
                     $totaladvance = $data->sum('advance');  
@@ -84,10 +91,13 @@
                         </div>
                         <div class="modal-body">
                           <h4>Total Due: <strong>{{ number_format($totalDue, 2) }} Tk</strong></h4>
+                          <input type="text" name="comment" class="form-control mb-3" placeholder="Enter comment" required>
                           <input type="hidden" name="due_amount" value="{{ $totalDue }}">
                           <input type="hidden" name="mother_vessel_id" value="{{ $mid }}">
                           <input type="hidden" name="vendor_id" value="{{ $vid }}">
                           <input type="hidden" name="client_id" value="{{ optional($data->first())->client_id }}">
+                          <p>Note: This due payment from vendors wallet. </p>
+                          <p>Note: Vendors avaiable balance: <b>{{$vendor->balance}}TK</b></p>
                         </div>
                         <div class="modal-footer">
                           <button type="submit" class="btn btn-warning">Pay</button>
