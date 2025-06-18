@@ -194,7 +194,7 @@
                         <b>Total adv:</b><b>{{ number_format($totalcashamount + $totalfuelamount, 2) }}</b>
                       </td>
                       <td style="text-align: center"  colspan="8">
-                          <strong>Total Vendor's Payable: {{ number_format($totalcarrying_bill, 2) }} - {{ number_format($totalcashamount + $totalfuelamount, 2) }} = {{$totalcarrying_bill + $totalscale_fee - $totaladvance}}</strong>
+                          <strong>Total Vendor's Payable: {{ number_format($totalcarrying_bill + $totalscale_fee, 2) }} - {{ number_format($totalcashamount + $totalfuelamount, 2) }} = {{ number_format($totalcarrying_bill + $totalscale_fee - $totalcashamount - $totalfuelamount, 2)}}</strong>
                       </td>
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
@@ -375,7 +375,7 @@
                         <b>Total adv:</b><b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
                       </td>
                       <td style="text-align: center"  colspan="8">
-                          <strong>Total Vendor's Payable: {{ number_format($alltotalcarrying_bill, 2) }} - {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} = {{$alltotalcarrying_bill + $alltotalscale_fee - $alltotaladvance}}</strong>
+                          <strong>Total Vendor's Payable: {{ number_format($alltotalcarrying_bill + $alltotalscale_fee, 2) }} - {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} = {{ number_format($alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount, 2)}}</strong>
                       </td>
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
