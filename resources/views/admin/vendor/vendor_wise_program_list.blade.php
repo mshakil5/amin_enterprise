@@ -277,6 +277,7 @@
 
                      @php
                         $alltotalfuelamount = 0;
+                        $alltotalcashamount = 0;
                         $alltotalfuelqty = 0;
                         $alltotalcarrying_bill = 0;
                         $alltotaladvance = 0;
@@ -328,6 +329,7 @@
 
                         @php
                             $alltotalfuelamount += $data->advancePayment->fuelamount ?? 0;
+                            $alltotalcashamount += $data->advancePayment->cashamount ?? 0;
                             $alltotalfuelqty += $data->advancePayment->fuelqty ?? 0;
                             $alltotalcarrying_bill += $data->carrying_bill ?? 0;
                             $alltotaladvance += $data->advance ?? 0;
@@ -358,7 +360,7 @@
                         <td style="text-align: center">{{ number_format($alltotalline_charge, 2) }}</td>
                         <td style="text-align: center">{{ number_format($alltotalscale_fee, 2) }}</td>
                         <td style="text-align: center">{{ number_format($alltotalother_cost, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotaladvance - $alltotalfuelamount, 2) }}</td>
+                        <td style="text-align: center">{{ number_format($alltotalcashamount, 2) }}</td>
                         <td style="text-align: center">{{ number_format($alltotalfuelqty, 2) }}</td>
                         <td style="text-align: center">{{ number_format($alltotalfuelamount, 2) }}</td>
                         <td style="text-align: center"><b>Total adv:</b></td>
@@ -369,12 +371,11 @@
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
+                      <td style="text-align: center" colspan="5">
+                        <b>Total adv:</b><b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
+                      </td>
                       <td style="text-align: center"  colspan="8">
-                          <strong>Total Vendor's Payable: {{$alltotalcarrying_bill + $alltotalscale_fee - $alltotaladvance}}</strong>
+                          <strong>Total Vendor's Payable: {{ number_format($alltotalcarrying_bill, 2) }} - {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} = {{$alltotalcarrying_bill + $alltotalscale_fee - $alltotaladvance}}</strong>
                       </td>
                       <td style="text-align: center"></td>
                       <td style="text-align: center"></td>
