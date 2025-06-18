@@ -164,7 +164,21 @@ class VendorController extends Controller
 
                 $programCount = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->count();
                 $totalCarringCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
+
                 $totalAdvance = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('advance');
+
+                $programDetails = ProgramDetail::with('advancePayment')
+                    ->where('vendor_sequence_number_id', $tran->id)
+                    ->get();
+
+                $totalCash = $programDetails->sum(function ($pd) {
+                    return $pd->advancePayment->cashamount ?? 0;
+                });
+
+                $totalFuel = $programDetails->sum(function ($pd) {
+                    return $pd->advancePayment->fuelamount ?? 0;
+                });
+
                 $totalDue = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('due');
                 $totalScaleFee = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('scale_fee');
                 $totalLineCharge = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('line_charge');
@@ -173,7 +187,7 @@ class VendorController extends Controller
                 $totalCarryingBill = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
                 $totalAdditionalCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('additional_cost');
 
-                $balance = $totalCarringCost + $totalScaleFee - ($totalAdvance + $totalOtherCost);
+                $balance = number_format($totalCarringCost + $totalScaleFee - ($totalCash + $totalFuel), 2);
 
 
 
