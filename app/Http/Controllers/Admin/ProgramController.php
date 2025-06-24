@@ -558,6 +558,7 @@ class ProgramController extends Controller
                     $transaction->amount = $cashamounts[$key];
                     $transaction->tran_type = "Advance";
                     $transaction->payment_type = "Cash";
+                    $transaction->description = "Cash Advance to Vendor";
                     $transaction->date = $request->input('newDate');
                     $transaction->save();
                     $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -574,6 +575,7 @@ class ProgramController extends Controller
                     $transaction->challan_no = $challanNos[$key]; 
                     $transaction->amount = $fuelAmnt;
                     $transaction->tran_type = "Advance";
+                    $transaction->description = "Fuel Advance to Vendor";
                     $transaction->payment_type = "Fuel";
                     $transaction->date = $request->input('newDate');
                     $transaction->save();
@@ -781,6 +783,7 @@ class ProgramController extends Controller
                         $transaction->amount = $cashamounts[$key];
                         $transaction->tran_type = "Advance";
                         $transaction->payment_type = "Cash";
+                        $transaction->description = "Cash Advance to Vendor";
                         $transaction->date = date('Y-m-d');
                         $transaction->save();
                         $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -798,6 +801,7 @@ class ProgramController extends Controller
                         $transaction->amount = $fuelAmnt;
                         $transaction->tran_type = "Advance";
                         $transaction->payment_type = "Fuel";
+                        $transaction->description = "Fuel Advance to Vendor";
                         $transaction->date = date('Y-m-d');
                         $transaction->save();
                         $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -873,6 +877,7 @@ class ProgramController extends Controller
                     $transaction->amount = $request->cashamount ?? 0;
                     $transaction->tran_type = "Advance";
                     $transaction->payment_type = "Cash";
+                    $transaction->description = "Cash Advance to Vendor";
                     $transaction->date = date('Y-m-d');
                     $transaction->save();
                     $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -904,6 +909,7 @@ class ProgramController extends Controller
                     $transaction->amount = $fuelAmount;
                     $transaction->tran_type = "Advance";
                     $transaction->payment_type = "Fuel";
+                    $transaction->description = "Fuel Advance to Vendor";
                     $transaction->date = date('Y-m-d');
                     $transaction->save();
                     $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
@@ -1794,6 +1800,7 @@ class ProgramController extends Controller
                 $transaction->amount = $request->fuelqty * $request->fuel_rate;
                 $transaction->tran_type = "Advance";
                 $transaction->payment_type = "Fuel";
+                $transaction->description = "Fuel Advance to Vendor";
                 $transaction->date = date('Y-m-d');
                 $transaction->save();
                 $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
