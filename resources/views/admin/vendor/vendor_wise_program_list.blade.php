@@ -32,374 +32,353 @@
 <!-- /.content -->
 
 
-<!-- Main content -->
-<section class="content" id="contentContainer">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <!-- /.card -->
+<!-- Tabs for switching between sections -->
+<div class="container-fluid mb-3">
+  <ul class="nav nav-tabs" id="vendorTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="sequence-tab" data-toggle="tab" href="#sequence" role="tab" aria-controls="sequence" aria-selected="true">
+        Mother Vassel Wise Trip List
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="all-data-tab" data-toggle="tab" href="#all-data" role="tab" aria-controls="all-data" aria-selected="false">
+        All Trip List
+      </a>
+    </li>
+  </ul>
+</div>
 
-          <div class="card card-secondary">
-            <div class="card-header">
-              <h3 class="card-title">Vendor trip list (Sequence wise)</h3>
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-
-              
-
-
-
-              @foreach ($data as $motherVassel => $pdtl)
-
-              
-              @php
-                  $totalfuelamount = 0;
-                  $totalcashamount = 0;
-                  $totalfuelqty = 0;
-                  $totalcarrying_bill = 0;
-                  $totaladvance = 0;
-                  $totalother_cost = 0;
-                  $totalscale_fee = 0;
-                  $totalline_charge = 0;
-                  $totaldest_qty = 0;
-              @endphp
-
-              <div style="text-align: center; margin-bottom: 20px;">
-                <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
-                <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
-                <h5>Mother Vessel: {{ $motherVassel ?? 'N/A' }}</h5>
+<div class="tab-content" id="vendorTabContent">
+  <div class="tab-pane fade show active" id="sequence" role="tabpanel" aria-labelledby="sequence-tab">
+    <!-- Main content -->
+    <section class="content" id="contentContainer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">Vendor trip list</h3>
               </div>
+              <div class="card-body">
+                @foreach ($data as $motherVassel => $pdtl)
+                @php
+                    $totalfuelamount = 0;
+                    $totalcashamount = 0;
+                    $totalfuelqty = 0;
+                    $totalcarrying_bill = 0;
+                    $totaladvance = 0;
+                    $totalother_cost = 0;
+                    $totalscale_fee = 0;
+                    $totalline_charge = 0;
+                    $totaldest_qty = 0;
+                @endphp
 
-              <table class="table table-bordered table-striped datatable">
-                <thead>
-                <tr>
-                    <th>Sl</th>
-                    <th>Bill Status</th>
-                    <th>Petrol Pump</th>
-                    <th>Bill No</th>
-                    <th>Date</th>
-                    <th>Vendor</th>
-                    <th>Header ID</th>
-                    <th>Truck Number</th>
-                    <th>Challan no</th>
-                    <th>Destination</th>
-                    <th>Qty</th>
-                    <th>Carring Bill</th>
-                    <th>Line Charge</th>
-                    <th>Scale fee</th>
-                    <th>Other Cost</th>
-                    <th>Cash Advance</th>
-                    <th>Fuel qty</th>
-                    <th>Fuel Amount</th>
-                    <th>Fuel token</th>
-                    <th>Pump name</th>
-                    {{-- <th>Action</th> --}}
-                </tr>
-                </thead>
-                <tbody>
-                    @foreach ($pdtl as $key => $data)
-                    <tr>
-                        <td style="text-align: center">{{ $key + 1 }}</td>
-                        <td style="text-align: center">
+                <div style="text-align: center; margin-bottom: 20px;">
+                  <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
+                  <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
+                  <h5>Mother Vessel: {{ $motherVassel ?? 'N/A' }}</h5>
+                </div>
 
-                            <label class="form-checkbox  grid layout">
-                                <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
-                            </label>
-
-                        </td>
-
-                        @php
-                            $fuelBills = $data->advancePayment->petrolPump ?? '' 
-                                ? \App\Models\FuelBill::with('petrolPump:id,name') // eager load name
-                                    ->where('petrol_pump_id', $data->advancePayment->petrolPump->id)
-                                    ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
-                                : collect();
-                        @endphp
-                        <td style="text-align: center">
-                            <label class="form-checkbox grid layout">
-                              <input type="checkbox" class="petrol-checkbox custom-checkbox" 
-                              data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
-                              data-fuel-bills='@json($fuelBills)'
-                              data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
-                              data-program-detail-id="{{ $data->id }}" 
-                              @if($data->fuel_bill_id) checked disabled @endif>
-                            </label>
-                        </td>
-                        <td style="text-align: center">{{$data->bill_no}}</td>
-                        <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                        <td style="text-align: center">{{$data->vendor->name}}</td>
-                        <td style="text-align: center">{{$data->headerid}}</td>
-                        <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
-                        <td style="text-align: center">{{$data->challan_no}}</td>
-                        <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                        <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->other_cost, 2) }}</td>
-                        <td style="text-align: center">{{ isset($data->advancePayment->cashamount) ? number_format($data->advancePayment->cashamount, 2) : "" }}</td>
-                        <td style="text-align: center">{{ isset($data->advancePayment->fuelqty) ? number_format($data->advancePayment->fuelqty, 2) : "" }}</td>
-                        <td style="text-align: center">{{ isset($data->advancePayment->fuelamount) ? number_format($data->advancePayment->fuelamount, 2) : "" }}</td>
-                        <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
-
-                        @php
-                            $totalfuelamount += $data->advancePayment->fuelamount ?? 0;
-                            $totalcashamount += $data->advancePayment->cashamount ?? 0;
-                            $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
-                            $totalcarrying_bill += $data->carrying_bill ?? 0;
-                            $totaladvance += $data->advance ?? 0;
-                            $totalother_cost += $data->other_cost ?? 0;
-                            $totalscale_fee += $data->scale_fee ?? 0;
-                            $totalline_charge += $data->line_charge ?? 0;
-                            $totaldest_qty += $data->dest_qty ?? 0;
-                        @endphp
-
-                    </tr>
-                    @endforeach
-                
-                </tbody>
-
-                <tfoot>
-                    <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center">{{ number_format($totaldest_qty, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($totalcarrying_bill, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($totalline_charge, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($totalscale_fee, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($totalother_cost, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($totalcashamount, 2) }}</td>
-                        {{-- <td style="text-align: center">{{ number_format($totaladvance - $totalfuelamount, 2) }}</td> --}}
-                        <td style="text-align: center">{{ number_format($totalfuelqty, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($totalfuelamount, 2) }}</td>
-                        <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                    </tr>
-                    <tr>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center" colspan="5">
-                        <b>Total adv:</b><b>{{ number_format($totalcashamount + $totalfuelamount, 2) }}</b>
-                      </td>
-                      <td style="text-align: center"  colspan="8">
-                          <strong>Total Vendor's Payable: {{ number_format($totalcarrying_bill + $totalscale_fee, 2) }} - {{ number_format($totalcashamount + $totalfuelamount, 2) }} = {{ number_format($totalcarrying_bill + $totalscale_fee - $totalcashamount - $totalfuelamount, 2)}}</strong>
-                      </td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
+                <table class="table table-bordered table-striped datatable">
+                  <thead>
+                  <tr>
+                      <th>Sl</th>
+                      <th>Bill Status</th>
+                      <th>Petrol Pump</th>
+                      <th>Bill No</th>
+                      <th>Date</th>
+                      <th>Vendor</th>
+                      <th>Header ID</th>
+                      <th>Truck Number</th>
+                      <th>Challan no</th>
+                      <th>Destination</th>
+                      <th>Qty</th>
+                      <th>Carring Bill</th>
+                      <th>Line Charge</th>
+                      <th>Scale fee</th>
+                      <th>Other Cost</th>
+                      <th>Cash Advance</th>
+                      <th>Fuel qty</th>
+                      <th>Fuel Amount</th>
+                      <th>Fuel token</th>
+                      <th>Pump name</th>
                   </tr>
-                </tfoot>
-              </table>
-
-
-
-              @endforeach
-
-              
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
-        </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
-    </div>
-    <!-- /.container-fluid -->
-</section>
-<!-- /.content -->
-
-
-
-<!-- Main content -->
-<section class="content mt-3" id="newBtnSection">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <!-- /.card -->
-
-          <div class="card card-secondary">
-            <div class="card-header">
-              <h3 class="card-title">Vendor trip list (Sequence wise all data ) </h3>
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-
-              
-
-             
-
-
-
-              <div style="text-align: center; margin-bottom: 20px;">
-                <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
-                <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
+                  </thead>
+                  <tbody>
+                      @foreach ($pdtl as $key => $data)
+                      <tr>
+                          <td style="text-align: center">{{ $key + 1 }}</td>
+                          <td style="text-align: center">
+                              <label class="form-checkbox  grid layout">
+                                  <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
+                              </label>
+                          </td>
+                          @php
+                              $fuelBills = $data->advancePayment->petrolPump ?? '' 
+                                  ? \App\Models\FuelBill::with('petrolPump:id,name')
+                                      ->where('petrol_pump_id', $data->advancePayment->petrolPump->id)
+                                      ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
+                                  : collect();
+                          @endphp
+                          <td style="text-align: center">
+                              <label class="form-checkbox grid layout">
+                                <input type="checkbox" class="petrol-checkbox custom-checkbox" 
+                                data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
+                                data-fuel-bills='@json($fuelBills)'
+                                data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
+                                data-program-detail-id="{{ $data->id }}" 
+                                @if($data->fuel_bill_id) checked disabled @endif>
+                              </label>
+                          </td>
+                          <td style="text-align: center">{{$data->bill_no}}</td>
+                          <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
+                          <td style="text-align: center">{{$data->vendor->name}}</td>
+                          <td style="text-align: center">{{$data->headerid}}</td>
+                          <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
+                          <td style="text-align: center">{{$data->challan_no}}</td>
+                          <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                          <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->other_cost, 2) }}</td>
+                          <td style="text-align: center">{{ isset($data->advancePayment->cashamount) ? number_format($data->advancePayment->cashamount, 2) : "" }}</td>
+                          <td style="text-align: center">{{ isset($data->advancePayment->fuelqty) ? number_format($data->advancePayment->fuelqty, 2) : "" }}</td>
+                          <td style="text-align: center">{{ isset($data->advancePayment->fuelamount) ? number_format($data->advancePayment->fuelamount, 2) : "" }}</td>
+                          <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
+                          <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
+                          @php
+                              $totalfuelamount += $data->advancePayment->fuelamount ?? 0;
+                              $totalcashamount += $data->advancePayment->cashamount ?? 0;
+                              $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
+                              $totalcarrying_bill += $data->carrying_bill ?? 0;
+                              $totaladvance += $data->advance ?? 0;
+                              $totalother_cost += $data->other_cost ?? 0;
+                              $totalscale_fee += $data->scale_fee ?? 0;
+                              $totalline_charge += $data->line_charge ?? 0;
+                              $totaldest_qty += $data->dest_qty ?? 0;
+                          @endphp
+                      </tr>
+                      @endforeach
+                  </tbody>
+                  <tfoot>
+                      <tr>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center">{{ number_format($totaldest_qty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($totalcarrying_bill, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($totalline_charge, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($totalscale_fee, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($totalother_cost, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($totalcashamount, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($totalfuelqty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($totalfuelamount, 2) }}</td>
+                          <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center" colspan="5">
+                          <b>Total adv:</b><b>{{ number_format($totalcashamount + $totalfuelamount, 2) }}</b>
+                        </td>
+                        <td style="text-align: center"  colspan="8">
+                            <strong>Total Vendor's Payable: {{ number_format($totalcarrying_bill + $totalscale_fee, 2) }} - {{ number_format($totalcashamount + $totalfuelamount, 2) }} = {{ number_format($totalcarrying_bill + $totalscale_fee - $totalcashamount - $totalfuelamount, 2)}}</strong>
+                        </td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+                @endforeach
               </div>
-
-              <table class="table table-bordered table-striped datatable">
-                <thead>
-                <tr>
-                    <th>Sl</th>
-                    <th>Petrol Pump</th>
-                    <th>Date</th>
-                    <th>Vendor</th>
-                    <th>Header ID</th>
-                    <th>Truck Number</th>
-                    <th>Challan no</th>
-                    <th>Mother Vessel</th>
-                    <th>Destination</th>
-                    <th>Qty</th>
-                    <th>Carring Bill</th>
-                    <th>Line Charge</th>
-                    <th>Scale fee</th>
-                    <th>Other Cost</th>
-                    <th>Cash Advance</th>
-                    <th>Fuel qty</th>
-                    <th>Fuel Amount</th>
-                    <th>Fuel token</th>
-                    <th>Pump name</th>
-                    {{-- <th>Action</th> --}}
-                </tr>
-                </thead>
-                <tbody>
-
-                     @php
-                        $alltotalfuelamount = 0;
-                        $alltotalcashamount = 0;
-                        $alltotalfuelqty = 0;
-                        $alltotalcarrying_bill = 0;
-                        $alltotaladvance = 0;
-                        $alltotalother_cost = 0;
-                        $alltotalscale_fee = 0;
-                        $alltotalline_charge = 0;
-                        $alltotaldest_qty = 0;
-                    @endphp
-
-
-                    @foreach ($alldata as $key => $data)
-                    <tr>
-                        <td style="text-align: center">{{ $key + 1 }}</td>
-
-                        @php
-                            $fuelBills = $data->advancePayment->petrolPump ?? '' 
-                                ? \App\Models\FuelBill::with('petrolPump:id,name') // eager load name
-                                    ->where('petrol_pump_id', $data->advancePayment->petrolPump->id)
-                                    ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
-                                : collect();
-                        @endphp
-                        <td style="text-align: center">
-                            <label class="form-checkbox grid layout">
-                              <input type="checkbox" class="petrol-checkbox custom-checkbox" 
-                              data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
-                              data-fuel-bills='@json($fuelBills)'
-                              data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
-                              data-program-detail-id="{{ $data->id }}" 
-                              @if($data->fuel_bill_id) checked disabled @endif>
-                            </label>
-                        </td>
-                        <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                        <td style="text-align: center">{{$data->vendor->name ?? ''}}</td>
-                        <td style="text-align: center">{{$data->headerid}}</td>
-                        <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
-                        <td style="text-align: center">{{$data->challan_no}}</td>
-                        <td style="text-align: center">{{$data->motherVassel->name ?? ''}}</td>
-                        <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                        <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($data->other_cost, 2) }}</td>
-                        <td style="text-align: center">{{ isset($data->advancePayment->cashamount) ? number_format($data->advancePayment->cashamount, 2) : "" }}</td>
-                        <td style="text-align: center">{{ isset($data->advancePayment->fuelqty) ? number_format($data->advancePayment->fuelqty, 2) : "" }}</td>
-                        <td style="text-align: center">{{ isset($data->advancePayment->fuelamount) ? number_format($data->advancePayment->fuelamount, 2) : "" }}</td>
-                        <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
-                        <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
-
-                        @php
-                            $alltotalfuelamount += $data->advancePayment->fuelamount ?? 0;
-                            $alltotalcashamount += $data->advancePayment->cashamount ?? 0;
-                            $alltotalfuelqty += $data->advancePayment->fuelqty ?? 0;
-                            $alltotalcarrying_bill += $data->carrying_bill ?? 0;
-                            $alltotaladvance += $data->advance ?? 0;
-                            $alltotalother_cost += $data->other_cost ?? 0;
-                            $alltotalscale_fee += $data->scale_fee ?? 0;
-                            $alltotalline_charge += $data->line_charge ?? 0;
-                            $alltotaldest_qty += $data->dest_qty ?? 0;
-                        @endphp
-
-                    </tr>
-                    @endforeach
-                
-                </tbody>
-
-                <tfoot>
-                    <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center">{{ number_format($alltotaldest_qty, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotalcarrying_bill, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotalline_charge, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotalscale_fee, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotalother_cost, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotalcashamount, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotalfuelqty, 2) }}</td>
-                        <td style="text-align: center">{{ number_format($alltotalfuelamount, 2) }}</td>
-                        <td style="text-align: center"><b>Total adv:</b></td>
-                        <td style="text-align: center"><b>{{ number_format($alltotaladvance, 2) }}</b></td>
-                    </tr>
-                    <tr>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center" colspan="5">
-                        <b>Total adv:</b><b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
-                      </td>
-                      <td style="text-align: center"  colspan="8">
-                          <strong>Total Vendor's Payable: {{ number_format($alltotalcarrying_bill + $alltotalscale_fee, 2) }} - {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} = {{ number_format($alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount, 2)}}</strong>
-                      </td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                      <td style="text-align: center"></td>
-                  </tr>
-                </tfoot>
-              </table>
-
-
-
-
-              
             </div>
-            <!-- /.card-body -->
           </div>
-          <!-- /.card -->
         </div>
-        <!-- /.col -->
       </div>
-      <!-- /.row -->
-    </div>
-    <!-- /.container-fluid -->
-</section>
-<!-- /.content -->
+    </section>
+  </div>
+  <div class="tab-pane fade" id="all-data" role="tabpanel" aria-labelledby="all-data-tab">
+    <!-- Main content -->
+    <section class="content mt-3" id="newBtnSection">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">Vendor trip list (Sequence wise all data ) </h3>
+              </div>
+              <div class="card-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                  <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
+                  <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
+                </div>
+                <table class="table table-bordered table-striped datatable">
+                  <thead>
+                  <tr>
+                      <th>Sl</th>
+                      <th>Petrol Pump</th>
+                      <th>Date</th>
+                      <th>Vendor</th>
+                      <th>Header ID</th>
+                      <th>Truck Number</th>
+                      <th>Challan no</th>
+                      <th>Mother Vessel</th>
+                      <th>Destination</th>
+                      <th>Qty</th>
+                      <th>Carring Bill</th>
+                      <th>Line Charge</th>
+                      <th>Scale fee</th>
+                      <th>Other Cost</th>
+                      <th>Cash Advance</th>
+                      <th>Fuel qty</th>
+                      <th>Fuel Amount</th>
+                      <th>Fuel token</th>
+                      <th>Pump name</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                       @php
+                          $alltotalfuelamount = 0;
+                          $alltotalcashamount = 0;
+                          $alltotalfuelqty = 0;
+                          $alltotalcarrying_bill = 0;
+                          $alltotaladvance = 0;
+                          $alltotalother_cost = 0;
+                          $alltotalscale_fee = 0;
+                          $alltotalline_charge = 0;
+                          $alltotaldest_qty = 0;
+                      @endphp
+                      @foreach ($alldata as $key => $data)
+                      <tr>
+                          <td style="text-align: center">{{ $key + 1 }}</td>
+                          @php
+                              $fuelBills = $data->advancePayment->petrolPump ?? '' 
+                                  ? \App\Models\FuelBill::with('petrolPump:id,name')
+                                      ->where('petrol_pump_id', $data->advancePayment->petrolPump->id)
+                                      ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
+                                  : collect();
+                          @endphp
+                          <td style="text-align: center">
+                              <label class="form-checkbox grid layout">
+                                <input type="checkbox" class="petrol-checkbox custom-checkbox" 
+                                data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
+                                data-fuel-bills='@json($fuelBills)'
+                                data-qty="{{ $data->advancePayment->fuelqty ?? '' }}"
+                                data-program-detail-id="{{ $data->id }}" 
+                                @if($data->fuel_bill_id) checked disabled @endif>
+                              </label>
+                          </td>
+                          <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
+                          <td style="text-align: center">{{$data->vendor->name ?? ''}}</td>
+                          <td style="text-align: center">{{$data->headerid}}</td>
+                          <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
+                          <td style="text-align: center">{{$data->challan_no}}</td>
+                          <td style="text-align: center">{{$data->motherVassel->name ?? ''}}</td>
+                          <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                          <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->other_cost, 2) }}</td>
+                          <td style="text-align: center">{{ isset($data->advancePayment->cashamount) ? number_format($data->advancePayment->cashamount, 2) : "" }}</td>
+                          <td style="text-align: center">{{ isset($data->advancePayment->fuelqty) ? number_format($data->advancePayment->fuelqty, 2) : "" }}</td>
+                          <td style="text-align: center">{{ isset($data->advancePayment->fuelamount) ? number_format($data->advancePayment->fuelamount, 2) : "" }}</td>
+                          <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
+                          <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
+                          @php
+                              $alltotalfuelamount += $data->advancePayment->fuelamount ?? 0;
+                              $alltotalcashamount += $data->advancePayment->cashamount ?? 0;
+                              $alltotalfuelqty += $data->advancePayment->fuelqty ?? 0;
+                              $alltotalcarrying_bill += $data->carrying_bill ?? 0;
+                              $alltotaladvance += $data->advance ?? 0;
+                              $alltotalother_cost += $data->other_cost ?? 0;
+                              $alltotalscale_fee += $data->scale_fee ?? 0;
+                              $alltotalline_charge += $data->line_charge ?? 0;
+                              $alltotaldest_qty += $data->dest_qty ?? 0;
+                          @endphp
+                      </tr>
+                      @endforeach
+                  </tbody>
+                  <tfoot>
+                      <tr>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center">{{ number_format($alltotaldest_qty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($alltotalcarrying_bill, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($alltotalline_charge, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($alltotalscale_fee, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($alltotalother_cost, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($alltotalcashamount, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($alltotalfuelqty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($alltotalfuelamount, 2) }}</td>
+                          <td style="text-align: center"><b>Total adv:</b></td>
+                          <td style="text-align: center"><b>{{ number_format($alltotaladvance, 2) }}</b></td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center" colspan="5">
+                          <b>Total adv:</b><b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
+                        </td>
+                        <td style="text-align: center"  colspan="8">
+                            @php
+                              $totalPayable = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount;
+                            @endphp
+                            <strong 
+                              @if($totalPayable < 0) style="background-color: #ffcccc;" @endif
+                            >
+                              Total Vendor's Payable: {{ number_format($alltotalcarrying_bill + $alltotalscale_fee, 2) }} - {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} = {{ number_format($totalPayable, 2) }}
+                            </strong>
+                        </td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                        <td style="text-align: center"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+  $(function() {
+    // If you use Bootstrap 4/5, tabs will work automatically.
+    // If not, you may need to handle tab switching manually.
+    // This is for Bootstrap 4/5:
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      // Redraw datatables when tab is shown
+      $.fn.dataTable.tables({visible: true, api: true}).columns.adjust().responsive.recalc();
+    });
+  });
+</script>
+@endpush
 
 
 @endsection
