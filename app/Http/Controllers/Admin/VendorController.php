@@ -364,4 +364,20 @@ class VendorController extends Controller
         
     }
 
+    public function getWalletTransaction($id)
+    {
+        $vendor = Vendor::where('id', $id)->first();
+        $transactions = Transaction::where('vendor_id', $id)
+            ->orderBy('id', 'DESC')
+            ->get();
+
+
+        $deposit = Transaction::where('vendor_id', $id)->where('tran_type', 'Wallet')->sum('amount');
+        $expenses = Transaction::where('vendor_id', $id)->where('tran_type', 'Advance')->sum('amount');
+
+        $balance = $deposit - $expenses;
+
+        return view('admin.vendor.wallet_transaction', compact('transactions', 'vendor', 'balance'));
+    }
+
 }
