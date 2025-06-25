@@ -166,7 +166,7 @@
                     </td>
 
                     @php
-                        $totalfuelqty += $data->advancePayment->fuelqty;
+                        $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
                         $totalcarrying_bill += $data->carrying_bill;
                         $totaladvance += $data->advance;
                         $totalother_cost += $data->other_cost;
@@ -293,7 +293,7 @@
                       </form>
                     </td>
                     @php
-                        $totalfuelqty += $data->advancePayment->fuelqty;
+                        $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
                         $totalcarrying_bill += $data->carrying_bill;
                         $totaladvance += $data->advance;
                         $totalother_cost += $data->other_cost;
