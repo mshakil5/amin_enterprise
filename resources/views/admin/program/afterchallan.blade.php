@@ -6,6 +6,7 @@
         background-color: #090b0b52;
         color: white;
     }
+
 </style>
 <!-- Main content -->
 <section class="content mt-3" id="newBtnSection">
@@ -239,16 +240,12 @@
 
                                         <div class="form-group col-md-12">
                                             <label for="sequence_id">Vendors Sequence Id </label> <br>
-                                            
-                                            <select name="sequence_id" id="sequence_id" class="form-control ">
+                                            <select name="sequence_id" id="sequence_id" class="form-control select2" style="width: 100%;">
                                               <option value="">Select</option>
-
                                               @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
                                               <option value="{{$vsequence->id}}">{{$vsequence->unique_id}}</option>
                                               @endforeach
-                                              
                                             </select>
-                                            
                                         </div>
                                     </div>
                                 </div>
