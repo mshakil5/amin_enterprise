@@ -836,6 +836,7 @@ class ProgramController extends Controller
             DB::beginTransaction();
 
             $programDetail = ProgramDetail::findOrFail($request->program_detail_id);
+            $programDetail->date = $request->pdtldate;
             $programDetail->vendor_id = $request->vendor_id;
             $programDetail->truck_number = $request->truck_number;
             $programDetail->challan_no = $request->challan_no;
@@ -846,6 +847,7 @@ class ProgramController extends Controller
 
             $fuelAmount = ($request->fuel_rate ?? 0) * ($request->fuelqty ?? 0);
             $advancePayment = AdvancePayment::findOrFail($request->advance_payment_id);
+            $advancePayment->date = $request->pdtldate;
             $advancePayment->vendor_id = $request->vendor_id;
             $advancePayment->cashamount = $request->cashamount ?? 0;
             $advancePayment->petrol_pump_id = $request->petrol_pump_id;

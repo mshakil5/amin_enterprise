@@ -237,6 +237,7 @@
                                             <button type="button" class="btn btn-sm btn-primary edit-btn" 
                                                 data-id="{{ $pdtl->id }}"
                                                 data-vendor_id="{{ $pdtl->vendor_id }}"
+                                                data-date="{{ $pdtl->date }}"
                                                 data-truck_number="{{ $pdtl->truck_number }}"
                                                 data-challan_no="{{ $pdtl->challan_no }}"
                                                 data-cashamount="{{ $pdtl->advancePayment->cashamount ?? '' }}"
@@ -298,7 +299,7 @@
           <input type="hidden" name="advance_payment_id" id="advance_payment_id">
 
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label>Vendor</label> <br>
                 <select class="form-control" name="vendor_id" id="modal_vendor_id">
@@ -309,10 +310,16 @@
                 </select>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="form-group">
                 <label>Truck Number</label>
                 <input type="text" class="form-control" name="truck_number" id="modal_truck_number">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" class="form-control" name="pdtldate" id="pdtldate">
               </div>
             </div>
           </div>
@@ -411,6 +418,7 @@
 <script>
 $(document).on('click', '.edit-btn', function() {
   $('#program_detail_id').val($(this).data('id'));
+  $('#pdtldate').val($(this).data('date'));
   $('#advance_payment_id').val($(this).data('advance_payment_id'));
   $('#modal_vendor_id').val($(this).data('vendor_id'));
   $('#modal_truck_number').val($(this).data('truck_number'));
