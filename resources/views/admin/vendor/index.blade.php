@@ -233,24 +233,27 @@
           </div>
 
           <div class="modal-body">
-            <div class="seqErrmsg"></div>
-            <table id="trantable" class="table table-bordered table-striped">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Challan</th>
-                  <th>Challan Store</th>
-                  <th>Sequence</th>
-                  <th>Due/Advance</th>
-                  <th>Unique ID</th>
-                  <th>Action</th>
-                  <th>Checked By</th>
-                  <th>Approved By</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+              <div class="seqErrmsg"></div>
+              <div class="form-group">
+                  <label for="tranTableSearch">Search:</label>
+                  <input type="search" id="tranTableSearch" class="form-control" placeholder="Search transactions...">
+              </div>
+              <table id="trantable" class="table table-bordered table-striped">
+                  <thead>
+                      <tr>
+                          <th>Date</th>
+                          <th>Challan</th>
+                          <th>Challan Store</th>
+                          <th>Sequence</th>
+                          <th>Due/Advance</th>
+                          <th>Unique ID</th>
+                          <th>Action</th>
+                          <th>Checked By</th>
+                          <th>Approved By</th>
+                      </tr>
+                  </thead>
+                  <tbody></tbody>
+              </table>
           </div>
       </div>
   </div>
@@ -311,11 +314,21 @@
         "autoWidth": false,
         "responsive": true,
       });
+
+
+
     });
   </script>
 
 <script>
   $(document).ready(function () {
+
+    // Bind custom search input to trantable
+    $('#tranTableSearch').on('keyup', function () {
+        $('#trantable').DataTable().search(this.value).draw();
+    });
+
+    
       $("#addThisFormContainer").hide();
       $("#newBtn").click(function(){
           clearform();
