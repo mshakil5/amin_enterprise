@@ -155,7 +155,7 @@
                     <td style="text-align: center">{{$data->scale_fee}}</td>
                     <td style="text-align: center">{{$data->other_cost}}</td>
                     <td style="text-align: center">{{$data->advance}}</td>
-                    <td style="text-align: center">{{$data->advancePayment->fuelqty}}</td>
+                    <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
                     <td style="text-align: center">
                       <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
                         <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;" class="d-none">
