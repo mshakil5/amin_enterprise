@@ -119,6 +119,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/vendor-sequence/{id}', [VendorController::class, 'sequencedelete']);
     Route::post('/add-vendor-wallet-balance', [VendorController::class,'addWalletBalance'])->name('addWalletBalance');
     Route::get('/get-wallet-transaction/{id}', [VendorController::class,'getWalletTransaction'])->name('getWalletTransaction');
+    Route::post('/vendor-trip/export-excel', [VendorController::class, 'exportExcel'])->name('admin.vendor-trip.export-excel');
 
 
     // approved and checked sequence 

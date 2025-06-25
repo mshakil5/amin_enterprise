@@ -12,6 +12,8 @@ use App\Models\VendorSequenceNumber;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Exports\VendorTripExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class VendorController extends Controller
 {
@@ -378,6 +380,27 @@ class VendorController extends Controller
         $balance = $deposit - $expenses;
 
         return view('admin.vendor.wallet_transaction', compact('transactions', 'vendor', 'balance'));
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $tab = $request->input('tab'); // 'sequence' or 'all-data'
+        $motherVessel = $request->input('mother_vessel', 'All Trips');
+        $vendor = $request->input('vendor');
+        $sequenceNumber = $request->input('sequence_number');
+
+        // Fetch data based on tab
+        if ($tab === 'sequence') {
+            // Replace with your logic to fetch $data for the specific mother vessel
+            $data = []; // Example: Fetch data for $motherVessel
+        } else {
+            // Replace with your logic to fetch $alldata
+            $data = []; // Example: Fetch all data
+        }
+
+        $filename = 'Vendor_Trip_List_' . str_replace(' ', '_', $vendor) . '_' . $sequenceNumber . '_' . str_replace(' ', '_', $motherVessel) . '.xlsx';
+
+        return Excel::download(new VendorTripExport($data, $vendor, $sequenceNumber, $motherVessel, $tab === 'sequence'), $filename);
     }
 
 }
