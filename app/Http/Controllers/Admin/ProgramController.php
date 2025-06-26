@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 class ProgramController extends Controller
 {
@@ -1539,6 +1541,7 @@ class ProgramController extends Controller
 
     public function afterPostProgramStore(Request $request)
     {
+      
         // Step 1: Validate input
         $validator = Validator::make($request->all(), [
             'prgmdtlid' => 'required|integer',
@@ -1627,6 +1630,7 @@ class ProgramController extends Controller
             'advance'                  => $advancePayment->amount,
             'due'                      => ($request->totalamount + $request->additionalCost) - $advancePayment->amount,
             'rate_status'              => 0,
+            'updated_by'             => Auth::user()->id,
         ]);
 
         // Check for destination or quantity change
@@ -1863,5 +1867,22 @@ class ProgramController extends Controller
         
     }
 
+    public function programDetailLogs()
+    {
+        $from = Carbon::yesterday()->startOfDay();
+        $to = Carbon::today()->endOfDay();
+
+        
+      $logs = Activity::where('log_name', 'program_detail')
+          ->whereBetween('created_at', [$from, $to])
+          ->with([
+                'causer:id,name',
+                'subject:id,programid'
+            ])
+          // ->groupBy('causer_id')
+          ->get();
+
+        return view('admin.programs.program_detail_logs', compact('logs'));
+    }
 
 }

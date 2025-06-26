@@ -22,6 +22,16 @@
         </a>
       </li>
       @endif
+
+      <li class="nav-item">
+        <a href="{{route('program.detail.logs')}}" class="nav-link {{ (request()->is('admin/program-detail-logs*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Program Logs
+          </p>
+        </a>
+      </li>
+
       {{-- <li class="nav-item">
         <a href="{{route('admin.agent')}}" class="nav-link {{ (request()->is('admin/agent*')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>

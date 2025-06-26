@@ -312,7 +312,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('income-statement', [IncomeStatementController::class, 'incomeStatementSearch'])->name('admin.incomestatement.report');
 
 
-
+    Route::get('program-detail-logs', [ProgramController::class, 'programDetailLogs'])->name('program.detail.logs');
 
 });
   
