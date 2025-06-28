@@ -355,7 +355,7 @@
                                 </label>
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>
-                            <td style="text-align: center">{{ \Carbon\Carbon::parse($data->advancePayment->date)->format('d/m/Y')}}</td>
+                            <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                             <td style="text-align: center">{{$data->vendor->name}}</td>
                             <td style="text-align: center">{{$data->headerid}}</td>
                             <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
