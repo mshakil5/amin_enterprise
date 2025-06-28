@@ -305,14 +305,14 @@
                         <th>Destination</th>
                         <th>Qty</th>
                         <th>Carring Bill</th>
+                        <th>Advance</th>
+                        <th>Fuel qty</th>
+                        <th>Fuel token</th>
+                        <th>Fuel Amount</th>
+                        <th>Pump name</th>
                         <th>Line Charge</th>
                         <th>Scale fee</th>
                         <th>Other Cost</th>
-                        <th>Advance</th>
-                        <th>Fuel qty</th>
-                        <th>Fuel Amount</th>
-                        <th>Fuel token</th>
-                        <th>Pump name</th>
                         {{-- <th>Action</th> --}}
                     </tr>
                     </thead>
@@ -363,14 +363,14 @@
                             <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
                             <td style="text-align: center">{{$data->dest_qty}}</td>
                             <td style="text-align: center">{{$data->carrying_bill}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
                             <td style="text-align: center">{{$data->line_charge}}</td>
                             <td style="text-align: center">{{$data->scale_fee}}</td>
                             <td style="text-align: center">{{$data->other_cost}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
 
                             @php
                                 $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
@@ -392,19 +392,16 @@
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
+                            <td style="text-align: center" colspan="2"><small>Total qty:</small>{{$totaldest_qty}}</td>
+                            <td style="text-align: center" colspan="2"><small>Carring Bill:</small>{{$totalcarrying_bill}}</td>
+                            <td style="text-align: center" colspan="2"><small>Total Advance:</small>{{$totaladvance}}</td>
+                            <td style="text-align: center"><small>Fuel qty:</small>{{$totalfuelqty}}</td>
+                            <td style="text-align: center"><small>Line Charge:</small>{{$totalline_charge}}</td>
+                            <td style="text-align: center"><small>Scale fee:</small>{{$totalscale_fee}}</td>
+                            <td style="text-align: center"><small>Other Cost:</small>{{$totalother_cost}}</td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center">{{$totaldest_qty}}</td>
-                            <td style="text-align: center">{{$totalcarrying_bill}}</td>
-                            <td style="text-align: center">{{$totalline_charge}}</td>
-                            <td style="text-align: center">{{$totalscale_fee}}</td>
-                            <td style="text-align: center">{{$totalother_cost}}</td>
-                            <td style="text-align: center">{{$totaladvance}}</td>
-                            <td style="text-align: center">{{$totalfuelqty}}</td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>

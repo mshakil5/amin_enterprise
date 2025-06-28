@@ -67,7 +67,7 @@
                     $totalDue = $totalcarrying_bill - $totaladvance - $duePaymentTransaction;    
                 @endphp
 
-                @if ($duePaymentTransaction != null && $duePaymentTransaction > 0)
+                {{-- @if ($duePaymentTransaction != null && $duePaymentTransaction > 0)
                   <button type="button" class="btn btn-success mb-3">
                     Due Payment Paid: {{ number_format($duePaymentTransaction, 2) }}
                 </button>
@@ -106,7 +106,7 @@
                       </div>
                     </div>
                   </div>
-                </form>                
+                </form>                 --}}
 
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
