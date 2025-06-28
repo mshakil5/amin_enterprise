@@ -74,7 +74,7 @@ class ProgramController extends Controller
 
 
 
-        $dates = AdvancePayment::select(DB::raw('DATE(date) as date'))
+        $dates = ProgramDetail::select(DB::raw('DATE(date) as date'))
                     ->where('program_id','=', $id)
                     ->groupBy('date')
                     ->orderBy('date', 'DESC')
