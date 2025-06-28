@@ -355,7 +355,7 @@
                                 </label>
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>
-                            <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
+                            <td style="text-align: center">{{ \Carbon\Carbon::parse($data->advancePayment->date)->format('d/m/Y')}}</td>
                             <td style="text-align: center">{{$data->vendor->name}}</td>
                             <td style="text-align: center">{{$data->headerid}}</td>
                             <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
@@ -392,13 +392,13 @@
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
-                            <td style="text-align: center" colspan="2"><small>Total qty:</small>{{$totaldest_qty}}</td>
-                            <td style="text-align: center" colspan="2"><small>Carring Bill:</small>{{$totalcarrying_bill}}</td>
+                            <td style="text-align: center" colspan="2"><small>Total qty: </small>{{$totaldest_qty}}</td>
+                            <td style="text-align: center" colspan="2"><small>Carring Bill: </small>{{$totalcarrying_bill}}</td>
                             <td style="text-align: center" colspan="2"><small>Total Advance:</small>{{$totaladvance}}</td>
-                            <td style="text-align: center"><small>Fuel qty:</small>{{$totalfuelqty}}</td>
-                            <td style="text-align: center"><small>Line Charge:</small>{{$totalline_charge}}</td>
-                            <td style="text-align: center"><small>Scale fee:</small>{{$totalscale_fee}}</td>
-                            <td style="text-align: center"><small>Other Cost:</small>{{$totalother_cost}}</td>
+                            <td style="text-align: center"><small>Fuel qty: </small>{{$totalfuelqty}}</td>
+                            <td style="text-align: center"><small>Line Charge: </small>{{$totalline_charge}}</td>
+                            <td style="text-align: center"><small>Scale fee: </small>{{$totalscale_fee}}</td>
+                            <td style="text-align: center"><small>Other Cost: </small>{{$totalother_cost}}</td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
