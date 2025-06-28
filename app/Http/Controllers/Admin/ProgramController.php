@@ -1869,18 +1869,35 @@ class ProgramController extends Controller
 
     public function programDetailLogs()
     {
-        $from = Carbon::yesterday()->startOfDay();
-        $to = Carbon::today()->endOfDay();
-
+        $from = Carbon::yesterday()->toDateString();
+        $to = Carbon::today()->toDateString();
         
-      $logs = Activity::where('log_name', 'program_detail')
-          ->whereBetween('created_at', [$from, $to])
-          ->with([
+        $logs = Activity::where('log_name', 'program_detail')
+            ->whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to)
+            ->with([
                 'causer:id,name',
-                'subject:id,programid'
+                'subject:id,headerid,dest_qty,challan_no'
             ])
-          // ->groupBy('causer_id')
-          ->get();
+            ->get()
+            ->groupBy('causer_id')
+            ->map(function ($group) {
+                return $group->map(function ($log) {
+                    $headerid = $log->subject->headerid ?? 
+                              ($log->properties['attributes']['headerid'] ?? '-');
+                    $dest_qty = $log->subject->dest_qty ?? 
+                              ($log->properties['attributes']['dest_qty'] ?? '-');
+                    $challan_no = $log->subject->challan_no ?? 
+                                ($log->properties['attributes']['challan_no'] ?? '-');
+
+                    return [
+                        'headerid' => $headerid,
+                        'dest_qty' => $dest_qty,
+                        'challan_no' => $challan_no,
+                        'causer_name' => $log->causer?->name ?? 'Unknown',
+                    ];
+                });
+            });
 
         return view('admin.programs.program_detail_logs', compact('logs'));
     }

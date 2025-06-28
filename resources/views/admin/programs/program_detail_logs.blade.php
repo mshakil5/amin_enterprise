@@ -20,7 +20,7 @@
                       <tr>
                           <th>Sl</th>
                           <th>Performed By</th>
-                          <th>Program ID</th>
+                          <th>Counter</th>
                           <th>Action</th>
                       </tr>
                   </thead>
@@ -28,18 +28,17 @@
                       @foreach ($logs as $key => $log)
                           <tr>
                               <td>{{ $key + 1 }}</td>
-                              <td>{{ $log->causer?->name ?? '' }}</td>
-                              <td>{{ $log->subject?->programid ?? '' }}</td>
+                              <td>{{ $log->first()['causer_name'] ?? '' }}</td>
+                              <td>{{ $log->count() }}</td>
                               <td>
-                                  <button 
-                                    class="btn btn-sm btn-info show-changes-btn" 
-                                    data-changes='@json($log->changes)' 
-                                    data-causer="{{ $log->causer?->name ?? '' }}"
-                                    data-programid="{{ $log->subject?->programid ?? '' }}"
-                                    data-toggle="modal" 
-                                    data-target="#changesModal">
-                                    View
-                                  </button>
+                                <button 
+                                  class="btn btn-sm btn-info show-changes-btn my-1"
+                                  data-logs='@json($log)'
+                                  data-causer="{{ $log->first()['causer_name'] ?? '' }}"
+                                  data-toggle="modal" 
+                                  data-target="#changesModal">
+                                  View
+                                </button>
                               </td>
                           </tr>
                       @endforeach
@@ -70,9 +69,9 @@
         <table class="table table-bordered" id="changesTable">
           <thead>
             <tr>
-              <th>Field</th>
-              <th>Old Value</th>
-              <th>New Value</th>
+              <th>Header ID</th>
+              <th>Dest Qty</th>
+              <th>Challan Number</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -94,50 +93,33 @@
     let changesTable;
 
     $('.show-changes-btn').on('click', function () {
-      const changes = $(this).data('changes');
+      const logs = $(this).data('logs');
       const causer = $(this).data('causer');
-      const programId = $(this).data('programid');
 
       $('#changedByInfo').text(`Performed By: ${causer}`);
-      $('#programIdInfo').text(`Program ID: ${programId}`);
 
       const tbody = $('#changesTable tbody');
       tbody.empty();
 
-      if (!changes || !changes.attributes) {
-        tbody.append('<tr><td colspan="3" class="text-center">No changes recorded</td></tr>');
-      } else {
-        Object.keys(changes.attributes).forEach(field => {
-          const newVal = changes.attributes[field];
-          const oldVal = changes.old ? changes.old[field] : '-';
-
-          tbody.append(`
-            <tr>
-              <td>${field}</td>
-              <td>${oldVal !== null ? oldVal : '-'}</td>
-              <td>${newVal !== null ? newVal : '-'}</td>
-            </tr>
-          `);
-        });
+      if (!logs.length) {
+        tbody.append('<tr><td colspan="3" class="text-center">No relevant changes found</td></tr>');
+        return;
       }
 
-      if ($.fn.DataTable.isDataTable('#changesTable')) {
-        $('#changesTable').DataTable().destroy();
-      }
+      logs.forEach(log => {
+        if (log.headerid === '-' && log.dest_qty === '-' && log.challan_no === '-') return;
 
-      changesTable = $('#changesTable').DataTable({
-        paging: true,
-        searching: true,
-        ordering: true,
-        pageLength: 10,
-        lengthChange: true,
+        tbody.append(`
+          <tr>
+            <td>${log.headerid}</td>
+            <td>${log.dest_qty}</td>
+            <td>${log.challan_no}</td>
+          </tr>
+        `);
       });
     });
 
     $('#changesModal').on('hidden.bs.modal', function () {
-      if ($.fn.DataTable.isDataTable('#changesTable')) {
-        $('#changesTable').DataTable().destroy();
-      }
       $('#changedByInfo').text('');
       $('#programIdInfo').text('');
     });
