@@ -123,17 +123,21 @@ class ProgramController extends Controller
         // program details
         $program = Program::with('motherVassel:id,name')->where('id', $programId)->first();
 
-        $vendorAdvances = AdvancePayment::select('vendor_id',
+        $vendorAdvances = AdvancePayment::select(
+                'vendor_id',
                 DB::raw('SUM(fuelqty) as total_fuelqty'),
                 DB::raw('SUM(fuelamount) as total_fuelamount'),
                 DB::raw('SUM(cashamount) as total_cashamount'),
                 DB::raw('SUM(amount) as total_amount'),
                 DB::raw('COUNT(*) as vendor_count')
-            )->with('vendor:id,name')
-            ->where([
-            ['program_id', '=', $programId],
-            ['date', '=', $date]
-            ])->groupBy('vendor_id')->get();
+            )
+            ->with('vendor:id,name')
+            ->where('program_id', $programId)
+            ->whereHas('programDetail', function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->groupBy('vendor_id')
+            ->get();
 
         return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date, 'program' => $program]);
     }

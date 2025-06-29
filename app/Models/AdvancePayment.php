@@ -58,4 +58,9 @@ class AdvancePayment extends Model
     {
         return $this->belongsTo(PetrolPump::class);
     }
+
+    public function programDetail()
+    {
+        return $this->hasOne(ProgramDetail::class, 'id', 'program_detail_id');
+    }
 }
