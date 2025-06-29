@@ -982,11 +982,13 @@ $(document).ready(function () {
                             },
                             {
                                 extend: 'csv',
-                                title: 'Vendor Advance Summary'
+                                title: 'Vendor Advance Summary',
+                                footer: true,
                             },
                             {
                                 extend: 'excel',
-                                title: 'Vendor Advance Summary'
+                                title: 'Vendor Advance Summary',
+                                footer: true
                             },
                             {
                                 extend: 'pdf',
