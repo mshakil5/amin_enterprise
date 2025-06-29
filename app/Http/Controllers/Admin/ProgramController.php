@@ -1274,6 +1274,9 @@ class ProgramController extends Controller
 
                 $prop.= '<tr>
                             <td>
+                                <span class="btn btn-sm btn-success w-100 addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-headerid="'.$prgmdtl->headerid.'" data-destqty="'.$prgmdtl->dest_qty.'" data-linecharge="'.$prgmdtl->line_charge.'" data-scale_fee="'.$prgmdtl->scale_fee.'" data-other_cost="'.$prgmdtl->other_cost.'" data-destination_id="'.$prgmdtl->destination_id.'" data-advid="'.$prgmdtl->advancePayment->id.'" data-due="'.$prgmdtl->due.'" data-additional_cost="'.$prgmdtl->additional_cost.'" data-carrying_bill="'.$prgmdtl->carrying_bill.'" data-vendor_sequence_number_id="'.$prgmdtl->vendor_sequence_number_id.'"><i class="fas fa-arrow-right"></i></span>
+                            </td>
+                            <td>
                                 <select class="form-control" id="vendor_id'.$prgmdtl->id.'" name="vendor_id">
                                 <option value="'.$prgmdtl->advancePayment->vendor_id.'" selected>'.$prgmdtl->advancePayment->vendor->name.'</option>';
                                 foreach ($vendors as $vendor){
@@ -1301,9 +1304,6 @@ class ProgramController extends Controller
                             </td>
                             <td>
                                 <input type="number" class="form-control pamount" id="amount'.$prgmdtl->id.'" readonly  value="'.$prgmdtl->advancePayment->amount.'" name="pamount[]">
-                            </td>
-                            <td>
-                                <span class="btn btn-sm btn-success addrateThis" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-headerid="'.$prgmdtl->headerid.'" data-destqty="'.$prgmdtl->dest_qty.'" data-linecharge="'.$prgmdtl->line_charge.'" data-scale_fee="'.$prgmdtl->scale_fee.'" data-other_cost="'.$prgmdtl->other_cost.'" data-destination_id="'.$prgmdtl->destination_id.'" data-advid="'.$prgmdtl->advancePayment->id.'" data-due="'.$prgmdtl->due.'" data-additional_cost="'.$prgmdtl->additional_cost.'" data-carrying_bill="'.$prgmdtl->carrying_bill.'" data-vendor_sequence_number_id="'.$prgmdtl->vendor_sequence_number_id.'"><i class="fas fa-arrow-right"></i></span>
                             </td>
                         </tr>';
             }

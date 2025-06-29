@@ -179,15 +179,15 @@
                             <table class="table table-bordered mb-2" id="programTable">
                                 <thead>
                                     <tr>
-                                        <th>Vendor</th>
-                                        <th>Truck#</th>
-                                        <th>Cash Adv</th>
-                                        <th>Fuel qty</th>
-                                        <th>Fuel rate</th>
-                                        <th>Fuel adv</th>
-                                        <th>Fuel token</th>
-                                        <th>Total</th>
-                                        <th>Action</th>
+                                        <th style="width: 200px; text-align: center">Action</th>
+                                        <th style="text-align: center">Vendor</th>
+                                        <th style="text-align: center">Truck#</th>
+                                        <th style="text-align: center">Cash Adv</th>
+                                        <th style="text-align: center">Fuel qty</th>
+                                        <th style="text-align: center">Fuel rate</th>
+                                        <th style="text-align: center">Fuel adv</th>
+                                        <th style="text-align: center">Fuel token</th>
+                                        <th style="text-align: center">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
