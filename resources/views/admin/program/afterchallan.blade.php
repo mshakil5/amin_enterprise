@@ -493,85 +493,98 @@
 
     
     $(document).ready(function() {
+        let ajaxRequest = null; // Track ongoing AJAX request
+        let debounceTimeout = null; // Debounce timer
+
         $(document).on('change', '#destid', function(e) {
             e.preventDefault();
 
-            var totalqtyasperchallan = $("#totalqtyasperchallan").val();
-            var prgmdtlid = $("#prgmdtlid").val();
-            var vendor = $("#vendor_id"+prgmdtlid).val();
+            // Clear any existing debounce timeout
+            clearTimeout(debounceTimeout);
 
-            if (!totalqtyasperchallan) {
-                alert('Please input quantity as per challan first!');
-                $("#destid").val('');
-                return;
-            }
-            
+            // Debounce the change event (wait 300ms after last change)
+            debounceTimeout = setTimeout(function() {
+                var totalqtyasperchallan = $("#totalqtyasperchallan").val();
+                var prgmdtlid = $("#prgmdtlid").val();
+                var vendor = $("#vendor_id" + prgmdtlid).val();
 
-            var formData = new FormData();
-            formData.append("destid", $("#destid").val());
-            formData.append("ghat", $("#ghat_id").val());
-            formData.append("challanqty", $("#totalqtyasperchallan").val());
-            formData.append("prgmdtlid", prgmdtlid);
-            formData.append("vendor", vendor);
+                if (!totalqtyasperchallan) {
+                    alert('Please input quantity as per challan first!');
+                    $("#destid").val('');
+                    return;
+                }
 
-            $('#rateTable tbody').empty();
+                var formData = new FormData();
+                formData.append("destid", $("#destid").val());
+                formData.append("ghat", $("#ghat_id").val());
+                formData.append("challanqty", totalqtyasperchallan);
+                formData.append("prgmdtlid", prgmdtlid);
+                formData.append("vendor", vendor);
 
-            // setTimeout(function() {
-            //     $('#rateTable tbody').html('<tr><td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div> Loading...</td></tr>');
-            // }, 500);
+                // Abort any ongoing AJAX request
+                if (ajaxRequest) {
+                    ajaxRequest.abort();
+                }
 
-            $.ajax({
-                url: '{{ route("admin.checkSlabRate") }}',
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                cache: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    console.log(response)
+                // Show loading state (optional)
+                $('#rateTable tbody').html('<tr><td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div> Loading...</td></tr>');
 
-                    if (response.status == 300) {
-                        if (response.totalAmount > 0) {
-                            $dueAmnt = $("#destid").val();
-                            $('#rateTable tbody').append(response.rate);
-                            $("#totalamount").val(response.totalAmount);
-                            $("#sequence_id").html(response.vdata);
-                            $("#totalDue").val(response.totalAmount - $dueAmnt);
-                            
-                            updateSummary();
+                // Make AJAX request
+                ajaxRequest = $.ajax({
+                    url: '{{ route("admin.checkSlabRate") }}',
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        console.log(response);
 
+                        // Clear the table before appending new data
+                        $('#rateTable tbody').empty();
+
+                        if (response.status == 300) {
+                            if (response.totalAmount > 0) {
+                                // Assuming $dueAmnt should be a monetary value, not destid
+                                // If $dueAmnt is meant to be something else, replace with correct logic
+                                var dueAmnt = parseFloat($("#totalDue").val()) || 0; // Example: Use previous due amount or 0
+                                $('#rateTable tbody').append(response.rate);
+                                $("#totalamount").val(response.totalAmount);
+                                $("#sequence_id").html(response.vdata);
+                                $("#totalDue").val(response.totalAmount - dueAmnt);
+
+                                updateSummary();
+                            } else {
+                                $("#totalamount").val(0);
+                                $("#totalDue").val(0);
+                            }
                         } else {
-
-                            $('#rateTable tbody').empty();
                             $("#totalamount").val(0);
                             $("#totalDue").val(0);
+                            $(".advermsg").html(response.message);
+                            setTimeout(function() {
+                                $('.advermsg').fadeOut('slow', function() {
+                                    $(this).html('').show();
+                                });
+                            }, 1000);
                         }
-                    } else {
-
-                        $('#rateTable tbody').empty();
-                        $("#totalamount").val(0);
-                        $("#totalDue").val(0);
-                        $(".advermsg").html(response.message);
-                        
+                    },
+                    error: function(xhr, status, error) {
+                        if (status !== 'abort') {
+                            console.log(xhr.responseJSON?.message || 'An error occurred');
+                        }
+                    },
+                    complete: function() {
+                        $('#loader').hide();
+                        $('#addBtn').attr('disabled', false);
+                        ajaxRequest = null; // Reset AJAX request tracker
                     }
-
-                    
-                    
-                },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseJSON.message);
-                    // console.error(xhr.responseText);
-                },
-                complete: function() {
-                    $('#loader').hide();
-                    $('#addBtn').attr('disabled', false);
-                }
-            });
+                });
+            }, 300); // 300ms debounce delay
         });
-
     });
 
 
