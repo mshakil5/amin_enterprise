@@ -45,6 +45,16 @@
         All Trip List
       </a>
     </li>
+
+    
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="duplicate-data-tab" data-toggle="tab" href="#duplicate-data" role="tab" aria-controls="duplicate-data" aria-selected="false">
+        Duplicate Data
+      </a>
+    </li>
+
+
+
   </ul>
 </div>
 
@@ -364,6 +374,56 @@
       </div>
     </section>
   </div>
+
+
+  <div class="tab-pane fade" id="duplicate-data" role="tabpanel" aria-labelledby="duplicate-data-tab">
+    <section class="content mt-3">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">Duplicate Data Form</h3>
+              </div>
+              <div class="card-body">
+
+
+                <div class="card border-warning mb-3">
+                  <div class="card-header bg-warning text-dark">
+                    <strong>Check Duplicate or Wrong Entry Data</strong>
+                  </div>
+                  <div class="card-body">
+                    <p class="card-text">Please upload the Excel file containing the duplicate or wrong entry data for the vendor.</p>
+
+                    <form action="{{ route('checkDuplicateWrongData')}}" method="POST" enctype="multipart/form-data" id="duplicateDataForm">
+                      @csrf
+
+                      <input type="hidden" name="vendor_id" value="{{ $vendor->id ?? '' }}">
+                      <input type="hidden" name="vendor_sequence_number_id" value="{{ $vendorSequenceNumber->id ?? '' }}">
+                      <div class="form-group">
+                        <label for="vendor_report">Upload Excel File </label>
+                        <input type="file" class="form-control" id="vendor_report" name="vendor_report" accept=".xlsx, .xls, .csv" required>
+                      </div>
+
+
+                      <button type="submit" class="btn btn-primary">Submit Duplicate Data</button>
+                    </form>
+
+                    
+
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
 </div>
 
 @push('scripts')

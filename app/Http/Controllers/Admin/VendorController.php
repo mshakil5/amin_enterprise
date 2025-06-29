@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Exports\VendorTripExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 
 class VendorController extends Controller
 {
@@ -401,6 +402,93 @@ class VendorController extends Controller
         $filename = 'Vendor_Trip_List_' . str_replace(' ', '_', $vendor) . '_' . $sequenceNumber . '_' . str_replace(' ', '_', $motherVessel) . '.xlsx';
 
         return Excel::download(new VendorTripExport($data, $vendor, $sequenceNumber, $motherVessel, $tab === 'sequence'), $filename);
+    }
+
+
+    // check duplicate or wrong data
+    public function checkDuplicateWrongData(Request $request)
+    {
+        // Validate the file
+        $request->validate([
+            'vendor_report' => 'required|file|mimes:xlsx,xls,csv|max:2048', // Limit to 2MB
+        ]);
+
+        try {
+            $file = $request->file('vendor_report');
+            $vsID = $request->vendor_sequence_number_id;
+            $vendorID = $request->vendor_id;
+
+            // Log file details for debugging
+            Log::info('Processing file: ' . $file->getClientOriginalName());
+            Log::info('File size: ' . $file->getSize() . ' bytes');
+
+            // Read Excel file
+            $excelData = Excel::toArray([], $file);
+
+            // Check if Excel data is empty or has no sheets
+            if (empty($excelData) || !isset($excelData[0])) {
+                Log::error('Excel file is empty or has no sheets');
+                return redirect()->back()->withErrors(['vendor_report' => 'The uploaded Excel file is empty or invalid.']);
+            }
+
+            $excelData = $excelData[0]; // Get first sheet
+            Log::info('Excel data rows: ' . count($excelData));
+
+            // dd($excelData ); 
+            // Check if the sheet is empty
+            if (empty($excelData)) {
+                Log::error('No data found in the first sheet');
+                return redirect()->back()->withErrors(['vendor_report' => 'No data found in the Excel file.']);
+            }
+
+            // Check if the 9th column exists (0-based index: 8)
+            if (!isset($excelData[0][8])) {
+                Log::error('9th column (challan_no) not found in Excel file');
+                return redirect()->back()->withErrors(['vendor_report' => 'The Excel file does not contain a 9th column (challan_no).']);
+            }
+
+            // Extract challan numbers from the 9th column, skipping the header row
+            $excelChallanNos = array_column(array_slice($excelData, 1), 8); // Skip first row, get 9th column
+
+            // Check if any challan numbers were extracted
+            if (empty($excelChallanNos)) {
+                Log::error('No valid challan numbers found in the 9th column');
+                return redirect()->back()->withErrors(['vendor_report' => 'No valid challan numbers found in the 9th column.']);
+            }
+
+            // Log the extracted challan numbers
+            Log::info('Extracted challan numbers: ' . json_encode($excelChallanNos));
+
+            // Get challan numbers from ProgramDetails
+            $programDetails = ProgramDetail::where('vendor_id', $vendorID)
+                ->where('vendor_sequence_number_id', $vsID)
+                ->pluck('challan_no')
+                ->toArray();
+
+            // Log database challan numbers
+            Log::info('Database challan numbers: ' . json_encode($programDetails));
+
+            // Find matching and non-matching challan numbers
+            $matchingChallans = array_intersect($excelChallanNos, $programDetails);
+            $nonMatchingChallans = array_diff($excelChallanNos, $programDetails);
+            $missingInExcel = array_diff($programDetails, $excelChallanNos);
+
+            dd($nonMatchingChallans);
+
+            // Return view with data
+            return view('vendor.challan_report', [
+                'matching_challans' => array_values($matchingChallans),
+                'non_matching_challans' => array_values($nonMatchingChallans),
+                'missing_in_excel' => array_values($missingInExcel),
+                'total_excel_records' => count($excelChallanNos),
+                'total_db_records' => count($programDetails)
+            ]);
+
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error processing Excel file: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['vendor_report' => 'An error occurred while processing the Excel file: ' . $e->getMessage()]);
+        }
     }
 
 }
