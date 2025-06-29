@@ -473,7 +473,7 @@ class VendorController extends Controller
             $nonMatchingChallans = array_diff($excelChallanNos, $programDetails);
             $missingInExcel = array_diff($programDetails, $excelChallanNos);
 
-            dd($nonMatchingChallans);
+            dd($nonMatchingChallans, $missingInExcel, $matchingChallans);
 
             // Return view with data
             return view('vendor.challan_report', [
