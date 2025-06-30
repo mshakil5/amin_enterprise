@@ -269,18 +269,18 @@
                                             <tr>
                                                 <td></td>
                                                 <td>Total</td>
-                                                <td><input type="number" class="form-control" id="totalamount" name="totalamount" readonly tabindex="10"></td>
+                                                <td><input type="number" class="form-control" id="totalamount" name="totalamount" readonly ></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>Additional cost</td>
-                                                <td><input type="number" class="form-control" id="additionalCost" name="additionalCost" readonly tabindex="11"></td>
+                                                <td><input type="number" class="form-control" id="additionalCost" name="additionalCost" readonly ></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>Advance</td>
                                                 <td>
-                                                    <input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly tabindex="12">
+                                                    <input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly >
                                                     <input type="hidden" class="form-control" id="prgmdtlid" name="prgmdtlid" readonly>
                                                     <input type="hidden" class="form-control" id="advPmtid" name="advPmtid" readonly>
                                                 </td>
@@ -288,12 +288,12 @@
                                             <tr>
                                                 <td></td>
                                                 <td>Due</td>
-                                                <td><input type="number" class="form-control" id="totalDue" name="totalDue" readonly tabindex="13"></td>
+                                                <td><input type="number" class="form-control" id="totalDue" name="totalDue" readonly ></td>
                                             </tr>
                                         </tfoot>
                                     </table>
                                     
-                                    <button type="button" id="afterChallanBtn" form="addadvThisForm" class="btn btn-secondary" tabindex="14">Submit</button>
+                                    <button type="button" id="afterChallanBtn" form="addadvThisForm" class="btn btn-secondary" tabindex="10">Submit</button>
                                     <div id="loader" style="display: none;">
                                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                         Loading...
