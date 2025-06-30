@@ -7,6 +7,12 @@
         color: white;
     }
 
+    [id^="prgmDtlArrowKey_"]:focus, .focused-button {
+        background-color: #28a745 !important; /* Darker green for focus */
+        outline: 2px solid #0056b3 !important; /* Blue outline for accessibility */
+        outline-offset: 2px;
+    }
+
 </style>
 <!-- Main content -->
 <section class="content mt-3" id="newBtnSection">
@@ -203,22 +209,21 @@
                                 </div>
                                 
                                 <div class="col-sm-6">
-                                    
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
-                                            <label for="headerid">Header ID </label>
-                                            <input type="text" class="form-control" id="headerid" name="headerid">
+                                            <label for="headerid">Header ID</label>
+                                            <input type="text" class="form-control" id="headerid" name="headerid" tabindex="3">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="totalqtyasperchallan">Quantity as per challan</label>
-                                            <input type="number" class="form-control" id="totalqtyasperchallan" name="totalqtyasperchallan">
+                                            <input type="number" class="form-control" id="totalqtyasperchallan" name="totalqtyasperchallan" tabindex="4">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="destid">Destination</label>
-                                            <select class="form-control" id="destid" name="destid">
+                                            <select class="form-control" id="destid" name="destid" tabindex="5">
                                                 <option value="">Select destination</option>
                                                 @foreach (\App\Models\Destination::where('status', 1)->get() as $destination)
-                                                <option value="{{$destination->id}}">{{$destination->name}}</option>
+                                                    <option value="{{$destination->id}}">{{$destination->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -227,32 +232,29 @@
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="scale_fee">Scale fee</label>
-                                            <input type="number" class="form-control" id="scale_fee" name="scale_fee" >
+                                            <input type="number" class="form-control" id="scale_fee" name="scale_fee" tabindex="6">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="line_charge">Line Charge</label>
-                                            <input type="number" class="form-control" id="line_charge" name="line_charge" >
+                                            <input type="number" class="form-control" id="line_charge" name="line_charge" tabindex="7">
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="other_cost">Other cost</label>
-                                            <input type="number" class="form-control" id="other_cost" name="other_cost" >
+                                            <input type="number" class="form-control" id="other_cost" name="other_cost" tabindex="8">
                                         </div>
-
                                         <div class="form-group col-md-12">
-                                            <label for="sequence_id">Vendors Sequence Id </label> <br>
-                                            <select name="sequence_id" id="sequence_id" class="form-control select2" style="width: 100%;">
-                                              <option value="">Select</option>
-                                              @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
-                                              <option value="{{$vsequence->id}}">{{$vsequence->unique_id}}</option>
-                                              @endforeach
+                                            <label for="sequence_id">Vendors Sequence Id</label>
+                                            <select name="sequence_id" id="sequence_id" class="form-control select2" style="width: 100%;" tabindex="9">
+                                                <option value="">Select</option>
+                                                @foreach (\App\Models\VendorSequenceNumber::all() as $vsequence)
+                                                    <option value="{{$vsequence->id}}">{{$vsequence->unique_id}}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                     </div>
                                 </div>
 
-                                
                                 <div class="col-sm-6">
-
                                     <table class="table table-bordered" id="rateTable">
                                         <thead>
                                             <tr>
@@ -262,49 +264,41 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-
                                         </tbody>
                                         <tfoot>
-
                                             <tr>
                                                 <td></td>
                                                 <td>Total</td>
-                                                <td><input type="number" class="form-control" id="totalamount" name="totalamount" readonly></td>
+                                                <td><input type="number" class="form-control" id="totalamount" name="totalamount" readonly tabindex="10"></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>Additional cost</td>
-                                                <td><input type="number" class="form-control" id="additionalCost" name="additionalCost" readonly></td>
+                                                <td><input type="number" class="form-control" id="additionalCost" name="additionalCost" readonly tabindex="11"></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>Advance</td>
-                                                <td><input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly><input type="hidden" class="form-control" id="prgmdtlid" name="prgmdtlid" readonly><input type="hidden" class="form-control" id="advPmtid" name="advPmtid" readonly></td>
+                                                <td>
+                                                    <input type="number" class="form-control" id="advanceAmnt" name="advanceAmnt" readonly tabindex="12">
+                                                    <input type="hidden" class="form-control" id="prgmdtlid" name="prgmdtlid" readonly>
+                                                    <input type="hidden" class="form-control" id="advPmtid" name="advPmtid" readonly>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>Due</td>
-                                                <td><input type="number" class="form-control" id="totalDue" name="totalDue" readonly></td>
+                                                <td><input type="number" class="form-control" id="totalDue" name="totalDue" readonly tabindex="13"></td>
                                             </tr>
-                                            
                                         </tfoot>
                                     </table>
                                     
-                                    <button type="button" id="afterChallanBtn" form="addadvThisForm" class="btn btn-secondary">Submit</button>
+                                    <button type="button" id="afterChallanBtn" form="addadvThisForm" class="btn btn-secondary" tabindex="14">Submit</button>
                                     <div id="loader" style="display: none;">
                                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                         Loading...
                                     </div>
-
-                                    {{-- <input type="hidden" id="program_detail_id" >
-                                    <button type="button" id="updatebtn" form="" class="btn btn-secondary">Update</button>
-                                    <div id="loader" style="display: none;">
-                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                        Loading...
-                                    </div> --}}
-                                    
                                 </div>
-
                             </div>
 
                             
@@ -593,6 +587,10 @@
 <!-- Create check challan Start -->
 <script>
     $(document).ready(function() {
+
+        
+    $("#headerDiv").hide();
+
         $(document).on('click', '#checkBtn', function(e) {
             e.preventDefault();
             $('#programTable tbody').html('');
@@ -642,6 +640,10 @@
                         $('#programTable tbody').append(response.data);
                         $('#rateTable tbody').append(response.prate);
 
+                        // Focus on the first prgmDtlArrowKey button
+                        const $targetButton = $('#programTable tbody [id^="prgmDtlArrowKey_"]').first();
+                        $targetButton.addClass('focused-button').focus();
+
                         setTimeout(function() {
                             $('.ermsg').fadeOut('slow');
                         }, 3000);
@@ -661,31 +663,53 @@
             });
         });
 
+
+        // Remove focused class on blur
+    $(document).on('blur', '[id^="prgmDtlArrowKey_"]', function() {
+        $(this).removeClass('focused-button');
     });
-</script>
-<!-- Create  check challan End -->
 
+    // Custom keybinding for Ctrl+Q
+    $(document).on('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'q') {
+            e.preventDefault();
+            const $targetButton = $('#rateTable tbody [id^="prgmDtlArrowKey_"]').first();
+            if ($targetButton.length) {
+                $targetButton.addClass('focused-button').focus();
+                console.log('Focused on button:', $targetButton.attr('id'));
+            } else {
+                console.log('No prgmDtlArrowKey button found');
+            }
+        }
+    });
 
+    // Handle click and Enter key for .addrateThis
+    $(document).on('click', '.addrateThis', function() {
+        handleAddRateThis($(this));
+    });
 
+    $(document).on('keydown', '[id^="prgmDtlArrowKey_"]', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent default Enter behavior
+            handleAddRateThis($(this)); // Trigger the same logic as click
+        }
+    });
 
-<script>
-    // return stock
-    $("#headerDiv").hide();
-    $("#programTable").on('click','.addrateThis', function(){
-        advAmnt = $(this).attr('data-adv');
-        prgmDtlId = $(this).attr('data-pdtlid');
-        advPmtiId = $(this).attr('data-advid');
-
-        headerid = $(this).attr('data-headerid');
-        destqty = $(this).attr('data-destqty');
-        linecharge = $(this).attr('data-linecharge');
-        scale_fee = $(this).attr('data-scale_fee');
-        other_cost = $(this).attr('data-other_cost');
-        destination_id = $(this).attr('data-destination_id');
-        due = $(this).attr('data-due');
-        additional_cost = $(this).attr('data-additional_cost');
-        carrying_bill = $(this).attr('data-carrying_bill');
-        vendor_sequence_number_id = $(this).attr('data-vendor_sequence_number_id');
+    // Function to handle .addrateThis logic
+    function handleAddRateThis($element) {
+        const advAmnt = $element.attr('data-adv');
+        const prgmDtlId = $element.attr('data-pdtlid');
+        const advPmtiId = $element.attr('data-advid');
+        const headerid = $element.attr('data-headerid');
+        const destqty = $element.attr('data-destqty');
+        const linecharge = $element.attr('data-linecharge');
+        const scale_fee = $element.attr('data-scale_fee');
+        const other_cost = $element.attr('data-other_cost');
+        const destination_id = $element.attr('data-destination_id');
+        const due = $element.attr('data-due');
+        const additional_cost = $element.attr('data-additional_cost');
+        const carrying_bill = $element.attr('data-carrying_bill');
+        const vendor_sequence_number_id = $element.attr('data-vendor_sequence_number_id');
 
         $("#advanceAmnt").val(advAmnt);
         $("#prgmdtlid").val(prgmDtlId);
@@ -701,9 +725,16 @@
         $("#totalamount").val(carrying_bill);
         $("#sequence_id").val(vendor_sequence_number_id);
         $("#headerDiv").show();
-    });
-    // return stock end
+    }
+
+});
 </script>
+<!-- Create  check challan End -->
+
+
+
+
+
 
 
 <!-- Create Destination -->
