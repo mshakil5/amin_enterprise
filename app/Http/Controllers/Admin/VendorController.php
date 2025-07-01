@@ -277,6 +277,8 @@ class VendorController extends Controller
     public function getVendorWiseProgramList($id)
     {
         $vendorSequenceNumber = VendorSequenceNumber::where('id', $id)->first();
+
+        $totalPaidTransaction = Transaction::where('vendor_sequence_number_id', $id)->sum('amount');
         
         $vendor = Vendor::where('id', $vendorSequenceNumber->vendor_id)->first();
         $pdtls = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
@@ -295,9 +297,9 @@ class VendorController extends Controller
             });
         
         $alldata = ProgramDetail::where('vendor_sequence_number_id', $id)->get();
-
+        $clientId = $alldata->first()->client_id ?? null;
         
-        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber','alldata'));
+        return view('admin.vendor.vendor_wise_program_list', compact('data','vendor','vendorSequenceNumber','alldata', 'clientId', 'vendorSequenceNumber', 'totalPaidTransaction'));
     }
 
 

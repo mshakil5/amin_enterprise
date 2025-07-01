@@ -34,6 +34,19 @@
 
 <!-- Tabs for switching between sections -->
 <div class="container-fluid mb-3">
+
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
   <ul class="nav nav-tabs" id="vendorTab" role="tablist">
     <li class="nav-item" role="presentation">
       <a class="nav-link active" id="sequence-tab" data-toggle="tab" href="#sequence" role="tab" aria-controls="sequence" aria-selected="true">
@@ -53,6 +66,11 @@
       </a>
     </li>
 
+    <li class="nav-item" role="presentation">
+      <a href="#" class="nav-link" data-toggle="modal" data-target="#duePaymentModal">
+        Due Payment
+      </a>
+    </li>
 
 
   </ul>
@@ -203,7 +221,19 @@
                           <b>Total adv:</b><b>{{ number_format($totalcashamount + $totalfuelamount, 2) }}</b>
                         </td>
                         <td style="text-align: center"  colspan="8">
-                            <strong>Total Vendor's Payable: {{ number_format($totalcarrying_bill + $totalscale_fee, 2) }} - {{ number_format($totalcashamount + $totalfuelamount, 2) }} = {{ number_format($totalcarrying_bill + $totalscale_fee - $totalcashamount - $totalfuelamount, 2)}}</strong>
+
+                          @php
+                              $grossPayable = $totalcarrying_bill + $totalscale_fee;
+                              $totalPaid = $totalcashamount + $totalfuelamount + $totalPaidTransaction;
+                              $netPayable = $grossPayable - $totalcashamount - $totalfuelamount - $totalPaidTransaction;
+                          @endphp
+                            <strong>
+                                Total Vendor's Payable: 
+                                {{ number_format($grossPayable, 2) }} - 
+                                {{ number_format($totalcashamount + $totalfuelamount, 2) }} - 
+                                {{ number_format($totalPaidTransaction, 2) }} = 
+                                {{ number_format($netPayable, 2) }}
+                            </strong>
                         </td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
@@ -423,6 +453,37 @@
     </section>
   </div>
 
+  <div class="modal fade" id="duePaymentModal" tabindex="-1" role="dialog" aria-labelledby="duePaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <form action="{{ route('due.payment.store') }}" method="POST" class="modal-content">
+        @csrf
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title" id="duePaymentModalLabel">Due Payment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h4>Total Due: <strong>{{ number_format($netPayable, 2) }} Tk</strong></h4>
+           @if($netPayable > 0)
+          <input type="text" name="comment" class="form-control mb-3" placeholder="Enter comment" required>
+          @endif
+          <input type="hidden" name="due_amount" value="{{ $netPayable }}">
+          <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
+          <input type="hidden" name="client_id" value="{{ $clientId }}">
+          <input type="hidden" name="vendor_sequence_number_id" value="{{ $vendorSequenceNumber->id }}">
+          <p>Note: This due payment from vendor's wallet.</p>
+          <p>Note: Vendor's available balance: <b>{{ $vendor->balance }} Tk</b></p>
+        </div>
+        <div class="modal-footer">
+          @if($netPayable > 0)
+            <button type="submit" class="btn btn-warning">Pay</button>
+          @endif
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 </div>
 
