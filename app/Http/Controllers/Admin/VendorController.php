@@ -216,7 +216,7 @@ class VendorController extends Controller
                             <td>
                             <a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
                             </td>
-                            <td>
+                            <td><a class="btn btn-primary btn-xs" href="'.route('admin.vendor.sequence.ledger', $tran->id).'">Ledger</a>
                                 <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn d-none" style="cursor:pointer">Delete</span>
                             </td>
                             <td>
@@ -273,7 +273,7 @@ class VendorController extends Controller
         return response()->json(['status' => 300, 'vendors' => $vendors]);
     }
 
-    // getVendorWiseProgramList
+    // get Vendor Wise ProgramList
     public function getVendorWiseProgramList($id)
     {
         $vendorSequenceNumber = VendorSequenceNumber::where('id', $id)->first();
@@ -352,7 +352,7 @@ class VendorController extends Controller
         $transaction->payment_type = $request->payment_type;
         $transaction->table_type = "Expense";
         $transaction->vendor_id = $request->vendorId;
-        $transaction->date = date('Y-m-d');
+        $transaction->date = $request->wallet_date ?? date('Y-m-d');
         $transaction->save();
         $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         if ($transaction->save()) {
@@ -491,6 +491,41 @@ class VendorController extends Controller
             Log::error('Error processing Excel file: ' . $e->getMessage());
             return redirect()->back()->withErrors(['vendor_report' => 'An error occurred while processing the Excel file: ' . $e->getMessage()]);
         }
+    }
+
+
+    // getVendorWiseProgramList
+    public function getVendorWiseProgramLedger($id)
+    {
+        $vendorSequenceNumber = VendorSequenceNumber::where('id', $id)->first();
+        $vendor = Vendor::where('id', $vendorSequenceNumber->vendor_id)->first();
+        
+        $summary = ProgramDetail::where('vendor_sequence_number_id', $id)
+                    ->selectRaw('
+                        SUM(dest_qty) as total_dest_qty,
+                        SUM(carrying_bill) as total_carrying_bill,
+                        SUM(line_charge) as total_line_charge,
+                        SUM(scale_fee) as total_scale_fee,
+                        SUM(other_cost) as total_other_cost,
+                        SUM(advance) as total_advance
+                    ')
+                    ->first();
+
+        $advanceData = \App\Models\AdvancePayment::whereIn('program_detail_id', function ($query) use ($id) {
+                    $query->select('id')
+                        ->from('program_details')
+                        ->where('vendor_sequence_number_id', $id);
+                })->selectRaw('
+                    SUM(cashamount) as total_cashamount,
+                    SUM(fuelqty) as total_fuelqty,
+                    SUM(fuelamount) as total_fuelamount
+                ')->first();
+
+        $totalPaidTransaction = Transaction::where('vendor_sequence_number_id', $id)->sum('amount');
+
+
+        
+        return view('admin.vendor.sequence_wise_program_ledger', compact('vendorSequenceNumber', 'totalPaidTransaction', 'summary','vendor','advanceData'));
     }
 
 }

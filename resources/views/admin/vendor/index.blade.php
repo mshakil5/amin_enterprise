@@ -279,6 +279,10 @@
               <div class="modal-body">
                 <div class="permsg"></div>
                   <div class="form-group">
+                    <label for="wallet_date">Date <span style="color: red;">*</span></label>
+                    <input type="date" class="form-control" id="wallet_date" name="wallet_date" required>
+                  </div>
+                  <div class="form-group">
                       <label for="walletamount">Amount <span style="color: red;">*</span></label>
                       <input type="number" class="form-control" id="walletamount" name="walletamount" >
                   </div>
@@ -637,6 +641,7 @@
               form_data.append("vendorId", id);
               form_data.append("walletamount", $("#walletamount").val());
               form_data.append("payment_type", $("#payment_type").val());
+              form_data.append("wallet_date", $("#wallet_date").val());
               // form_data.append("sequence", $("#sequence").val());
 
               if (!$("#walletamount").val()) {
