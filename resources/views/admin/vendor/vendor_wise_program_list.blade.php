@@ -222,18 +222,7 @@
                         </td>
                         <td style="text-align: center"  colspan="8">
 
-                          @php
-                              $grossPayable = $totalcarrying_bill + $totalscale_fee;
-                              $totalPaid = $totalcashamount + $totalfuelamount + $totalPaidTransaction;
-                              $netPayable = $grossPayable - $totalcashamount - $totalfuelamount - $totalPaidTransaction;
-                          @endphp
-                            <strong>
-                                Total Vendor's Payable: 
-                                {{ number_format($grossPayable, 2) }} - 
-                                {{ number_format($totalcashamount + $totalfuelamount, 2) }} - 
-                                {{ number_format($totalPaidTransaction, 2) }} = 
-                                {{ number_format($netPayable, 2) }}
-                            </strong>
+                          <strong>Total Vendor's Payable: {{ number_format($totalcarrying_bill + $totalscale_fee, 2) }} - {{ number_format($totalcashamount + $totalfuelamount, 2) }} = {{ number_format($totalcarrying_bill + $totalscale_fee - $totalcashamount - $totalfuelamount, 2)}}</strong>
                         </td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
@@ -374,27 +363,34 @@
                           <td style="text-align: center"><b>{{ number_format($alltotaladvance, 2) }}</b></td>
                       </tr>
                       <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center" colspan="5">
-                          <b>Total adv:</b><b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
-                        </td>
-                        <td style="text-align: center"  colspan="8">
-                            @php
-                              $totalPayable = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount;
-                            @endphp
-                            <strong 
-                              @if($totalPayable < 0) style="background-color: #ffcccc;" @endif
-                            >
-                              Total Vendor's Payable: {{ number_format($alltotalcarrying_bill + $alltotalscale_fee, 2) }} - {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} = {{ number_format($totalPayable, 2) }}
-                            </strong>
-                        </td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                    </tr>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
+
+                          <td style="text-align: center" colspan="4">
+                              <b>Total Adv:</b> <b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
+                          </td>
+
+                          <td style="text-align: center" colspan="4">
+                              <b>Total Paid:</b> <b>{{ number_format($totalPaidTransaction, 2) }}</b>
+                          </td>
+
+                          <td style="text-align: center" colspan="8">
+                              @php
+                                  $totalPayable = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount - $totalPaidTransaction;
+                              @endphp
+                              <strong 
+                                  @if($totalPayable < 0) style="background-color: #ffcccc;" @endif
+                              >
+                                  Total Vendor's Payable: 
+                                  {{ number_format($alltotalcarrying_bill + $alltotalscale_fee, 2) }} - 
+                                  {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} -
+                                  {{ number_format($totalPaidTransaction) }} =
+                                  {{ number_format($totalPayable, 2) }}
+                              </strong>
+                          </td>
+                      </tr>
                   </tfoot>
                 </table>
               </div>
@@ -464,11 +460,11 @@
           </button>
         </div>
         <div class="modal-body">
-          <h4>Total Due: <strong>{{ number_format($netPayable, 2) }} Tk</strong></h4>
-           @if($netPayable > 0)
+          <h4>Total Due: <strong>{{ number_format($totalPayable, 2) }} Tk</strong></h4>
+           @if($totalPayable > 0)
           <input type="text" name="comment" class="form-control mb-3" placeholder="Enter comment" required>
           @endif
-          <input type="hidden" name="due_amount" value="{{ $netPayable }}">
+          <input type="hidden" name="due_amount" value="{{ $totalPayable }}">
           <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
           <input type="hidden" name="client_id" value="{{ $clientId }}">
           <input type="hidden" name="vendor_sequence_number_id" value="{{ $vendorSequenceNumber->id }}">
@@ -476,7 +472,7 @@
           <p>Note: Vendor's available balance: <b>{{ $vendor->balance }} Tk</b></p>
         </div>
         <div class="modal-footer">
-          @if($netPayable > 0)
+          @if($totalPayable > 0)
             <button type="submit" class="btn btn-warning">Pay</button>
           @endif
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
