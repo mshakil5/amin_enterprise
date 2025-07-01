@@ -138,6 +138,7 @@
                   <th>Advance Balance</th>
                   <th>Wallet</th>
                   <th>Add Sequence Number</th>
+                  <th>Ledger</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -163,6 +164,10 @@
 
                       <span class="btn btn-info btn-xs view-btn" style="cursor: pointer;" data-id="{{ $data->id }}">View</span>
 
+                    </td>
+
+                    <td style="text-align: center">
+                        <a href="{{ url('/admin/ledger/vendor/' . $data->id) }}" class="btn btn-default btn-xs">Ledger Details</a>
                     </td>
                     <td style="text-align: center">
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>

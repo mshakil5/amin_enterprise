@@ -254,5 +254,21 @@ class LedgerController extends Controller
         return view('admin.accounts.ledger.equity', compact('data', 'totalBalance','accountName'));
     }
 
+    public function vendor($id, Request $request)
+    {
+        $data = '';
+        $totalDrAmount = '';
+        $totalCrAmount = '';
+        $totalBalance =  '';
+        $accountName = '';
+
+        $data = Transaction::where('chart_of_account_id', $id)->get();
+        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
+        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
+        $totalBalance =  $totalCrAmount - $totalDrAmount;
+        $accountName = 'Vendor';
+        return view('admin.accounts.ledger.equity', compact('data', 'totalBalance','accountName'));
+    }
+
 
 }
