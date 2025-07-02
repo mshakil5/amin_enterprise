@@ -124,4 +124,75 @@ class DaybookController extends Controller
 
         return view('admin.accounts.daybook.bankbook');
     }
+
+public function daybook(Request $request)
+{
+    if ($request->ajax()) {
+        $start = $request->start_date ?? date('Y-m-d');
+        $end = $request->end_date ?? date('Y-m-d');
+
+        $transactions = Transaction::whereIn('table_type', ['Income', 'Expenses', 'Assets', 'Liabilities', 'Equity'])
+            ->whereDate('date', '>=', $start)
+            ->whereDate('date', '<=', $end)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Calculate category totals
+        $categoryTotals = [
+            'Income' => Transaction::where('table_type', 'Income')
+                ->whereDate('date', '>=', $start)
+                ->whereDate('date', '<=', $end)
+                ->sum('amount'),
+            'Expenses' => Transaction::whereIn('table_type', ['Expenses', 'Cogs'])
+                ->whereDate('date', '>=', $start)
+                ->whereDate('date', '<=', $end)
+                ->sum('amount'),
+            'Assets' => Transaction::where('table_type', 'Assets')
+                ->whereDate('date', '>=', $start)
+                ->whereDate('date', '<=', $end)
+                ->sum('amount'),
+            'Liabilities' => Transaction::where('table_type', 'Liabilities')
+                ->whereDate('date', '>=', $start)
+                ->whereDate('date', '<=', $end)
+                ->sum('amount'),
+            'Equity' => Transaction::where('table_type', 'Equity')
+                ->whereDate('date', '>=', $start)
+                ->whereDate('date', '<=', $end)
+                ->sum('amount'),
+        ];
+
+        $data = [];
+        foreach ($transactions as $index => $row) {
+            $debit = '';
+            $credit = '';
+
+            if (in_array($row->tran_type, ['Received'])) {
+                $debit = number_format($row->amount, 2);
+            } elseif (in_array($row->tran_type, ['Advance', 'Payment', 'Prepaid', 'Current'])) {
+                $credit = number_format($row->amount, 2);
+            }
+
+            $data[] = [
+                'DT_RowIndex' => $index + 1,
+                'date' => \Carbon\Carbon::parse($row->date)->format('d-m-Y'),
+                'description' => $row->description,
+                'type_label' => $row->tran_type . ' ' . $row->payment_type,
+                'voucher' => '<a href="' . route('admin.expense.voucher', $row->id) . '" target="_blank" class="btn btn-info btn-xs"><i class="fa fa-info-circle"></i> Voucher</a>',
+                'debit' => $debit,
+                'credit' => $credit,
+            ];
+        }
+
+        return DataTables::of($data)
+            ->with([
+                'categoryTotals' => $categoryTotals
+            ])
+            ->rawColumns(['voucher'])
+            ->make(true);
+    }
+
+    return view('admin.accounts.daybook.index');
+}
+
+
 }

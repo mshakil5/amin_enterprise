@@ -357,8 +357,8 @@
       @endif
 
       @if(in_array('24', json_decode(auth()->user()->role->permission)))
-      <li class="nav-item  {{ (request()->is('admin/cash-book')) ? 'menu-open' : '' }}{{ (request()->is('admin/bank-book')) ? 'menu-open' : '' }}">
-        <a href="#" class="nav-link {{ (request()->is('admin/cash-book')) ? 'active' : '' }}{{ (request()->is('admin/bank-book')) ? 'active' : '' }}">
+      <li class="nav-item {{ (request()->is('admin/day-book') || request()->is('admin/cash-book') || request()->is('admin/bank-book')) ? 'menu-open' : '' }}">
+        <a href="#" class="nav-link {{ (request()->is('admin/day-book') || request()->is('admin/cash-book') || request()->is('admin/bank-book')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-chart-pie"></i>
           <p>
             Day Book
@@ -367,18 +367,23 @@
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="{{route('admin.cashbook')}}" class="nav-link {{ (request()->is('admin/cash-book')) ? 'active' : '' }}">
+            <a href="{{ route('admin.daybook') }}" class="nav-link {{ (request()->is('admin/day-book')) ? 'active' : '' }}">
+              <i class="far fa-circle nav-icon"></i>
+              <p>Day Book</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ route('admin.cashbook') }}" class="nav-link {{ (request()->is('admin/cash-book')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Cash Book</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="{{route('admin.bankbook')}}" class="nav-link {{ (request()->is('admin/bank-book')) ? 'active' : '' }}">
+            <a href="{{ route('admin.bankbook') }}" class="nav-link {{ (request()->is('admin/bank-book')) ? 'active' : '' }}">
               <i class="far fa-circle nav-icon"></i>
               <p>Bank Book</p>
             </a>
           </li>
-          
         </ul>
       </li>
       @endif

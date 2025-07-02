@@ -235,6 +235,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // daybook
     Route::get('cash-book', [DaybookController::class, 'cashbook'])->name('admin.cashbook');
     Route::get('bank-book', [DaybookController::class, 'bankbook'])->name('admin.bankbook');
+    Route::get('day-book', [DaybookController::class, 'daybook'])->name('admin.daybook');
 
 
     //Chart of account
