@@ -5,133 +5,123 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class DaybookController extends Controller
 {
     public function cashbook(Request $request)
     {
         if (!(in_array('24', json_decode(auth()->user()->role->permission)))) {
-          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $vendor_id = $request->input('vendor_id');
-        $mv_id = $request->input('mv_id');
 
-        $cashbooks = Transaction::where('payment_type', 'Cash')
+        if ($request->ajax()) {
+            $query = Transaction::where('payment_type', 'Cash')
                 ->whereIn('tran_type', ['Current', 'Received', 'Sold', 'Advance', 'Purchase', 'Payment', 'Prepaid'])
-                ->when($startDate, function($query, $startDate) {
-                    return $query->whereDate('date', '>=', $startDate);
-                })
-                ->when($endDate, function($query, $endDate) {
-                    return $query->whereDate('date', '<=', $endDate);
-                })
-                ->when($vendor_id, function($query, $vendor_id) {
-                    return $query->where('vendor_id', '=', $vendor_id);
-                })
-                ->when($mv_id, function($query, $mv_id) {
-                    return $query->where('mother_vassel_id', '=', $mv_id);
-                })
+                ->when($request->start_date, fn($q) => $q->whereDate('date', '>=', $request->start_date))
+                ->when($request->end_date, fn($q) => $q->whereDate('date', '<=', $request->end_date))
+                ->when($request->vendor_id, fn($q) => $q->where('vendor_id', $request->vendor_id))
+                ->when($request->mv_id, fn($q) => $q->where('mother_vassel_id', $request->mv_id))
                 ->orderBy('id', 'desc')
                 ->get();
-        
-        $totalDrAmount = Transaction::where('payment_type', 'Cash')
-                ->whereIn('tran_type', ['Current', 'Received', 'Sold', ])
-                ->when($startDate, function($query, $startDate) {
-                    return $query->whereDate('date', '>=', $startDate);
-                })
-                ->when($endDate, function($query, $endDate) {
-                    return $query->whereDate('date', '<=', $endDate);
-                })
-                ->when($vendor_id, function($query, $vendor_id) {
-                    return $query->where('vendor_id', '=', $vendor_id);
-                })
-                ->when($mv_id, function($query, $mv_id) {
-                    return $query->where('mother_vassel_id', '=', $mv_id);
-                })
-                ->sum('amount');
 
-        $totalCrAmount = Transaction::where('payment_type', 'Cash')
-                ->whereIn('tran_type', ['Purchase', 'Payment', 'Advance'])
-                ->when($startDate, function($query, $startDate) {
-                    return $query->whereDate('date', '>=', $startDate);
-                })
-                ->when($endDate, function($query, $endDate) {
-                    return $query->whereDate('date', '<=', $endDate);
-                })
-                ->when($vendor_id, function($query, $vendor_id) {
-                    return $query->where('vendor_id', '=', $vendor_id);
-                })
-                ->when($mv_id, function($query, $mv_id) {
-                    return $query->where('mother_vassel_id', '=', $mv_id);
-                })
-                ->sum('amount');
+            $totalDr = $query->whereIn('tran_type', ['Current', 'Received', 'Sold'])->sum('amount');
+            $totalCr = $query->whereIn('tran_type', ['Purchase', 'Payment', 'Advance'])->sum('amount');
+            $balance = $totalDr - $totalCr;
 
-        $totalAmount = $totalDrAmount - $totalCrAmount;
-        return view('admin.accounts.daybook.cashbook', compact('cashbooks', 'totalAmount'));
+            $data = [];
+            foreach ($query as $index => $row) {
+                $debit = '';
+                $credit = '';
+              $current_balance = '';
+                if (in_array($row->tran_type, ['Received'])) {
+                    $debit = number_format($row->amount, 2);
+                    $current_balance = number_format($balance, 2);
+                    $balance -= $row->amount;
+                } elseif (in_array($row->tran_type, ['Advance', 'Payment', 'Prepaid', 'Current'])) {
+                    $credit = number_format($row->amount, 2);
+                    $current_balance = number_format($balance, 2);
+                    $balance += $row->amount;
+                }
+
+                $data[] = [
+                    'DT_RowIndex' => $index + 1,
+                    'date' => \Carbon\Carbon::parse($row->date)->format('d-m-Y'),
+                    'description' => $row->description,
+                    'type_label' => $row->tran_type . ' ' . $row->payment_type,
+                    'voucher' => '<a href="' . route('admin.expense.voucher', $row->id) . '" target="_blank" class="btn btn-info btn-xs"><i class="fa fa-info-circle"></i> Voucher</a>',
+                    'bill_number' => $row->bill_number,
+                    'challan_no' => $row->challan_no,
+                    'debit' => $debit,
+                    'credit' => $credit,
+                    'balance' => $current_balance
+                ];
+            }
+
+            // return response()->json([
+            //     'data' => $data,
+            //     'final_balance' => number_format($balance, 2)
+            // ]);
+
+
+            return DataTables::of($data)->rawColumns(['voucher'])->make(true);
+        }
+
+        return view('admin.accounts.daybook.cashbook');
     }
 
     public function bankbook(Request $request)
     {
         if (!(in_array('24', json_decode(auth()->user()->role->permission)))) {
-          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $vendor_id = $request->input('vendor_id');
-        $mv_id = $request->input('mv_id');
 
-        $bankbooks = Transaction::where('payment_type', 'Bank')
-            ->whereIn('tran_type', ['Current', 'Received', 'Sold', 'Advance', 'Purchase', 'Payment', 'Prepaid'])
-            ->when($startDate, function($query, $startDate) {
-                return $query->whereDate('date', '>=', $startDate);
-            })
-            ->when($endDate, function($query, $endDate) {
-                return $query->whereDate('date', '<=', $endDate);
-            })
-            ->when($vendor_id, function($query, $vendor_id) {
-                return $query->where('vendor_id', '=', $vendor_id);
-            })
-            ->when($mv_id, function($query, $mv_id) {
-                return $query->where('mother_vassel_id', '=', $mv_id);
-            })
-            ->orderBy('id', 'desc')
-            ->get();
+        if ($request->ajax()) {
+            $query = Transaction::where('payment_type', 'Bank')
+                ->whereIn('tran_type', ['Current', 'Received', 'Sold', 'Advance', 'Purchase', 'Payment', 'Prepaid'])
+                ->when($request->start_date, fn($q) => $q->whereDate('date', '>=', $request->start_date))
+                ->when($request->end_date, fn($q) => $q->whereDate('date', '<=', $request->end_date))
+                ->when($request->vendor_id, fn($q) => $q->where('vendor_id', $request->vendor_id))
+                ->when($request->mv_id, fn($q) => $q->where('mother_vassel_id', $request->mv_id))
+                ->orderBy('id', 'desc')
+                ->get();
 
-        $totalDrAmount = Transaction::where('payment_type', 'Bank')
-                ->whereIn('tran_type', ['Current', 'Received', 'Sold', ])
-                ->when($startDate, function($query, $startDate) {
-                    return $query->whereDate('date', '>=', $startDate);
-                })
-                ->when($endDate, function($query, $endDate) {
-                    return $query->whereDate('date', '<=', $endDate);
-                })
-                ->when($vendor_id, function($query, $vendor_id) {
-                    return $query->where('vendor_id', '=', $vendor_id);
-                })
-                ->when($mv_id, function($query, $mv_id) {
-                    return $query->where('mother_vassel_id', '=', $mv_id);
-                })
-                ->sum('amount');
+            $totalDr = $query->whereIn('tran_type', ['Current', 'Received', 'Sold'])->sum('amount');
+            $totalCr = $query->whereIn('tran_type', ['Purchase', 'Payment', 'Advance'])->sum('amount');
+            $balance = $totalDr - $totalCr;
 
-        $totalCrAmount = Transaction::where('payment_type', 'Bank')
-                ->whereIn('tran_type', ['Purchase', 'Payment', 'Advance'])
-                ->when($startDate, function($query, $startDate) {
-                    return $query->whereDate('date', '>=', $startDate);
-                })
-                ->when($endDate, function($query, $endDate) {
-                    return $query->whereDate('date', '<=', $endDate);
-                })
-                ->when($vendor_id, function($query, $vendor_id) {
-                    return $query->where('vendor_id', '=', $vendor_id);
-                })
-                ->when($mv_id, function($query, $mv_id) {
-                    return $query->where('mother_vassel_id', '=', $mv_id);
-                })
-                ->sum('amount');
+            $data = [];
+            foreach ($query as $index => $row) {
+                $debit = '';
+                $credit = '';
+              $current_balance = '';
+                if (in_array($row->tran_type, ['Received'])) {
+                    $debit = number_format($row->amount, 2);
+                    $current_balance = number_format($balance, 2);
+                    $balance -= $row->amount;
+                } elseif (in_array($row->tran_type, ['Advance', 'Payment', 'Prepaid', 'Current'])) {
+                    $credit = number_format($row->amount, 2);
+                    $current_balance = number_format($balance, 2);
+                    $balance += $row->amount;
+                }
 
-        $totalAmount = $totalDrAmount - $totalCrAmount;
+                $data[] = [
+                    'DT_RowIndex' => $index + 1,
+                    'date' => \Carbon\Carbon::parse($row->date)->format('d-m-Y'),
+                    'description' => $row->description,
+                    'type_label' => $row->tran_type . ' ' . $row->payment_type,
+                    'voucher' => '<a href="' . route('admin.expense.voucher', $row->id) . '" target="_blank" class="btn btn-info btn-xs"><i class="fa fa-info-circle"></i> Voucher</a>',
+                    'bill_number' => $row->bill_number,
+                    'challan_no' => $row->challan_no,
+                    'debit' => $debit,
+                    'credit' => $credit,
+                    'balance' => $current_balance
+                ];
+            }
 
-        return view('admin.accounts.daybook.bankbook', compact('bankbooks', 'totalAmount'));
+            return DataTables::of($data)->rawColumns(['voucher'])->make(true);
+        }
+
+        return view('admin.accounts.daybook.bankbook');
     }
 }
