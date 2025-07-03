@@ -342,6 +342,27 @@
                   </tbody>
                   <tfoot>
                       <tr>
+                        <th>Sl</th>
+                        <th>Petrol Pump</th>
+                        <th>Date</th>
+                        <th>Vendor</th>
+                        <th>Header ID</th>
+                        <th>Truck Number</th>
+                        <th>Challan no</th>
+                        <th>Mother Vessel</th>
+                        <th>Destination</th>
+                        <th>Qty</th>
+                        <th>Carring Bill</th>
+                        <th>Line Charge</th>
+                        <th>Scale fee</th>
+                        <th>Other Cost</th>
+                        <th>Cash Advance</th>
+                        <th>Fuel qty</th>
+                        <th>Fuel Amount</th>
+                        <th>Fuel token</th>
+                        <th>Pump name</th>
+                      </tr>
+                      <tr>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
@@ -368,17 +389,24 @@
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
 
-                          <td style="text-align: center" colspan="4">
+                          <td style="text-align: center" colspan="3">
                               <b>Total Adv:</b> <b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
                           </td>
+                          @php
+                          $totalPaid = $totalPaidTransaction->where('tran_type', 'Due Payment')->sum('amount');
+                          $totalReceived = $totalPaidTransaction->where('tran_type', 'Advance Adjust')->sum('amount');
+                          @endphp
+                          <td style="text-align: center" colspan="2">
+                              <b>Total Paid:</b> <b>{{ number_format($totalPaid + $alltotalcashamount + $alltotalfuelamount, 2) }}</b>
+                          </td>
 
-                          <td style="text-align: center" colspan="4">
-                              <b>Total Paid:</b> <b>{{ number_format($totalPaidTransaction, 2) }}</b>
+                          <td style="text-align: center" colspan="2">
+                              <b>Total Adjusted:</b> <b>{{ number_format($totalReceived, 2) }}</b>
                           </td>
 
                           <td style="text-align: center" colspan="8">
                               @php
-                                  $totalPayable = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount - $totalPaidTransaction;
+                                  $totalPayable = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount - $totalPaid + $totalReceived;
                               @endphp
                               <strong 
                                   @if($totalPayable < 0) style="background-color: #ffcccc;" @endif
@@ -386,7 +414,7 @@
                                   Total Vendor's Payable: 
                                   {{ number_format($alltotalcarrying_bill + $alltotalscale_fee, 2) }} - 
                                   {{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }} -
-                                  {{ number_format($totalPaidTransaction) }} =
+                                  {{ number_format($totalPaid) }} + {{ number_format($totalReceived) }} =
                                   {{ number_format($totalPayable, 2) }}
                               </strong>
                           </td>
@@ -449,37 +477,135 @@
     </section>
   </div>
 
-  <div class="modal fade" id="duePaymentModal" tabindex="-1" role="dialog" aria-labelledby="duePaymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <form action="{{ route('due.payment.store') }}" method="POST" class="modal-content">
-        @csrf
-        <div class="modal-header bg-warning">
-          <h5 class="modal-title" id="duePaymentModalLabel">Due Payment</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span>&times;</span>
-          </button>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white text-center">
+              <h5 class="mb-0">Bill Summary</h5>
+            </div>
+              <div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-6 text-left">Total Carrying Bill</div>
+                  <div class="col-6 text-right">{{ number_format($alltotalcarrying_bill, 2) }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6 text-left">Total Scale Fee</div>
+                  <div class="col-6 text-right">{{ number_format($alltotalscale_fee, 2) }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6 text-left">Total Cash Amount</div>
+                  <div class="col-6 text-right">- {{ number_format($totalcashamount, 2) }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6 text-left">Total Fuel Advance</div>
+                  <div class="col-6 text-right">- {{ number_format($alltotalfuelamount, 2) }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6 text-left">Bill Paid</div>
+                  <div class="col-6 text-right">- {{ number_format($totalPaid, 2) }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-6 text-left">Advance Adjust</div>
+                  <div class="col-6 text-right"> {{ number_format($totalReceived, 2) }}</div>
+                </div>
+                <hr>
+                @php
+                  $totalDue = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount - $totalPaid + $totalReceived;
+                  $label = $totalDue >= 0 ? 'Vendors Payable' : 'Vendors Receivable';
+                @endphp
+                <div class="row">
+                  <div class="col-6 text-left font-weight-bold">Total {{ $label }}</div>
+                  <div class="col-6 text-right font-weight-bold"> {{ number_format($totalDue, 2) }}</div>
+                </div>
+                <div class="mt-3 small text-muted">
+                  <strong>Calculation:</strong><br>
+                  (Carrying Bill + Scale Fee) - (Cash Amount + Fuel Advance) + (Bill Paid - Advance Adjust) <br>
+                  ({{ number_format($alltotalcarrying_bill, 2) }} + {{ number_format($alltotalscale_fee, 2) }})
+                  - ({{ number_format($totalcashamount, 2) }} + {{ number_format($alltotalfuelamount, 2) }}) + ({{ number_format($totalPaid, 2) }} - {{ number_format($totalReceived, 2) }})
+                  = {{ number_format($totalDue, 2) }}
+                </div>
+              </div>
+          </div>
         </div>
-        <div class="modal-body">
-          <h4>Total Due: <strong>{{ number_format($totalPayable, 2) }} Tk</strong></h4>
-           @if($totalPayable > 0)
-          <input type="text" name="comment" class="form-control mb-3" placeholder="Enter comment" required>
-          @endif
-          <input type="hidden" name="due_amount" value="{{ $totalPayable }}">
-          <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
-          <input type="hidden" name="client_id" value="{{ $clientId }}">
-          <input type="hidden" name="vendor_sequence_number_id" value="{{ $vendorSequenceNumber->id }}">
-          <p>Note: This due payment from vendor's wallet.</p>
-          <p>Note: Vendor's available balance: <b>{{ $vendor->balance }} Tk</b></p>
-        </div>
-        <div class="modal-footer">
-          @if($totalPayable > 0)
-            <button type="submit" class="btn btn-warning">Pay</button>
-          @endif
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </form>
+      </div>
     </div>
+  </section>
+
+@php
+  $totalDue = round($totalDue, 2);
+  if ($totalDue === -0.0) {
+    $totalDue = 0.0;
+  }
+@endphp
+
+<div class="modal fade" id="duePaymentModal" tabindex="-1" role="dialog" aria-labelledby="duePaymentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form action="{{ route('due.payment.store') }}" method="POST" class="modal-content">
+      @csrf
+      <div class="modal-header
+        @if ($totalDue > 0)
+          bg-warning
+        @elseif ($totalDue < 0)
+          bg-secondary
+        @else
+          bg-info
+        @endif
+      ">
+        <h5 class="modal-title" id="duePaymentModalLabel">
+          @if ($totalDue > 0)
+            Due Payment
+          @elseif ($totalDue < 0)
+            Adjust Balance
+          @else
+            Payment
+          @endif
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <h4>
+          Total 
+          @if ($totalDue > 0)
+            Due:
+          @elseif ($totalDue < 0)
+            Receivable:
+          @else
+            Due:
+          @endif
+          <strong>{{ number_format(abs($totalDue), 2) }} Tk</strong>
+        </h4>
+
+        <input type="text" name="comment" class="form-control mb-3" placeholder="Enter comment" required>
+        <input type="hidden" name="due_amount" value="{{ $totalDue }}">
+        <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
+        <input type="hidden" name="client_id" value="{{ $clientId }}">
+        <input type="hidden" name="vendor_sequence_number_id" value="{{ $vendorSequenceNumber->id }}">
+
+        @if ($totalDue > 0)
+          <p>Note: This due payment from vendor's wallet.</p>
+        @elseif ($totalDue < 0)
+          <p>Note: Adjustment will reflect in vendor's balance.</p>
+        @endif
+
+        <p>Vendor's available balance: <b>{{ number_format($vendor->balance, 2) }} Tk</b></p>
+      </div>
+
+      <div class="modal-footer">
+        @if ($totalDue > 0)
+          <button type="submit" class="btn btn-warning">Pay</button>
+        @elseif ($totalDue < 0)
+          <button type="submit" class="btn btn-info">Adjust</button>
+        @endif
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </form>
   </div>
+</div>
 
 </div>
 

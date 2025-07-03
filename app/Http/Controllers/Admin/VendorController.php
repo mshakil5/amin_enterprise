@@ -278,7 +278,8 @@ class VendorController extends Controller
     {
         $vendorSequenceNumber = VendorSequenceNumber::where('id', $id)->first();
 
-        $totalPaidTransaction = Transaction::where('vendor_sequence_number_id', $id)->sum('amount');
+        $totalPaidTransaction = Transaction::where('vendor_sequence_number_id', $id)->latest()->get();
+        // $totalPaidTransaction = Transaction::where('vendor_sequence_number_id', $id)->sum('amount');
         
         $vendor = Vendor::where('id', $vendorSequenceNumber->vendor_id)->first();
         $pdtls = ProgramDetail::where('vendor_sequence_number_id', $id)->get();

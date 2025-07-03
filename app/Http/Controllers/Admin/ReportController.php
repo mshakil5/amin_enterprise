@@ -150,31 +150,59 @@ class ReportController extends Controller
     public function storeDuePayment(Request $request)
     {
         $vendor = Vendor::find($request->vendor_id);
-        if ($vendor->balance < $request->due_amount) {
-            return redirect()->back()->with('error', 'Insufficient balance in vendor wallet to make this due payment.');
-        }
-
         $dueAmount = $request->input('due_amount');
-        $transaction = new Transaction();
-        $transaction->amount = $dueAmount;
-        $transaction->tran_type = "Due Payment";
-        $transaction->description = "Carrying Bill";
-        $transaction->note = $request->comment;
-        $transaction->payment_type = "Wallet";
-        $transaction->table_type = "Due Payment";
-        $transaction->vendor_id = $request->vendor_id;
-        $transaction->client_id = $request->client_id;
-        $transaction->vendor_sequence_number_id = $request->vendor_sequence_number_id;
-        $transaction->date = date('Y-m-d');
-        $transaction->save();
-        $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-        if ($transaction->save()) {
-           
-           $vendor->balance -= $dueAmount;
-           $vendor->save();
-            return redirect()->back()->with('success', 'Due payment submitted successfully!');
-        }
 
+        if ($dueAmount > 0) {
+            // Due Payment
+            if ($vendor->balance < $dueAmount) {
+                return redirect()->back()->with('error', 'Insufficient balance in vendor wallet to make this due payment.');
+            }
+
+            $transaction = new Transaction();
+            $transaction->amount = $dueAmount;
+            $transaction->tran_type = "Due Payment";
+            $transaction->description = "Carrying Bill";
+            $transaction->note = $request->comment;
+            $transaction->payment_type = "Wallet";
+            $transaction->table_type = "Due Payment";
+            $transaction->vendor_id = $request->vendor_id;
+            $transaction->client_id = $request->client_id;
+            $transaction->vendor_sequence_number_id = $request->vendor_sequence_number_id;
+            $transaction->date = date('Y-m-d');
+            $transaction->save();
+
+            $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+            $transaction->save();
+
+            $vendor->balance -= $dueAmount;
+            $vendor->save();
+
+            return redirect()->back()->with('success', 'Due payment submitted successfully!');
+        } else {
+            // Advance Adjustment
+            $adjustAmount = abs($dueAmount);
+
+            $transaction = new Transaction();
+            $transaction->amount = $adjustAmount;
+            $transaction->tran_type = "Advance Adjust";
+            $transaction->description = "Overpayment Adjustment";
+            $transaction->note = $request->comment;
+            $transaction->payment_type = "Wallet";
+            $transaction->table_type = "Advance Adjustment";
+            $transaction->vendor_id = $request->vendor_id;
+            $transaction->client_id = $request->client_id;
+            $transaction->vendor_sequence_number_id = $request->vendor_sequence_number_id;
+            $transaction->date = date('Y-m-d');
+            $transaction->save();
+
+            $transaction->tran_id = 'AA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+            $transaction->save();
+
+            $vendor->balance += $adjustAmount;
+            $vendor->save();
+
+            return redirect()->back()->with('success', 'Advance adjustment completed successfully!');
+        }
     }
 
 }
