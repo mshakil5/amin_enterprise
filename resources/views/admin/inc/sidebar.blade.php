@@ -409,6 +409,16 @@
       </li>
 
 
+      <li class="nav-item">
+        <a href="{{ route('admin.cashSheet') }}" class="nav-link {{ (request()->is('admin/cash-sheet')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Cash Sheet
+          </p>
+        </a>
+      </li>
+
+
       @if(in_array('26', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
           <a href="{{ route('admin.role') }}" class="nav-link {{ (request()->is('admin/role*')) ? 'active' : '' }}">

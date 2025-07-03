@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TrialBalanceController;
 use App\Http\Controllers\Admin\IncomeStatementController;
 use App\Http\Controllers\Admin\FinancialStatementController;
+use App\Http\Controllers\Admin\CashSheetController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -298,6 +299,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     // Trial balance
     Route::match(['get', 'post'], 'trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
+
+    Route::get('cash-sheet', [CashSheetController::class, 'cashSheet'])->name('admin.cashSheet');
 
     // roles and permission
     Route::get('role', [RoleController::class, 'index'])->name('admin.role');
