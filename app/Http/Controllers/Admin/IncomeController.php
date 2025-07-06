@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
+use App\Models\Account;
 
 class IncomeController extends Controller
 {
@@ -47,7 +48,8 @@ class IncomeController extends Controller
         }
 
         $accounts = ChartOfAccount::where('account_head', 'Income')->get();
-        return view('admin.transactions.income', compact('accounts'));
+        $accountList = Account::latest()->get();
+        return view('admin.transactions.income', compact('accounts', 'accountList'));
     }
 
     public function store(Request $request)
@@ -76,6 +78,7 @@ class IncomeController extends Controller
         $transaction = new Transaction();
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->table_type = 'Income';
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
@@ -117,6 +120,7 @@ class IncomeController extends Controller
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
             'mother_vassel_id' => $transaction->mother_vassel_id,
+            'account_id' => $transaction->account_id,
         ];
         return response()->json($responseData);
     }
@@ -148,6 +152,7 @@ class IncomeController extends Controller
 
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');

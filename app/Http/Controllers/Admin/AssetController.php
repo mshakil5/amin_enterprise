@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
+use App\Models\Account;
 
 class AssetController extends Controller
 {
@@ -45,7 +46,8 @@ class AssetController extends Controller
                 ->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Assets')->get();
-        return view('admin.transactions.assets', compact('accounts'));
+        $accountList = Account::latest()->get();
+        return view('admin.transactions.assets', compact('accounts', 'accountList'));
     }
 
     public function store(Request $request)
@@ -74,6 +76,7 @@ class AssetController extends Controller
         $transaction = new Transaction();
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->table_type = 'Assets';
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
@@ -115,6 +118,7 @@ class AssetController extends Controller
             'at_amount' => $transaction->at_amount,
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
+            'account_id' => $transaction->account_id,
             'payable_holder_id' => $transaction->liability_id,
             'recivible_holder_id' => $transaction->asset_id
         ];
@@ -148,6 +152,7 @@ class AssetController extends Controller
 
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');

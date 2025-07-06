@@ -142,7 +142,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="amount" class="col-form-label">Amount</label>
                                 <input type="text" name="amount" class="form-control" id="amount">
@@ -167,13 +167,25 @@
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="payment_type" class="col-form-label">Payment Type</label>
                                 <select class="form-control" id="payment_type" name="payment_type">
                                     <option value="">Select payment type</option>
                                     <option value="Cash">Cash</option>
                                     <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="account_id" class="col-form-label">Account Type</label>
+                                <select class="form-control" id="account_id" name="account_id">
+                                    <option value="">Select Account Type</option>
+                                    @foreach ($accountList as $account)
+                                        <option value="{{ $account->id }}">{{ $account->type }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -326,6 +338,7 @@
                     $('#payment_type').val(response.payment_type);
                     $('#description').val(response.description);
                     $('#chart_of_account_id').val(response.chart_of_account_id);
+                    $('#account_id').val(response.account_id);
                     $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
 
                     $('#chartModal .submit-btn').removeClass('save-btn').addClass('update-btn').text('Update').val(response.id);

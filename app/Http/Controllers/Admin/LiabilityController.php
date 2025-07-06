@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
+use App\Models\Account;
 
 class LiabilityController extends Controller
 {
@@ -46,7 +47,8 @@ class LiabilityController extends Controller
                 ->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Liabilities')->get();
-        return view('admin.transactions.liabilities', compact('accounts'));
+        $accountList = Account::latest()->get();
+        return view('admin.transactions.liabilities', compact('accounts', 'accountList'));
     }
 
     public function store(Request $request)
@@ -75,6 +77,7 @@ class LiabilityController extends Controller
         $transaction = new Transaction();
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->table_type = 'Liabilities';
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
@@ -114,6 +117,7 @@ class LiabilityController extends Controller
             'at_amount' => $transaction->at_amount,
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
+            'account_id' => $transaction->account_id,
         ];
         return response()->json($responseData);
     }
@@ -145,6 +149,7 @@ class LiabilityController extends Controller
 
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');

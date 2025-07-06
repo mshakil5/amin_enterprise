@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\EquityHolder;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
+use App\Models\Account;
 
 class EquityController extends Controller
 {
@@ -45,7 +46,8 @@ class EquityController extends Controller
                 })->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Equity')->get();
-        return view('admin.transactions.equity', compact('accounts'));
+        $accountList = Account::latest()->get();
+        return view('admin.transactions.equity', compact('accounts', 'accountList'));
     }
 
     public function store(Request $request)
@@ -74,6 +76,7 @@ class EquityController extends Controller
         $transaction = new Transaction();
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->table_type = 'Equity';
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
@@ -108,6 +111,7 @@ class EquityController extends Controller
             'at_amount' => $transaction->at_amount,
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
+            'account_id' => $transaction->account_id,
         ];
         return response()->json($responseData);
     }
@@ -145,6 +149,7 @@ class EquityController extends Controller
 
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->ref = $request->input('ref');
         $transaction->description = $request->input('description');
         $transaction->amount = $request->input('amount');

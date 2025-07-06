@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
+use App\Models\Account;
 
 class ExpenseController extends Controller
 {
@@ -46,7 +47,8 @@ class ExpenseController extends Controller
                 ->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Expenses')->get();
-        return view('admin.transactions.expense', compact('accounts'));
+        $accountList = Account::latest()->get();
+        return view('admin.transactions.expense', compact('accounts', 'accountList'));
     }
 
     public function voucher(Request $request, $id)
@@ -87,6 +89,7 @@ class ExpenseController extends Controller
         $transaction->tran_id = strtoupper(Str::random(2)) . date('Y') . str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->client_id = $request->input('client_id');
         $transaction->table_type = $request->input('table_type');
         $transaction->ref = $request->input('ref');
@@ -131,6 +134,7 @@ class ExpenseController extends Controller
             'description' => $transaction->description,
             'payable_holder_id' => $transaction->liability_id,
             'mother_vassel_id' => $transaction->mother_vassel_id,
+            'account_id' => $transaction->account_id,
         ];
         return response()->json($responseData);
     }
