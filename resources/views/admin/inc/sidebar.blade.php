@@ -51,6 +51,15 @@
       </li>
       @endif
 
+      <li class="nav-item">
+        <a href="{{route('admin.account')}}" class="nav-link {{ (request()->is('admin/account*')) ? 'active' : '' }}">
+          <i class="nav-icon fas fa-th"></i>
+          <p>
+            Accounts
+          </p>
+        </a>
+      </li>
+
       @if(in_array('4', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{route('admin.mothervassel')}}" class="nav-link {{ (request()->is('admin/mother-vassel*')) ? 'active' : '' }}">

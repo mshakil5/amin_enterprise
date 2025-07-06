@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\TrialBalanceController;
 use App\Http\Controllers\Admin\IncomeStatementController;
 use App\Http\Controllers\Admin\FinancialStatementController;
 use App\Http\Controllers\Admin\CashSheetController;
+use App\Http\Controllers\Admin\AccountController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -73,6 +74,11 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/petty-cash/{id}/edit', [PettyCashController::class, 'edit']);
     Route::post('/petty-cash-update', [PettyCashController::class, 'update']);
 
+    //Accounts
+    Route::get('/account', [AccountController::class, 'index'])->name('admin.account');
+    Route::post('/account', [AccountController::class, 'store']);
+    Route::get('/account/{id}/edit', [AccountController::class, 'edit']);
+    Route::post('/account-update', [AccountController::class, 'update']);
 
     Route::get('/mother-vassel', [MotherVasselController::class, 'index'])->name('admin.mothervassel');
     Route::get('/get-consignment-number', [MotherVasselController::class, 'getConsignmentNumber'])->name('admin.getConsignmentNumber');
