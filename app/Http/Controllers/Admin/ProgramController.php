@@ -1907,4 +1907,14 @@ class ProgramController extends Controller
         return view('admin.programs.program_detail_logs', compact('logs'));
     }
 
+    public function deletedProgramDetail($id)
+    {
+        $program = Program::with(['programDetail' => function ($query) {
+            $query->onlyTrashed();
+        }])->findOrFail($id);
+
+        $deletedDetails = $program->programDetail;
+        return view('admin.program_details.deleted', compact('deletedDetails'));
+    }
+
 }
