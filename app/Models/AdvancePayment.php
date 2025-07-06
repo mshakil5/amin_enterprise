@@ -63,4 +63,16 @@ class AdvancePayment extends Model
     {
         return $this->hasOne(ProgramDetail::class, 'id', 'program_detail_id');
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($model) {
+            if (auth()->check()) {
+                $model->deleted_by = auth()->id(); // Set the ID of the authenticated user
+                $model->save();
+            }
+        });
+    }
 }

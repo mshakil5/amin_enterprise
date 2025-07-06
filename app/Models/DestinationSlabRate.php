@@ -20,4 +20,16 @@ class DestinationSlabRate extends Model
     {
         return $this->belongsTo(Ghat::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($model) {
+            if (auth()->check()) {
+                $model->deleted_by = auth()->id(); // Set the ID of the authenticated user
+                $model->save();
+            }
+        });
+    }
 }
