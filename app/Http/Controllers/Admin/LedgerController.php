@@ -256,19 +256,22 @@ class LedgerController extends Controller
 
     public function vendor($id, Request $request)
     {
-        $data = '';
-        $totalDrAmount = '';
-        $totalCrAmount = '';
-        $totalBalance =  '';
-        $accountName = '';
-
-        $data = Transaction::where('chart_of_account_id', $id)->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
+        $data = Transaction::where('vendor_id', $id)
+            ->when($request->start_date, function ($query) use ($request) {
+                $query->whereDate('date', '>=', $request->start_date);
+            })
+            ->when($request->end_date, function ($query) use ($request) {
+                $query->whereDate('date', '<=', $request->end_date);
+            })
+            ->orderBy('date', 'asc')
+            ->get();
+        $totalDrAmount = $data->where('tran_type', 'Wallet')->sum('amount');
+        $totalCrAmount = $data->whereIn('payment_type', ['Cash', 'Fuel', 'Wallet'])->sum('amount');
         $totalBalance =  $totalCrAmount - $totalDrAmount;
-        $accountName = 'Vendor';
-        return view('admin.accounts.ledger.equity', compact('data', 'totalBalance','accountName'));
-    }
 
+        $accountName = Vendor::find($id)->name ?? 'N/A';
+
+        return view('admin.accounts.ledger.vendor2', compact('data', 'totalBalance', 'accountName', 'id'));
+    }
 
 }
