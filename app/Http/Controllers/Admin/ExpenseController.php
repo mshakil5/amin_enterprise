@@ -111,6 +111,16 @@ class ExpenseController extends Controller
         $transaction->tran_id = 'EX' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         $transaction->save();
 
+       if ($request->account_id) {
+            $account = Account::find($request->account_id);
+            if ($account) {
+                if ($request->transaction_type === 'Current') {
+                    $account->amount += $request->amount;
+                }
+                $account->save();
+            }
+        }
+
         return response()->json(['status' => 200, 'message' => 'Created Successfully']);
 
     }
@@ -163,6 +173,18 @@ class ExpenseController extends Controller
         }
 
         $transaction = Transaction::find($id);
+        $oldAccountId = $transaction->account_id;
+        $oldTranType = $transaction->tran_type;
+        $oldAmount = $transaction->amount;
+
+        // Reverse old only if type is "Current"
+        if ($oldTranType === 'Current' && $oldAccountId) {
+            $oldAccount = Account::find($oldAccountId);
+            if ($oldAccount) {
+                $oldAccount->amount -= $oldAmount;
+                $oldAccount->save();
+            }
+        }
 
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
@@ -201,6 +223,14 @@ class ExpenseController extends Controller
         }
 
         $transaction->save();
+
+        if ($request->transaction_type === 'Current' && $request->account_id) {
+            $newAccount = Account::find($request->account_id);
+            if ($newAccount) {
+                $newAccount->amount += $request->amount;
+                $newAccount->save();
+            }
+        }
 
         return response()->json(['status' => 200, 'message' => 'Updated Successfully']);
 

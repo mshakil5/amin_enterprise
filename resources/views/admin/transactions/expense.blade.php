@@ -346,14 +346,18 @@
             }
         },
         deferRender: true,
-        order: [[1, 'desc']], // Order by the 'date' column in descending order
         columns: [{
-                data: 'tran_id',
-                name: 'tran_id'
+              data: 'tran_id',
+              name: 'tran_id',
+              orderable: false,
+              searchable: false,
             },
             {
-                data: 'date',
-                name: 'date'
+              data: 'date',
+              name: 'date',
+              render: function(data, type, row) {
+                return data ? dayjs(data).format('DD-MM-YYYY') : '';
+              }
             },
             {
                 data: 'chart_of_account',

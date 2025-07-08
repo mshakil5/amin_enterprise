@@ -97,6 +97,18 @@ class LiabilityController extends Controller
         $transaction->tran_id = 'LI' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         $transaction->save();
 
+        if ($request->account_id) {
+            $account = Account::find($request->account_id);
+            if ($account) {
+                if ($request->transaction_type === 'Received') {
+                    $account->amount += $request->amount;
+                } elseif ($request->transaction_type === 'Payment') {
+                    $account->amount -= $request->amount;
+                }
+                $account->save();
+            }
+        }
+
         return response()->json(['status' => 200, 'message' => 'Created Successfully']);
 
     }
@@ -124,7 +136,6 @@ class LiabilityController extends Controller
 
     public function update(Request $request, $id)
     {
-
         if (empty($request->date)) {
             return response()->json(['status' => 303, 'message' => 'Date Field Is Required..!']);
         }
@@ -147,6 +158,22 @@ class LiabilityController extends Controller
 
         $transaction = Transaction::find($id);
 
+        $oldAccountId = $transaction->account_id;
+        $oldType = $transaction->tran_type;
+        $oldAmount = $transaction->amount;
+
+        if ($oldAccountId) {
+            $oldAccount = Account::find($oldAccountId);
+            if ($oldAccount) {
+                if ($oldType === 'Received') {
+                    $oldAccount->amount -= $oldAmount;
+                } elseif ($oldType === 'Payment') {
+                    $oldAccount->amount += $oldAmount;
+                }
+                $oldAccount->save();
+            }
+        }
+
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
         $transaction->account_id = $request->input('account_id') ?? null;
@@ -161,9 +188,24 @@ class LiabilityController extends Controller
         $transaction->tran_type = $request->input('transaction_type');
         $transaction->payment_type = $request->input('payment_type');
         $transaction->liablity_id = $request->input('chart_of_account_id');
-        $transaction->updated_by = Auth()->user()->id;
-
+        $transaction->updated_by = auth()->user()->id;
         $transaction->save();
+
+        $newAccountId = $request->account_id;
+        $newType = $request->transaction_type;
+        $newAmount = $request->amount;
+
+        if ($newAccountId) {
+            $newAccount = Account::find($newAccountId);
+            if ($newAccount) {
+                if ($newType === 'Received') {
+                    $newAccount->amount += $newAmount;
+                } elseif ($newType === 'Payment') {
+                    $newAccount->amount -= $newAmount;
+                }
+                $newAccount->save();
+            }
+        }
 
         return response()->json(['status' => 200, 'message' => 'Updated Successfully']);
 

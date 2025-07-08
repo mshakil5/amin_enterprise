@@ -256,8 +256,19 @@
         },
         deferRender: true,
         columns: [
-            {data: 'tran_id', name: 'tran_id'},
-            {data: 'date', name: 'date'},
+            {
+              data: 'tran_id',
+              name: 'tran_id',
+              orderable: false,
+              searchable: false,
+            },
+            {
+              data: 'date',
+              name: 'date',
+              render: function(data, type, row) {
+                return data ? dayjs(data).format('DD-MM-YYYY') : '';
+              }
+            },
             {data: 'chart_of_account', name: 'chart_of_account'},
             {data: 'ref', name: 'ref'},
             {data: 'description', name: 'description'},

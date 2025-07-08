@@ -99,6 +99,18 @@ class IncomeController extends Controller
         $transaction->tran_id = 'IN' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         $transaction->save();
 
+        if ($request->account_id) {
+            $account = Account::find($request->account_id);
+            if ($account) {
+                if ($request->transaction_type === 'Current') {
+                    $account->amount += $request->amount;
+                } elseif ($request->transaction_type === 'Refund') {
+                    $account->amount -= $request->amount;
+                }
+                $account->save();
+            }
+        }
+
         return response()->json(['status' => 200, 'message' => 'Created Successfully']);
 
     }
@@ -150,6 +162,22 @@ class IncomeController extends Controller
 
         $transaction = Transaction::find($id);
 
+        $oldAccountId = $transaction->account_id;
+        $oldTranType = $transaction->tran_type;
+        $oldAtAmount = $transaction->amount;
+
+        if ($oldAccountId) {
+            $oldAccount = Account::find($oldAccountId);
+            if ($oldAccount) {
+                if ($oldTranType === 'Current') {
+                    $oldAccount->amount -= $oldAtAmount;
+                } elseif ($oldTranType === 'Refund') {
+                    $oldAccount->amount += $oldAtAmount;
+                }
+                $oldAccount->save();
+            }
+        }
+
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
         $transaction->account_id = $request->input('account_id') ?? null;
@@ -177,6 +205,22 @@ class IncomeController extends Controller
 
 
         $transaction->save();
+
+        $newAccountId = $request->account_id;
+        $newTranType = $request->transaction_type;
+        $newAtAmount = $request->amount;
+
+        if ($newAccountId) {
+            $newAccount = Account::find($newAccountId);
+            if ($newAccount) {
+                if ($newTranType === 'Current') {
+                    $newAccount->amount += $newAtAmount;
+                } elseif ($newTranType === 'Refund') {
+                    $newAccount->amount -= $newAtAmount;
+                }
+                $newAccount->save();
+            }
+        }
 
         return response()->json(['status' => 200, 'message' => 'Updated Successfully']);
 

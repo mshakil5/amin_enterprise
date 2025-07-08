@@ -17,8 +17,8 @@ class AccountController extends Controller
 
     public function store(Request $request)
     {
-        if(empty($request->amount)){
-            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" amount \" field..!</b></div>";
+        if(empty($request->type)){
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" type \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
@@ -47,8 +47,8 @@ class AccountController extends Controller
 
     public function update(Request $request)
     {
-        if(empty($request->amount)){
-            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" amount \" field..!</b></div>";
+        if(empty($request->type)){
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" type \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
