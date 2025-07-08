@@ -3,6 +3,7 @@
 @section('content')
 
 <!-- Main content -->
+@if ($data->count() < 2)
 <section class="content" id="newBtnSection">
     <div class="container-fluid">
       <div class="row">
@@ -12,6 +13,7 @@
       </div>
     </div>
 </section>
+@endif
 <!-- /.content -->
 
 <!-- Main content -->
@@ -66,7 +68,7 @@
 <!-- /.content -->
 
 <!-- Main content -->
-<section class="content" id="contentContainer">
+<section class="content pt-3" id="contentContainer">
     <div class="container-fluid">
       <div class="row">
         <div class="col-12">

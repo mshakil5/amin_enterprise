@@ -31,6 +31,7 @@
                         <table id="dataTransactionsTable" class="table table-striped table-bordered">
                             <thead>
                                 <tr>
+                                    <th class="d-none">sl</th>
                                     <th>ID</th>
                                     <th>Date</th>
                                     <th>Description</th>
@@ -46,6 +47,7 @@
                                 @php $balance = $totalBalance; @endphp
                                 @foreach($data as $item)
                                     <tr>
+                                        <td class="d-none">{{ $loop->iteration }}</td>
                                         <td>{{ $item->tran_id }}</td>
                                         <td>{{ \Carbon\Carbon::parse($item->date)->format('d-m-Y') }}</td>
                                         <td>{{ $item->description }}</td>
