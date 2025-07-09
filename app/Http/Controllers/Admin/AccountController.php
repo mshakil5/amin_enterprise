@@ -23,6 +23,13 @@ class AccountController extends Controller
             exit();
         }
 
+        $exists = Account::where('type', $request->type)->exists();
+
+        if($exists){
+            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Type already exists!</b></div>";
+            return response()->json(['status'=> 303,'message'=>$message]);
+        }
+
         $data = new Account();
         $data->type = $request->type;
         $data->amount = $request->amount;
@@ -51,6 +58,15 @@ class AccountController extends Controller
             $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" type \" field..!</b></div>";
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
+        }
+
+        $exists = Account::where('type', $request->type)
+        ->where('id', '!=', $request->codeid)
+        ->exists();
+
+          if($exists){
+            $message = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Type already exists!</b></div>";
+            return response()->json(['status'=> 303,'message'=>$message]);
         }
 
         $data = Account::find($request->codeid);
