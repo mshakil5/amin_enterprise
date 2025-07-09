@@ -241,6 +241,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/generating-bill-show/{id}', [GeneratingBillController::class, 'billGeneratingShow'])->name('generatingBillShow');
     Route::post('/bill-generating', [GeneratingBillController::class, 'billGeneratingStore'])->name('billGeneratingStore');
     Route::get('/export-template', [GeneratingBillController::class, 'exportTemplate'])->name('export.template');
+    Route::post('/generate-bill', [GeneratingBillController::class, 'generateBill'])->name('bill.generate');
 
     
     // daybook

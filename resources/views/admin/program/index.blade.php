@@ -43,7 +43,7 @@
                   <th>Bill Generate</th>
                   <th>Vendor</th>
                   <th>Total Challan</th>
-                  <th>Deleted Program Details</th>
+                  <th>Deleted</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -101,8 +101,11 @@
                     </td>
                     <td style="text-align: center">
                       <a class="btn btn-block btn-info btn-xs" href="{{route('admin.deletedProgramDetail', $data->id)}}">
-                        <span>Deleted Program Details-{{$data->deleted_program_detail_count}}</span>
+                        <span>Deleted-{{$data->deleted_count }}</span>
                       </a>
+                      @if ($data->deleted_count > 0)
+                        <span class="btn btn-danger btn-xs">{{$data->deleted_count }} </span>
+                      @endif
                     </td>
                     <td style="text-align: center">
                       

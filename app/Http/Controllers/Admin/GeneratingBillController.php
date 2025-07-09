@@ -15,7 +15,9 @@ class GeneratingBillController extends Controller
     {
         $programId = $id;
 
-        return view('admin.bill.generator', compact('programId'));
+        $data = Program::with('programDetail','programDetail.programDestination','programDetail.advancePayment','programDetail.advancePayment.petrolPump','programDetail.programDestination.destinationSlabRate')->where('id', $id)->first();
+
+        return view('admin.bill.generator', compact('programId','data'));
     }
 
     public function billGeneratingShow($id)
@@ -186,4 +188,26 @@ class GeneratingBillController extends Controller
             "Content-Disposition" => "attachment; filename=import_template.csv",
         ]);
     }
+    
+    public function generateBill(Request $request)
+    {
+        $request->validate([
+            'bill_no' => 'required|string',
+            'selected_ids' => 'required|string',
+        ]);
+
+        $ids = explode(',', str_replace(['[', ']', '"'], '', $request->selected_ids));
+
+        foreach ($ids as $id) {
+            $programDetail = ProgramDetail::find($id);
+            if ($programDetail) {
+                $programDetail->bill_no = $request->bill_no;
+                $programDetail->generate_bill = 1;
+                $programDetail->save();
+            }
+        }
+
+        return back()->with('success', 'Bill generated successfully.');
+    }
+
 }
