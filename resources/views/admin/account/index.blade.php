@@ -99,7 +99,10 @@
                     <td>{{$data->type}}</td>
                     <td>{{$data->amount}}</td>
                     <td>
-                      <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
+                      <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit mr-2" style="color: #2196f3;font-size:20px;"></i></a>
+                      @if($data->amount > 0)
+                      <button class="btn btn-sm btn-info transferBtn" data-id="{{$data->id}}" data-type="{{$data->type}}" data-amount="{{$data->amount}}">Transfer</button>
+                      @endif
                     </td>
                   </tr>
                   @endforeach
@@ -120,8 +123,116 @@
 </section>
 <!-- /.content -->
 
+<!-- Add this modal at the bottom of your view file -->
+<div class="modal fade" id="transferModal" tabindex="-1" role="dialog" aria-labelledby="transferModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="transferModalLabel">Transfer Funds</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="ermsg"></div>
+                <form id="transferForm">
+                    @csrf
+                    <input type="hidden" id="fromAccountId" name="from_account_id">
+                    <div class="form-group">
+                        <label>From Account</label>
+                        <input type="text" class="form-control" id="fromAccountType" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Balance</label>
+                        <input type="text" class="form-control" id="currentBalance" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Transfer Amount</label>
+                        <input type="number" class="form-control" id="transferAmount" name="amount" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>To Account</label>
+                        <select class="form-control" id="toAccountId" name="to_account_id">
+                            <option value="">Select Account</option>
+                            @foreach($allAccounts as $account)
+                                <option value="{{$account->id ?? ''}}">{{$account->type ?? ''}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmTransfer">Transfer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 @section('script')
+
+<script>
+  $(document).ready(function() {
+      $('.transferBtn').click(function() {
+          var accountId = $(this).data('id');
+          var accountType = $(this).data('type');
+          var accountAmount = $(this).data('amount');
+          
+          $('#fromAccountId').val(accountId);
+          $('#fromAccountType').val(accountType);
+          $('#currentBalance').val(accountAmount);
+          $('#transferAmount').attr('max', accountAmount);
+          $('#transferAmount').val('');
+          $('#toAccountId').val('');
+          
+          $('#toAccountId option').show();
+          $('#toAccountId option[value="' + accountId + '"]').hide();
+          
+          $('#transferModal').modal('show');
+      });
+
+      $('#confirmTransfer').click(function() {
+          var formData = $('#transferForm').serialize();
+          var fromAmount = parseFloat($('#currentBalance').val());
+          var transferAmount = parseFloat($('#transferAmount').val());
+          
+          if (transferAmount > fromAmount) {
+              $('.ermsg').html('<div class="alert alert-danger">Transfer amount cannot exceed current balance!</div>');
+              return;
+          }
+          
+          if (!transferAmount || transferAmount <= 0) {
+              $('.ermsg').html('<div class="alert alert-danger">Please enter a valid amount!</div>');
+              return;
+          }
+          
+          if (!$('#toAccountId').val()) {
+              $('.ermsg').html('<div class="alert alert-danger">Please select a destination account!</div>');
+              return;
+          }
+          
+          $.ajax({
+              url: "{{ route('admin.account.transfer') }}",
+              method: "POST",
+              data: formData,
+              success: function(response) {
+                  if (response.success) {
+                      $('#transferModal').modal('hide');
+                      $('.ermsg').html('<div class="alert alert-success">' + response.message + '</div>');
+                      location.reload();
+                  } else {
+                      $('.ermsg').html('<div class="alert alert-danger">' + response.message + '</div>');
+                  }
+              },
+              error: function(xhr) {
+                  $('.ermsg').html('<div class="alert alert-danger">An error occurred. Please try again.</div>');
+              }
+          });
+      });
+  });
+</script>
+
 <script>
     $(function () {
       $("#example1").DataTable({

@@ -79,6 +79,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/account', [AccountController::class, 'store']);
     Route::get('/account/{id}/edit', [AccountController::class, 'edit']);
     Route::post('/account-update', [AccountController::class, 'update']);
+    Route::post('/account/transfer', [AccountController::class, 'transfer'])->name('admin.account.transfer');
 
     Route::get('/mother-vassel', [MotherVasselController::class, 'index'])->name('admin.mothervassel');
     Route::get('/get-consignment-number', [MotherVasselController::class, 'getConsignmentNumber'])->name('admin.getConsignmentNumber');
