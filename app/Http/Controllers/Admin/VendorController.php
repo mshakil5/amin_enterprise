@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\VendorTripExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
+use App\Models\Account;
 
 class VendorController extends Controller
 {
@@ -343,6 +344,16 @@ class VendorController extends Controller
             'vendorId' => 'required',
             'walletamount' => 'required',
         ]);
+
+        $account = Account::find(1);
+        
+        if (!$account || $account->amount < $request->walletamount) {
+            $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Office..!</b></div>";
+            return response()->json(['status' => 303, 'message' => $message]);
+        }
+
+        $account->amount -= $request->walletamount;
+        $account->save();
 
         $transaction = new Transaction();
         $transaction->amount =  $request->walletamount;
