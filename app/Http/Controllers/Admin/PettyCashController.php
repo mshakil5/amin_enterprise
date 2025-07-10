@@ -8,6 +8,7 @@ use App\Models\Country;
 use App\Models\PettyCash;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Account;
 
 class PettyCashController extends Controller
 {
@@ -28,6 +29,15 @@ class PettyCashController extends Controller
             return response()->json(['status'=> 303,'message'=>$message]);
             exit();
         }
+
+        $account = Account::find(1);
+        if (!$account || $account->amount < $request->amount) {
+            $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Office..!</b></div>";
+            return response()->json(['status'=> 303,'message'=>$message]);
+        }
+
+        $account->amount -= $request->amount;
+        $account->save();
 
         $data = new Transaction();
         $data->table_type = "Asset";
