@@ -1344,9 +1344,9 @@ class ProgramController extends Controller
 
                 $programCount = ProgramDetail::where('vendor_sequence_number_id', $vsvalue->id)->count();
 
-                if ($programCount < $vsvalue->qty) {
+                // if ($programCount < $vsvalue->qty) {
                     $vdata.= '<option value="'.$vsvalue->id.'">'.$vsvalue->unique_id.' ('.$vsvalue->date.') '.$vsvalue->qty.'/'.$programCount.' </option>';
-                }
+                // }
                 
             }
         } else {
