@@ -75,23 +75,94 @@ class PettyCashController extends Controller
         return response()->json($info);
     }
 
-    public function update(Request $request)
-    {
+    // public function update(Request $request)
+    // {
 
         
-        if(empty($request->amount)){
-            $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" amount \" field..!</b></div>";
-            return response()->json(['status'=> 303,'message'=>$message]);
-            exit();
+    //     if(empty($request->amount)){
+    //         $message ="<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" amount \" field..!</b></div>";
+    //         return response()->json(['status'=> 303,'message'=>$message]);
+    //         exit();
+    //     }
+
+
+
+
+    //     $data = Transaction::find($request->codeid);
+
+    //     $oldAmount = $data->amount;
+
+    //     $pcash = PettyCash::where('id','1')->first();
+    //     $pcash->amount = $pcash->amount - $data->amount;
+    //     $pcash->save();
+
+    //     $account = Account::find(1);
+    //     $account->amount += $oldAmount;
+    //     $account->save();
+
+    //     if ($account->amount < $request->amount) {
+    //         $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Office..!</b></div>";
+
+    //         $account->amount -= $oldAmount;
+    //         $account->save();
+    //         return response()->json(['status' => 303, 'message' => $message]);
+
+    //     }
+
+    //     $account->amount -= $request->amount;
+    //     $account->save();
+
+    //     $data->table_type = "Asset";
+    //     $data->tran_type = "Petty Cash In";
+    //     $data->date = $request->date;
+    //     $data->amount = $request->amount;
+    //     $data->note = $request->description;
+    //     $data->payment_type = "Cash";
+    //     $data->description = "Cash transfer to Petty Cash";
+    //     $data->updated_by = Auth::user()->id;
+    //     if ($data->save()) {
+    //         $pcash = PettyCash::where('id','1')->first();
+    //         $pcash->amount = $pcash->amount + $request->amount;
+    //         $pcash->save();
+
+    //         $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
+    //         return response()->json(['status'=> 300,'message'=>$message]);
+    //     }
+    //     else{
+    //         return response()->json(['status'=> 303,'message'=>'Server Error!!']);
+    //     } 
+    // }
+
+    public function update(Request $request)
+    {
+        if (empty($request->amount)) {
+            $message = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Please fill \" amount \" field..!</b></div>";
+            return response()->json(['status' => 303, 'message' => $message]);
         }
 
-
-
-
         $data = Transaction::find($request->codeid);
+        $oldAmount = $data->amount;
 
-        $pcash = PettyCash::where('id','1')->first();
-        $pcash->amount = $pcash->amount - $data->amount;
+        $pcash = PettyCash::find(1);
+        $pcash->amount -= $oldAmount;
+        $pcash->save();
+
+        $account = Account::find(1);
+        $account->amount += $oldAmount;
+
+        if ($account->amount < $request->amount) {
+            $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Office..!</b></div>";
+
+            $pcash->amount += $oldAmount;
+            $pcash->save();
+
+            return response()->json(['status' => 303, 'message' => $message]);
+        }
+
+        $account->amount -= $request->amount;
+        $account->save();
+
+        $pcash->amount += $request->amount;
         $pcash->save();
 
         $data->table_type = "Asset";
@@ -103,16 +174,11 @@ class PettyCashController extends Controller
         $data->description = "Cash transfer to Petty Cash";
         $data->updated_by = Auth::user()->id;
         if ($data->save()) {
-            $pcash = PettyCash::where('id','1')->first();
-            $pcash->amount = $pcash->amount + $request->amount;
-            $pcash->save();
-
-            $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
-            return response()->json(['status'=> 300,'message'=>$message]);
+            $message = "<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";
+            return response()->json(['status' => 300, 'message' => $message]);
+        } else {
+            return response()->json(['status' => 303, 'message' => 'Server Error!!']);
         }
-        else{
-            return response()->json(['status'=> 303,'message'=>'Server Error!!']);
-        } 
     }
 
 
