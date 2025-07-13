@@ -117,6 +117,23 @@
 
             <div style="overflow-x:auto;">
                 <table id="example1" class="table table-bordered table-striped">
+                    <div class="col-md-4">
+                        <label for="destinationFilter"><strong>Filter by Destination:</strong></label>
+                        <select id="destinationFilter" class="form-control select2">
+                            <option value="">-- All Destinations --</option>
+                            @php
+                                $uniqueDestinations = collect($data->programDetail)
+                                    ->pluck('destination.name')
+                                    ->filter()
+                                    ->unique()
+                                    ->sort()
+                                    ->values();
+                            @endphp
+                            @foreach($uniqueDestinations as $dest)
+                                <option value="{{ $dest }}">{{ $dest }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <thead>
                     <tr>
                         <th>Sl</th>
@@ -152,7 +169,7 @@
                                     $totaldest_qty = 0;
                             @endphp
                         @foreach ($data->programDetail as $key => $data)
-                        <tr>
+                        <tr class="{{ $data->generate_bill == 1 ? 'table-warning' : '' }}">
                             <td style="text-align: center">{{ $key + 1 }}</td>
                             <td style="text-align: center">
 
@@ -265,18 +282,48 @@
 @section('script')
 <script>
     $(document).ready(function () {
-        let selectedBillRows = {};
+        const programId = @json($programId);
+        const storageKey = `selectedBillRows_${programId}`;
+        let selectedBillRows = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+        $('.generate-bill-checkbox').each(function () {
+            const id = $(this).data('program-detail-id');
+            const row = $(this).closest('tr');
+            const qty = parseFloat($(this).data('dest-qty')) || 0;
+
+            if (selectedBillRows[id]) {
+                if (!this.disabled) {
+                    $(this).prop('checked', true);
+                    row.addClass('table-success');
+                }
+            }
+        });
+
+        updateFormState();
+
+        $('#destinationFilter').on('change', function () {
+            const value = $(this).val();
+            $('#example1').DataTable().column(8).search(value).draw();
+        });
 
         $('.generate-bill-checkbox').on('change', function () {
             const id = $(this).data('program-detail-id');
             const qty = parseFloat($(this).data('dest-qty')) || 0;
+            const row = $(this).closest('tr');
 
             if (this.checked && !this.disabled) {
                 selectedBillRows[id] = qty;
+                row.addClass('table-success');
             } else {
                 delete selectedBillRows[id];
+                row.removeClass('table-success');
             }
 
+            localStorage.setItem(storageKey, JSON.stringify(selectedBillRows));
+            updateFormState();
+        });
+
+        function updateFormState() {
             const selectedIds = Object.keys(selectedBillRows);
             const totalQty = Object.values(selectedBillRows).reduce((a, b) => a + b, 0);
 
@@ -290,6 +337,10 @@
                 $('#bill_no-display').val('');
                 $('#total-dest-qty').text(0);
             }
+        }
+
+        $('#pump-action-form').on('submit', function () {
+            localStorage.removeItem(storageKey);
         });
     });
 
