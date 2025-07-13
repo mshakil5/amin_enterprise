@@ -157,7 +157,7 @@
                             <td style="text-align: center">
 
                                 <label class="form-checkbox  grid layout">
-                                    <input type="checkbox" class="custom-checkbox generate-bill-checkbox" name="checkbox-checked" class="custom-checkbox" data-program-detail-id="{{ $data->id }}"  @if ($data->generate_bill == 1) checked disabled @endif  />
+                                    <input type="checkbox" class="custom-checkbox generate-bill-checkbox" name="checkbox-checked" class="custom-checkbox" data-program-detail-id="{{ $data->id }}" data-dest-qty="{{ $data->dest_qty }}"  @if ($data->generate_bill == 1) checked disabled @endif  />
                                 </label>
 
                             </td>
@@ -224,14 +224,24 @@
                         </tr>
                         <tr id="pump-form-row" style="display: none;">
                             <td colspan="15" style="text-align: center;">
-                                <form id="pump-action-form" action="{{ route('bill.generate') }}" method="POST" style="display: flex; justify-content: center; align-items: center;">
-                                    @csrf
-                                    <input type="hidden" name="selected_ids" id="selected_ids">
-                                    <input type="text" name="bill_no" id="bill_no-display" class="form-control" placeholder="Enter Bill No" style="width: 350px; margin-right: 10px;" required>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-check-circle"></i> Submit Bill
-                                    </button>
-                                </form>
+
+                              <div class="row">
+                                <div class="col-2">
+                                  <span style="margin-right: 10px; font-weight: bold;">
+                                      Total Qty: <span id="total-dest-qty">0</span>
+                                  </span>
+                                </div>
+                                <div class="col-10">
+                                  <form id="pump-action-form" action="{{ route('bill.generate') }}" method="POST" style="display: flex; justify-content: center; align-items: center;">
+                                      @csrf
+                                      <input type="hidden" name="selected_ids" id="selected_ids">
+                                      <input type="text" name="bill_no" id="bill_no-display" class="form-control" placeholder="Enter Bill No" style="width: 350px; margin-right: 10px;" required>
+                                      <button type="submit" class="btn btn-primary">
+                                          <i class="fas fa-check-circle"></i> Submit Bill
+                                      </button>
+                                  </form>
+                                </div>
+                              </div>
                             </td>
                         </tr>
                     </tfoot>
@@ -259,22 +269,26 @@
 
         $('.generate-bill-checkbox').on('change', function () {
             const id = $(this).data('program-detail-id');
+            const qty = parseFloat($(this).data('dest-qty')) || 0;
 
-            if (this.checked) {
-                selectedBillRows[id] = true;
+            if (this.checked && !this.disabled) {
+                selectedBillRows[id] = qty;
             } else {
                 delete selectedBillRows[id];
             }
 
             const selectedIds = Object.keys(selectedBillRows);
+            const totalQty = Object.values(selectedBillRows).reduce((a, b) => a + b, 0);
 
-            if (selectedIds.length >= 1) {
+            if (selectedIds.length) {
                 $('#pump-form-row').show();
                 $('#selected_ids').val(JSON.stringify(selectedIds));
+                $('#total-dest-qty').text(totalQty.toFixed(2));
             } else {
                 $('#pump-form-row').hide();
                 $('#selected_ids').val('');
                 $('#bill_no-display').val('');
+                $('#total-dest-qty').text(0);
             }
         });
     });
