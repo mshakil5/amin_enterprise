@@ -103,16 +103,16 @@
                                     <td>Cash In Hand (Closing Balance)</td>
                                     <td></td>
                                     <td></td>
-                                    <td class="text-right">{{ number_format($closingCashInHand, 0) }}</td>
                                     <td class="text-right"></td>
+                                    <td class="text-right">{{ number_format($closingCashInHand, 0) }}</td>
                                 </tr>
                                 <tr>
                                     <td>{{ date('d-m-Y') }}</td>
                                     <td>Cash In Field (Closing Balance)</td>
                                     <td></td>
                                     <td></td>
-                                    <td class="text-right">{{ number_format($closingCashInField, 0) }}</td>
                                     <td class="text-right"></td>
+                                    <td class="text-right">{{ number_format($closingCashInField, 0) }}</td>
                                 </tr>
 
                                 <tr class="font-weight-bold">
