@@ -115,7 +115,7 @@ class ExpenseController extends Controller
             $account = Account::find($request->account_id);
             if ($account) {
                 if ($request->transaction_type === 'Current') {
-                    $account->amount += $request->amount;
+                    $account->amount -= $request->amount;
                 }
                 $account->save();
             }

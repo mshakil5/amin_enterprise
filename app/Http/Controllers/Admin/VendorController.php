@@ -160,8 +160,8 @@ class VendorController extends Controller
         
         $vendor = Vendor::where('id', $request->vendorId)->first();
 
-        $data = VendorSequenceNumber::where('vendor_id',$request->vendorId)->get();
-        
+        $data = VendorSequenceNumber::where('vendor_id',$request->vendorId)->orderBy('id', 'DESC')->get();
+        $i = 1;
         $prop = '';
         
             foreach ($data as $tran){
@@ -199,6 +199,7 @@ class VendorController extends Controller
 
                 // <!-- Single Property Start -->
                 $prop.= '<tr>
+                            <td class="d-none">' . $i++ . '</td>
                             <td>
                                 '.$tran->date.'
                             </td>

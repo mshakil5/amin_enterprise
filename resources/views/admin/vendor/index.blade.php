@@ -246,6 +246,7 @@
               <table id="trantable" class="table table-bordered table-striped">
                   <thead>
                       <tr>
+                          <th class="d-none">SL</th>
                           <th>Date</th>
                           <th>Challan</th>
                           <th>Challan Store</th>
@@ -334,7 +335,7 @@
 
     // Bind custom search input to trantable
     $('#tranTableSearch').on('keyup', function () {
-        $('#trantable').DataTable().search(this.value).draw();
+        // $('#trantable').DataTable().search(this.value).draw();
     });
 
     
