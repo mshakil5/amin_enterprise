@@ -181,7 +181,7 @@ class ExpenseController extends Controller
         if ($oldTranType === 'Current' && $oldAccountId) {
             $oldAccount = Account::find($oldAccountId);
             if ($oldAccount) {
-                $oldAccount->amount -= $oldAmount;
+                $oldAccount->amount += $oldAmount;
                 $oldAccount->save();
             }
         }
@@ -227,7 +227,7 @@ class ExpenseController extends Controller
         if ($request->transaction_type === 'Current' && $request->account_id) {
             $newAccount = Account::find($request->account_id);
             if ($newAccount) {
-                $newAccount->amount += $request->amount;
+                $newAccount->amount -= $request->amount;
                 $newAccount->save();
             }
         }
