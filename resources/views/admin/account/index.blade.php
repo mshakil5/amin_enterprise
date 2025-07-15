@@ -139,7 +139,7 @@
                   <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{$data->type}}</td>
-                    <td>{{$data->amount}}</td>
+                    <td>{{ number_format($data->amount, 2) }}</td>
                     <td>{{ number_format($balance, 2) }}</td>
                     <td>
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit mr-2" style="color: #2196f3;font-size:20px;"></i></a>
