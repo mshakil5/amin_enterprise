@@ -82,6 +82,8 @@ class ProgramController extends Controller
                     ->groupBy('date')
                     ->orderBy('date', 'DESC')
                     ->get();
+
+
                     
 
         return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName'));
