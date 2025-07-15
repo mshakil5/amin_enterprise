@@ -107,4 +107,47 @@ class Transaction extends Model
         });
     }
 
+    public static function getAccountBalance($accountId)
+    {
+        $increase = self::where('account_id', $accountId)
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('table_type', 'Income')->where('tran_type', 'Current');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Assets')->whereIn('tran_type', ['Received', 'Sold']);
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Liabilities')->where('tran_type', 'Received');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Equity')->where('tran_type', 'Received');
+                })->orWhere(function ($q) {
+                    $q->whereNull('table_type')->where('tran_type', 'Transfer')->where('description', 'like', 'Transfer from%');
+                });
+            })
+            ->sum('amount');
+
+        $decrease = self::where('account_id', $accountId)
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('table_type', 'Income')->where('tran_type', 'Refund');
+                })->orWhere(function ($q) {
+                    $q->whereIn('table_type', ['Expenses', 'Cogs'])->where('tran_type', 'Current');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Assets')->whereIn('tran_type', ['Payment', 'Purchase']);
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Liabilities')->where('tran_type', 'Payment');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Equity')->where('tran_type', 'Payment');
+                })->orWhere(function ($q) {
+                    $q->whereNull('table_type')->where('tran_type', 'Transfer')->where('description', 'like', 'Transfer to%');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Asset')->where('tran_type', 'Petty Cash In');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Expense')->where('tran_type', 'Wallet');
+                });
+            })
+            ->sum('amount');
+
+        return $increase - $decrease;
+    }
+    
 }

@@ -97,43 +97,7 @@
                   @foreach ($data as $key => $data)
 
                   @php
-                      $id = $data->id;
-
-                      $increase = \App\Models\Transaction::where('account_id', $id)
-                          ->where(function ($q) {
-                              $q->where(function ($q) {
-                                  $q->where('table_type', 'Income')->where('tran_type', 'Current');
-                              })->orWhere(function ($q) {
-                                  $q->where('table_type', 'Liabilities')->where('tran_type', 'Received');
-                              })->orWhere(function ($q) {
-                                  $q->where('table_type', 'Equity')->where('tran_type', 'Received');
-                              })->orWhere(function ($q) {
-                                  $q->whereNull('table_type')->where('tran_type', 'Transfer')->where('description', 'like', 'Transfer from%');
-                              });
-                          })
-                          ->sum('amount');
-
-                      $decrease = \App\Models\Transaction::where('account_id', $id)
-                          ->where(function ($q) {
-                              $q->where(function ($q) {
-                                  $q->where('table_type', 'Income')->where('tran_type', 'Refund');
-                              })->orWhere(function ($q) {
-                                  $q->whereIn('table_type', ['Expenses', 'Cogs'])->where('tran_type', 'Current');
-                              })->orWhere(function ($q) {
-                                  $q->where('table_type', 'Liabilities')->where('tran_type', 'Payment');
-                              })->orWhere(function ($q) {
-                                  $q->where('table_type', 'Equity')->where('tran_type', 'Payment');
-                              })->orWhere(function ($q) {
-                                  $q->whereNull('table_type')->where('tran_type', 'Transfer')->where('description', 'like', 'Transfer to%');
-                              })->orWhere(function ($q) {
-                                  $q->where('table_type', 'Asset')->where('tran_type', 'Petty Cash In');
-                              })->orWhere(function ($q) {
-                                  $q->where('table_type', 'Expense')->where('tran_type', 'Wallet');
-                              });
-                          })
-                          ->sum('amount');
-
-                      $balance = $increase - $decrease;
+                      $balance = \App\Models\Transaction::getAccountBalance($data->id);
                   @endphp
 
                   <tr>
