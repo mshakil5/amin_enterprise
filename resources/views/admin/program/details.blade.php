@@ -303,6 +303,7 @@
                         <th>Truck Number</th>
                         <th>Challan no</th>
                         <th>Destination</th>
+                        <th>Previous Qty</th>
                         <th>Qty</th>
                         <th>Carring Bill</th>
                         <th>Advance</th>
@@ -361,6 +362,7 @@
                             <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
                             <td style="text-align: center">{{$data->challan_no}}</td>
                             <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                            <td style="text-align: center">{{$data->old_qty}}</td>
                             <td style="text-align: center">{{$data->dest_qty}}</td>
                             <td style="text-align: center">{{$data->carrying_bill}}</td>
                             <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
@@ -406,9 +408,10 @@
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
                             <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
                         </tr>
                         <tr id="pump-form-row" style="display: none;">
-                          <td colspan="20" style="text-align: center;">
+                          <td colspan="21" style="text-align: center;">
                               <form id="pump-action-form" action="{{ route('petrol.pump.mark.qty') }}" method="POST" style="display: flex; justify-content: center; align-items: center;">
                                   @csrf
                                   <input type="hidden" name="petrol_pump_id" id="petrol_pump_id">
