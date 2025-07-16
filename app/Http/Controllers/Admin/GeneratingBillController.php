@@ -210,4 +210,14 @@ class GeneratingBillController extends Controller
         return back()->with('success', 'Bill generated successfully.');
     }
 
+    public function undoGenerateBill($id)
+    {
+        $programDetail = ProgramDetail::findOrFail($id);
+        $programDetail->generate_bill = 0;
+        $programDetail->bill_no = null;
+        $programDetail->save();
+
+        return back()->with('success', 'Unchecked successfully.');
+    }
+
 }

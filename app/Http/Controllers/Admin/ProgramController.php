@@ -1922,4 +1922,14 @@ class ProgramController extends Controller
         return view('admin.program_details.deleted', compact('deletedDetails'));
     }
 
+    public function undoFuelBill($id)
+    {
+        $programDetail = ProgramDetail::findOrFail($id);
+        $programDetail->fuel_bill_id = null;
+        $programDetail->save();
+
+        return back()->with('success', 'Fuel bill unassigned successfully.');
+    }
+
+
 }

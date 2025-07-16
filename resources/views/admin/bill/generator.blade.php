@@ -44,9 +44,9 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        @if (session()->has('success'))
+                        {{-- @if (session()->has('success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif
+                        @endif --}}
                         <form action="{{ route('billGeneratingStore') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
@@ -161,10 +161,25 @@
                                         <tr class="{{ $data->generate_bill == 1 ? 'table-warning' : '' }}" data-id="{{ $data->id }}">
                                             <td style="text-align: center">{{ $key + 1 }}</td>
                                             <td style="text-align: center">
-                                                <label class="form-checkbox grid layout">
-                                                    <input type="checkbox" class="custom-checkbox generate-bill-checkbox" name="checkbox-checked" data-program-detail-id="{{ $data->id }}" data-dest-qty="{{ $data->dest_qty }}" @if ($data->generate_bill == 1) checked disabled @endif />
+                                                <div style="display: flex; align-items: center; gap: 6px; justify-content: center">
+                                                    @if ($data->generate_bill == 1)
+                                                        <form action="{{ route('generateBill.undo', $data->id) }}" method="POST" onsubmit="return confirm('Uncheck this item?')">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-undo"></i></button>
+                                                        </form>
+                                                    @endif
+
+                                                <label class="form-checkbox grid layout mb-0">
+                                                    <input type="checkbox" class="custom-checkbox generate-bill-checkbox"
+                                                          name="checkbox-checked"
+                                                          data-program-detail-id="{{ $data->id }}"
+                                                          data-dest-qty="{{ $data->dest_qty }}"
+                                                          @if ($data->generate_bill == 1) checked disabled @endif />
                                                 </label>
+                                                </div>
                                             </td>
+
                                             @php
                                                 $fuelBills = $data->advancePayment->petrolPump ?? ''
                                                     ? \App\Models\FuelBill::with('petrolPump:id,name')

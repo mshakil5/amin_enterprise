@@ -242,6 +242,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/bill-generating', [GeneratingBillController::class, 'billGeneratingStore'])->name('billGeneratingStore');
     Route::get('/export-template', [GeneratingBillController::class, 'exportTemplate'])->name('export.template');
     Route::post('/generate-bill', [GeneratingBillController::class, 'generateBill'])->name('bill.generate');
+    Route::patch('program-detail/{id}/undo', [GeneratingBillController::class, 'undoGenerateBill'])->name('generateBill.undo');
+    Route::patch('fuel-bill/undo/{id}', [ProgramController::class, 'undoFuelBill'])->name('fuel.bill.undo');
 
     
     // daybook

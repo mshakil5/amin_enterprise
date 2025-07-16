@@ -346,7 +346,17 @@
                                     : collect();
                             @endphp
                             <td style="text-align: center">
-                                <label class="form-checkbox grid layout">
+                              <div style="display: flex; align-items: center; gap: 6px; justify-content: center">
+                                @if($data->fuel_bill_id)
+                                    <form action="{{ route('fuel.bill.undo', $data->id) }}" method="POST" onsubmit="return confirm('Uncheck this item?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm btn-danger p-1">
+                                            <i class="fa fa-undo"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                                <label class="form-checkbox grid layout mb-0">
                                   <input type="checkbox" class="petrol-checkbox custom-checkbox" 
                                   data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
                                   data-fuel-bills='@json($fuelBills)'
@@ -354,6 +364,7 @@
                                   data-program-detail-id="{{ $data->id }}" 
                                   @if($data->fuel_bill_id) checked disabled @endif>
                                 </label>
+                              </div>
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>
                             <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
