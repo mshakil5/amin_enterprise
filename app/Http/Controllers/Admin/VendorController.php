@@ -366,6 +366,7 @@ class VendorController extends Controller
         $transaction->table_type = "Expense";
         $transaction->vendor_id = $request->vendorId;
         $transaction->date = $request->wallet_date ?? date('Y-m-d');
+        $transaction->note = $request->note;
         $transaction->save();
         $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         if ($transaction->save()) {

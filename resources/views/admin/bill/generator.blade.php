@@ -104,7 +104,7 @@
 
                         <div style="overflow-x:auto;">
                             <!-- Destination Filter -->
-                            <div class="col-md-4">
+                            <div class="col-md-4 mb-3">
                                 <label for="destinationFilter"><strong>Filter by Destination:</strong></label>
                                 <select id="destinationFilter" class="form-control select2">
                                     <option value="">-- All Destinations --</option>
@@ -158,7 +158,7 @@
                                         $totaldest_qty = 0;
                                     @endphp
                                     @foreach ($data->programDetail as $key => $data)
-                                        <tr class="{{ $data->generate_bill == 1 ? 'table-warning' : '' }}">
+                                        <tr class="{{ $data->generate_bill == 1 ? 'table-warning' : '' }}" data-id="{{ $data->id }}">
                                             <td style="text-align: center">{{ $key + 1 }}</td>
                                             <td style="text-align: center">
                                                 <label class="form-checkbox grid layout">
@@ -228,6 +228,7 @@
                                 <div class="row">
                                     <div class="col-2">
                                         <span style="margin-right: 10px; font-weight: bold;">
+                                            Selected: <span id="total-selected">0</span> |
                                             Total Qty: <span id="total-dest-qty">0</span>
                                         </span>
                                     </div>
@@ -258,15 +259,16 @@
     $(document).ready(function () {
         const programId = @json($programId);
         const storageKey = `selectedBillRows_${programId}`;
-        let selectedBillRows = JSON.parse(localStorage.getItem(storageKey)) || {};
 
+        let selectedBillRows = JSON.parse(localStorage.getItem(storageKey)) || {};
+        // console.log(selectedBillRows);
         // Initialize checkbox states based on localStorage
         $('.generate-bill-checkbox').each(function () {
             const id = $(this).data('program-detail-id');
             const row = $(this).closest('tr');
             const qty = parseFloat($(this).data('dest-qty')) || 0;
 
-            if (selectedBillRows[id]) {
+            if (selectedBillRows.hasOwnProperty(id)) {
                 if (!this.disabled) {
                     $(this).prop('checked', true);
                     row.addClass('table-success');
@@ -288,12 +290,15 @@
             const id = $(this).data('program-detail-id');
             const qty = parseFloat($(this).data('dest-qty')) || 0;
             const row = $(this).closest('tr');
+            const rowDataId = row.data('id');
+
+            // console.log(id, qty, rowDataId);
 
             if (this.checked && !this.disabled) {
-                selectedBillRows[id] = qty;
+                selectedBillRows[rowDataId] = qty;
                 row.addClass('table-success');
             } else {
-                delete selectedBillRows[id];
+                delete selectedBillRows[rowDataId];
                 row.removeClass('table-success');
             }
 
@@ -310,11 +315,13 @@
                 $('#pump-form-row').show();
                 $('#selected_ids').val(JSON.stringify(selectedIds));
                 $('#total-dest-qty').text(totalQty.toFixed(2));
+                $('#total-selected').text(selectedIds.length); 
             } else {
                 $('#pump-form-row').hide();
                 $('#selected_ids').val('');
                 $('#bill_no-display').val('');
                 $('#total-dest-qty').text(0);
+                $('#total-selected').text(0);
             }
         }
 
