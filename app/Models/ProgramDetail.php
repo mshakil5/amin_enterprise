@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Models\Activity;
 
 class ProgramDetail extends Model
 {
@@ -133,4 +134,10 @@ class ProgramDetail extends Model
             }
         });
     } 
+
+    public function deleteLogs() 
+    {
+        return $this->morphMany(Activity::class, 'subject');
+    }
+
 }

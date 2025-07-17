@@ -49,7 +49,13 @@ class ProgramController extends Controller
             },
             'programDetail as deleted_count' => function ($query) {
                 $query->onlyTrashed();
+            },
+            'programDetail as pump_count' => function ($query) {
+                $query->whereHas('advancePayment', function ($q) {
+                    $q->whereNotNull('petrol_pump_id');
+                });
             }
+            
         ])->where('status', 1)->orderby('id','DESC')->get();
 
         // dd( $data );
@@ -1879,46 +1885,65 @@ class ProgramController extends Controller
 
     public function programDetailLogs()
     {
-        $from = Carbon::yesterday()->toDateString();
-        $to = Carbon::today()->toDateString();
-        
-        $logs = Activity::where('log_name', 'program_detail')
-            ->whereDate('created_at', '>=', $from)
-            ->whereDate('created_at', '<=', $to)
-            ->with([
-                'causer:id,name',
-                'subject:id,headerid,dest_qty,challan_no'
-            ])
-            ->get()
-            ->groupBy('causer_id')
-            ->map(function ($group) {
-                return $group->map(function ($log) {
-                    $headerid = $log->subject->headerid ?? 
-                              ($log->properties['attributes']['headerid'] ?? '-');
-                    $dest_qty = $log->subject->dest_qty ?? 
-                              ($log->properties['attributes']['dest_qty'] ?? '-');
-                    $challan_no = $log->subject->challan_no ?? 
-                                ($log->properties['attributes']['challan_no'] ?? '-');
+        $today = Carbon::today()->toDateString();
+        $yesterday = Carbon::yesterday()->toDateString();
 
-                    return [
-                        'headerid' => $headerid,
-                        'dest_qty' => $dest_qty,
-                        'challan_no' => $challan_no,
-                        'causer_name' => $log->causer?->name ?? 'Unknown',
-                    ];
+        $getLogsGrouped = function ($date, $filterDeleted = false) {
+            $query = Activity::where('log_name', 'program_detail')
+                ->whereDate('created_at', $date)
+                ->with([
+                    'causer:id,name',
+                    'subject:id,headerid,dest_qty,challan_no'
+                ]);
+
+            if ($filterDeleted) {
+                $query->where('event', 'deleted');
+            }
+
+            return $query->get()
+                ->groupBy('causer_id')
+                ->map(function ($group) {
+                    return $group->map(function ($log) {
+                        $headerid = $log->subject->headerid ?? 
+                                  ($log->properties['attributes']['headerid'] ?? '-');
+                        $dest_qty = $log->subject->dest_qty ?? 
+                                  ($log->properties['attributes']['dest_qty'] ?? '-');
+                        $challan_no = $log->subject->challan_no ?? 
+                                    ($log->properties['attributes']['challan_no'] ?? '-');
+
+                        return [
+                            'headerid' => $headerid,
+                            'dest_qty' => $dest_qty,
+                            'challan_no' => $challan_no,
+                            'causer_name' => $log->causer?->name ?? 'Unknown',
+                        ];
+                    });
                 });
-            });
+        };
 
-        return view('admin.programs.program_detail_logs', compact('logs'));
+        $todayLogs = $getLogsGrouped($today);
+        $yesterdayLogs = $getLogsGrouped($yesterday);
+
+        $todayDeletedLogs = $getLogsGrouped($today, true);
+        $yesterdayDeletedLogs = $getLogsGrouped($yesterday, true);
+
+        return view('admin.programs.program_detail_logs', compact(
+            'todayLogs', 'yesterdayLogs', 'todayDeletedLogs', 'yesterdayDeletedLogs'
+        ));
     }
 
     public function deletedProgramDetail($id)
     {
         $program = Program::with(['programDetail' => function ($query) {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->with('deleteLogs');
         }])->findOrFail($id);
 
+        $program->programDetail->each(function ($detail) {
+            $detail->deleteLogs->load('causer');
+        });
+
         $deletedDetails = $program->programDetail;
+
         return view('admin.program_details.deleted', compact('deletedDetails'));
     }
 

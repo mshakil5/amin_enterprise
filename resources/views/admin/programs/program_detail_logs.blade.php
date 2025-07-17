@@ -1,55 +1,142 @@
 @extends('admin.layouts.admin')
 
 @section('content')
-
 <section class="content pt-3" id="contentContainer">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
 
-          <div class="card card-secondary">
-            <div class="card-header">
-              <h3 class="card-title">All Data</h3>
-            </div>
-            <div class="card-body">
-              <table id="example1" class="table table-bordered table-striped">
-                  <thead>
-                      <tr>
-                          <th colspan="5" class="text-center bg-light">Program Detail Log Summary (Last 2 Days)</th>
-                      </tr>
-                      <tr>
-                          <th>Sl</th>
-                          <th>Performed By</th>
-                          <th>Counter</th>
-                          <th>Action</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      @foreach ($logs as $key => $log)
-                          <tr>
-                              <td>{{ $key + 1 }}</td>
-                              <td>{{ $log->first()['causer_name'] ?? '' }}</td>
-                              <td>{{ $log->count() }}</td>
-                              <td>
-                                <button 
-                                  class="btn btn-sm btn-info show-changes-btn my-1"
-                                  data-logs='@json($log)'
-                                  data-causer="{{ $log->first()['causer_name'] ?? '' }}"
-                                  data-toggle="modal" 
-                                  data-target="#changesModal">
-                                  View
-                                </button>
-                              </td>
-                          </tr>
-                      @endforeach
-                  </tbody>
-              </table>
-            </div>
+        <div class="card card-success">
+          <div class="card-header">
+            <h3 class="card-title">Today's Logs</h3>
           </div>
+          <div class="card-body">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Sl</th>
+                  <th>Performed By</th>
+                  <th>Counter</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse ($todayLogs as $key => $log)
+                <tr>
+                  <td>{{ $key + 1 }}</td>
+                  <td>{{ $log->first()['causer_name'] ?? '' }}</td>
+                  <td>{{ $log->count() }}</td>
+                  <td>
+                    @php
+                      $causerId = $log->first()['causer_id'] ?? null;
+                      $afterChallanLogs = $log->filter(fn($item) => $item['headerid'] !== '-')->values();
+                      $beforeChallanLogs = $log->filter(fn($item) => $item['headerid'] === '-')->values();
+                      $deletedLogs = $todayDeletedLogs[$causerId] ?? collect();
+                    @endphp
 
+                    @if($afterChallanLogs->isNotEmpty())
+                    <button class="btn btn-sm btn-primary show-changes-btn my-1"
+                      data-logs='@json($afterChallanLogs)'
+                      data-causer="{{ $log->first()['causer_name'] ?? '' }}"
+                      data-type="after"
+                      data-toggle="modal"
+                      data-target="#changesModal">After Challan({{ $afterChallanLogs->count() }})</button>
+                    @endif
+
+                    @if($beforeChallanLogs->isNotEmpty())
+                    <button class="btn btn-sm btn-secondary show-changes-btn my-1"
+                      data-logs='@json($beforeChallanLogs)'
+                      data-causer="{{ $log->first()['causer_name'] ?? '' }}"
+                      data-type="before"
+                      data-toggle="modal"
+                      data-target="#changesModal">Before Challan({{ $beforeChallanLogs->count() }})</button>
+                    @endif
+
+                    @if($deletedLogs->isNotEmpty())
+                    <button class="btn btn-sm btn-danger show-changes-btn my-1"
+                      data-logs='@json($deletedLogs)'
+                      data-causer="{{ $log->first()['causer_name'] ?? '' }}"
+                      data-type="deleted"
+                      data-toggle="modal"
+                      data-target="#changesModal">Deleted</button>
+                    @endif
+                  </td>
+                </tr>
+                @empty
+                <tr><td colspan="4" class="text-center">No logs for today</td></tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        <div class="card card-warning">
+          <div class="card-header">
+            <h3 class="card-title">Yesterday's Logs</h3>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Sl</th>
+                  <th>Performed By</th>
+                  <th>Counter</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse ($yesterdayLogs as $key => $log)
+                <tr>
+                  <td>{{ $key + 1 }}</td>
+                  <td>{{ $log->first()['causer_name'] ?? '' }}</td>
+                  <td>{{ $log->count() }}</td>
+                  <td>
+                  @php
+                    $causerId = $log->first()['causer_id'] ?? null;
+                    $afterChallanLogs = $log->filter(fn($item) => $item['headerid'] !== '-')->values();
+                    $beforeChallanLogs = $log->filter(fn($item) => $item['headerid'] === '-')->values();
+                    $deletedLogs = $yesterdayDeletedLogs[$causerId] ?? collect();
+                  @endphp
+
+                    @if($afterChallanLogs->isNotEmpty())
+                    <button class="btn btn-sm btn-primary show-changes-btn my-1"
+                      data-logs='@json($afterChallanLogs)'
+                      data-causer="{{ $log->first()['causer_name'] ?? '' }}"
+                      data-type="after"
+                      data-toggle="modal"
+                      data-target="#changesModal">After Challan({{ $afterChallanLogs->count() }})</button>
+                    @endif
+
+                    @if($beforeChallanLogs->isNotEmpty())
+                    <button class="btn btn-sm btn-secondary show-changes-btn my-1"
+                      data-logs='@json($beforeChallanLogs)'
+                      data-causer="{{ $log->first()['causer_name'] ?? '' }}"
+                      data-type="before"
+                      data-toggle="modal"
+                      data-target="#changesModal">Before Challan({{ $beforeChallanLogs->count() }})</button>
+                    @endif
+
+                    @if($deletedLogs->isNotEmpty())
+                    <button class="btn btn-sm btn-danger show-changes-btn my-1"
+                      data-logs='@json($deletedLogs)'
+                      data-causer="{{ $log->first()['causer_name'] ?? '' }}"
+                      data-type="deleted"
+                      data-toggle="modal"
+                      data-target="#changesModal">Deleted</button>
+                    @endif
+                  </td>
+                </tr>
+                @empty
+                <tr><td colspan="4" class="text-center">No logs for yesterday</td></tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
+  </div>
 </section>
 
 <!-- Changes Modal -->
@@ -59,7 +146,6 @@
       <div class="modal-header">
         <h5 class="modal-title" id="changesModalLabel">
           <small class="ml-3 text-muted" id="changedByInfo"></small>
-          <small class="ml-3 text-muted" id="programIdInfo"></small>
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -68,10 +154,7 @@
       <div class="modal-body">
         <table class="table table-bordered" id="changesTable">
           <thead>
-            <tr>
-              <th>Header ID</th>
-              <th>Dest Qty</th>
-              <th>Challan Number</th>
+            <tr id="modalHeaderRow">
             </tr>
           </thead>
           <tbody></tbody>
@@ -80,48 +163,67 @@
     </div>
   </div>
 </div>
-
 @endsection
 
 @section('script')
 <script>
   $(document).ready(function () {
-    $('#example1').DataTable({
-      pageLength: 100
-    });
-
-    let changesTable;
-
     $('.show-changes-btn').on('click', function () {
       const logs = $(this).data('logs');
       const causer = $(this).data('causer');
+      const type = $(this).data('type');
 
-      $('#changedByInfo').text(`Performed By: ${causer}`);
+      $('#changedByInfo').text(`Performed By: ${causer} (${type.charAt(0).toUpperCase() + type.slice(1)} Logs)`);
 
+      const thead = $('#modalHeaderRow');
       const tbody = $('#changesTable tbody');
       tbody.empty();
+      thead.empty();
 
-      if (!logs.length) {
-        tbody.append('<tr><td colspan="3" class="text-center">No relevant changes found</td></tr>');
-        return;
+      if(type === 'after'){
+        thead.append('<th>Header ID</th><th>Dest Qty</th><th>Challan Number</th>');
+        logs.forEach(log => {
+          if (log.headerid === '-' && log.dest_qty === '-' && log.challan_no === '-') return;
+          tbody.append(`
+            <tr>
+              <td>${log.headerid}</td>
+              <td>${log.dest_qty}</td>
+              <td>${log.challan_no}</td>
+            </tr>
+          `);
+        });
+      } else if(type === 'before') {
+        thead.append('<th>Challan Number</th>');
+        logs.forEach(log => {
+          if (!log.challan_no || log.challan_no === '-') return;
+          tbody.append(`
+            <tr>
+              <td>${log.challan_no}</td>
+            </tr>
+          `);
+        });
+      } else if(type === 'deleted') {
+        thead.append('<th>Header ID</th><th>Dest Qty</th><th>Challan Number</th>');
+        logs.forEach(log => {
+          tbody.append(`
+            <tr>
+              <td>${log.headerid}</td>
+              <td>${log.dest_qty}</td>
+              <td>${log.challan_no}</td>
+            </tr>
+          `);
+        });
       }
 
-      logs.forEach(log => {
-        if (log.headerid === '-' && log.dest_qty === '-' && log.challan_no === '-') return;
-
-        tbody.append(`
-          <tr>
-            <td>${log.headerid}</td>
-            <td>${log.dest_qty}</td>
-            <td>${log.challan_no}</td>
-          </tr>
-        `);
-      });
+      if (tbody.children().length === 0) {
+        tbody.append('<tr><td class="text-center" colspan="'+ (type === 'after' ? 3 : 1) +'">No relevant changes found</td></tr>');
+      }
     });
 
     $('#changesModal').on('hidden.bs.modal', function () {
       $('#changedByInfo').text('');
-      $('#programIdInfo').text('');
+      $('#changesTable tbody').empty();
+      $('#modalHeaderRow').empty();
     });
   });
 </script>

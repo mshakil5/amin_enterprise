@@ -39,7 +39,8 @@
                   <th>Mother Vassel</th>
                   <th>Lighter Vassel</th>
                   <th>Ghat</th>
-                  <th>Consignment No.</th>
+                  <th>Consignment No.</th>    
+                  <th>Log</th>
                   <th>Bill Generate</th>
                   <th>Vendor</th>
                   <th>Total Challan</th>
@@ -74,6 +75,51 @@
                       @endif
                     </td>
                     <td style="text-align: center">{{$data->consignmentno ?? ""}}</td>
+                    <td style="text-align: center">
+                      <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#logModal_{{ $data->id }}">
+                        Log
+                      </button>
+
+                      <div class="modal fade" id="logModal_{{ $data->id }}" tabindex="-1" role="dialog" aria-labelledby="logModalLabel_{{ $data->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                              <h5 class="modal-title" id="logModalLabel_{{ $data->id }}">Log Details (Program ID: {{ $data->id }})</h5>
+                              <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                <span>&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total Challan:</span>
+                                  <strong>{{ ($data->generate_bill_count + $data->not_generate_bill_count) ?? 0 }}</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Bill Generated Challan:</span>
+                                  <strong>{{ $data->generate_bill_count ?? 0 }}</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Bill Not Generated Challan:</span>
+                                  <strong>{{ $data->not_generate_bill_count ?? 0 }}</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total After Challan Posting:</span>
+                                  <strong>{{ $data->after_challan_posting_count ?? 0 }}</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total Petrol Pump:</span>
+                                  <strong>{{ $data->pump_count ?? 0 }}</strong>
+                                </li>
+                              </ul>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
                     <td style="text-align: center">
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
 
