@@ -256,6 +256,7 @@
                           <th>Action</th>
                           <th>Checked By</th>
                           <th>Approved By</th>
+                          <th>Edit</th>
                       </tr>
                   </thead>
                   <tbody></tbody>
@@ -265,6 +266,33 @@
   </div>
 </div>
 
+<div class="modal fade" id="editQtyModal" tabindex="-1" role="dialog" aria-labelledby="editQtyModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="updateQtyForm" method="POST" action="{{ route('admin.vendor.sequence.qty.update') }}">
+      @csrf
+      @method('POST')
+      <input type="hidden" name="vendor_sequence_id" id="vendor_sequence_id">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editQtyModalLabel">Update Quantity</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="edit_qty">Quantity</label>
+            <input type="number" class="form-control" name="qty" id="edit_qty" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Update</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Modal for add money -->
 <div class="modal fade" id="addWalletModal" tabindex="-1" role="dialog" aria-labelledby="addWalletLabel" aria-hidden="true">
@@ -296,9 +324,7 @@
                   </div>
                   <div class="form-group">
                       <label for="note">Note</label>
-                      <textarea class="form-control" id="note" rows="3">
-
-                      </textarea>
+                      <textarea class="form-control" id="note" rows="3"></textarea>
                   </div>
 
 
@@ -315,26 +341,57 @@
 @endsection
 @section('script')
 <script>
-    $(function () {
-      $("#example1").DataTable({
-        "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
-        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
-      }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
-
-
-
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print"],
+      "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
     });
-  </script>
+
+
+
+  });
+
+  $(document).on('click', '.editQtyBtn', function () {
+      const id = $(this).data('id');
+      const qty = $(this).data('qty');
+
+      $('#vendor_sequence_id').val(id);
+      $('#edit_qty').val(qty);
+      $('#editQtyModal').modal('show');
+  });
+
+  $(document).on('submit', '#updateQtyForm', function(e) {
+      e.preventDefault();
+
+      $.ajax({
+          url: $(this).attr('action'),
+          method: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+              if(response.status === 200){
+                  alert(response.message);
+                  location.reload();
+              } else {
+                  alert('Update failed!');
+              }
+          },
+          error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+              alert('An error occurred.');
+          }
+      });
+  });
+</script>
 
 <script>
   $(document).ready(function () {

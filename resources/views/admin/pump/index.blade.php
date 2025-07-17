@@ -201,6 +201,7 @@
                   <th>Invoice Qty</th>
                   <th>Total Vehicle</th>
                   <th>Unique ID</th>
+                  <th>Edit</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -208,6 +209,44 @@
             </table>
           </div>
       </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="editFullModal" tabindex="-1" role="dialog" aria-labelledby="editFullModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form id="updateFullForm" method="POST" action="{{ route('admin.pump.update') }}">
+      @csrf
+      <input type="hidden" name="tran_id" id="edit_id">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Sequence Entry</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" class="form-control" name="date" id="edit_date" required>
+          </div>
+          <div class="form-group">
+            <label>Bill Number</label>
+            <input type="text" class="form-control" name="bill_number" id="edit_bill_number" required>
+          </div>
+          <div class="form-group">
+            <label>Invoice Qty</label>
+            <input type="number" class="form-control" name="qty" id="edit_qty" required>
+          </div>
+          <div class="form-group">
+            <label>Total Vehicle</label>
+            <input type="number" class="form-control" name="vehicle_count" id="edit_vehicle_count" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Update</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -231,7 +270,52 @@
         "responsive": true,
       });
     });
-  </script>
+
+    $(document).on('click', '.editFullBtn', function () {
+        const id = $(this).data('id');
+        const date = $(this).data('date');
+        const bill_number = $(this).data('bill_number');
+        const qty = $(this).data('qty');
+        const vehicle_count = $(this).data('vehicle_count');
+
+        $('#edit_id').val(id);
+        $('#edit_date').val(date);
+        $('#edit_bill_number').val(bill_number);
+        $('#edit_qty').val(qty);
+        $('#edit_vehicle_count').val(vehicle_count);
+
+        $('#editFullModal').modal('show');
+    });
+
+    $(document).on('submit', '#updateFullForm', function (e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.status === 200) {
+                    alert('Update successful!');
+                    $('#editFullModal').modal('hide');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    alert('Update failed!');
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+    });
+
+</script>
 
 <script>
   $(document).ready(function () {

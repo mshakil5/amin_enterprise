@@ -111,6 +111,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/add-fuel-bill-number', [PumpController::class, 'addFuelBillNumber'])->name('admin.addFuelBillNumber');
     Route::post('/get-petrol-pump-bill', [PumpController::class, 'getFuelBillNumber']);
     Route::get('/get-pump-sequence-list/{id}', [PumpController::class, 'getPumpWiseProgramList'])->name('admin.pump.sequence.show');
+    Route::post('/pump/update', [PumpController::class, 'pumpUpdate'])->name('admin.pump.update');
 
     Route::post('/petrol-pump/submit', [PumpController::class, 'updateMarkQty'])->name('petrol.pump.mark.qty');
     
@@ -124,6 +125,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/vendor/{id}', [VendorController::class, 'delete']);
     Route::post('/add-vendor-sequence', [VendorController::class,'addSequenceNumber'])->name('addSequenceNumber');
     Route::post('/get-vendor-sequence', [VendorController::class,'getSequenceNumber']);
+    Route::post('/vendor-sequence/update-qty', [VendorController::class, 'updateQty'])->name('admin.vendor.sequence.qty.update');
     Route::get('/vendor-sequence/{id}', [VendorController::class, 'sequencedelete']);
     Route::post('/add-vendor-wallet-balance', [VendorController::class,'addWalletBalance'])->name('addWalletBalance');
     Route::get('/get-wallet-transaction/{id}', [VendorController::class,'getWalletTransaction'])->name('getWalletTransaction');

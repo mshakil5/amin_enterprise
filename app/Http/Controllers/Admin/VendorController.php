@@ -247,6 +247,17 @@ class VendorController extends Controller
                                     Loading...
                                 </div>
                             </td>
+
+                            <td>
+                                <button class="btn btn-info btn-xs editQtyBtn" 
+                                        data-id="' . $tran->id . '" 
+                                        data-qty="' . $tran->qty . '" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editQtyModal">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+
                         </tr>';
                         
             }
@@ -387,6 +398,9 @@ class VendorController extends Controller
     {
         $vendor = Vendor::where('id', $id)->first();
         $transactions = Transaction::where('vendor_id', $id)
+            ->where('table_type', 'Expense')
+            ->where('tran_type', 'Wallet')
+            ->where('description', 'Add Wallet Balance')
             ->orderBy('id', 'DESC')
             ->get();
 
@@ -540,6 +554,24 @@ class VendorController extends Controller
 
         
         return view('admin.vendor.sequence_wise_program_ledger', compact('vendorSequenceNumber', 'totalPaidTransaction', 'summary','vendor','advanceData'));
+    }
+
+    public function updateQty(Request $request)
+    {
+        $request->validate([
+            'vendor_sequence_id' => 'required',
+            'qty' => 'required|numeric|min:0',
+        ]);
+
+        $vendorSequenceNumber = VendorSequenceNumber::find($request->vendor_sequence_id);
+        $vendorSequenceNumber->qty = $request->qty;
+        $vendorSequenceNumber->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Quantity updated successfully'
+        ]);
+
     }
 
 }

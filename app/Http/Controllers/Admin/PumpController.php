@@ -177,6 +177,18 @@ class PumpController extends Controller
                             <td>
                             <a class="btn btn-success btn-xs" href="'.route('admin.pump.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
                             </td>
+                             <td>
+                                <button class="btn btn-info btn-xs editFullBtn" 
+                                        data-id="' . $tran->id . '" 
+                                        data-date="' . $tran->date . '"
+                                        data-bill_number="' . $tran->bill_number . '"
+                                        data-qty="' . $tran->qty . '" 
+                                        data-vehicle_count="' . $tran->vehicle_count . '" 
+                                        data-toggle="modal" 
+                                        data-target="#editFullModal">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                              </td>
                         </tr>';
                         
             }
@@ -243,6 +255,26 @@ class PumpController extends Controller
     
 
         return view('admin.pump.fuelbill_wise_program_list', compact('data','pump','pumpSequenceNumber'));
+    }
+
+    public function pumpUpdate(Request $request)
+    {
+        $request->validate([
+            'tran_id' => 'required|exists:fuel_bills,id',
+            'date' => 'required|date',
+            'bill_number' => 'required|string',
+            'qty' => 'required|numeric',
+            'vehicle_count' => 'required|numeric',
+        ]);
+
+        $bill = FuelBill::find($request->tran_id);
+        $bill->date = $request->date;
+        $bill->bill_number = $request->bill_number;
+        $bill->qty = $request->qty;
+        $bill->vehicle_count = $request->vehicle_count;
+        $bill->save();
+
+        return response()->json(['status' => 200, 'message' => 'Bill updated successfully']);
     }
 
 }
