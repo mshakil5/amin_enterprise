@@ -108,13 +108,14 @@
                                   <strong>{{ $data->after_challan_posting_count ?? 0 }}</strong>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total Before Challan Posting:</span>
+                                  <strong>{{ $data->before_challan_count ?? 0 }}</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
                                   <span>Total Petrol Pump:</span>
                                   <strong>{{ $data->pump_count ?? 0 }}</strong>
                                 </li>
                               </ul>
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
                             </div>
                           </div>
                         </div>

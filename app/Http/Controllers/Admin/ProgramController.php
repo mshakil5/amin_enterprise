@@ -54,7 +54,13 @@ class ProgramController extends Controller
                 $query->whereHas('advancePayment', function ($q) {
                     $q->whereNotNull('petrol_pump_id');
                 });
-            }
+            },
+            'programDetail as after_challan_posting_count' => function ($query) {
+                $query->whereNotNull('headerid');
+            },
+            'programDetail as before_challan_count' => function ($query) {
+                $query->whereNull('headerid');
+            },
             
         ])->where('status', 1)->orderby('id','DESC')->get();
 
