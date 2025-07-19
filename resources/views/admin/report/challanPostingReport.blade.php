@@ -235,7 +235,7 @@
                 <h4 class="text-center">{{$vendor->name}}</h4>
 
 
-              <table id="example1" class="table table-bordered table-striped">
+              <table id="example4" class="table table-bordered table-striped">
                 <thead>
                 <tr>
                   <th>Sl</th>
@@ -355,6 +355,11 @@
         "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
+      $("#example4").DataTable({
+        "responsive": true, "lengthChange": false, "autoWidth": false,
+        "buttons": ["copy", "csv", "excel", "pdf", "print"],
+        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+      }).buttons().container().appendTo('#example4_wrapper .col-md-6:eq(0)');
       
     $("#example3").DataTable({
       "responsive": true, "lengthChange": false, "autoWidth": false,
