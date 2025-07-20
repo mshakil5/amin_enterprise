@@ -14,8 +14,11 @@ class CashSheetController extends Controller
         $cashInHand = Account::find(1)->amount ?? 0;
         $cashInField = Account::find(2)->amount ?? 0;
 
+        $date = now()->subDay()->toDateString();
+
+
         $pettyCash = Transaction::where('tran_type', 'Petty Cash In')
-            ->whereDate('date', today())
+            ->whereDate('date', $date)
             ->sum('amount');
 
         $liabilities = Transaction::with('chartOfAccount')
@@ -23,7 +26,7 @@ class CashSheetController extends Controller
             ->where('tran_type', 'Received')
             ->where('payment_type', 'Cash')
             ->where('account_id', 1)
-            ->whereDate('date', today())
+            ->whereDate('date', $date)
             ->get();
 
         $totalReceipts = $liabilities->sum('amount');
@@ -32,7 +35,7 @@ class CashSheetController extends Controller
             ->whereIn('table_type', ['Expenses', 'Cogs'])
             ->where('payment_type', 'Cash')
             ->where('account_id', 1)
-            ->whereDate('date', today())
+            ->whereDate('date', $date)
             ->get();
 
         $totalExpenses = $expenses->sum('amount');
@@ -43,7 +46,7 @@ class CashSheetController extends Controller
                 ['payment_type', 'Cash'],
                 ['table_type', 'AdvancePayment'],
             ])
-            ->whereDate('date', today())
+            ->whereDate('date', $date)
             ->get()
             ->groupBy('vendor_id');
 
