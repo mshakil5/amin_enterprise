@@ -239,50 +239,56 @@
                 <thead>
                 <tr>
                   <th>Sl</th>
-                  <th>Date</th>
-                  <th>Vendor</th>
-                  <th>Header ID</th>
-                  <th>Truck Number</th>
-                  <th>Challan no</th>
-                  <th>Ghat</th>
-                  <th>Destination</th>
-                  <th>Qty</th>
-                  <th>Carring Bill</th>
-                  <th>Line Charge</th>
-                  <th>Scale fee</th>
-                  <th>Other Cost</th>
-                  <th>Advance</th>
-                  <th>Adv. Fuel</th>
+                        <th>Date</th>
+                        <th>Vendor</th>
+                        <th>Header ID</th>
+                        <th>Truck Number</th>
+                        <th>Challan no</th>
+                        <th>Destination</th>
+                        <th>Previous Qty</th>
+                        <th>Qty</th>
+                        <th>Carring Bill</th>
+                        <th>Advance</th>
+                        <th>Fuel qty</th>
+                        <th>Fuel token</th>
+                        <th>Fuel Amount</th>
+                        <th>Pump name</th>
+                        <th>Line Charge</th>
+                        <th>Scale fee</th>
+                        <th>Other Cost</th>
                   <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                     @php
-                        $totalfuelqty = 0;
-                        $totalcarrying_bill = 0;
-                        $totaladvance = 0;
-                        $totalother_cost = 0;
-                        $totalscale_fee = 0;
-                        $totalline_charge = 0;
-                        $totaldest_qty = 0;
+                            $totalfuelqty = 0;
+                            $totalcarrying_bill = 0;
+                            $totaladvance = 0;
+                            $totalother_cost = 0;
+                            $totalscale_fee = 0;
+                            $totalline_charge = 0;
+                            $totaldest_qty = 0;
                     @endphp
                   @foreach ($missingHeaderIds as $key => $data)
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
-                    <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                    <td style="text-align: center">{{$data->vendor->name}}</td>
-                    <td style="text-align: center">{{$data->headerid}}</td>
-                    <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
-                    <td style="text-align: center">{{$data->challan_no}}</td>
-                    <td style="text-align: center">{{$data->ghat->name ?? ' '}}</td>
-                    <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                    <td style="text-align: center">{{$data->dest_qty}}</td>
-                    <td style="text-align: center">{{$data->carrying_bill}}</td>
-                    <td style="text-align: center">{{$data->line_charge}}</td>
-                    <td style="text-align: center">{{$data->scale_fee}}</td>
-                    <td style="text-align: center">{{$data->other_cost}}</td>
-                    <td style="text-align: center">{{$data->advance}}</td>
-                    <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
+                            <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
+                            <td style="text-align: center">{{$data->vendor->name}}</td>
+                            <td style="text-align: center">{{$data->headerid}}</td>
+                            <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
+                            <td style="text-align: center">{{$data->challan_no}}</td>
+                            <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
+                            <td style="text-align: center">{{$data->old_qty}}</td>
+                            <td style="text-align: center">{{$data->dest_qty}}</td>
+                            <td style="text-align: center">{{$data->carrying_bill}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
+                            <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
+                            <td style="text-align: center">{{$data->line_charge}}</td>
+                            <td style="text-align: center">{{$data->scale_fee}}</td>
+                            <td style="text-align: center">{{$data->other_cost}}</td>
 
                     <td style="text-align: center">
                       <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
@@ -294,12 +300,12 @@
                     </td>
                     @php
                         $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
-                        $totalcarrying_bill += $data->carrying_bill;
-                        $totaladvance += $data->advance;
-                        $totalother_cost += $data->other_cost;
-                        $totalscale_fee += $data->scale_fee;
-                        $totalline_charge += $data->line_charge;
-                        $totaldest_qty += $data->dest_qty;
+                        $totalcarrying_bill += $data->carrying_bill ?? 0;
+                        $totaladvance += $data->advance ?? 0;
+                        $totalother_cost += $data->other_cost ?? 0;
+                        $totalscale_fee += $data->scale_fee ?? 0;
+                        $totalline_charge += $data->line_charge ?? 0;
+                        $totaldest_qty += $data->dest_qty ?? 0;
                     @endphp
 
                   </tr>
@@ -309,22 +315,23 @@
 
                 <tfoot>
                     <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <th style="text-align: center">Total:</th>
-                        <th style="text-align: center">{{$totaldest_qty}}</th>
-                        <th style="text-align: center">{{$totalcarrying_bill}}</th>
-                        <th style="text-align: center">{{$totalline_charge}}</th>
-                        <th style="text-align: center">{{$totalscale_fee}}</th>
-                        <th style="text-align: center">{{$totalother_cost}}</th>
-                        <th style="text-align: center">{{$totaladvance}}</th>
-                        <th style="text-align: center">{{$totalfuelqty}}</th>
-                        <td style="text-align: center"></td>
+                        
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center" colspan="2"><small>Total qty: </small>{{$totaldest_qty}}</td>
+                            <td style="text-align: center" colspan="2"><small>Carring Bill: </small>{{$totalcarrying_bill}}</td>
+                            <td style="text-align: center" colspan="2"><small>Total Advance:</small>{{$totaladvance}}</td>
+                            <td style="text-align: center"><small>Fuel qty: </small>{{$totalfuelqty}}</td>
+                            <td style="text-align: center"><small>Line Charge: </small>{{$totalline_charge}}</td>
+                            <td style="text-align: center"><small>Scale fee: </small>{{$totalscale_fee}}</td>
+                            <td style="text-align: center"><small>Other Cost: </small>{{$totalother_cost}}</td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
+                            <td style="text-align: center"></td>
                     </tr>
                 </tfoot>
               </table>
