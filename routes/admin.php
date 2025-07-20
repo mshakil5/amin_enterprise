@@ -240,6 +240,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     // bill generating
     Route::get('/bill-generating/{id}', [GeneratingBillController::class, 'billGenerating'])->name('billGenerating');
+    Route::get('/bill-generated/{id}', [GeneratingBillController::class, 'billGenerated'])->name('bill.generated');
+    Route::get('/bill-not-generated/{id}', [GeneratingBillController::class, 'billNotGenerated'])->name('bill.not.generated');
     Route::get('/generating-bill-show/{id}', [GeneratingBillController::class, 'billGeneratingShow'])->name('generatingBillShow');
     Route::post('/bill-generating', [GeneratingBillController::class, 'billGeneratingStore'])->name('billGeneratingStore');
     Route::get('/export-template', [GeneratingBillController::class, 'exportTemplate'])->name('export.template');

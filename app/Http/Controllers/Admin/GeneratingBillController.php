@@ -20,6 +20,38 @@ class GeneratingBillController extends Controller
         return view('admin.bill.generator', compact('programId','data'));
     }
 
+    public function billGenerated($id)
+    {
+        $programId = $id;
+        $data = Program::with([
+            'programDetail' => function ($q) {
+                $q->where('generate_bill', 1);
+            },
+            'programDetail.programDestination',
+            'programDetail.advancePayment',
+            'programDetail.advancePayment.petrolPump',
+            'programDetail.programDestination.destinationSlabRate',
+        ])->where('id', $id)->first();
+
+        return view('admin.bill.generator', compact('programId', 'data'));
+    }
+
+    public function billNotGenerated($id)
+    {
+        $programId = $id;
+        $data = Program::with([
+            'programDetail' => function ($q) {
+                $q->whereNot('generate_bill', 1);
+            },
+            'programDetail.programDestination',
+            'programDetail.advancePayment',
+            'programDetail.advancePayment.petrolPump',
+            'programDetail.programDestination.destinationSlabRate',
+        ])->where('id', $id)->first();
+
+        return view('admin.bill.generator', compact('programId', 'data'));
+    }
+
     public function billGeneratingShow($id)
     {
         $programId = Program::where('id', $id)->first();

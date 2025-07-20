@@ -125,12 +125,15 @@
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
 
                       @if ($data->generate_bill_count > 0)
-                        <span class="btn btn-success btn-xs">{{$data->generate_bill_count}} </span>
+                          <a href="{{ route('bill.generated', $data->id) }}" class="badge badge-success" style="font-size: 12px;">
+                              {{ $data->generate_bill_count }}
+                          </a>
                       @endif
                       @if ($data->not_generate_bill_count > 0)
-                        <span class="btn btn-danger btn-xs">{{$data->not_generate_bill_count}} </span>
+                          <a href="{{ route('bill.not.generated', $data->id) }}" class="badge badge-danger" style="font-size: 12px;">
+                              {{ $data->not_generate_bill_count }}
+                          </a>
                       @endif
-
                       @if ($data->bill_status == 1)
                         <a href="{{route('generatingBillShow', $data->id)}}" class="btn btn-block btn-success btn-xs">Bill Show </a>
                       @endif
