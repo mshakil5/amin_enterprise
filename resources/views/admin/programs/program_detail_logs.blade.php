@@ -157,7 +157,7 @@
                   $totalChallan = $group->count();
                 @endphp
                 <tr>
-                  <td>{{ $first->date }}</td>
+                  <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-Y') }}</td>
                   <td>{{ $first->motherVassel->name ?? '' }}</td>
                   <td>{{ $first->vendor->name ?? '' }}</td>
                   <td>{{ $first->vendorSequenceNumber->unique_id }}</td>
@@ -193,7 +193,7 @@
                   $totalChallan = $group->count();
                 @endphp
                 <tr>
-                  <td>{{ $first->date }}</td>
+                  <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-Y') }}</td>
                   <td>{{ $first->motherVassel->name ?? '' }}</td>
                   <td>{{ $first->vendor->name ?? '' }}</td>
                    <td>{{ $first->vendorSequenceNumber->unique_id }}</td>

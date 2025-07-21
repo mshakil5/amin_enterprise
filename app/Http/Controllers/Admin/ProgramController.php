@@ -1937,7 +1937,7 @@ class ProgramController extends Controller
         $yesterday = now()->subDay()->format('Y-m-d');
         $todayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
             ->whereNotNull('vendor_id')
-            ->where('date', $today)
+            ->whereDate('created_at', $today)
             ->whereNotNull('mother_vassel_id')
             ->whereNotNull('vendor_sequence_number_id')
             ->whereNotNull('challan_no')
@@ -1946,7 +1946,7 @@ class ProgramController extends Controller
 
         $yesterdayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
             ->whereNotNull('vendor_id')
-            ->where('date', $yesterday)
+            ->whereDate('created_at', $yesterday)
             ->whereNotNull('mother_vassel_id')
             ->whereNotNull('vendor_sequence_number_id')
             ->whereNotNull('challan_no')
