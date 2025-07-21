@@ -196,12 +196,25 @@
                   <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-Y') }}</td>
                   <td>{{ $first->motherVassel->name ?? '' }}</td>
                   <td>{{ $first->vendor->name ?? '' }}</td>
-                   <td>{{ $first->vendorSequenceNumber->unique_id }}</td>
-                  <td>{{ $totalChallan }}</td>
+                   <td>{{ $first->vendorSequenceNumber->unique_id  ?? '' }}</td>
+                  <td>{{ $totalChallan  ?? '' }}</td>
                   <td>{{ $first->remarks ?? '' }}</td>
                 </tr>
               @endforeach
+
+              
+
               </tbody>
+              <tfoot>
+                <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><strong>{{ $yesterdayProgramDetails->flatten()->count() }}</strong></td>
+                <td></td>
+              </tr>
+              </tfoot>
             </table>
           </div>
         </div>

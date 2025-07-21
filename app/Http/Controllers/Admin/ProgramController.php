@@ -1891,8 +1891,8 @@ class ProgramController extends Controller
 
     public function programDetailLogs()
     {
-        $today = Carbon::today()->toDateString();
-        $yesterday = Carbon::yesterday()->toDateString();
+        $todayCarbon = Carbon::today();
+        $yesterdayCarbon = Carbon::yesterday();
 
         $getLogsGrouped = function ($date, $filterDeleted = false) {
             $query = Activity::where('log_name', 'program_detail')
@@ -1927,17 +1927,17 @@ class ProgramController extends Controller
                 });
         };
 
-        $todayLogs = $getLogsGrouped($today);
-        $yesterdayLogs = $getLogsGrouped($yesterday);
+        $todayLogs = $getLogsGrouped($todayCarbon);
+        $yesterdayLogs = $getLogsGrouped($yesterdayCarbon);
 
-        $todayDeletedLogs = $getLogsGrouped($today, true);
-        $yesterdayDeletedLogs = $getLogsGrouped($yesterday, true);
+        $todayDeletedLogs = $getLogsGrouped($todayCarbon, true);
+        $yesterdayDeletedLogs = $getLogsGrouped($yesterdayCarbon, true);
 
-        $today = now()->format('Y-m-d');
-        $yesterday = now()->subDay()->format('Y-m-d');
+        $today = $todayCarbon->format('Y-m-d');
+        $yesterday = $yesterdayCarbon->format('Y-m-d');
         $todayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
             ->whereNotNull('vendor_id')
-            ->whereDate('updated_at', $today)
+            ->whereDate('updated_at', $todayCarbon)
             ->whereNotNull('mother_vassel_id')
             ->whereNotNull('vendor_sequence_number_id')
             ->whereNotNull('challan_no')
@@ -1946,12 +1946,17 @@ class ProgramController extends Controller
 
         $yesterdayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
             ->whereNotNull('vendor_id')
-            ->whereDate('updated_at', $yesterday)
+            ->whereDate('created_at', $yesterdayCarbon)
             ->whereNotNull('mother_vassel_id')
-            ->whereNotNull('vendor_sequence_number_id')
-            ->whereNotNull('challan_no')
+            ->whereNull('vendor_sequence_number_id')
             ->get()
-            ->groupBy('vendor_sequence_number_id');
+            ->groupBy('vendor_id');
+
+            // dd($yesterdayProgramDetails);
+
+
+
+
         return view('admin.programs.program_detail_logs', compact('todayLogs', 'yesterdayLogs', 'todayDeletedLogs', 'yesterdayDeletedLogs', 'todayProgramDetails', 'yesterdayProgramDetails'));
     }
 
