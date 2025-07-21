@@ -187,7 +187,7 @@
                 </tr>
               </thead>
               <tbody>
-              @foreach($todayProgramDetails as $key => $group)
+              @foreach($yesterdayProgramDetails as $key => $group)
                 @php
                   $first = $group->first();
                   $totalChallan = $group->count();
