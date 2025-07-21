@@ -140,4 +140,9 @@ class ProgramDetail extends Model
         return $this->morphMany(Activity::class, 'subject');
     }
 
+    public function vendorSequenceNumber()
+    {
+        return $this->belongsTo(VendorSequenceNumber::class);
+    }
+
 }

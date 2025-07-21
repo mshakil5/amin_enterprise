@@ -350,7 +350,7 @@
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "pageLength": 20,
+            "pageLength": 10,
             "buttons": [
                 "copy",
                 "csv",

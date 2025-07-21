@@ -1933,9 +1933,26 @@ class ProgramController extends Controller
         $todayDeletedLogs = $getLogsGrouped($today, true);
         $yesterdayDeletedLogs = $getLogsGrouped($yesterday, true);
 
-        return view('admin.programs.program_detail_logs', compact(
-            'todayLogs', 'yesterdayLogs', 'todayDeletedLogs', 'yesterdayDeletedLogs'
-        ));
+        $today = now()->format('Y-m-d');
+        $yesterday = now()->subDay()->format('Y-m-d');
+        $todayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
+            ->whereNotNull('vendor_id')
+            ->where('date', $today)
+            ->whereNotNull('mother_vassel_id')
+            ->whereNotNull('vendor_sequence_number_id')
+            ->whereNotNull('challan_no')
+            ->get()
+            ->groupBy('vendor_sequence_number_id');
+
+        $yesterdayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
+            ->whereNotNull('vendor_id')
+            ->where('date', $yesterday)
+            ->whereNotNull('mother_vassel_id')
+            ->whereNotNull('vendor_sequence_number_id')
+            ->whereNotNull('challan_no')
+            ->get()
+            ->groupBy('vendor_sequence_number_id');
+        return view('admin.programs.program_detail_logs', compact('todayLogs', 'yesterdayLogs', 'todayDeletedLogs', 'yesterdayDeletedLogs', 'todayProgramDetails', 'yesterdayProgramDetails'));
     }
 
     public function deletedProgramDetail($id)

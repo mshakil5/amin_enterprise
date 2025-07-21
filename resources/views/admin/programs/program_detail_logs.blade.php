@@ -134,6 +134,78 @@
           </div>
         </div>
 
+        <div class="card card-success">
+          <div class="card-header">
+            <h3 class="card-title">Today's Challan Receiving Register</h3>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-striped challan-receiving-register">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Mother Vessel</th>
+                  <th>Vendor's Name</th>
+                  <th>Sequence ID</th>
+                  <th>Total Challan</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+              @foreach($todayProgramDetails as $key => $group)
+                @php
+                  $first = $group->first();
+                  $totalChallan = $group->count();
+                @endphp
+                <tr>
+                  <td>{{ $first->date }}</td>
+                  <td>{{ $first->motherVassel->name ?? '' }}</td>
+                  <td>{{ $first->vendor->name ?? '' }}</td>
+                  <td>{{ $first->vendorSequenceNumber->unique_id }}</td>
+                  <td>{{ $totalChallan }}</td>
+                  <td>{{ $first->remarks ?? '' }}</td>
+                </tr>
+              @endforeach
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card card-warning">
+          <div class="card-header">
+            <h3 class="card-title">Yesterday's Challan Receiving Register</h3>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-striped challan-receiving-register">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Mother Vessel</th>
+                  <th>Vendor's Name</th>
+                  <th>Sequence ID</th>
+                  <th>Total Challan</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+              @foreach($todayProgramDetails as $key => $group)
+                @php
+                  $first = $group->first();
+                  $totalChallan = $group->count();
+                @endphp
+                <tr>
+                  <td>{{ $first->date }}</td>
+                  <td>{{ $first->motherVassel->name ?? '' }}</td>
+                  <td>{{ $first->vendor->name ?? '' }}</td>
+                   <td>{{ $first->vendorSequenceNumber->unique_id }}</td>
+                  <td>{{ $totalChallan }}</td>
+                  <td>{{ $first->remarks ?? '' }}</td>
+                </tr>
+              @endforeach
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -167,6 +239,12 @@
 
 @section('script')
 <script>
+  $('.challan-receiving-register').DataTable({
+    dom: 'Bfrtip',
+    buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+    ]
+  });
   $(document).ready(function () {
     $('.show-changes-btn').on('click', function () {
       const logs = $(this).data('logs');
