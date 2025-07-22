@@ -167,6 +167,14 @@
               
 
               </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="3" class="text-right">Total:</th>
+                  <th>{{ $vsnumbersToday->sum('qty') }}</th>
+                  <th>{{ $vsnumbersToday->sum(function($item) { return $item->programDetail->flatten()->count(); }) }}</th>
+                  <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -195,15 +203,18 @@
                    <td>{{ $data->unique_id  ?? '' }}</td>
                   <td>{{ $data->qty ?? '' }}</td>
                   <td>{{ $data->programDetail->flatten()->count() }}</td>
-                  <td>
-
-                  </td>
+                  <td></td>
                 </tr>
               @endforeach
-
-              
-
               </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="3" class="text-right">Total:</th>
+                  <th>{{ $vsnumbersYesterday->sum('qty') }}</th>
+                  <th>{{ $vsnumbersYesterday->sum(function($item) { return $item->programDetail->flatten()->count(); }) }}</th>
+                  <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
