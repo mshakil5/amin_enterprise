@@ -374,7 +374,7 @@ class VendorController extends Controller
         $transaction->description = "Add Wallet Balance";
         $transaction->note = "Add Wallet Balance";
         $transaction->payment_type = $request->payment_type;
-        $transaction->table_type = "Expense";
+        $transaction->table_type = "Expenses";
         $transaction->vendor_id = $request->vendorId;
         $transaction->date = $request->wallet_date ?? date('Y-m-d');
         $transaction->note = $request->note;
@@ -398,7 +398,7 @@ class VendorController extends Controller
     {
         $vendor = Vendor::where('id', $id)->first();
         $transactions = Transaction::where('vendor_id', $id)
-            ->where('table_type', 'Expense')
+            ->whereIn('table_type', ['Expenses', 'Expense'])
             ->where('tran_type', 'Wallet')
             ->where('description', 'Add Wallet Balance')
             ->orderBy('id', 'DESC')

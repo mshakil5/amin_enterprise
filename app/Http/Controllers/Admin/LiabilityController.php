@@ -44,6 +44,9 @@ class LiabilityController extends Controller
                 ->addColumn('chart_of_account', function ($transaction) {
                     return $transaction->chartOfAccount ? $transaction->chartOfAccount->account_name : 'NA';
                 })
+                ->addColumn('accountname', function ($transaction) {
+                    return $transaction->account ? $transaction->account->type : 'NA';
+                })
                 ->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Liabilities')->get();

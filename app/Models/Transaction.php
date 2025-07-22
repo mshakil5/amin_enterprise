@@ -75,6 +75,11 @@ class Transaction extends Model
         return $this->belongsTo(ChartOfAccount::class, 'chart_of_account_id');
     }
 
+    public function account()
+    {
+        return $this->belongsTo(Account::class, 'account_id');
+    }
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
@@ -142,7 +147,7 @@ class Transaction extends Model
                 })->orWhere(function ($q) {
                     $q->where('table_type', 'Asset')->where('tran_type', 'Petty Cash In');
                 })->orWhere(function ($q) {
-                    $q->where('table_type', 'Expense')->where('tran_type', 'Wallet');
+                    $q->whereIn('table_type', ['Expenses', 'Expense'])->where('tran_type', 'Wallet');
                 });
             })
             ->sum('amount');

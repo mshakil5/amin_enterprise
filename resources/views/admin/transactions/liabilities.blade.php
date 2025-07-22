@@ -62,11 +62,12 @@
                             @slot('head')
                                 <th>ID</th>
                                 <th>Date</th>
-                                <th>Account</th>
+                                <th>Account Head</th>
                                 <th>Ref</th>
                                 <th>Description</th>
                                 <th>Transaction Type</th>
                                 <th>Payment Type</th>
+                                <th>Acc Name</th>
                                 <th>Amount</th>
                                 <th><i class=""></i> Action</th>
                             @endslot
@@ -274,6 +275,7 @@
             {data: 'description', name: 'description'},
             {data: 'tran_type', name: 'tran_type'},
             {data: 'payment_type', name: 'payment_type'},
+            {data: 'accountname', name: 'accountname'},
             {data: 'amount', name: 'amount'},
             {
                 data: 'action',
