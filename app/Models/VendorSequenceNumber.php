@@ -22,4 +22,19 @@ class VendorSequenceNumber extends Model
             }
         });
     }
+
+    public function programDetail()
+    {
+        return $this->hasMany(ProgramDetail::class);
+    }
+
+    public function programDetailsCount()
+    {
+        return $this->programDetail()->count();
+    }
+    
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 }

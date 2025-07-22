@@ -1935,29 +1935,16 @@ class ProgramController extends Controller
 
         $today = $todayCarbon->format('Y-m-d');
         $yesterday = $yesterdayCarbon->format('Y-m-d');
-        $todayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
-            ->whereNotNull('vendor_id')
-            ->whereDate('updated_at', $todayCarbon)
-            ->whereNotNull('mother_vassel_id')
-            ->whereNotNull('vendor_sequence_number_id')
-            ->whereNotNull('challan_no')
-            ->get()
-            ->groupBy('vendor_sequence_number_id');
 
-        $yesterdayProgramDetails = ProgramDetail::with(['vendor', 'motherVassel', 'vendorSequenceNumber'])
-            ->whereNotNull('vendor_id')
-            ->whereDate('created_at', $yesterdayCarbon)
-            ->whereNotNull('mother_vassel_id')
-            ->whereNull('vendor_sequence_number_id')
-            ->get()
-            ->groupBy('vendor_id');
+        $vsnumbersToday = VendorSequenceNumber::with(['programDetail'])
+            ->whereDate('date', $today)->orderBy('id', 'DESC')->get();
 
-            // dd($yesterdayProgramDetails);
+        $vsnumbersYesterday = VendorSequenceNumber::with(['programDetail'])
+            ->whereDate('date', $yesterdayCarbon)->orderBy('id', 'DESC')->get();
 
+        // dd($vsnumbersYesterday);
 
-
-
-        return view('admin.programs.program_detail_logs', compact('todayLogs', 'yesterdayLogs', 'todayDeletedLogs', 'yesterdayDeletedLogs', 'todayProgramDetails', 'yesterdayProgramDetails'));
+        return view('admin.programs.program_detail_logs', compact('todayLogs', 'yesterdayLogs', 'todayDeletedLogs', 'yesterdayDeletedLogs', 'vsnumbersToday', 'vsnumbersYesterday'));
     }
 
     public function deletedProgramDetail($id)

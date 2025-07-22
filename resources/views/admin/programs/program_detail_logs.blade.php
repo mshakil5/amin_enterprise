@@ -136,35 +136,36 @@
 
         <div class="card card-success">
           <div class="card-header">
-            <h3 class="card-title">Today's Challan Receiving Register</h3>
+            <h3 class="card-title">Today's Challan Register Report</h3>
           </div>
           <div class="card-body">
             <table class="table table-bordered table-striped challan-receiving-register">
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Mother Vessel</th>
                   <th>Vendor's Name</th>
                   <th>Sequence ID</th>
-                  <th>Total Challan</th>
+                  <th>Challan Receiving Register</th>
+                  <th>Challan Posting Register</th>
                   <th>Remarks</th>
                 </tr>
               </thead>
               <tbody>
-              @foreach($todayProgramDetails as $key => $group)
-                @php
-                  $first = $group->first();
-                  $totalChallan = $group->count();
-                @endphp
+              @foreach($vsnumbersToday as $key => $data)
                 <tr>
-                  <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-Y') }}</td>
-                  <td>{{ $first->motherVassel->name ?? '' }}</td>
-                  <td>{{ $first->vendor->name ?? '' }}</td>
-                  <td>{{ $first->vendorSequenceNumber->unique_id }}</td>
-                  <td>{{ $totalChallan }}</td>
-                  <td>{{ $first->remarks ?? '' }}</td>
+                  <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
+                  <td>{{ $data->vendor->name ?? '' }}</td>
+                   <td>{{ $data->unique_id  ?? '' }}</td>
+                  <td>{{ $data->qty ?? '' }}</td>
+                  <td>{{ $data->programDetail->flatten()->count() }}</td>
+                  <td>
+
+                  </td>
                 </tr>
               @endforeach
+
+              
+
               </tbody>
             </table>
           </div>
@@ -172,49 +173,37 @@
 
         <div class="card card-warning">
           <div class="card-header">
-            <h3 class="card-title">Yesterday's Challan Receiving Register</h3>
+            <h3 class="card-title">Yesterday's Challan Register Report</h3>
           </div>
           <div class="card-body">
             <table class="table table-bordered table-striped challan-receiving-register">
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Mother Vessel</th>
                   <th>Vendor's Name</th>
                   <th>Sequence ID</th>
-                  <th>Total Challan</th>
+                  <th>Challan Receiving Register</th>
+                  <th>Challan Posting Register</th>
                   <th>Remarks</th>
                 </tr>
               </thead>
               <tbody>
-              @foreach($yesterdayProgramDetails as $key => $group)
-                @php
-                  $first = $group->first();
-                  $totalChallan = $group->count();
-                @endphp
+              @foreach($vsnumbersYesterday as $key => $data)
                 <tr>
-                  <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-Y') }}</td>
-                  <td>{{ $first->motherVassel->name ?? '' }}</td>
-                  <td>{{ $first->vendor->name ?? '' }}</td>
-                   <td>{{ $first->vendorSequenceNumber->unique_id  ?? '' }}</td>
-                  <td>{{ $totalChallan  ?? '' }}</td>
-                  <td>{{ $first->remarks ?? '' }}</td>
+                  <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
+                  <td>{{ $data->vendor->name ?? '' }}</td>
+                   <td>{{ $data->unique_id  ?? '' }}</td>
+                  <td>{{ $data->qty ?? '' }}</td>
+                  <td>{{ $data->programDetail->flatten()->count() }}</td>
+                  <td>
+
+                  </td>
                 </tr>
               @endforeach
 
               
 
               </tbody>
-              <tfoot>
-                <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td><strong>{{ $yesterdayProgramDetails->flatten()->count() }}</strong></td>
-                <td></td>
-              </tr>
-              </tfoot>
             </table>
           </div>
         </div>
