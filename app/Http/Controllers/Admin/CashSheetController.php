@@ -29,7 +29,6 @@ class CashSheetController extends Controller
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Received')
             ->where('payment_type', 'Cash')
-            ->where('account_id', 1)
             ->whereDate('date', $date)
             ->get();
 
@@ -37,10 +36,15 @@ class CashSheetController extends Controller
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Received')
             ->where('payment_type', 'Bank')
-            ->where('account_id', 1)
             ->whereDate('date', $date)
             ->get();
 
+        $debitTransfer = Transaction::where('tran_type', 'TransferIn')
+            ->whereDate('date', $date)->get();
+
+            
+        $creditTransfer = Transaction::where('tran_type', 'TransferOut')
+            ->whereDate('date', $date)->get();
 
         $totalReceipts = $liabilitiesInCash->sum('amount') + $liabilitiesInBank->sum('amount');
 
@@ -79,7 +83,7 @@ class CashSheetController extends Controller
             ->groupBy('mother_vassel_id');
 
         return view('admin.accounts.cash_sheet.index', compact(
-            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount'
+            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer'
         ));
     }
 }

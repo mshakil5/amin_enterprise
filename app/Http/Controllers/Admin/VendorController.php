@@ -376,6 +376,7 @@ class VendorController extends Controller
         $transaction->payment_type = $request->payment_type;
         $transaction->table_type = "Expenses";
         $transaction->vendor_id = $request->vendorId;
+        $transaction->account_id = $request->account_id;
         $transaction->date = $request->wallet_date ?? date('Y-m-d');
         $transaction->note = $request->note;
         $transaction->save();

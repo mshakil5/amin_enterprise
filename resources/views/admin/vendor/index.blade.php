@@ -323,6 +323,14 @@
                       </select>
                   </div>
                   <div class="form-group">
+                      <label for="account_id">Account <span style="color: red;">*</span></label>
+                      <select name="account_id" id="account_id" class="form-control">
+                        @foreach (\App\Models\Account::latest()->get() as $item)
+                        <option value="{{$item->id}}">{{$item->type}}</option>
+                        @endforeach
+                      </select>
+                  </div>
+                  <div class="form-group">
                       <label for="note">Note</label>
                       <textarea class="form-control" id="note" rows="3"></textarea>
                   </div>
@@ -705,6 +713,7 @@
               form_data.append("vendorId", id);
               form_data.append("walletamount", $("#walletamount").val());
               form_data.append("payment_type", $("#payment_type").val());
+              form_data.append("account_id", $("#account_id").val());
               form_data.append("wallet_date", $("#wallet_date").val());
               form_data.append("note", $("#note").val());
               // form_data.append("sequence", $("#sequence").val());
@@ -716,6 +725,11 @@
 
               if (!$("#payment_type").val()) {
                   alert('Please enter payment type.');
+                  return;
+              }
+
+              if (!$("#account_id").val()) {
+                  alert('Please enter Account.');
                   return;
               }
 

@@ -34,6 +34,10 @@
                                     <th class="text-center">Bank</th>
                                 </tr>
                             </thead>
+                            @php
+                                $closingCashInOffice = $cashInHandOpening;
+                                $closingCashInField = $cashInFieldOpening;
+                            @endphp
                             <tbody>
                                 <tr>
                                     <td>{{ $date }}</td>
@@ -68,52 +72,96 @@
                                     <td class="text-right" colspan="3"></td>
                                 </tr>
 
-                                @foreach ($liabilitiesInCash as $liability)
+                                @foreach ($debitTransfer as $dtranfer)
                                 <tr>
-                                    <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
-                                    <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
-                                    <td width="10%">{{ $liability->tran_id ?? '' }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($dtranfer->date)->format('d-m-Y') }}</td>
+                                    <td> {{ $dtranfer->description ?? '' }}</td>
+                                    <td width="10%">{{ $dtranfer->tran_id ?? '' }}</td>
                                     <td width="10%"></td>
                                     <td class="text-right">
-                                        @if ($liability->payment_type === 'Cash')
-                                            {{ number_format($liability->amount, 0) }}
+                                        @if ($dtranfer->payment_type === 'Cash')
+                                            
+                                            {{ number_format($dtranfer->amount, 0) }}
                                         @endif
                                     </td>
                                     <td class="text-right">
-                                        @if ($liability->payment_type === 'Bank')
-                                            {{ number_format($liability->amount, 0) }}
+                                        @if ($dtranfer->payment_type === 'Bank')
+                                            {{ number_format($dtranfer->amount, 0) }}
                                         @endif
                                     </td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                 </tr>
+
+                                @php
+                                if ($dtranfer->account_id === 1) {
+                                    $closingCashInOffice += $dtranfer->amount;
+                                }
+                                if ($dtranfer->account_id === 2) {
+                                    $closingCashInField += $dtranfer->amount;
+                                }
+                                @endphp
+
                                 @endforeach
 
-                                @foreach ($liabilitiesInBank as $liability)
+
+
+                                @foreach ($liabilitiesInCash as $cashliability)
                                 <tr>
-                                    <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
-                                    <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
-                                    <td width="10%">{{ $liability->tran_id ?? '' }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($cashliability->date)->format('d-m-Y') }}</td>
+                                    <td>{{ $cashliability->chartOfAccount->account_name ?? '' }} - {{ $cashliability->description ?? '' }}</td>
+                                    <td width="10%">{{ $cashliability->tran_id ?? '' }}</td>
                                     <td width="10%"></td>
                                     <td class="text-right">
-                                        @if ($liability->payment_type === 'Cash')
-                                            {{ number_format($liability->amount, 0) }}
+                                        @if ($cashliability->payment_type === 'Cash')
+                                            {{ number_format($cashliability->amount, 0) }}
                                         @endif
                                     </td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                </tr>
+                                @php
+                                if ($cashliability->account_id === 1) {
+                                    $closingCashInOffice += $cashliability->amount;
+                                }
+                                if ($cashliability->account_id === 2) {
+                                    $closingCashInField += $cashliability->amount;
+                                }
+                                @endphp
+
+                                @endforeach
+
+                                @foreach ($liabilitiesInBank as $bankliability)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($bankliability->date)->format('d-m-Y') }}</td>
+                                    <td>{{ $bankliability->chartOfAccount->account_name ?? '' }} - {{ $bankliability->description ?? '' }}</td>
+                                    <td width="10%">{{ $bankliability->tran_id ?? '' }}</td>
+                                    <td width="10%"></td>
+                                    <td class="text-right"></td>
                                     <td class="text-right">
-                                        @if ($liability->payment_type === 'Bank')
-                                            {{ number_format($liability->amount, 0) }}
+                                        @if ($bankliability->payment_type === 'Bank')
+                                            {{ number_format($bankliability->amount, 0) }}
                                         @endif
                                     </td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                 </tr>
+                                @php
+                                if ($bankliability->account_id === 1) {
+                                    $closingCashInOffice += $bankliability->amount;
+                                }
+                                if ($bankliability->account_id === 2) {
+                                    $closingCashInField += $bankliability->amount;
+                                }
+                                @endphp
                                 @endforeach
 
                                 @php
                                     $totalCashDebit = $cashInHandOpening + $cashInFieldOpening + $pettyCash + $liabilitiesInCash->sum('amount') + $suspenseAccount;
                                     $totalBankDebit = $liabilitiesInBank->sum('amount');
                                 @endphp
+
 
                                 <tr class="font-weight-bold">
                                     <td colspan="4">Total Receipts</td>
@@ -137,6 +185,7 @@
                                         $totalCount = $transactions->count();
                                         $totalAmount = $transactions->sum('amount');
                                         $totalCashCredits += $totalAmount; // All are 'Cash' here
+                                        $closingCashInField -= $totalAmount;
                                     @endphp
                                     <tr>
                                         <td>{{ $date }}</td>
@@ -153,18 +202,28 @@
                                 {{-- Expenses --}}
 
                                 @foreach ($expenses as $expense)
+                                    
+                                    @php
+                                    if ($expense->account_id === 1) {
+                                        $closingCashInOffice -= $expense->amount;
+                                    }
+                                    if ($expense->account_id === 2) {
+                                        $closingCashInField -= $expense->amount;
+                                    }
+                                    @endphp
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</td>
                                         <td>{{ $expense->chartOfAccount->account_name ?? '' }} {{ $expense->note ?? '' }} ({{ $expense->description ?? '' }})</td>
                                         <td width="10%">{{ $expense->tran_id ?? '' }}</td>
-                                        <td width="10%"></td>
-                                        <td width="10%"></td>
+                                        <td width="10%">{{$closingCashInOffice}}</td>
+                                        <td width="10%">{{$expense->account_id}}</td>
                                         <td width="10%"></td>
                                         <td class="text-right">
                                             @if ($expense->payment_type === 'Cash')
                                                 @php $totalCashCredits += $expense->amount; @endphp
                                                 {{ number_format($expense->amount, 2) }}
                                             @endif
+
                                         </td>
                                         <td class="text-right">
                                             @if ($expense->payment_type === 'Bank')
@@ -172,18 +231,69 @@
                                                 {{ number_format($expense->amount, 2) }}
                                             @endif
                                         </td>
+
+                                        
                                     </tr>
                                 @endforeach
 
                                 {{-- Liabilities (Cash) --}}
                                 @foreach ($liabilitiesPaymentInCash as $liability)
+                                        @php
+                                        if ($liability->account_id === 1) {
+                                            $closingCashInOffice -= $liability->amount;
+                                        }
+                                        if ($liability->account_id === 2) {
+                                            $closingCashInField -= $liability->amount;
+                                        }
+                                        @endphp
+
+
+
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
                                         <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
                                         <td width="10%">{{ $liability->tran_id ?? '' }}</td>
                                         <td width="10%"></td>
                                         <td class="text-right"></td>
+                                        <td ></td>
+                                        <td class="text-right">
+                                            @if ($liability->payment_type === 'Cash')
+                                                @php $totalCashCredits += $liability->amount; @endphp
+                                                {{ number_format($liability->amount, 2) }}
+                                            @endif
+                                        </td>
+                                        <td class="text-right">
+                                            @if ($liability->payment_type === 'Bank')
+                                                @php $totalBankCredits += $liability->amount; @endphp
+                                                {{ number_format($liability->amount, 2) }}
+                                            @endif
+                                        </td>
+
+                                        
+                                    </tr>
+                                @endforeach
+
+                                {{-- Liabilities (Bank) --}}
+                                @foreach ($liabilitiesPaymentInBank as $liability)
+                                
+                                        @php
+                                        if ($liability->account_id === 1) {
+                                            $closingCashInOffice -= $liability->amount;
+                                        }
+                                        if ($liability->account_id === 2) {
+                                            $closingCashInField -= $liability->amount;
+                                        }
+                                        @endphp
+
+
+
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
+                                        <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
+                                        <td width="10%">{{ $liability->tran_id ?? '' }}</td>
+                                        <td width="10%"></td>
                                         <td class="text-right"></td>
+                                        <td ></td>
                                         <td class="text-right">
                                             @if ($liability->payment_type === 'Cash')
                                                 @php $totalCashCredits += $liability->amount; @endphp
@@ -199,28 +309,29 @@
                                     </tr>
                                 @endforeach
 
-                                {{-- Liabilities (Bank) --}}
-                                @foreach ($liabilitiesPaymentInBank as $liability)
-                                    <tr>
-                                        <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
-                                        <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
-                                        <td width="10%">{{ $liability->tran_id ?? '' }}</td>
-                                        <td width="10%"></td>
-                                        <td class="text-right"></td>
-                                        <td class="text-right"></td>
-                                        <td class="text-right">
-                                            @if ($liability->payment_type === 'Cash')
-                                                @php $totalCashCredits += $liability->amount; @endphp
-                                                {{ number_format($liability->amount, 2) }}
-                                            @endif
-                                        </td>
-                                        <td class="text-right">
-                                            @if ($liability->payment_type === 'Bank')
-                                                @php $totalBankCredits += $liability->amount; @endphp
-                                                {{ number_format($liability->amount, 2) }}
-                                            @endif
-                                        </td>
-                                    </tr>
+                                @foreach ($creditTransfer as $ctranfer)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($ctranfer->date)->format('d-m-Y') }}</td>
+                                    <td> {{ $ctranfer->description ?? '' }}</td>
+                                    <td width="10%">{{ $ctranfer->tran_id ?? '' }}</td>
+                                    <td width="10%"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right">
+                                        @if ($ctranfer->payment_type === 'Cash')
+                                            {{ number_format($ctranfer->amount, 0) }}
+                                        @endif
+                                    </td>
+                                    <td class="text-right"></td>
+                                </tr>
+                                @php
+                                if ($ctranfer->account_id === 1) {
+                                    $closingCashInOffice -= $ctranfer->amount;
+                                }
+                                if ($ctranfer->account_id === 2) {
+                                    $closingCashInField -= $ctranfer->amount;
+                                }
+                                @endphp
                                 @endforeach
 
                                 {{-- Final Total Row --}}
@@ -239,7 +350,7 @@
                                     <td></td>
                                     <td></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right"></td>
+                                    <td class="text-right text-bold text-success">{{ number_format($closingCashInOffice, 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td>{{ $date }}</td>
@@ -249,15 +360,29 @@
                                     <td></td>
                                     <td></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right"></td>
+                                    <td class="text-right text-bold text-success">{{ number_format($closingCashInField, 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td>{{ $date }}</td>
                                     <td>Petty Cash (Entertainment)</td>
                                     <td width="10%"></td>
-                                    <td class="text-right" colspan="3"></td>
-                                    <td class="text-right">{{ number_format($pettyCash, 0) }}</td>
                                     <td width="10%"></td>
+                                    <td class="text-right"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="text-right text-bold text-success">{{ number_format($pettyCash, 0) }}</td>
+                                </tr>
+
+                                
+                                <tr class="bg-warning">
+                                    <td>{{ $date }}</td>
+                                    <td>Suspense Account</td>
+                                    <td width="10%"></td>
+                                    <td width="10%"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right">{{ number_format($suspenseAccount, 0) }}</td>
                                 </tr>
 
                                 <tr class="font-weight-bold">

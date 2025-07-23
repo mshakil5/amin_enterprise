@@ -120,7 +120,7 @@ class AccountController extends Controller
             $debitTransaction->at_amount = $request->amount;
             $debitTransaction->tran_type = 'TransferIn';
             $debitTransaction->payment_type = 'Cash';
-            $debitTransaction->account_id = $fromAccount->id;
+            $debitTransaction->account_id = $toAccount->id;
             $debitTransaction->created_by = Auth::id();
             $debitTransaction->save();
             $debitTransaction->tran_id = 'TR' . date('ymd') . 'D' . str_pad($debitTransaction->id, 4, '0', STR_PAD_LEFT);
@@ -133,7 +133,7 @@ class AccountController extends Controller
             $creditTransaction->at_amount = $request->amount;
             $creditTransaction->tran_type = 'TransferOut';
             $creditTransaction->payment_type = 'Cash';
-            $creditTransaction->account_id = $toAccount->id;
+            $creditTransaction->account_id = $fromAccount->id;
             $creditTransaction->created_by = Auth::id();
             $creditTransaction->save();
             $creditTransaction->tran_id = 'TR' . date('ymd') . 'C' . str_pad($creditTransaction->id, 4, '0', STR_PAD_LEFT);
