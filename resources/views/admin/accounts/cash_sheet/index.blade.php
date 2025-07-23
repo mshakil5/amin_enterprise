@@ -215,8 +215,8 @@
                                         <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</td>
                                         <td>{{ $expense->chartOfAccount->account_name ?? '' }} {{ $expense->note ?? '' }} ({{ $expense->description ?? '' }})</td>
                                         <td width="10%">{{ $expense->tran_id ?? '' }}</td>
-                                        <td width="10%">{{$closingCashInOffice}}</td>
-                                        <td width="10%">{{$expense->account_id}}</td>
+                                        <td width="10%"></td>
+                                        <td width="10%"></td>
                                         <td width="10%"></td>
                                         <td class="text-right">
                                             @if ($expense->payment_type === 'Cash')
