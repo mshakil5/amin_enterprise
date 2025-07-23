@@ -118,7 +118,7 @@ class AccountController extends Controller
             $debitTransaction->description = "Transfer to {$toAccount->type}";
             $debitTransaction->amount = $request->amount;
             $debitTransaction->at_amount = $request->amount;
-            $debitTransaction->tran_type = 'Transfer';
+            $debitTransaction->tran_type = 'TransferIn';
             $debitTransaction->payment_type = 'Cash';
             $debitTransaction->account_id = $fromAccount->id;
             $debitTransaction->created_by = Auth::id();
@@ -131,7 +131,7 @@ class AccountController extends Controller
             $creditTransaction->description = "Transfer from {$fromAccount->type}";
             $creditTransaction->amount = $request->amount;
             $creditTransaction->at_amount = $request->amount;
-            $creditTransaction->tran_type = 'Transfer';
+            $creditTransaction->tran_type = 'TransferOut';
             $creditTransaction->payment_type = 'Cash';
             $creditTransaction->account_id = $toAccount->id;
             $creditTransaction->created_by = Auth::id();
