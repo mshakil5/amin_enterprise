@@ -904,7 +904,7 @@ class ProgramController extends Controller
                     $transaction->tran_type = "Advance";
                     $transaction->payment_type = "Cash";
                     $transaction->description = "Cash Advance to Vendor";
-                    $transaction->date = date('Y-m-d');
+                    $transaction->date = $request->pdtldate;
                     $transaction->save();
                     $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                     $transaction->save();
@@ -936,7 +936,7 @@ class ProgramController extends Controller
                     $transaction->tran_type = "Advance";
                     $transaction->payment_type = "Fuel";
                     $transaction->description = "Fuel Advance to Vendor";
-                    $transaction->date = date('Y-m-d');
+                    $transaction->date = $request->pdtldate;
                     $transaction->save();
                     $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                     $transaction->save();

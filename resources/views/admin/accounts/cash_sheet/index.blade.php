@@ -19,7 +19,7 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th  width="10%">Date</th>
+                                    <th style="width: 10%" >Date</th>
                                     <th>Particulars</th>
                                     <th>Vch No.</th>
                                     <th>Cheque No.</th>
@@ -42,42 +42,50 @@
                                 <tr>
                                     <td>{{ $date }}</td>
                                     <td>Cash In Hand (Opening Balance)</td>
-                                    <td width="10%"></td>
-                                    <td width="10%"></td>
+                                    <td ></td>
+                                    <td ></td>
                                     <td class="text-right">{{ number_format($cashInHandOpening, 0) }}</td>
-                                    <td class="text-right" colspan="3"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
                                 </tr>
                                 <tr>
                                     <td>{{ $date }}</td>
                                     <td>Cash In Field (Opening Balance)</td>
-                                    <td width="10%"></td>
-                                    <td width="10%"></td>
+                                    <td ></td>
+                                    <td ></td>
                                     <td class="text-right">{{ number_format($cashInFieldOpening, 0) }}</td>
-                                    <td class="text-right" colspan="3"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
                                 </tr>
                                 <tr>
                                     <td>{{ $date }}</td>
                                     <td>Petty Cash (Entertainment)</td>
-                                    <td width="10%"></td>
-                                    <td width="10%"></td>
+                                    <td ></td>
+                                    <td ></td>
                                     <td class="text-right">{{ number_format($pettyCash, 0) }}</td>
-                                    <td class="text-right" colspan="3"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
                                 </tr>
                                 <tr class="bg-warning">
                                     <td>{{ $date }}</td>
                                     <td>Suspense Account</td>
-                                    <td width="10%"></td>
-                                    <td width="10%"></td>
+                                    <td ></td>
+                                    <td ></td>
                                     <td class="text-right">{{ number_format($suspenseAccount, 0) }}</td>
-                                    <td class="text-right" colspan="3"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
                                 </tr>
 
                                 @foreach ($debitTransfer as $dtranfer)
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($dtranfer->date)->format('d-m-Y') }}</td>
                                     <td> {{ $dtranfer->description ?? '' }}</td>
-                                    <td width="10%">{{ $dtranfer->tran_id ?? '' }}</td>
-                                    <td width="10%"></td>
+                                    <td >{{ $dtranfer->tran_id ?? '' }}</td>
+                                    <td ></td>
                                     <td class="text-right">
                                         @if ($dtranfer->payment_type === 'Cash')
                                             
@@ -110,8 +118,8 @@
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($cashliability->date)->format('d-m-Y') }}</td>
                                     <td>{{ $cashliability->chartOfAccount->account_name ?? '' }} - {{ $cashliability->description ?? '' }}</td>
-                                    <td width="10%">{{ $cashliability->tran_id ?? '' }}</td>
-                                    <td width="10%"></td>
+                                    <td >{{ $cashliability->tran_id ?? '' }}</td>
+                                    <td ></td>
                                     <td class="text-right">
                                         @if ($cashliability->payment_type === 'Cash')
                                             {{ number_format($cashliability->amount, 0) }}
@@ -136,8 +144,8 @@
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($bankliability->date)->format('d-m-Y') }}</td>
                                     <td>{{ $bankliability->chartOfAccount->account_name ?? '' }} - {{ $bankliability->description ?? '' }}</td>
-                                    <td width="10%">{{ $bankliability->tran_id ?? '' }}</td>
-                                    <td width="10%"></td>
+                                    <td >{{ $bankliability->tran_id ?? '' }}</td>
+                                    <td ></td>
                                     <td class="text-right"></td>
                                     <td class="text-right">
                                         @if ($bankliability->payment_type === 'Bank')
@@ -190,12 +198,12 @@
                                     <tr>
                                         <td>{{ $date }}</td>
                                         <td>Advance to Vendors - {{ $motherVasselName }} - Trip: {{ $totalCount }}</td>
-                                        <td width="10%"></td>
-                                        <td width="10%"></td>
-                                        <td width="10%"></td>
+                                        <td ></td>
+                                        <td ></td>
+                                        <td ></td>
                                         <td></td>
                                         <td class="text-right">{{ number_format($totalAmount, 2) }}</td>
-                                        <td width="10%"></td>
+                                        <td ></td>
                                     </tr>
                                 @endforeach
 
@@ -214,10 +222,10 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</td>
                                         <td>{{ $expense->chartOfAccount->account_name ?? '' }} {{ $expense->note ?? '' }} ({{ $expense->description ?? '' }})</td>
-                                        <td width="10%">{{ $expense->tran_id ?? '' }}</td>
-                                        <td width="10%"></td>
-                                        <td width="10%"></td>
-                                        <td width="10%"></td>
+                                        <td >{{ $expense->tran_id ?? '' }}</td>
+                                        <td ></td>
+                                        <td ></td>
+                                        <td ></td>
                                         <td class="text-right">
                                             @if ($expense->payment_type === 'Cash')
                                                 @php $totalCashCredits += $expense->amount; @endphp
@@ -252,8 +260,8 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
                                         <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
-                                        <td width="10%">{{ $liability->tran_id ?? '' }}</td>
-                                        <td width="10%"></td>
+                                        <td >{{ $liability->tran_id ?? '' }}</td>
+                                        <td ></td>
                                         <td class="text-right"></td>
                                         <td ></td>
                                         <td class="text-right">
@@ -290,8 +298,8 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
                                         <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
-                                        <td width="10%">{{ $liability->tran_id ?? '' }}</td>
-                                        <td width="10%"></td>
+                                        <td >{{ $liability->tran_id ?? '' }}</td>
+                                        <td ></td>
                                         <td class="text-right"></td>
                                         <td ></td>
                                         <td class="text-right">
@@ -313,8 +321,8 @@
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($ctranfer->date)->format('d-m-Y') }}</td>
                                     <td> {{ $ctranfer->description ?? '' }}</td>
-                                    <td width="10%">{{ $ctranfer->tran_id ?? '' }}</td>
-                                    <td width="10%"></td>
+                                    <td >{{ $ctranfer->tran_id ?? '' }}</td>
+                                    <td ></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right">
@@ -365,8 +373,8 @@
                                 <tr>
                                     <td>{{ $date }}</td>
                                     <td>Petty Cash (Entertainment)</td>
-                                    <td width="10%"></td>
-                                    <td width="10%"></td>
+                                    <td ></td>
+                                    <td ></td>
                                     <td class="text-right"></td>
                                     <td></td>
                                     <td></td>
@@ -377,8 +385,8 @@
                                 <tr class="bg-warning">
                                     <td>{{ $date }}</td>
                                     <td>Suspense Account</td>
-                                    <td width="10%"></td>
-                                    <td width="10%"></td>
+                                    <td ></td>
+                                    <td ></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>

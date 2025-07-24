@@ -114,7 +114,7 @@ class AccountController extends Controller
             $toAccount->save();
 
             $debitTransaction = new Transaction();
-            $debitTransaction->date = now()->format('Y-m-d');
+            $debitTransaction->date = $request->transferDate;
             $debitTransaction->description = "Transfer to {$toAccount->type}";
             $debitTransaction->amount = $request->amount;
             $debitTransaction->at_amount = $request->amount;
@@ -127,7 +127,7 @@ class AccountController extends Controller
             $debitTransaction->save();
 
             $creditTransaction = new Transaction();
-            $creditTransaction->date = now()->format('Y-m-d');
+            $creditTransaction->date = $request->transferDate;
             $creditTransaction->description = "Transfer from {$fromAccount->type}";
             $creditTransaction->amount = $request->amount;
             $creditTransaction->at_amount = $request->amount;

@@ -145,6 +145,13 @@
                 <form id="transferForm">
                     @csrf
                     <input type="hidden" id="fromAccountId" name="from_account_id">
+                    
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" class="form-control" id="transferDate" name="transferDate" value="{{ date('Y-m-d')}}">
+                    </div>
+
+
                     <div class="form-group">
                         <label>From Account</label>
                         <input type="text" class="form-control" id="fromAccountType" readonly>
@@ -201,6 +208,7 @@
 
       $('#confirmTransfer').click(function() {
           var formData = $('#transferForm').serialize();
+          
           var fromAmount = parseFloat($('#currentBalance').val());
           var transferAmount = parseFloat($('#transferAmount').val());
           
