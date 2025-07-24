@@ -12,19 +12,28 @@ class CashSheetController extends Controller
 {
     public function cashSheet(Request $request)
     {
-        $expectedDate = '2025-07-21';
+
+        $request->validate([
+            'searchDate' => ['nullable', 'date', 'before_or_equal:today'],
+        ]);
+
+
+        // Use the date before the search date (or two days ago if not provided)
+        $expectedDate = $request->searchDate
+            ? \Carbon\Carbon::parse($request->searchDate)->subDay()->toDateString()
+            : now()->subDay(2)->toDateString();
         // $date = now()->subDay()->toDateString();
-        $date = $request->searchDate ?? '2025-07-22';
-        // opening balamnce
+        $date = $request->searchDate ?? now()->subDay()->toDateString();
+
+        // Ensure $expectedDate is not before 2025-07-20
+        if (\Carbon\Carbon::parse($expectedDate)->lt(\Carbon\Carbon::parse('2025-07-20'))) {
+            $expectedDate = '2025-07-20';
+        }
+        // opening balance
         $previousBalance = $this->cashSheetPreviousBalance($expectedDate);
         $cashInHandOpening = $previousBalance['previousCashInOfficeClosing'];
         $cashInFieldOpening = $previousBalance['previousCashInFieldClosing'];
-
-
-        // $date = '2025-07-20';
         $suspenseAccount = 94599;
-
-
         $pettyCash = 5000.00;
 
         $liabilitiesInCash = Transaction::with('chartOfAccount')
@@ -98,6 +107,7 @@ class CashSheetController extends Controller
         // Use today's date dynamically
         $date = $expectedDate; // Date before yesterday
 
+        // dd($date);
 
         // For previous day's opening balance, we need transactions for $date
         // Initial opening balances (you may need to fetch these from a database or previous day's closing)

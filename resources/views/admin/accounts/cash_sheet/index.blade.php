@@ -8,7 +8,7 @@
                 <div class="col-auto">
                     <form action="{{ route('admin.cashSheet.Search')}}" method="POST" class="d-flex align-items-center">
                         @csrf
-                        <input type="date" name="searchDate" class="form-control mb-2 mr-2" value="{{ $date }}" required>
+                        <input type="date" name="searchDate" class="form-control mb-2 mr-2" value="{{ $date }}" required min="2025-07-20">
                         <button type="submit" class="btn btn-primary mb-2 mr-2">Search</button>
                     </form>
                 </div>
@@ -54,7 +54,7 @@
                                     <td>Cash In Hand (Opening Balance)</td>
                                     <td ></td>
                                     <td ></td>
-                                    <td class="text-right">{{ number_format($cashInHandOpening, 0) }}</td>
+                                    <td class="text-right text-bold text-success">{{ number_format($cashInHandOpening, 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
@@ -64,7 +64,7 @@
                                     <td>Cash In Field (Opening Balance)</td>
                                     <td ></td>
                                     <td ></td>
-                                    <td class="text-right">{{ number_format($cashInFieldOpening, 0) }}</td>
+                                    <td class="text-right text-bold text-success">{{ number_format($cashInFieldOpening, 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
@@ -74,7 +74,7 @@
                                     <td>Petty Cash (Entertainment)</td>
                                     <td ></td>
                                     <td ></td>
-                                    <td class="text-right">{{ number_format($pettyCash, 0) }}</td>
+                                    <td class="text-right">{{ number_format($pettyCash, 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
@@ -84,7 +84,7 @@
                                     <td>Suspense Account</td>
                                     <td ></td>
                                     <td ></td>
-                                    <td class="text-right">{{ number_format($suspenseAccount, 0) }}</td>
+                                    <td class="text-right">{{ number_format($suspenseAccount, 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
@@ -99,12 +99,12 @@
                                     <td class="text-right">
                                         @if ($dtranfer->payment_type === 'Cash')
                                             
-                                            {{ number_format($dtranfer->amount, 0) }}
+                                            {{ number_format($dtranfer->amount, 2) }}
                                         @endif
                                     </td>
                                     <td class="text-right">
                                         @if ($dtranfer->payment_type === 'Bank')
-                                            {{ number_format($dtranfer->amount, 0) }}
+                                            {{ number_format($dtranfer->amount, 2) }}
                                         @endif
                                     </td>
                                     <td class="text-right"></td>
@@ -132,7 +132,7 @@
                                     <td ></td>
                                     <td class="text-right">
                                         @if ($cashliability->payment_type === 'Cash')
-                                            {{ number_format($cashliability->amount, 0) }}
+                                            {{ number_format($cashliability->amount, 2) }}
                                         @endif
                                     </td>
                                     <td class="text-right"></td>
@@ -159,7 +159,7 @@
                                     <td class="text-right"></td>
                                     <td class="text-right">
                                         @if ($bankliability->payment_type === 'Bank')
-                                            {{ number_format($bankliability->amount, 0) }}
+                                            {{ number_format($bankliability->amount, 2) }}
                                         @endif
                                     </td>
                                     <td class="text-right"></td>
@@ -183,8 +183,8 @@
 
                                 <tr class="font-weight-bold">
                                     <td colspan="4">Total Receipts</td>
-                                    <td class="text-right">{{ number_format($liabilitiesInCash->sum('amount'), 0) }}</td>
-                                    <td class="text-right">{{ number_format($liabilitiesInBank->sum('amount'), 0) }}</td>
+                                    <td class="text-right">{{ number_format($liabilitiesInCash->sum('amount'), 2) }}</td>
+                                    <td class="text-right">{{ number_format($liabilitiesInBank->sum('amount'), 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                 </tr>
@@ -232,7 +232,7 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</td>
                                         <td>{{ $expense->chartOfAccount->account_name ?? '' }} {{ $expense->note ?? '' }} ({{ $expense->description ?? '' }})</td>
-                                        <td >{{ $expense->tran_id ?? '' }} ({{ $expense->account_id ?? '' }})</td>
+                                        <td >{{ $expense->tran_id ?? '' }} ({{ $expense->account->type ?? '' }})</td>
                                         <td ></td>
                                         <td ></td>
                                         <td ></td>
@@ -337,7 +337,7 @@
                                     <td class="text-right"></td>
                                     <td class="text-right">
                                         @if ($ctranfer->payment_type === 'Cash')
-                                            {{ number_format($ctranfer->amount, 0) }}
+                                            {{ number_format($ctranfer->amount, 2) }}
                                         @endif
                                     </td>
                                     <td class="text-right"></td>
@@ -388,7 +388,7 @@
                                     <td class="text-right"></td>
                                     <td></td>
                                     <td></td>
-                                    <td class="text-right text-bold text-success">{{ number_format($pettyCash, 0) }}</td>
+                                    <td class="text-right text-bold text-success">{{ number_format($pettyCash, 2) }}</td>
                                 </tr>
 
                                 
@@ -400,13 +400,13 @@
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right">{{ number_format($suspenseAccount, 0) }}</td>
+                                    <td class="text-right">{{ number_format($suspenseAccount, 2) }}</td>
                                 </tr>
 
                                 <tr class="font-weight-bold">
                                     <td colspan="4">Total</td>
-                                    <td class="text-right">{{ number_format($totalCashDebit, 0) }}</td>
-                                    <td class="text-right">{{ number_format($totalBankDebit, 0) }}</td>
+                                    <td class="text-right">{{ number_format($totalCashDebit, 2) }}</td>
+                                    <td class="text-right">{{ number_format($totalBankDebit, 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right">{{ number_format($totalBankCredits, 2) }}</td>
                                 </tr>
