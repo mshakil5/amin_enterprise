@@ -10,9 +10,11 @@ use App\Models\Transaction;
 
 class CashSheetController extends Controller
 {
-    public function cashSheet()
+    public function cashSheet(Request $request)
     {
-        $expectedDate = '2025-07-20';
+        $expectedDate = '2025-07-21';
+        // $date = now()->subDay()->toDateString();
+        $date = $request->searchDate ?? '2025-07-22';
         // opening balamnce
         $previousBalance = $this->cashSheetPreviousBalance($expectedDate);
         $cashInHandOpening = $previousBalance['previousCashInOfficeClosing'];
@@ -21,8 +23,6 @@ class CashSheetController extends Controller
 
         // $date = '2025-07-20';
         $suspenseAccount = 94599;
-        // $date = now()->subDay()->toDateString();
-        $date = '2025-07-21';
 
 
         $pettyCash = 5000.00;

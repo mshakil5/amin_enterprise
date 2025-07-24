@@ -318,6 +318,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::match(['get', 'post'], 'trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
 
     Route::get('cash-sheet', [CashSheetController::class, 'cashSheet'])->name('admin.cashSheet');
+    Route::post('cash-sheet', [CashSheetController::class, 'cashSheet'])->name('admin.cashSheet.Search');
 
     // roles and permission
     Route::get('role', [RoleController::class, 'index'])->name('admin.role');

@@ -186,6 +186,7 @@ class ExpenseController extends Controller
             }
         }
 
+        $transaction->account_id = $request->input('account_id') ?? null;
         $transaction->date = $request->input('date');
         $transaction->chart_of_account_id = $request->input('chart_of_account_id');
         $transaction->client_id = $request->input('client_id');

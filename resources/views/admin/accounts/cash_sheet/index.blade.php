@@ -4,8 +4,18 @@
 <section class="content pt-3">
     <div class="container-fluid">
         <div class="page-header d-flex justify-content-between">
-            <a href="{{ url()->previous() }}" class="btn btn-secondary mb-2">Back</a>
-            <button onclick="window.print();" class="btn btn-info mb-2">Print</button>
+            <div class="row w-100">
+                <div class="col-auto">
+                    <form action="{{ route('admin.cashSheet.Search')}}" method="POST" class="d-flex align-items-center">
+                        @csrf
+                        <input type="date" name="searchDate" class="form-control mb-2 mr-2" value="{{ $date }}" required>
+                        <button type="submit" class="btn btn-primary mb-2 mr-2">Search</button>
+                    </form>
+                </div>
+                <div class="col-auto">
+                    <button onclick="window.print();" class="btn btn-info mb-2">Print</button>
+                </div>
+            </div>
         </div>
 
         <div class="row print-area">
@@ -22,7 +32,7 @@
                                     <th style="width: 10%" >Date</th>
                                     <th>Particulars</th>
                                     <th>Vch No.</th>
-                                    <th>Cheque No.</th>
+                                    <th>Chq No.</th>
                                     <th class="text-center" colspan="2">Debit</th>
                                     <th class="text-center" colspan="2">Credit</th>
                                 </tr>
@@ -222,7 +232,7 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</td>
                                         <td>{{ $expense->chartOfAccount->account_name ?? '' }} {{ $expense->note ?? '' }} ({{ $expense->description ?? '' }})</td>
-                                        <td >{{ $expense->tran_id ?? '' }}</td>
+                                        <td >{{ $expense->tran_id ?? '' }} ({{ $expense->account_id ?? '' }})</td>
                                         <td ></td>
                                         <td ></td>
                                         <td ></td>
