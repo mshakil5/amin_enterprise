@@ -13,7 +13,8 @@
                     </form>
                 </div>
                 <div class="col-auto">
-                    <button onclick="window.print();" class="btn btn-info mb-2">Print</button>
+                    <button onclick="window.print();" class="btn btn-info mb-2 mr-2">Print</button>
+                    <button id="customExcelButton" class="btn btn-success mb-2">Download Excel</button>
                 </div>
             </div>
         </div>
@@ -26,7 +27,7 @@
                         <h2 class="text-center">BSRM PROGRAM</h2>
                         <h3 class="text-center">Cash Sheet ({{ $date }})</h3>
 
-                        <table class="table table-bordered">
+                        <table class="table table-bordered" id="cashSheetTable">
                             <thead>
                                 <tr>
                                     <th style="width: 10%" >Date</th>
@@ -47,6 +48,7 @@
                             @php
                                 $closingCashInOffice = $cashInHandOpening;
                                 $closingCashInField = $cashInFieldOpening;
+                                $closingBankInOffice = 0;
                             @endphp
                             <tbody>
                                 <tr>
@@ -167,10 +169,10 @@
                                 </tr>
                                 @php
                                 if ($bankliability->account_id === 1) {
-                                    $closingCashInOffice += $bankliability->amount;
+                                    $closingBankInOffice += $bankliability->amount;
                                 }
                                 if ($bankliability->account_id === 2) {
-                                    $closingCashInField += $bankliability->amount;
+                                    $closingBankInOffice += $bankliability->amount;
                                 }
                                 @endphp
                                 @endforeach
@@ -221,14 +223,6 @@
 
                                 @foreach ($expenses as $expense)
                                     
-                                    @php
-                                    if ($expense->account_id === 1) {
-                                        $closingCashInOffice -= $expense->amount;
-                                    }
-                                    if ($expense->account_id === 2) {
-                                        $closingCashInField -= $expense->amount;
-                                    }
-                                    @endphp
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($expense->date)->format('d-m-Y') }}</td>
                                         <td>{{ $expense->chartOfAccount->account_name ?? '' }} {{ $expense->note ?? '' }} ({{ $expense->description ?? '' }})</td>
@@ -238,14 +232,36 @@
                                         <td ></td>
                                         <td class="text-right">
                                             @if ($expense->payment_type === 'Cash')
-                                                @php $totalCashCredits += $expense->amount; @endphp
+                                                @php 
+                                                
+                                                $totalCashCredits += $expense->amount; 
+
+                                                if ($expense->account_id === 1) {
+                                                    $closingCashInOffice -= $expense->amount;
+                                                }
+                                                if ($expense->account_id === 2) {
+                                                    $closingCashInField -= $expense->amount;
+                                                }
+                                                
+                                                @endphp
                                                 {{ number_format($expense->amount, 2) }}
                                             @endif
 
                                         </td>
                                         <td class="text-right">
                                             @if ($expense->payment_type === 'Bank')
-                                                @php $totalBankCredits += $expense->amount; @endphp
+                                                @php $totalBankCredits += $expense->amount;
+
+                                                $closingBankInOffice -= $expense->amount;
+
+                                                if ($expense->account_id === 1) {
+                                                    // $closingCashInOffice -= $expense->amount;
+                                                }
+                                                if ($expense->account_id === 2) {
+                                                    $closingCashInField -= $expense->amount;
+                                                }
+                                                
+                                                @endphp
                                                 {{ number_format($expense->amount, 2) }}
                                             @endif
                                         </td>
@@ -282,7 +298,9 @@
                                         </td>
                                         <td class="text-right">
                                             @if ($liability->payment_type === 'Bank')
-                                                @php $totalBankCredits += $liability->amount; @endphp
+                                                @php $totalBankCredits += $liability->amount;
+                                                 $closingBankInOffice += $liability->amount;
+                                                 @endphp
                                                 {{ number_format($liability->amount, 2) }}
                                             @endif
                                         </td>
@@ -296,7 +314,7 @@
                                 
                                         @php
                                         if ($liability->account_id === 1) {
-                                            $closingCashInOffice -= $liability->amount;
+                                            // $closingBankInOffice -= $liability->amount;
                                         }
                                         if ($liability->account_id === 2) {
                                             $closingCashInField -= $liability->amount;
@@ -320,7 +338,9 @@
                                         </td>
                                         <td class="text-right">
                                             @if ($liability->payment_type === 'Bank')
-                                                @php $totalBankCredits += $liability->amount; @endphp
+                                                @php $totalBankCredits += $liability->amount;
+                                                 $closingBankInOffice += $liability->amount;
+                                                @endphp
                                                 {{ number_format($liability->amount, 2) }}
                                             @endif
                                         </td>
@@ -367,8 +387,8 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td class="text-right"></td>
                                     <td class="text-right text-bold text-success">{{ number_format($closingCashInOffice, 2) }}</td>
+                                    <td class="text-right text-bold text-success">{{ number_format($closingBankInOffice, 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td>{{ $date }}</td>
@@ -377,8 +397,8 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td class="text-right"></td>
                                     <td class="text-right text-bold text-success">{{ number_format($closingCashInField, 2) }}</td>
+                                    <td class="text-right"></td>
                                 </tr>
                                 <tr>
                                     <td>{{ $date }}</td>
@@ -387,8 +407,8 @@
                                     <td ></td>
                                     <td class="text-right"></td>
                                     <td></td>
-                                    <td></td>
                                     <td class="text-right text-bold text-success">{{ number_format($pettyCash, 2) }}</td>
+                                    <td></td>
                                 </tr>
 
                                 
@@ -399,16 +419,23 @@
                                     <td ></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right"></td>
                                     <td class="text-right">{{ number_format($suspenseAccount, 2) }}</td>
+                                    <td class="text-right"></td>
                                 </tr>
+
+                                @php
+                                    $netCashCredit = $closingCashInOffice + $closingCashInField + $pettyCash + $suspenseAccount + $totalCashCredits;
+
+                                    $netBankCredit = $closingBankInOffice + $totalBankCredits; 
+
+                                @endphp
 
                                 <tr class="font-weight-bold">
                                     <td colspan="4">Total</td>
                                     <td class="text-right">{{ number_format($totalCashDebit, 2) }}</td>
                                     <td class="text-right">{{ number_format($totalBankDebit, 2) }}</td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right">{{ number_format($totalBankCredits, 2) }}</td>
+                                    <td class="text-right">{{ number_format($netCashCredit, 2) }}</td>
+                                    <td class="text-right">{{ number_format($netBankCredit, 2) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -436,4 +463,64 @@
 @endsection
 
 @section('script')
+<script>
+    $(document).ready(function() {
+        $('#cashSheetTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: '', // Set to empty to avoid default title
+                    filename: 'Cash_Sheet_{{ $date }}', // Dynamic filename with date
+                    exportOptions: {
+                        columns: ':visible',
+                        format: {
+                            body: function (data, row, column, node) {
+                                // Ensure numbers are treated as numbers in Excel
+                                return /\d/.test(data) && column >= 4 ? parseFloat(data.replace(/,/g, '')) : data;
+                            }
+                        }
+                    },
+                    customize: function (xlsx) {
+                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                        var row = 0;
+
+                        // Add custom header rows
+                        $('row', sheet).eq(row++).find('c').eq(0).append('<t>M/S AMIN ENTERPRISE</t>').attr('s', '2'); // Bold, centered
+                        $('row', sheet).eq(row++).find('c').eq(0).append('<t>BSRM PROGRAM</t>').attr('s', '2');
+                        $('row', sheet).eq(row++).find('c').eq(0).append('<t>Cash Sheet ({{ $date }})</t>').attr('s', '2');
+                        $('row', sheet).eq(row++).find('c').eq(0).append('<t></t>'); // Empty row for spacing
+
+                        // Style the header: bold and centered
+                        $('row c', sheet).each(function () {
+                            if ($(this).find('t').text() === 'M/S AMIN ENTERPRISE' || 
+                                $(this).find('t').text() === 'BSRM PROGRAM' || 
+                                $(this).find('t').text() === 'Cash Sheet ({{ $date }})') {
+                                $(this).attr('s', '2'); // Apply bold and centered style
+                            }
+                        });
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    title: 'Cash Sheet ({{ $date }})',
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+            ],
+            ordering: false,
+            paging: false,
+            searching: false,
+            info: false
+        });
+
+        // Optional: Add a custom download button to trigger Excel export
+        $('#customExcelButton').on('click', function() {
+            $('#cashSheetTable').DataTable().buttons('.buttons-excel').trigger();
+        });
+    });
+</script>
 @endsection
