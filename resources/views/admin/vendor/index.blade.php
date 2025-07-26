@@ -155,7 +155,7 @@
                       <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Wallet</span>
 
                       <a class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" target="bla
-                      " href="{{ route('getWalletTransaction', $data->id)}}">Transaction</a>
+                      " href="{{ route('getWalletTransaction', $data->id)}}">Tran</a>
 
                     </td>
                     <td style="text-align: center">

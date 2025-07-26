@@ -465,61 +465,42 @@
 @section('script')
 <script>
     $(document).ready(function() {
-        $('#cashSheetTable').DataTable({
-            dom: 'Bfrtip',
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    title: '', // Set to empty to avoid default title
-                    filename: 'Cash_Sheet_{{ $date }}', // Dynamic filename with date
-                    exportOptions: {
-                        columns: ':visible',
-                        format: {
-                            body: function (data, row, column, node) {
-                                // Ensure numbers are treated as numbers in Excel
-                                return /\d/.test(data) && column >= 4 ? parseFloat(data.replace(/,/g, '')) : data;
-                            }
-                        }
-                    },
-                    customize: function (xlsx) {
-                        var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                        var row = 0;
-
-                        // Add custom header rows
-                        $('row', sheet).eq(row++).find('c').eq(0).append('<t>M/S AMIN ENTERPRISE</t>').attr('s', '2'); // Bold, centered
-                        $('row', sheet).eq(row++).find('c').eq(0).append('<t>BSRM PROGRAM</t>').attr('s', '2');
-                        $('row', sheet).eq(row++).find('c').eq(0).append('<t>Cash Sheet ({{ $date }})</t>').attr('s', '2');
-                        $('row', sheet).eq(row++).find('c').eq(0).append('<t></t>'); // Empty row for spacing
-
-                        // Style the header: bold and centered
-                        $('row c', sheet).each(function () {
-                            if ($(this).find('t').text() === 'M/S AMIN ENTERPRISE' || 
-                                $(this).find('t').text() === 'BSRM PROGRAM' || 
-                                $(this).find('t').text() === 'Cash Sheet ({{ $date }})') {
-                                $(this).attr('s', '2'); // Apply bold and centered style
-                            }
-                        });
-                    }
-                },
-                {
-                    extend: 'pdfHtml5',
-                    title: 'Cash Sheet ({{ $date }})',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                }
-            ],
-            ordering: false,
-            paging: false,
-            searching: false,
-            info: false
-        });
+        
 
         // Optional: Add a custom download button to trigger Excel export
         $('#customExcelButton').on('click', function() {
-            $('#cashSheetTable').DataTable().buttons('.buttons-excel').trigger();
+            var searchDate = $('input[name="searchDate"]').val();
+
+            if (!searchDate) {
+                alert('Please select a date.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('admin.cashSheet.export') }}",
+                type: "POST",
+                data: {
+                    searchDate: searchDate,
+                    _token: "{{ csrf_token() }}"
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(data, status, xhr) {
+                    var filename = "Cash_Sheet_" + searchDate + ".xlsx"; // Use searchDate
+                    var blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', xhr, status, error); // Log error details
+                    alert('Failed to download Excel file. Check the console for details.');
+                }
+            });
         });
     });
 </script>

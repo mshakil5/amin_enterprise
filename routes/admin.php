@@ -319,6 +319,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     Route::get('cash-sheet', [CashSheetController::class, 'cashSheet'])->name('admin.cashSheet');
     Route::post('cash-sheet', [CashSheetController::class, 'cashSheet'])->name('admin.cashSheet.Search');
+    Route::post('cash-sheet/export', [CashSheetController::class, 'downloadExcel'])->name('admin.cashSheet.export');
 
     // roles and permission
     Route::get('role', [RoleController::class, 'index'])->name('admin.role');
