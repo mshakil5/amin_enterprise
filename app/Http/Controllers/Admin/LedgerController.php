@@ -205,53 +205,149 @@ class LedgerController extends Controller
         return view('admin.accounts.ledger.accountname', compact('chartOfAccounts'));
     }
 
+    // public function asset($id, Request $request)
+    // {
+    //     $data = Transaction::where('chart_of_account_id', $id)->get();
+    //     $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Purchase', 'Payment'])->sum('at_amount');
+    //     $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Sold', 'Deprication'])->sum('at_amount');
+    //     $totalBalance = $totalDrAmount - $totalCrAmount;
+    //     $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
+    //     return view('admin.accounts.ledger.asset', compact('data', 'totalBalance','accountName'));
+    // }
+
     public function asset($id, Request $request)
     {
-        $data = Transaction::where('chart_of_account_id', $id)->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Purchase', 'Payment'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Sold', 'Deprication'])->sum('at_amount');
+        $query = Transaction::where('chart_of_account_id', $id);
+
+        if ($request->filled('start_date')) {
+            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+            $query->whereBetween('date', [$request->start_date, $endDate]);
+        }
+
+        $data = $query->get();
+
+        $totalDrAmount = (clone $query)->whereIn('tran_type', ['Purchase', 'Payment'])->sum('at_amount');
+        $totalCrAmount = (clone $query)->whereIn('tran_type', ['Sold', 'Deprication'])->sum('at_amount');
         $totalBalance = $totalDrAmount - $totalCrAmount;
-        $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
-        return view('admin.accounts.ledger.asset', compact('data', 'totalBalance','accountName'));
+
+        $accountName = ChartOfAccount::find($id)?->account_name;
+
+        return view('admin.accounts.ledger.asset', compact('data', 'totalBalance', 'accountName', 'id'));
     }
 
+    // public function expense($id, Request $request)
+    // {
+    //     $data = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust'])->get();
+    //     $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust'])->sum('at_amount');
+    //     $totalBalance = $totalDrAmount;
+    //     $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
+    //     return view('admin.accounts.ledger.expense', compact('data', 'totalBalance','accountName'));
+    // }
     public function expense($id, Request $request)
     {
-        $data = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust'])->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust'])->sum('at_amount');
+        $query = Transaction::where('chart_of_account_id', $id)
+                    ->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust']);
+
+        if ($request->filled('start_date')) {
+            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+            $query->whereBetween('date', [$request->start_date, $endDate]);
+        }
+
+        $data = $query->get();
+        $totalDrAmount = (clone $query)->sum('at_amount');
         $totalBalance = $totalDrAmount;
-        $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
-        return view('admin.accounts.ledger.expense', compact('data', 'totalBalance','accountName'));
+        $accountName = ChartOfAccount::find($id)?->account_name;
+
+        return view('admin.accounts.ledger.expense', compact('data', 'totalBalance', 'accountName', 'id'));
     }
+
+    // public function income($id, Request $request)
+    // {
+    //     $data = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Advance Adjust', 'Refund'])->get();
+    //     $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Refund'])->sum('at_amount');
+    //     $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Advance Adjust'])->sum('at_amount');
+    //     $totalBalance =  $totalCrAmount - $totalDrAmount;
+    //     $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
+    //     return view('admin.accounts.ledger.income', compact('data', 'totalBalance','accountName'));
+    // }
 
     public function income($id, Request $request)
     {
-        $data = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Advance Adjust', 'Refund'])->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Refund'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Current', 'Advance Adjust'])->sum('at_amount');
-        $totalBalance =  $totalCrAmount - $totalDrAmount;
-        $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
-        return view('admin.accounts.ledger.income', compact('data', 'totalBalance','accountName'));
+        $query = Transaction::where('chart_of_account_id', $id)
+                    ->whereIn('tran_type', ['Current', 'Advance Adjust', 'Refund']);
+
+        if ($request->filled('start_date')) {
+            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+            $query->whereBetween('date', [$request->start_date, $endDate]);
+        }
+
+        $data = $query->get();
+
+        $totalDrAmount = (clone $query)->whereIn('tran_type', ['Refund'])->sum('at_amount');
+        $totalCrAmount = (clone $query)->whereIn('tran_type', ['Current', 'Advance Adjust'])->sum('at_amount');
+        $totalBalance = $totalCrAmount - $totalDrAmount;
+
+        $accountName = ChartOfAccount::find($id)?->account_name;
+
+        return view('admin.accounts.ledger.income', compact('data', 'totalBalance', 'accountName', 'id'));
     }
+
+    // public function liability($id, Request $request)
+    // {
+    //     $data = Transaction::where('chart_of_account_id', $id)->get();
+    //     $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
+    //     $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
+    //     $totalBalance = $totalDrAmount - $totalCrAmount;
+    //     $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
+    //     return view('admin.accounts.ledger.liability', compact('data', 'totalBalance','accountName'));
+    // }
 
     public function liability($id, Request $request)
     {
-        $data = Transaction::where('chart_of_account_id', $id)->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
+        $query = Transaction::where('chart_of_account_id', $id);
+
+        if ($request->filled('start_date')) {
+            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+            $query->whereBetween('date', [$request->start_date, $endDate]);
+        }
+
+        $data = $query->get();
+        $totalDrAmount = (clone $query)->whereIn('tran_type', ['Received'])->sum('at_amount');
+        $totalCrAmount = (clone $query)->whereIn('tran_type', ['Payment'])->sum('at_amount');
         $totalBalance = $totalDrAmount - $totalCrAmount;
-        $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
-        return view('admin.accounts.ledger.liability', compact('data', 'totalBalance','accountName'));
+
+        $accountName = ChartOfAccount::find($id)?->account_name;
+
+        return view('admin.accounts.ledger.liability', compact('data', 'totalBalance', 'accountName', 'id'));
     }
+
+    // public function equity($id, Request $request)
+    // {
+    //     $data = Transaction::where('chart_of_account_id', $id)->get();
+    //     $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
+    //     $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
+    //     $totalBalance =  $totalCrAmount - $totalDrAmount;
+    //     $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
+    //     return view('admin.accounts.ledger.equity', compact('data', 'totalBalance','accountName'));
+    // }
 
     public function equity($id, Request $request)
     {
-        $data = Transaction::where('chart_of_account_id', $id)->get();
-        $totalDrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Payment'])->sum('at_amount');
-        $totalCrAmount = Transaction::where('chart_of_account_id', $id)->whereIn('tran_type', ['Received'])->sum('at_amount');
-        $totalBalance =  $totalCrAmount - $totalDrAmount;
-        $accountName = ChartOfAccount::where('id', $id)->first()->account_name;
-        return view('admin.accounts.ledger.equity', compact('data', 'totalBalance','accountName'));
+        $query = Transaction::where('chart_of_account_id', $id);
+
+        if ($request->filled('start_date')) {
+            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+            $query->whereBetween('date', [$request->start_date, $endDate]);
+        }
+
+        $data = $query->get();
+        $totalDrAmount = (clone $query)->whereIn('tran_type', ['Payment'])->sum('at_amount');
+        $totalCrAmount = (clone $query)->whereIn('tran_type', ['Received'])->sum('at_amount');
+        $totalBalance = $totalCrAmount - $totalDrAmount;
+
+        $accountName = ChartOfAccount::find($id)?->account_name;
+
+        return view('admin.accounts.ledger.equity', compact('data', 'totalBalance', 'accountName', 'id'));
     }
 
     public function vendor($id, Request $request)

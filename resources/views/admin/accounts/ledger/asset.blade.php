@@ -21,6 +21,15 @@
                     <div class="card-body">
                         <div id="alert-container"></div>
 
+                        <form method="GET" class="form-inline mb-3">
+                            <input type="date" name="start_date" class="form-control mr-2" value="{{ request('start_date') }}">
+                            <input type="date" name="end_date" class="form-control mr-2" value="{{ request('end_date') }}">
+                            <button type="submit" class="btn btn-primary mr-2">Filter</button>
+                            @if(request()->has('start_date') || request()->has('end_date'))
+                                <button type="button" class="btn btn-secondary" onclick="window.location='{{ url()->current() }}'">Clear</button>
+                            @endif
+                        </form>
+
                         
                         <div class="text-center mb-4 company-name-container">
                             
