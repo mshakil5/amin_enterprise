@@ -25,41 +25,33 @@ class LedgerController extends Controller
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
 
-        $data = Transaction::where('status', 1)
-                            ->whereNull('table_type')
-                            ->orderby('id','DESC')
-                            ->when($request->input('client_id'), function ($query) use ($request) {
-                                $query->where("client_id",$request->input('client_id'));
-                            })
-                            ->when($request->input('mv_id'), function ($query) use ($request) {
-                                $query->where("mother_vassel_id",$request->input('mv_id'));
-                            })
-                            ->get();
-        $drAmount = Transaction::where('status', 1)
-                            ->whereNull('table_type')
-                            ->where('tran_type','Received')
-                            ->when($request->input('client_id'), function ($query) use ($request) {
-                                $query->where("client_id",$request->input('client_id'));
-                            })
-                            ->when($request->input('mv_id'), function ($query) use ($request) {
-                                $query->where("mother_vassel_id",$request->input('mv_id'));
-                            })
-                            ->sum('amount');
-        $crAmount = Transaction::where('status', 1)
-                            ->whereNull('table_type')
-                            ->where('tran_type','Advance')
-                            ->when($request->input('client_id'), function ($query) use ($request) {
-                                $query->where("client_id",$request->input('client_id'));
-                            })
-                            ->when($request->input('mv_id'), function ($query) use ($request) {
-                                $query->where("mother_vassel_id",$request->input('mv_id'));
-                            })
-                            ->sum('amount');
+        $data = collect();
+        $drAmount = $crAmount = 0;
 
+        if ($request->has('client_id') || $request->has('mv_id')) {
+            $data = Transaction::where('status', 1)
+                ->whereNull('table_type')
+                ->orderby('id','DESC')
+                ->when($request->input('client_id'), fn($q) => $q->where("client_id", $request->input('client_id')))
+                ->when($request->input('mv_id'), fn($q) => $q->where("mother_vassel_id", $request->input('mv_id')))
+                ->get();
 
+            $drAmount = Transaction::where('status', 1)
+                ->whereNull('table_type')
+                ->where('tran_type','Received')
+                ->when($request->input('client_id'), fn($q) => $q->where("client_id", $request->input('client_id')))
+                ->when($request->input('mv_id'), fn($q) => $q->where("mother_vassel_id", $request->input('mv_id')))
+                ->sum('amount');
+
+            $crAmount = Transaction::where('status', 1)
+                ->whereNull('table_type')
+                ->where('tran_type','Advance')
+                ->when($request->input('client_id'), fn($q) => $q->where("client_id", $request->input('client_id')))
+                ->when($request->input('mv_id'), fn($q) => $q->where("mother_vassel_id", $request->input('mv_id')))
+                ->sum('amount');
+        }
 
         return view('admin.accounts.ledger.receivable', compact('data','vendors', 'mvassels', 'clients','drAmount','crAmount'));
-        
     }
 
     public function advanceLedger(Request $request)
@@ -71,72 +63,83 @@ class LedgerController extends Controller
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
 
-        $data = Transaction::where('status', 1)
-                            ->whereNull('table_type')
-                            ->orderby('id','DESC')
-                            ->where('tran_type','Advance')
-                            ->when($request->input('client_id'), function ($query) use ($request) {
-                                $query->where("client_id",$request->input('client_id'));
-                            })
-                            ->when($request->input('mv_id'), function ($query) use ($request) {
-                                $query->where("mother_vassel_id",$request->input('mv_id'));
-                            })
-                            ->when($request->input('vendor_id'), function ($query) use ($request) {
-                                $query->where("vendor_id",$request->input('vendor_id'));
-                            })
-                            ->when($request->input('payment_type'), function ($query) use ($request) {
-                                $query->where("payment_type",$request->input('payment_type'));
-                            })
-                            ->get();
+        $data = collect();
+        $crAmount = 0;
 
-        $crAmount = Transaction::where('status', 1)
-                            ->whereNull('table_type')
-                            ->where('tran_type','Advance')
-                            ->when($request->input('client_id'), function ($query) use ($request) {
-                                $query->where("client_id",$request->input('client_id'));
-                            })
-                            ->when($request->input('mv_id'), function ($query) use ($request) {
-                                $query->where("mother_vassel_id",$request->input('mv_id'));
-                            })
-                            ->when($request->input('vendor_id'), function ($query) use ($request) {
-                                $query->where("vendor_id",$request->input('vendor_id'));
-                            })
-                            ->when($request->input('payment_type'), function ($query) use ($request) {
-                                $query->where("payment_type",$request->input('payment_type'));
-                            })
-                            ->sum('amount');
+        if (
+            $request->filled('client_id') ||
+            $request->filled('mv_id') ||
+            $request->filled('vendor_id') ||
+            $request->filled('payment_type')
+        ) {
+            $data = Transaction::where('status', 1)
+                ->whereNull('table_type')
+                ->orderby('id','DESC')
+                ->where('tran_type','Advance')
+                ->when($request->input('client_id'), function ($query) use ($request) {
+                    $query->where("client_id", $request->input('client_id'));
+                })
+                ->when($request->input('mv_id'), function ($query) use ($request) {
+                    $query->where("mother_vassel_id", $request->input('mv_id'));
+                })
+                ->when($request->input('vendor_id'), function ($query) use ($request) {
+                    $query->where("vendor_id", $request->input('vendor_id'));
+                })
+                ->when($request->input('payment_type'), function ($query) use ($request) {
+                    $query->where("payment_type", $request->input('payment_type'));
+                })
+                ->get();
 
+            $crAmount = Transaction::where('status', 1)
+                ->whereNull('table_type')
+                ->where('tran_type','Advance')
+                ->when($request->input('client_id'), function ($query) use ($request) {
+                    $query->where("client_id", $request->input('client_id'));
+                })
+                ->when($request->input('mv_id'), function ($query) use ($request) {
+                    $query->where("mother_vassel_id", $request->input('mv_id'));
+                })
+                ->when($request->input('vendor_id'), function ($query) use ($request) {
+                    $query->where("vendor_id", $request->input('vendor_id'));
+                })
+                ->when($request->input('payment_type'), function ($query) use ($request) {
+                    $query->where("payment_type", $request->input('payment_type'));
+                })
+                ->sum('amount');
+        }
 
-                            $mvid = $request->input('mv_id') ?? null;
-                            $vendor_id = $request->input('vendor_id') ?? null;
-                            $payment_type = $request->input('payment_type') ?? null;
-                            $client_id = $request->input('client_id') ?? null;
+        $mvid = $request->input('mv_id') ?? null;
+        $vendor_id = $request->input('vendor_id') ?? null;
+        $payment_type = $request->input('payment_type') ?? null;
+        $client_id = $request->input('client_id') ?? null;
 
-        return view('admin.accounts.ledger.advance', compact('data','vendors', 'mvassels', 'clients','crAmount','mvid','vendor_id','payment_type','client_id'));
-        
+        return view('admin.accounts.ledger.advance', compact(
+            'data', 'vendors', 'mvassels', 'clients',
+            'crAmount', 'mvid', 'vendor_id', 'payment_type', 'client_id'
+        ));
     }
 
     public function payableLedger(Request $request)
     {
-        if (!(in_array('16', json_decode(auth()->user()->role->permission)))) {
-          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        if (!in_array('16', json_decode(auth()->user()->role->permission))) {
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
-        $clients = Client::orderby('id','DESC')->where('status', 1)->get();
-        $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
-        $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
 
-        $data = ProgramDetail::where('status', 1)
-                            ->orderby('id','DESC')
-                            ->when($request->input('mv_id'), function ($query) use ($request) {
-                                $query->where("mother_vassel_id",$request->input('mv_id'));
-                            })
-                            ->when($request->input('vendor_id'), function ($query) use ($request) {
-                                $query->where("vendor_id",$request->input('vendor_id'));
-                            })
-                            ->get();
+        $clients = Client::where('status', 1)->orderBy('id', 'DESC')->get();
+        $mvassels = MotherVassel::where('status', 1)->orderBy('id', 'DESC')->get();
+        $vendors = Vendor::where('status', 1)->orderBy('id', 'DESC')->get();
 
-        return view('admin.accounts.ledger.payable', compact('data','vendors', 'mvassels', 'clients'));
-        
+        $data = collect();
+
+        if ($request->filled('mv_id') || $request->filled('vendor_id')) {
+            $data = ProgramDetail::where('status', 1)
+                ->orderBy('id', 'DESC')
+                ->when($request->filled('mv_id'), fn($q) => $q->where('mother_vassel_id', $request->mv_id))
+                ->when($request->filled('vendor_id'), fn($q) => $q->where('vendor_id', $request->vendor_id))
+                ->get();
+        }
+
+        return view('admin.accounts.ledger.payable', compact('data', 'vendors', 'mvassels', 'clients'));
     }
 
     public function vendorLedger(Request $request)
@@ -349,22 +352,25 @@ class LedgerController extends Controller
 
         return view('admin.accounts.ledger.equity', compact('data', 'totalBalance', 'accountName', 'id'));
     }
-
     public function vendor($id, Request $request)
     {
-        $data = Transaction::where('vendor_id', $id)
-            ->whereDate('date', '>=', '2025-06-28')
-            ->when($request->start_date, function ($query) use ($request) {
-                $query->whereDate('date', '>=', $request->start_date);
-            })
-            ->when($request->end_date, function ($query) use ($request) {
-                $query->whereDate('date', '<=', $request->end_date);
-            })
-            ->orderBy('id', 'DESC')
-            ->get();
-        $totalDrAmount = $data->where('tran_type', 'Wallet')->sum('amount');
-        $totalCrAmount = $data->whereIn('payment_type', ['Cash', 'Fuel', 'Wallet'])->sum('amount');
-        $totalBalance =  $totalCrAmount - $totalDrAmount;
+        $data = collect();
+        $totalDrAmount = $totalCrAmount = $totalBalance = 0;
+
+        if ($request->start_date) {
+            $data = Transaction::where('vendor_id', $id)
+                ->whereDate('date', '>=', '2025-06-28')
+                ->whereDate('date', '>=', $request->start_date)
+                ->when($request->end_date, function ($query) use ($request) {
+                    $query->whereDate('date', '<=', $request->end_date);
+                })
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            $totalDrAmount = $data->where('tran_type', 'Wallet')->sum('amount');
+            $totalCrAmount = $data->whereIn('payment_type', ['Cash', 'Fuel', 'Wallet'])->sum('amount');
+            $totalBalance = $totalCrAmount - $totalDrAmount;
+        }
 
         $accountName = Vendor::find($id)->name ?? 'N/A';
 

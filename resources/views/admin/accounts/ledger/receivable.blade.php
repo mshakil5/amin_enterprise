@@ -26,7 +26,9 @@
                                             <select name="client_id" id="client_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($clients as $client)
-                                              <option value="{{$client->id}}">{{$client->name}}</option>
+                                              <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>
+                                                  {{ $client->name }}
+                                              </option>
                                               @endforeach
                                             </select>
                                         </div>
@@ -36,7 +38,9 @@
                                             <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
-                                              <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
+                                              <option value="{{ $mvassel->id }}" {{ request('mv_id') == $mvassel->id ? 'selected' : '' }}>
+                                                  {{ $mvassel->name }}
+                                              </option>
                                               @endforeach
                                             </select>
                                         </div>
