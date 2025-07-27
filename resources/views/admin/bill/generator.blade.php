@@ -73,6 +73,50 @@
     </div>
 </section>
 
+
+<section class="content pt-3" id="contentContainer">
+    <div class="container-fluid">
+        <div class="row justify-content-md-center">
+            <div class="col-md-6">
+                <div class="card card-secondary">
+                    <div class="card-header">
+                        <h3 class="card-title" id="cardTitle">Update old qty for test</h3>
+                        <div class="card-tools">
+                            <a href="{{ route('export.programDetails', $programId) }}" class="btn btn-tool">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {{-- @if (session()->has('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif --}}
+                        <form action="{{ route('updateOldQty') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="upload">Uploads</label>
+                                            <input type="file" name="file" required>
+                                            <input type="hidden" name="programId" value="{{ $programId }}" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label>Action</label><br>
+                                            <button type="submit" class="btn btn-secondary">Upload</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="content" id="contentContainer">
     <div class="container-fluid">
         <div class="row">

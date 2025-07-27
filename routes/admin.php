@@ -244,7 +244,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/bill-not-generated/{id}', [GeneratingBillController::class, 'billNotGenerated'])->name('bill.not.generated');
     Route::get('/generating-bill-show/{id}', [GeneratingBillController::class, 'billGeneratingShow'])->name('generatingBillShow');
     Route::post('/bill-generating', [GeneratingBillController::class, 'billGeneratingStore'])->name('billGeneratingStore');
+    Route::post('/update-oldqty', [GeneratingBillController::class, 'updateOldQty'])->name('updateOldQty');
     Route::get('/export-template', [GeneratingBillController::class, 'exportTemplate'])->name('export.template');
+    Route::get('/export-program-details/{id}', [GeneratingBillController::class, 'exportProgramDetails'])->name('export.programDetails');
     Route::post('/generate-bill', [GeneratingBillController::class, 'generateBill'])->name('bill.generate');
     Route::patch('program-detail/{id}/undo', [GeneratingBillController::class, 'undoGenerateBill'])->name('generateBill.undo');
     Route::patch('fuel-bill/undo/{id}', [ProgramController::class, 'undoFuelBill'])->name('fuel.bill.undo');

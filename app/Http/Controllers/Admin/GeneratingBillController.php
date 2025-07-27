@@ -252,4 +252,94 @@ class GeneratingBillController extends Controller
         return back()->with('success', 'Unchecked successfully.');
     }
 
+    // export program details
+    public function exportProgramDetails($id)
+    {
+        $programDetails = ProgramDetail::with([
+            'programDestination',
+            'advancePayment',
+            'advancePayment.petrolPump',
+            'programDestination.destinationSlabRate'
+        ])->where('program_id', $id)->get();
+
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers
+        $headers = [
+            'ID', 'Header ID', 'Destination', 'Advance Payment', 'Quantity', 'Old Quantity'
+        ];
+        $sheet->fromArray($headers, NULL, 'A1');
+
+        // Fill data
+        $row = 2;
+        foreach ($programDetails as $detail) {
+            $sheet->setCellValue('A' . $row, $detail->id);
+            $sheet->setCellValue('B' . $row, $detail->headerid);
+            $sheet->setCellValue('C' . $row, optional($detail->programDestination)->name);
+            $sheet->setCellValue('D' . $row, optional($detail->advancePayment)->amount);
+            $sheet->setCellValue('E' . $row, $detail->dest_qty);
+            $sheet->setCellValue('F' . $row, $detail->old_qty);
+            $row++;
+        }
+
+        // Save the file
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $fileName = 'Program_Details_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+
+        ob_end_clean(); // Clear output buffer
+        $writer->save('php://output');
+        
+        exit;
+    }
+
+    // update old quantity
+    public function updateOldQty(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:20480',
+        ]);
+
+        $programId = $request->programId;
+
+        
+        // Move the file to a temporary location
+        $file = $request->file('file')->getRealPath();
+
+        // Load the spreadsheet
+        $spreadsheet = IOFactory::load($file);
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+
+        // Iterate through the rows and save to the database
+        foreach ($rows as $index => $row) {
+            // Skip the first row if it is the header
+            if ($index === 0) {
+                continue;
+            }
+
+            if (empty($row[4])) {
+                continue;
+            }else {
+
+                $chkPrgmDetail = ProgramDetail::where('id', $row[0])->where('dest_qty',$row[4])->first();
+                if (isset($chkPrgmDetail)) {
+                    $chkPrgmDetail->old_qty = $row[4];
+                    $chkPrgmDetail->save();
+                }
+
+            }
+
+            
+        }
+
+        return back()->with('success', 'Data imported successfully.');
+    }
+        
+
 }
