@@ -316,6 +316,7 @@ class GeneratingBillController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray();
 
+
         // Iterate through the rows and save to the database
         foreach ($rows as $index => $row) {
             // Skip the first row if it is the header
@@ -327,7 +328,7 @@ class GeneratingBillController extends Controller
                 continue;
             }else {
 
-                $chkPrgmDetail = ProgramDetail::where('id', $row[0])->where('dest_qty',$row[4])->first();
+                $chkPrgmDetail = ProgramDetail::where('id', $row[0])->first();
                 if (isset($chkPrgmDetail)) {
                     $chkPrgmDetail->old_qty = $row[4];
                     $chkPrgmDetail->save();
