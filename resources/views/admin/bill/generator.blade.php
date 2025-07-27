@@ -194,7 +194,12 @@
                                             <td style="text-align: center">{{ strtoupper($data->truck_number) }}</td>
                                             <td style="text-align: center">{{ $data->challan_no }}</td>
                                             <td style="text-align: center">{{ $data->destination->name ?? ' ' }}</td>
-                                            <td style="text-align: center">{{ $data->dest_qty }}</td>
+                                            <td style="text-align: center">{{ $data->dest_qty }}
+                                                @if ($data->old_qty)
+                                                    <span class="badge badge-info" >{{ $data->old_qty }}</span>
+                                                    
+                                                @endif
+                                            </td>
                                             <td style="text-align: center">{{ $data->carrying_bill }}</td>
                                             <td style="text-align: center">{{ $data->advancePayment->cashamount ?? '' }}</td>
                                             <td style="text-align: center">{{ $data->advancePayment->fuelqty ?? '' }}</td>
