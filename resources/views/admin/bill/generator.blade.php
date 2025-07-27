@@ -73,49 +73,47 @@
     </div>
 </section>
 
+<!-- Modal Trigger Button -->
+<div class="container-fluid mb-3">
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#updateOldQtyModal">
+        Update Old Qty for Test
+    </button>
+</div>
 
-<section class="content pt-3" id="contentContainer">
-    <div class="container-fluid">
-        <div class="row justify-content-md-center">
-            <div class="col-md-6">
-                <div class="card card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title" id="cardTitle">Update old qty for test</h3>
-                        <div class="card-tools">
-                            <a href="{{ route('export.programDetails', $programId) }}" class="btn btn-tool">
-                                <i class="fas fa-envelope"></i>
-                            </a>
+<!-- Modal -->
+<div class="modal fade" id="updateOldQtyModal" tabindex="-1" role="dialog" aria-labelledby="updateOldQtyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary">
+                <h5 class="modal-title" id="updateOldQtyModalLabel">Update old qty for test</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('updateOldQty') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="upload">Uploads</label>
+                            <input type="file" name="file" required>
+                            <input type="hidden" name="programId" value="{{ $programId }}" required>
+                        </div>
+                        <div class="form-group col-md-6 d-flex align-items-end">
+                            <button type="submit" class="btn btn-secondary">Upload</button>
                         </div>
                     </div>
-                    <div class="card-body">
-                        {{-- @if (session()->has('success'))
-                            <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif --}}
-                        <form action="{{ route('updateOldQty') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-6">
-                                            <label for="upload">Uploads</label>
-                                            <input type="file" name="file" required>
-                                            <input type="hidden" name="programId" value="{{ $programId }}" required>
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            <label>Action</label><br>
-                                            <button type="submit" class="btn btn-secondary">Upload</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card-footer"></div>
-                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ route('export.programDetails', $programId) }}" class="btn btn-tool">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-</section>
+</div>
 
 <section class="content" id="contentContainer">
     <div class="container-fluid">
