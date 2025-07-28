@@ -158,7 +158,7 @@
                     <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
                     <td style="text-align: center">
                       <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
-                        <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;" class="d-none">
+                        <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
