@@ -489,6 +489,11 @@
         let formData = $.param(formDataSerialized);
         // console.log(formData);
 
+        let $btn = $(this);
+        $btn.prop('disabled', true);
+        let originalText = $btn.html();
+        $btn.html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Saving...');
+
 
         $.ajax({
             url: charturl,
@@ -499,6 +504,8 @@
             },
             success: function(response) {
                 // console.log(response);
+                $btn.prop('disabled', false);
+                $btn.html(originalText);
                 if (response.status === 200) {
                     $('#chartModal').modal('toggle');
                     swal({
