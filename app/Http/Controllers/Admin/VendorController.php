@@ -390,10 +390,45 @@ class VendorController extends Controller
             return response()->json(['status'=> 300,'message'=>$message]);
         }
 
+    }
+
+
+    public function updateWalletBalance(Request $request)
+    {
+        $request->validate([
+            'walletamount' => 'required',
+        ]);
+
+
+        $transaction = Transaction::find($request->tranid);
+
+        $upvendor = Vendor::where('id', $transaction->vendor_id)->first();
+        $upvendor->balance -= $request->walletamount;
+        $upvendor->save();
         
 
-        
+        $transaction->amount =  $request->walletamount;
+        $transaction->at_amount =  $request->walletamount;
+        $transaction->tran_type = "Wallet";
+        $transaction->payment_type = $request->payment_type;
+        $transaction->account_id = $request->account_id;
+        $transaction->date = $request->wallet_date ?? date('Y-m-d');
+        $transaction->note = $request->note;
+        $transaction->save();
+        $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+        if ($transaction->save()) {
+           
+            $vendor = Vendor::where('id', $transaction->vendor_id)->first();
+            $vendor->balance += $request->walletamount;
+            $vendor->save();
+            $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Vendor balance update Successfully.</b></div>";
+            return response()->json(['status'=> 300,'message'=>$message]);
+        }
+
     }
+
+
+
 
     public function getWalletTransaction($id)
     {
