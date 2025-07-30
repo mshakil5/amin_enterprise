@@ -69,10 +69,42 @@ class ProgramController extends Controller
         return view('admin.program.index', compact('data'));
     }
 
-    public function programDetail($id)
+    public function programDetail($id, $type = null)
     {
-        $data = Program::with('programDetail','programDetail.programDestination','programDetail.advancePayment','programDetail.advancePayment.petrolPump','programDetail.programDestination.destinationSlabRate')->where('id', $id)->first();
-        // dd($data);
+        
+
+        $generate_bill = null;
+        $after_challan = null;
+
+        if ($type == 'bill_generated') {
+            $generate_bill = 1;
+        } elseif ($type == 'bill_not_generated') {
+            $generate_bill = 0;
+        } elseif ($type == 'after_challan') {
+            $after_challan = 1;
+        } elseif ($type == 'before_challan') {
+            $after_challan = 0;
+        }
+
+        $data = Program::with([
+            'programDetail' => function ($query) use ($generate_bill, $after_challan) {
+                if (!is_null($generate_bill)) {
+                    $query->where('generate_bill', $generate_bill);
+                }
+                if (!is_null($after_challan)) {
+                    if ($after_challan) {
+                        $query->whereNotNull('headerid');
+                    } else {
+                        $query->whereNull('headerid');
+                    }
+                }
+            },
+            'programDetail.programDestination',
+            'programDetail.advancePayment',
+            'programDetail.advancePayment.petrolPump',
+            'programDetail.programDestination.destinationSlabRate'
+        ])->where('id', $id)->first();
+        
         $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $motherVesselName = $data->motherVassel->name;

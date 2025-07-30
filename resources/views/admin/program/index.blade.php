@@ -93,23 +93,33 @@
                               <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between">
                                   <span>Total Challan:</span>
-                                  <strong>{{ ($data->generate_bill_count + $data->not_generate_bill_count) ?? 0 }}</strong>
+                                  <strong>
+                                    {{ ($data->generate_bill_count + $data->not_generate_bill_count) ?? 0 }}
+                                  </strong>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
                                   <span>Bill Generated Challan:</span>
+                                  <a href="{{ route('admin.programDetail', [$data->id, 'bill_generated']) }}" class="btn btn-warning btn-xs">
                                   <strong>{{ $data->generate_bill_count ?? 0 }}</strong>
+                                  </a>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
                                   <span>Bill Not Generated Challan:</span>
+                                  <a href="{{ route('admin.programDetail', [$data->id, 'bill_not_generated']) }}" class="btn btn-warning btn-xs">
                                   <strong>{{ $data->not_generate_bill_count ?? 0 }}</strong>
+                                  </a>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
                                   <span>Total After Challan Posting:</span>
+                                  <a href="{{ route('admin.programDetail', [$data->id, 'after_challan']) }}" class="btn btn-warning btn-xs">
                                   <strong>{{ $data->after_challan_posting_count ?? 0 }}</strong>
+                                  </a>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
                                   <span>Total Before Challan Posting:</span>
+                                  <a href="{{ route('admin.programDetail', [$data->id, 'before_challan']) }}" class="btn btn-warning btn-xs">
                                   <strong>{{ $data->before_challan_count ?? 0 }}</strong>
+                                  </a>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
                                   <span>Total Petrol Pump:</span>

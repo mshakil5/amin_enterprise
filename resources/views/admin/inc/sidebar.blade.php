@@ -418,6 +418,7 @@
       </li>
 
 
+      @if(in_array('27', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
         <a href="{{ route('admin.cashSheet') }}" class="nav-link {{ (request()->is('admin/cash-sheet')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
@@ -426,6 +427,7 @@
           </p>
         </a>
       </li>
+      @endif
 
 
       @if(in_array('26', json_decode(auth()->user()->role->permission)))

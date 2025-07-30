@@ -248,12 +248,19 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="p25" name="permission[]" value="25">
                                                 <label class="form-check-label" for="p25">PL Statement</label>
-                                            </div>     
+                                            </div>   
+                                            
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="p27" name="permission[]" value="27">
+                                                <label class="form-check-label" for="p26">Cash Sheet</label>
+                                            </div>  
 
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="p26" name="permission[]" value="26">
                                                 <label class="form-check-label" for="p26">Role Permission</label>
-                                            </div>                      
+                                            </div> 
+                                            
+
                                         </div>
                                     </div>
 
