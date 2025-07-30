@@ -252,7 +252,7 @@
                                             
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="p27" name="permission[]" value="27">
-                                                <label class="form-check-label" for="p26">Cash Sheet</label>
+                                                <label class="form-check-label" for="p27">Cash Sheet</label>
                                             </div>  
 
                                             <div class="form-check">
