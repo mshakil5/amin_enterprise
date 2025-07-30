@@ -146,7 +146,7 @@
                     
                     <td style="text-align: center">
 
-                      @if (Auth::user()->id == $data->id)
+                      @if (Auth::user()->role->name == "All Access")
                         <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       @endif
 
