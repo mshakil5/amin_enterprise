@@ -124,7 +124,7 @@
                                                         data-challan="{{ $data->challan_no }}"
                                                         data-amount="{{ $data->amount }}"
                                                         data-note="{{ $data->note }}"
-                                                        data-account_id="{{ $data->account->type }}"
+                                                        data-account_id="{{ $data->account->type ?? '' }}"
                                                         data-toggle="modal" data-target="#detailsModal"
                                                         title="Details">
                                                          <i class="fa fa-eye"></i> Details
