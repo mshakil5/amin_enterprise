@@ -496,11 +496,11 @@
                 </div>
                 <div class="row mb-2">
                   <div class="col-6 text-left">Total Cash Amount</div>
-                  <div class="col-6 text-right">- {{ number_format($totalcashamount, 2) }}</div>
+                  <div class="col-6 text-right">- {{ number_format($totalcashamount ?? "", 2) }}</div>
                 </div>
                 <div class="row mb-2">
                   <div class="col-6 text-left">Total Fuel Advance</div>
-                  <div class="col-6 text-right">- {{ number_format($alltotalfuelamount, 2) }}</div>
+                  <div class="col-6 text-right">- {{ number_format($alltotalfuelamount ?? "", 2) }}</div>
                 </div>
                 <div class="row mb-2">
                   <div class="col-6 text-left">Bill Paid</div>
