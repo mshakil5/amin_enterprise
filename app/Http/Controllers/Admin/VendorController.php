@@ -215,9 +215,15 @@ class VendorController extends Controller
                             <td>
                                 '.$balance.'
                             </td>
-                            <td>
-                            <a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
-                            </td>
+                            <td>';
+                                    if($$programCount > 0){
+                                       $prop.=  '<a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>';
+                                    }else{
+                                       $prop.=  '<span class="btn btn-danger btn-xs">No data</span>';
+                                    }
+
+                            
+                            $prop.=  '</td>
                             <td><a class="btn btn-primary btn-xs" href="'.route('admin.vendor.sequence.ledger', $tran->id).'">Ledger</a>
                                 <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn d-none" style="cursor:pointer">Delete</span>
                             </td>
