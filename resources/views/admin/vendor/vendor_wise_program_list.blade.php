@@ -523,7 +523,7 @@
                   <strong>Calculation:</strong><br>
                   (Carrying Bill + Scale Fee) - (Cash Amount + Fuel Advance) + (Bill Paid - Advance Adjust) <br>
                   ({{ number_format($alltotalcarrying_bill, 2) }} + {{ number_format($alltotalscale_fee, 2) }})
-                  - ({{ number_format($totalcashamount, 2) }} + {{ number_format($alltotalfuelamount, 2) }}) + ({{ number_format($totalPaid, 2) }} - {{ number_format($totalReceived, 2) }})
+                  - ({{ number_format($alltotalfuelamount, 2) }}) + ({{ number_format($totalPaid, 2) }} - {{ number_format($totalReceived, 2) }})
                   = {{ number_format($totalDue, 2) }}
                 </div>
               </div>
