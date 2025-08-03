@@ -116,13 +116,22 @@ class VendorController extends Controller
         }
     }
 
-    public function generateUniqueCode($vendorName)
+    public function generateUniqueCodeold($vendorName)
     {
         $words = explode(' ', $vendorName);
         $firstLetters = array_map(fn($word) => strtoupper($word[0]), $words);
         $code = implode('', $firstLetters);
         $uniqueCode = $code;
 
+        return $uniqueCode;
+    }
+
+    public function generateUniqueCode($vendorName)
+    {
+        
+        $words = explode(' ', trim($vendorName));
+        $uniqueCode = strtoupper($words[0]);
+        
         return $uniqueCode;
     }
 
@@ -219,7 +228,7 @@ class VendorController extends Controller
                                     if($programCount > 0){
                                        $prop.=  '<a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>';
                                     }else{
-                                       $prop.=  '<span class="btn btn-danger btn-xs">No data</span>';
+                                       $prop.=  '<span class="btn btn-danger btn-xs">'.$tran->unique_id.' (No data)</span>';
                                     }
 
                             
