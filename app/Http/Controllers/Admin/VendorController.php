@@ -216,7 +216,7 @@ class VendorController extends Controller
                                 '.$balance.'
                             </td>
                             <td>';
-                                    if($$programCount > 0){
+                                    if($programCount > 0){
                                        $prop.=  '<a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>';
                                     }else{
                                        $prop.=  '<span class="btn btn-danger btn-xs">No data</span>';
