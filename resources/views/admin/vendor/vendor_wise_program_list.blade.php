@@ -342,27 +342,6 @@
                   </tbody>
                   <tfoot>
                       <tr>
-                        <th>Sl</th>
-                        <th>Petrol Pump</th>
-                        <th>Date</th>
-                        <th>Vendor</th>
-                        <th>Header ID</th>
-                        <th>Truck Number</th>
-                        <th>Challan no</th>
-                        <th>Mother Vessel</th>
-                        <th>Destination</th>
-                        <th>Qty</th>
-                        <th>Carring Bill</th>
-                        <th>Line Charge</th>
-                        <th>Scale fee</th>
-                        <th>Other Cost</th>
-                        <th>Cash Advance</th>
-                        <th>Fuel qty</th>
-                        <th>Fuel Amount</th>
-                        <th>Fuel token</th>
-                        <th>Pump name</th>
-                      </tr>
-                      <tr>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
@@ -662,7 +641,7 @@
                         title: 'Vendor Report',
                     }
                 ],
-                lengthMenu: [[100, -1, 50, 25], [100, "All", 50, 25]]
+                lengthMenu: [[10, -1, 50, 25], [100, "All", 50, 25]]
             });
 
             // Append buttons to each table's wrapper
