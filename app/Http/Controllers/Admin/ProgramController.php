@@ -64,7 +64,6 @@ class ProgramController extends Controller
             
         ])->where('status', 1)->orderby('id','DESC')->get();
 
-        // dd( $data );
 
         return view('admin.program.index', compact('data'));
     }

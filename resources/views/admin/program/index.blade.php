@@ -122,6 +122,14 @@
                                   </a>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
+                                    <span>Vendor Wise Challan Posting:</span>
+                                  <a href="{{ route('challanPostingVendorReportshow') }}" class="btn btn-warning btn-xs">
+                                  <strong>{{ $data->before_challan_count ?? 0 }}</strong>
+                                  </a>
+                                </li>
+                                
+
+                                <li class="list-group-item d-flex justify-content-between">
                                   <span>Total Petrol Pump:</span>
                                   <strong>{{ $data->pump_count ?? 0 }}</strong>
                                 </li>

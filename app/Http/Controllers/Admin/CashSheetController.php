@@ -110,8 +110,6 @@ class CashSheetController extends Controller
         // Use today's date dynamically
         $date = $expectedDate; // Date before yesterday
 
-        // dd($date);
-
         // For previous day's opening balance, we need transactions for $date
         // Initial opening balances (you may need to fetch these from a database or previous day's closing)
         $cashInHandOpening = 347224.00; // Example value; replace with actual data

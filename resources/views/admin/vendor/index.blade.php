@@ -16,6 +16,10 @@
     .custom-checkbox {
       height: 30px;
     }
+    /* Ensure Select2 dropdown is full width */
+    .select2-container {
+        width: 100% !important;
+    }
 </style>
 
 
@@ -331,6 +335,13 @@
                       </select>
                   </div>
                   <div class="form-group">
+                      <label for="vsequence">Sequence Number <span style="color: red;">*</span></label> <br>
+                      <select name="vsequence" id="vsequence" class="form-control select2" required>
+                          <option value="">Select Sequence Number</option>
+                          <!-- Options will be populated dynamically -->
+                      </select>
+                  </div>
+                  <div class="form-group">
                       <label for="note">Note</label>
                       <textarea class="form-control" id="note" rows="3"></textarea>
                   </div>
@@ -402,6 +413,8 @@
 </script>
 
 <script>
+
+  var vendorSeqNums = @json($vendorSeqNums);
   $(document).ready(function () {
 
     // Bind custom search input to trantable
@@ -703,9 +716,95 @@
 
 
       // vendor wallet add
+      // $("#contentContainer").on('click', '.add-money-btn', function () {
+      //     var id = $(this).data('id');
+      //     $('#addWalletModal').modal('show');
+      //     $('#addWalletForm').off('submit').on('submit', function (event) {
+      //         event.preventDefault();
+
+      //         var form_data = new FormData();
+      //         form_data.append("vendorId", id);
+      //         form_data.append("walletamount", $("#walletamount").val());
+      //         form_data.append("payment_type", $("#payment_type").val());
+      //         form_data.append("account_id", $("#account_id").val());
+      //         form_data.append("wallet_date", $("#wallet_date").val());
+      //         form_data.append("note", $("#note").val());
+      //         // form_data.append("sequence", $("#sequence").val());
+
+      //         if (!$("#walletamount").val()) {
+      //             alert('Please enter wallet amount.');
+      //             return;
+      //         }
+
+      //         if (!$("#payment_type").val()) {
+      //             alert('Please enter payment type.');
+      //             return;
+      //         }
+
+      //         if (!$("#account_id").val()) {
+      //             alert('Please enter Account.');
+      //             return;
+      //         }
+
+
+      //         $.ajax({
+      //             url: '{{ URL::to('/admin/add-vendor-wallet-balance') }}',
+      //             method: 'POST',
+      //             data:form_data,
+      //             contentType: false,
+      //             processData: false,
+      //             // dataType: 'json',
+      //             success: function (response) {
+      //               if (response.status == 303) {
+      //                   $(".permsg").html(response.message);
+      //               }else if(response.status == 300){
+
+      //                 $(".permsg").html(response.message);
+      //                 window.setTimeout(function(){location.reload()},2000)
+      //               }
+                    
+
+      //             },
+      //             error: function (xhr) {
+      //                 console.log(xhr.responseText);
+      //             }
+      //         });
+      //     });
+      // });
+
       $("#contentContainer").on('click', '.add-money-btn', function () {
           var id = $(this).data('id');
           $('#addWalletModal').modal('show');
+
+          // Clear previous sequence options
+          $('#vsequence').html('<option value="">Select Sequence Number</option>');
+
+          // Filter sequence numbers for the selected vendor
+          var vendorSequences = vendorSeqNums.filter(function (seq) {
+              return seq.vendor_id == id;
+          });
+
+          console.log(vendorSequences);
+
+          // Populate the dropdown
+          if (vendorSequences.length > 0) {
+              $.each(vendorSequences, function (index, seq) {
+                  $('#vsequence').append(
+                      $('<option>', {
+                          value: seq.id,
+                          text: seq.unique_id 
+                      })
+                  );
+              });
+          } else {
+              $('#vsequence').append(
+                  $('<option>', {
+                      value: '',
+                      text: 'No sequence numbers available'
+                  })
+              );
+          }
+
           $('#addWalletForm').off('submit').on('submit', function (event) {
               event.preventDefault();
 
@@ -715,42 +814,32 @@
               form_data.append("payment_type", $("#payment_type").val());
               form_data.append("account_id", $("#account_id").val());
               form_data.append("wallet_date", $("#wallet_date").val());
+              form_data.append("vsequence", $("#vsequence").val());
               form_data.append("note", $("#note").val());
-              // form_data.append("sequence", $("#sequence").val());
 
-              if (!$("#walletamount").val()) {
-                  alert('Please enter wallet amount.');
-                  return;
-              }
-
-              if (!$("#payment_type").val()) {
-                  alert('Please enter payment type.');
-                  return;
-              }
-
-              if (!$("#account_id").val()) {
-                  alert('Please enter Account.');
-                  return;
-              }
+              const fields = [
+                  { id: 'walletamount', message: 'Please enter wallet amount.' },
+                  { id: 'payment_type', message: 'Please enter payment type.' },
+                  { id: 'account_id', message: 'Please enter Account.' },
+                  { id: 'vsequence', message: 'Please select a sequence number.' }
+              ];
 
 
               $.ajax({
-                  url: '{{ URL::to('/admin/add-vendor-wallet-balance') }}',
+                  url: '{{ URL::to("/admin/add-vendor-wallet-balance") }}',
                   method: 'POST',
-                  data:form_data,
+                  data: form_data,
                   contentType: false,
                   processData: false,
-                  // dataType: 'json',
                   success: function (response) {
-                    if (response.status == 303) {
-                        $(".permsg").html(response.message);
-                    }else if(response.status == 300){
-
-                      $(".permsg").html(response.message);
-                      window.setTimeout(function(){location.reload()},2000)
-                    }
-                    
-
+                      if (response.status == 303) {
+                          $(".permsg").html(response.message);
+                      } else if (response.status == 300) {
+                          $(".permsg").html(response.message);
+                          window.setTimeout(function () {
+                              location.reload();
+                          }, 2000);
+                      }
                   },
                   error: function (xhr) {
                       console.log(xhr.responseText);

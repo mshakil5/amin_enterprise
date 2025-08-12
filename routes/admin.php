@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\IncomeStatementController;
 use App\Http\Controllers\Admin\FinancialStatementController;
 use App\Http\Controllers\Admin\CashSheetController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\VendorLedgerController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -312,7 +313,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('ledger/income-details/{id}', [LedgerController::class, 'income']);
     Route::get('ledger/liability-details/{id}', [LedgerController::class, 'liability']);
     Route::get('ledger/equity-details/{id}', [LedgerController::class, 'equity']);
-    Route::get('ledger/vendor/{id}', [LedgerController::class, 'vendor'])->name('admin.vendorledger');
+    Route::get('ledger/vendor/{id}', [VendorLedgerController::class, 'vendor'])->name('admin.vendorledger');
 
 
     // pl statement

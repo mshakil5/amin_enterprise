@@ -25,7 +25,8 @@ class VendorController extends Controller
           return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
         $data = Vendor::orderby('id','DESC')->get();
-        return view('admin.vendor.index', compact('data'));
+        $vendorSeqNums = VendorSequenceNumber::orderby('id', 'DESC')->get();
+        return view('admin.vendor.index', compact('data','vendorSeqNums'));
     }
 
     public function vendorlist()
@@ -387,13 +388,14 @@ class VendorController extends Controller
         $transaction->at_amount =  $request->walletamount;
         $transaction->tran_type = "Wallet";
         $transaction->description = "Add Wallet Balance";
-        $transaction->note = "Add Wallet Balance";
         $transaction->payment_type = $request->payment_type;
         $transaction->table_type = "Expenses";
         $transaction->vendor_id = $request->vendorId;
         $transaction->account_id = $request->account_id;
         $transaction->date = $request->wallet_date ?? date('Y-m-d');
         $transaction->note = $request->note;
+        $transaction->vendor_sequence_number_id = $request->vsequence;
+        $transaction->created_by = Auth::user()->id;
         $transaction->save();
         $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         if ($transaction->save()) {
