@@ -102,21 +102,33 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <tr>
+                                        <td colspan="6"><b>Previous Balance</b></td>
+                                        <td colspan="3"></td>
+                                        <td></td>
+                                    </tr>
                                     @foreach ($sequence->programDetail as $detail)
+
+                                    @php
+                                        $totalAdv = optional($detail->advancePayment)->total_fuelamount + optional($detail->advancePayment)->total_cashamount;
+
+                                        $netAmount = $detail->total_carrying_bill + $detail->total_scale_fee - $detail->total_advance;
+                                    @endphp
+
                                         <tr>
                                             <td>{{ $sequence->date ?? '-' }}</td>
                                             <td>{{ $detail->motherVassel->name ?? '-' }}</td>
                                             <td>{{ $detail->consignmentno ?? '-' }}</td>
                                             <td>{{ $detail->total_trip }}</td>
                                             <td>{{ $detail->total_qty }}</td>
-                                            <td>{{ number_format($detail->total_qty * 100, 2) }}</td> {{-- Example amount --}}
-                                            <td>{{ $detail->total_scale_fee }}</td>
-                                            <td>{{ $detail->total_qty * 100 + $detail->total_scale_fee }}</td>
+                                            <td>{{ number_format($detail->total_carrying_bill, 2) }}</td>
+                                            <td>{{  number_format($detail->total_scale_fee, 2) }}</td>
+                                            <td>{{  number_format($detail->total_carrying_bill + $detail->total_scale_fee, 2) }}</td>
                                             <td>
-                                                {{ optional($detail->advancePayment)->total_fuelamount + optional($detail->advancePayment)->total_cashamount }}
+                                                {{ number_format($detail->total_advance, 2) }}
                                             </td>
                                             <td>
-                                                {{ ($detail->total_qty * 100 + $detail->total_scale_fee) - (optional($detail->advancePayment)->total_fuelamount + optional($detail->advancePayment)->total_cashamount) }}
+                                                {{ number_format($netAmount), 2 }}
                                             </td>
                                         </tr>
                                     @endforeach

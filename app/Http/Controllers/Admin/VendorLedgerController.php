@@ -45,7 +45,9 @@ class VendorLedgerController extends Controller
                     'mother_vassel_id',
                     'vendor_sequence_number_id',
                     DB::raw('COUNT(DISTINCT challan_no) as total_trip'),
+                    DB::raw('SUM(carrying_bill) as total_carrying_bill'),
                     DB::raw('SUM(dest_qty) as total_qty'),
+                    DB::raw('SUM(advance) as total_advance'),
                     DB::raw('SUM(scale_fee) as total_scale_fee')
                 )
                 ->with('motherVassel:id,name') // eager load name
