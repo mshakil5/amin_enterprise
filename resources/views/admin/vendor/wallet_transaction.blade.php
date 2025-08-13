@@ -2,6 +2,12 @@
 
 @section('content')
 
+<style>
+    
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
 
 <section class="content pt-3" id="contentContainer">
     <div class="container-fluid">
@@ -129,7 +135,7 @@
                                                         title="Details">
                                                          <i class="fa fa-eye"></i> Details
                                                     </a>
-                                                    <a  class="btn btn-primary btn-xs editBtn"  tranid="{{$data->id}}" data-date="{{ \Carbon\Carbon::parse($data->date)->format('Y-m-d') }}" data-amount="{{ $data->amount }}" data-payment_type="{{ $data->payment_type }}" data-account_id="{{ $data->account_id }}" data-note="{{ $data->note }}" data-toggle="modal" data-target="#addWalletModal" title="Edit">
+                                                    <a  class="btn btn-primary btn-xs editBtn"  tranid="{{$data->id}}" data-date="{{ \Carbon\Carbon::parse($data->date)->format('Y-m-d') }}" data-amount="{{ $data->amount }}" data-payment_type="{{ $data->payment_type }}" data-account_id="{{ $data->account_id }}" data-note="{{ $data->note }}" data-vsid="{{ $data->vendor_sequence_number_id }}" data-toggle="modal" data-target="#addWalletModal" title="Edit">
                                                         <i class="fa fa-edit"></i> Edit
                                                     </a>
                                                 </td>
@@ -184,6 +190,18 @@
                         @endforeach
                       </select>
                   </div>
+
+                  
+                  <div class="form-group">
+                      <label for="vsequence">Vendor Sequence <span style="color: red;">*</span></label>
+                      <select name="vsequence" id="vsequence" class="form-control select2">
+                        @foreach ($vendorSeqNums as $vitem)
+                        <option value="{{$vitem->id}}">{{$vitem->unique_id}}</option>
+                        @endforeach
+                      </select>
+                  </div>
+
+
                   <div class="form-group">
                       <label for="note">Note</label>
                       <textarea class="form-control" id="note" rows="3"></textarea>
@@ -206,6 +224,7 @@
 @section('script')
 
 <script>
+    
     $(document).ready(function() {
         $('#daybookTable').DataTable({
             pageLength: 100,
@@ -234,10 +253,9 @@
         $('#walletamount').val($(this).data('amount'));
         $('#payment_type').val($(this).data('payment_type'));
         $('#account_id').val($(this).data('account_id'));
+        $('#vsequence').val($(this).data('vsid'));
         $('#note').val($(this).data('note'));
         id = $(this).attr('tranid');
-
-
 
 
           $('#addWalletForm').off('submit').on('submit', function (event) {
@@ -249,6 +267,7 @@
               form_data.append("account_id", $("#account_id").val());
               form_data.append("wallet_date", $("#wallet_date").val());
               form_data.append("note", $("#note").val());
+              form_data.append("vsequence", $("#vsequence").val());
               form_data.append("tranid", id);
 
               if (!$("#walletamount").val()) {

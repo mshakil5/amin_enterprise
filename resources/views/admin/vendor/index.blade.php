@@ -16,7 +16,7 @@
     .custom-checkbox {
       height: 30px;
     }
-    /* Ensure Select2 dropdown is full width */
+    
     .select2-container {
         width: 100% !important;
     }
@@ -776,15 +776,12 @@
           var id = $(this).data('id');
           $('#addWalletModal').modal('show');
 
-          // Clear previous sequence options
           $('#vsequence').html('<option value="">Select Sequence Number</option>');
 
-          // Filter sequence numbers for the selected vendor
           var vendorSequences = vendorSeqNums.filter(function (seq) {
               return seq.vendor_id == id;
           });
 
-          console.log(vendorSequences);
 
           // Populate the dropdown
           if (vendorSequences.length > 0) {

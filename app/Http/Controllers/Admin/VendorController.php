@@ -16,6 +16,7 @@ use App\Exports\VendorTripExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
 use App\Models\Account;
+use Carbon\Carbon;
 
 class VendorController extends Controller
 {
@@ -25,7 +26,8 @@ class VendorController extends Controller
           return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
         $data = Vendor::orderby('id','DESC')->get();
-        $vendorSeqNums = VendorSequenceNumber::orderby('id', 'DESC')->get();
+        $startDate = Carbon::parse('2025-07-20');
+        $vendorSeqNums = VendorSequenceNumber::orderby('id', 'DESC')->where('created_at', '>', $startDate)->get();
         return view('admin.vendor.index', compact('data','vendorSeqNums'));
     }
 
@@ -431,6 +433,8 @@ class VendorController extends Controller
         $transaction->account_id = $request->account_id;
         $transaction->date = $request->wallet_date ?? date('Y-m-d');
         $transaction->note = $request->note;
+        $transaction->vendor_sequence_number_id = $request->vsequence;
+        $transaction->updated_by = Auth::user()->id;
         $transaction->save();
         $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         if ($transaction->save()) {
@@ -462,8 +466,12 @@ class VendorController extends Controller
         $expenses = Transaction::where('vendor_id', $id)->where('tran_type', 'Advance')->sum('amount');
 
         $balance = $deposit - $expenses;
+        
+        $startDate = Carbon::parse('2025-07-20');
+            
+        $vendorSeqNums = VendorSequenceNumber::orderby('id', 'DESC')->where('vendor_id', $id)->where('created_at', '>', $startDate)->get();
 
-        return view('admin.vendor.wallet_transaction', compact('transactions', 'vendor', 'balance'));
+        return view('admin.vendor.wallet_transaction', compact('transactions', 'vendor', 'balance','vendorSeqNums'));
     }
 
     public function exportExcel(Request $request)
