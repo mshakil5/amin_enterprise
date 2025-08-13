@@ -40,32 +40,32 @@ class VendorLedgerController extends Controller
         $startDate = Carbon::parse('2025-07-20');
 
         $vsequence = VendorSequenceNumber::with([
-            'programDetail' => function ($query) {
-                $query->select(
-                    'mother_vassel_id',
-                    'vendor_sequence_number_id',
-                    DB::raw('COUNT(DISTINCT challan_no) as total_trip'),
-                    DB::raw('SUM(carrying_bill) as total_carrying_bill'),
-                    DB::raw('SUM(dest_qty) as total_qty'),
-                    DB::raw('SUM(advance) as total_advance'),
-                    DB::raw('SUM(scale_fee) as total_scale_fee')
-                )
-                ->with('motherVassel:id,name') // eager load name
-                ->groupBy('mother_vassel_id', 'vendor_sequence_number_id');
-            },
-            'programDetail.advancePayment' => function ($query) {
-                $query->select(
-                    'program_detail_id',
-                    DB::raw('SUM(fuelamount) as total_fuelamount'),
-                    DB::raw('SUM(cashamount) as total_cashamount')
-                )
-                ->groupBy('program_detail_id');
-            }
-        ])
-        ->where('created_at', '<=', $startDate)
-        ->where('vendor_id', $id)
-        ->orderBy('id', 'DESC')
-        ->get();
+                'programDetail' => function ($query) {
+                    $query->select(
+                        'mother_vassel_id',
+                        'vendor_sequence_number_id',
+                        DB::raw('COUNT(DISTINCT challan_no) as total_trip'),
+                        DB::raw('SUM(carrying_bill) as total_carrying_bill'),
+                        DB::raw('SUM(dest_qty) as total_qty'),
+                        DB::raw('SUM(advance) as total_advance'),
+                        DB::raw('SUM(scale_fee) as total_scale_fee')
+                    )
+                    ->with('motherVassel:id,name')
+                    ->groupBy('mother_vassel_id', 'vendor_sequence_number_id');
+                },
+                'programDetail.advancePayment' => function ($query) {
+                    $query->select(
+                        'program_detail_id',
+                        'fuelqty',
+                        'fuelamount',
+                        'cashamount'
+                    );
+                }
+            ])
+            ->where('created_at', '>', $startDate)
+            ->where('vendor_id', $id)
+            ->orderBy('id', 'DESC')
+            ->get();
 
 
 
