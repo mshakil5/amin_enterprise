@@ -4,7 +4,7 @@
 <section class="content pt-3" id="contentContainer">
     <div class="container-fluid">
         <div class="page-header"><a href="{{ url()->previous() }}" class="btn btn-secondary">Back</a></div>
-        <div class="row justify-content-md-center mt-2">
+        <div class="row justify-content-md-center mt-2 d-none">
             <div class="col-md-12">
                 <div class="card card-secondary">
                     <div class="card-header">
@@ -80,51 +80,54 @@
 
         @foreach ($vsequence as $sequence)
             <div class="row justify-content-md-center mt-2">
-            <div class="col-md-12">
-                <div class="card card-secondary">
-                    <div class="card-header">
-                        <h4>{{$sequence->unique_id}}</h4>
-                    </div>
-                    <div class="card-body">
-
-
-                        <table id="dataTransactionsTable" class="table table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th class="d-none">Date</th>
-                                    <th>Mother Vessel</th>
-                                    <th>Con. No</th>
-                                    <th>Total Trip</th>
-                                    <th>Quantity</th>
-                                    <th>Amount</th>
-                                    <th>Scale charge</th>
-                                    <th>Grand Total </th>
-                                    <th>Advance </th>
-                                    <th>Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                
-                            </tbody>
-                        </table>
-
+                <div class="col-md-12">
+                    <div class="card card-secondary">
+                        <div class="card-header">
+                            <h4>{{ $sequence->unique_id }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Mother Vessel</th>
+                                        <th>Con. No</th>
+                                        <th>Total Trip</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                        <th>Scale charge</th>
+                                        <th>Grand Total</th>
+                                        <th>Advance</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($sequence->programDetail as $detail)
+                                        <tr>
+                                            <td>{{ $sequence->date ?? '-' }}</td>
+                                            <td>{{ $detail->motherVassel->name ?? '-' }}</td>
+                                            <td>{{ $detail->consignmentno ?? '-' }}</td>
+                                            <td>{{ $detail->total_trip }}</td>
+                                            <td>{{ $detail->total_qty }}</td>
+                                            <td>{{ number_format($detail->total_qty * 100, 2) }}</td> {{-- Example amount --}}
+                                            <td>{{ $detail->total_scale_fee }}</td>
+                                            <td>{{ $detail->total_qty * 100 + $detail->total_scale_fee }}</td>
+                                            <td>
+                                                {{ optional($detail->advancePayment)->total_fuelamount + optional($detail->advancePayment)->total_cashamount }}
+                                            </td>
+                                            <td>
+                                                {{ ($detail->total_qty * 100 + $detail->total_scale_fee) - (optional($detail->advancePayment)->total_fuelamount + optional($detail->advancePayment)->total_cashamount) }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         @endforeach
+
         
         
 
