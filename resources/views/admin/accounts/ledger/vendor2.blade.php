@@ -78,12 +78,12 @@
         </div>
 
 
-        
-        <div class="row justify-content-md-center mt-2">
+        @foreach ($vsequence as $sequence)
+            <div class="row justify-content-md-center mt-2">
             <div class="col-md-12">
                 <div class="card card-secondary">
                     <div class="card-header">
-                        <h4>Ledger</h4>
+                        <h4>{{$sequence->unique_id}}</h4>
                     </div>
                     <div class="card-body">
 
@@ -124,6 +124,9 @@
                 </div>
             </div>
         </div>
+        @endforeach
+        
+        
 
 
     </div>

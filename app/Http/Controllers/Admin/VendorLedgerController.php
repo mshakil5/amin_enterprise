@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\Vendor;
+use App\Models\VendorSequenceNumber;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+
 
 class VendorLedgerController extends Controller
 {
@@ -31,6 +34,24 @@ class VendorLedgerController extends Controller
 
         $accountName = Vendor::find($id)->name ?? 'N/A';
 
-        return view('admin.accounts.ledger.vendor2', compact('data', 'totalBalance', 'accountName', 'id'));
+        
+        $startDate = Carbon::parse('2025-07-20');
+        $vendorStartBalance = 0;
+
+        $vsequence = VendorSequenceNumber::where('created_at', '<=', $startDate)->where('vendor_id', $id)->orderby('id', 'DESC')->get();
+
+
+
+        return view('admin.accounts.ledger.vendor2', compact('data', 'totalBalance', 'accountName', 'id', 'vsequence'));
+    }
+
+    public function calculateBalance()
+    {
+        
+        $startDate = Carbon::parse('2025-07-20');
+        $vendorStartBalance = 0;
+
+        $vsequence = VendorSequenceNumber::where('created_at', '<=', $startDate)->get();
+
     }
 }
