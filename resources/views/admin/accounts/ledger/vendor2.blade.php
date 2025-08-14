@@ -4,11 +4,14 @@
 <section class="content pt-3" id="contentContainer">
     <div class="container-fluid">
         <div class="page-header"><a href="{{ url()->previous() }}" class="btn btn-secondary">Back</a></div>
+        <div>
+            <p>Note: Positive balance Payable, Negative Balance Receivable. {{ $vendor->opening_balance }}</p>
+        </div>
         <div class="row justify-content-md-center mt-2 d-none">
             <div class="col-md-12">
                 <div class="card card-secondary">
                     <div class="card-header">
-                        <h4>{{ $accountName }} Ledger</h4>
+                        <h4>{{ $vendor->name }} Ledger</h4>
                     </div>
                     <div class="card-body">
 
@@ -77,6 +80,19 @@
             </div>
         </div>
 
+        @php
+            $openingBalance = $vendor->opening_balance;
+        @endphp
+
+        @foreach ($vsequence as $items)
+        @foreach ($items->programDetail as $item)
+            @php
+                $openingBalance -= $netAmount;
+            @endphp
+        @endforeach
+            
+        @endforeach
+
 
         @foreach ($vsequence as $sequence)
             <div class="row justify-content-md-center mt-2">
@@ -93,7 +109,6 @@
                                         <th>Mother Vessel</th>
                                         <th>Con. No</th>
                                         <th>Total Trip</th>
-                                        <th>Fuel Qty</th>
                                         <th>Quantity</th>
                                         <th>Amount</th>
                                         <th>Scale Charge</th>
@@ -104,21 +119,21 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="7"><b>Previous Balance</b></td>
+                                        <td colspan="6"><b>Previous Balance</b></td>
                                         <td colspan="3"></td>
-                                        <td></td>
+                                        <td><b>{{ number_format($openingBalance, 2)}}</b></td>
                                     </tr>
                                     @foreach ($sequence->programDetail as $detail)
                                         @php
                                             $netAmount = ($detail->total_carrying_bill + $detail->total_scale_fee) - $detail->total_advance;
                                             $totalFuelQty = optional($detail->advancePayment)->fuelqty ?? 0;
+                                            $openingBalance -= $netAmount;
                                         @endphp
                                         <tr>
                                             <td>{{ $sequence->created_at ? $sequence->created_at->format('Y-m-d') : '-' }}</td>
                                             <td>{{ optional($detail->motherVassel)->name ?? '-' }}</td>
                                             <td>{{ $detail->consignmentno ?? '-' }}</td>
                                             <td>{{ $detail->total_trip }}</td>
-                                            <td>{{ number_format($totalFuelQty, 2) }}</td>
                                             <td>{{ number_format($detail->total_qty, 2) }}</td>
                                             <td>{{ number_format($detail->total_carrying_bill, 2) }}</td>
                                             <td>{{ number_format($detail->total_scale_fee, 2) }}</td>
@@ -127,6 +142,38 @@
                                             <td>{{ number_format($netAmount, 2) }}</td>
                                         </tr>
                                     @endforeach
+
+                                    @foreach ($sequence->transaction as $transaction)
+                                        <tr>
+                                            <td>{{ $transaction->date ? \Carbon\Carbon::parse($transaction->date)->format('Y-m-d') : '-' }}</td>
+                                            <td colspan="5">{{ $transaction->description ?? '-' }} from {{ $transaction->account->type ?? '-' }}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{ number_format($transaction->at_amount, 2) }}</td>
+                                        </tr>
+                                        @php
+                                            $openingBalance += $transaction->at_amount;
+                                        @endphp
+                                    @endforeach
+
+
+                                    @php
+                                        $totals = $sequence->getAdvancePaymentTotals();
+                                    @endphp
+                                    <tr>
+                                        <td colspan="4"><b>Total fuel qty for {{ $sequence->unique_id }}</b></td>
+                                        <td>{{ number_format($totals['total_fuelqty'], 2) }}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="9"><b>Closing Balance:</b></td>
+                                        <td><b>{{ number_format($openingBalance, 2)}}</b></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>

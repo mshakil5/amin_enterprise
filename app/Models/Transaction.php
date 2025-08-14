@@ -30,6 +30,7 @@ class Transaction extends Model
         'description',
         'ref',
         'table_type',
+        'vendor_sequence_number_id',
         'chart_of_account_id',
         'bill_receive_id',
         'bill_number',

@@ -25,7 +25,7 @@ class VendorSequenceNumber extends Model
 
     public function programDetail()
     {
-        return $this->hasMany(ProgramDetail::class);
+        return $this->hasMany(ProgramDetail::class, 'vendor_sequence_number_id', 'id');
     }
 
     public function programDetailsCount()
@@ -36,5 +36,34 @@ class VendorSequenceNumber extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    
+
+    public function transaction()
+    {
+        return $this->hasMany(Transaction::class, 'vendor_sequence_number_id', 'id');
+    }
+
+    public function getAdvancePaymentTotals()
+    {
+        $totals = $this->programDetail()
+            ->with('advancePayment')
+            ->get()
+            ->reduce(function ($carry, $programDetail) {
+                $advancePayment = $programDetail->advancePayment;
+
+                return [
+                    'total_fuelqty' => $carry['total_fuelqty'] + ($advancePayment->fuelqty ?? 0),
+                    'total_fuelamount' => $carry['total_fuelamount'] + ($advancePayment->fuelamount ?? 0),
+                    'total_cashamount' => $carry['total_cashamount'] + ($advancePayment->cashamount ?? 0),
+                ];
+            }, [
+                'total_fuelqty' => 0,
+                'total_fuelamount' => 0,
+                'total_cashamount' => 0,
+            ]);
+
+        return $totals;
     }
 }

@@ -33,7 +33,7 @@ class VendorLedgerController extends Controller
             $totalBalance = $totalCrAmount - $totalDrAmount;
         }
 
-        $accountName = Vendor::find($id)->name ?? 'N/A';
+        $vendor = Vendor::where('id',$id)->first();
         $vendorStartBalance = 0;
 
         
@@ -60,6 +60,19 @@ class VendorLedgerController extends Controller
                         'fuelamount',
                         'cashamount'
                     );
+                },
+                'transaction' => function ($query) {
+                    $query->select(
+                        'id',
+                        'vendor_sequence_number_id',
+                        'program_detail_id',
+                        'date',
+                        'tran_type',
+                        'payment_type',
+                        'at_amount',
+                        'account_id',
+                        'description'
+                    );
                 }
             ])
             ->where('created_at', '>', $startDate)
@@ -67,9 +80,11 @@ class VendorLedgerController extends Controller
             ->orderBy('id', 'DESC')
             ->get();
 
+            // dd($vsequence);
 
 
-        return view('admin.accounts.ledger.vendor2', compact('data', 'totalBalance', 'accountName', 'id', 'vsequence'));
+
+        return view('admin.accounts.ledger.vendor2', compact('data', 'totalBalance', 'vendor', 'id', 'vsequence'));
     }
 
     public function calculateBalance()

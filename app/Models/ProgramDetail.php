@@ -84,7 +84,7 @@ class ProgramDetail extends Model
 
     public function advancePayment()
     {
-        return $this->hasOne(AdvancePayment::class);
+        return $this->hasOne(AdvancePayment::class, 'program_detail_id', 'id');
     }
 
     public function destination()
