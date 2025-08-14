@@ -87,7 +87,13 @@
         @foreach ($vsequence as $items)
         @foreach ($items->programDetail as $item)
             @php
-                $openingBalance -= $netAmount;
+                $netAmount = ($item->total_carrying_bill + $item->total_scale_fee) - $item->total_advance;
+                $openingBalance += $netAmount;
+            @endphp
+        @endforeach
+        @foreach ($items->transaction as $transaction)
+            @php
+                $openingBalance -= $transaction->at_amount;
             @endphp
         @endforeach
             
