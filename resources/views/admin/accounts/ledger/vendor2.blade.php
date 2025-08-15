@@ -5,7 +5,7 @@
     <div class="container-fluid">
         <div class="page-header"><a href="{{ url()->previous() }}" class="btn btn-secondary">Back</a></div>
         <div>
-            <p>Note: Positive balance Payable, Negative Balance Receivable. {{ $vendor->opening_balance }}</p>
+            <p>Note: Positive balance Payable, Negative Balance Receivable.</p>
         </div>
         <div class="row justify-content-md-center mt-2 d-none">
             <div class="col-md-12">
@@ -84,21 +84,6 @@
             $openingBalance = $vendor->opening_balance;
         @endphp
 
-        @foreach ($vsequence as $items)
-        @foreach ($items->programDetail as $item)
-            @php
-                $netAmount = ($item->total_carrying_bill + $item->total_scale_fee) - $item->total_advance;
-                $openingBalance += $netAmount;
-            @endphp
-        @endforeach
-        @foreach ($items->transaction as $transaction)
-            @php
-                $openingBalance -= $transaction->at_amount;
-            @endphp
-        @endforeach
-            
-        @endforeach
-
 
         @foreach ($vsequence as $sequence)
             <div class="row justify-content-md-center mt-2">
@@ -133,7 +118,7 @@
                                         @php
                                             $netAmount = ($detail->total_carrying_bill + $detail->total_scale_fee) - $detail->total_advance;
                                             $totalFuelQty = optional($detail->advancePayment)->fuelqty ?? 0;
-                                            $openingBalance -= $netAmount;
+                                            $openingBalance += $netAmount;
                                         @endphp
                                         <tr>
                                             <td>{{ $sequence->created_at ? $sequence->created_at->format('Y-m-d') : '-' }}</td>
@@ -159,7 +144,7 @@
                                             <td>{{ number_format($transaction->at_amount, 2) }}</td>
                                         </tr>
                                         @php
-                                            $openingBalance += $transaction->at_amount;
+                                            $openingBalance -= $transaction->at_amount;
                                         @endphp
                                     @endforeach
 

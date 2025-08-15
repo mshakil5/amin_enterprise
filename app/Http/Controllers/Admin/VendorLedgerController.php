@@ -77,7 +77,7 @@ class VendorLedgerController extends Controller
             ])
             ->where('created_at', '>', $startDate)
             ->where('vendor_id', $id)
-            ->orderBy('id', 'DESC')
+            ->orderBy('id', 'ASC')
             ->get();
 
             // dd($vsequence);
