@@ -96,10 +96,13 @@ class CashSheetController extends Controller
                 ->get()
                 ->groupBy('mother_vassel_id');
 
+        $incomes = Transaction::where('table_type', 'Income')
+            ->whereDate('date', $date)->where('tran_type', 'Current')->get();
+
 
 
         return view('admin.accounts.cash_sheet.index', compact(
-            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer'
+            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer','incomes'
         ));
     }
 
@@ -140,9 +143,20 @@ class CashSheetController extends Controller
             ->sum('amount');
 
         
+        $incomesInOfficeCash = Transaction::where('table_type', 'Income')
+            ->where('tran_type', 'Current')
+            ->where('account_id', 1)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
 
-        $totalDebitOfficeCash = $cashInHandOpening + $rcvLiabilitiesInOfficeCash + $debitTransferInOfficeCash; 
-        $totalDebitFieldCash = $cashInFieldOpening + $rcvLiabilitiesInFieldCash + $debitTransferInFieldCash;
+        $incomesInFieldCash = Transaction::where('table_type', 'Income')
+            ->where('tran_type', 'Current')
+            ->where('account_id', 2)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+        $totalDebitOfficeCash = $cashInHandOpening + $rcvLiabilitiesInOfficeCash + $debitTransferInOfficeCash + $incomesInOfficeCash; 
+        $totalDebitFieldCash = $cashInFieldOpening + $rcvLiabilitiesInFieldCash + $debitTransferInFieldCash + $incomesInFieldCash;
 
 
 

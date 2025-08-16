@@ -177,15 +177,41 @@
                                 @endphp
                                 @endforeach
 
+
+                                @foreach ($incomes as $income)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($income->date)->format('d-m-Y') }}</td>
+                                    <td>{{ $income->chartOfAccount->account_name ?? '' }} - {{ $income->description ?? '' }}</td>
+                                    <td >{{ $income->tran_id ?? '' }}</td>
+                                    <td ></td>
+                                    <td class="text-right">
+                                        @if ($income->payment_type === 'Cash')
+                                            {{ number_format($income->amount, 2) }}
+                                        @endif
+                                    </td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                    <td class="text-right"></td>
+                                </tr>
+                                    @php
+                                    if ($income->account_id === 1) {
+                                        $closingCashInField += $income->amount;
+                                    }
+                                    if ($income->account_id === 2) {
+                                        $closingCashInField += $income->amount;
+                                    }
+                                    @endphp
+                                @endforeach
+
                                 @php
-                                    $totalCashDebit = $cashInHandOpening + $cashInFieldOpening + $pettyCash + $liabilitiesInCash->sum('amount') + $suspenseAccount;
+                                    $totalCashDebit = $cashInHandOpening + $cashInFieldOpening + $pettyCash + $liabilitiesInCash->sum('amount') + $suspenseAccount + $incomes->sum('amount');
                                     $totalBankDebit = $liabilitiesInBank->sum('amount');
                                 @endphp
 
 
                                 <tr class="font-weight-bold">
                                     <td colspan="4">Total Receipts</td>
-                                    <td class="text-right">{{ number_format($liabilitiesInCash->sum('amount'), 2) }}</td>
+                                    <td class="text-right">{{ number_format($liabilitiesInCash->sum('amount') + $incomes->sum('amount'), 2) }}</td>
                                     <td class="text-right">{{ number_format($liabilitiesInBank->sum('amount'), 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
