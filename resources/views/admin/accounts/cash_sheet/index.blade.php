@@ -169,10 +169,10 @@
                                 </tr>
                                 @php
                                 if ($bankliability->account_id === 1) {
-                                    $closingBankInOffice += $bankliability->amount;
+                                    // $closingBankInOffice += $bankliability->amount;
                                 }
                                 if ($bankliability->account_id === 2) {
-                                    $closingBankInOffice += $bankliability->amount;
+                                    // $closingBankInOffice += $bankliability->amount;
                                 }
                                 @endphp
                                 @endforeach
@@ -365,7 +365,7 @@
                                         <td class="text-right">
                                             @if ($liability->payment_type === 'Bank')
                                                 @php $totalBankCredits += $liability->amount;
-                                                 $closingBankInOffice += $liability->amount;
+                                                //  $closingBankInOffice += $liability->amount;
                                                 @endphp
                                                 {{ number_format($liability->amount, 2) }}
                                             @endif
