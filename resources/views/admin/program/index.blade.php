@@ -122,10 +122,19 @@
                                   </a>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between">
-                                    <span>Vendor Wise Challan Posting:</span>
-                                  <a href="{{ route('challanPostingVendorReportshow') }}" class="btn btn-warning btn-xs">
+                                  {{-- <a href="{{ route('challanPostingVendorReportshow') }}" class="btn btn-warning btn-xs">
                                   <strong>{{ $data->before_challan_count ?? 0 }}</strong>
-                                  </a>
+                                  </a> --}}
+
+                                    <span>Vendor Wise Challan Posting:</span>
+                                  <form action="{{ route('challanPostingVendorReportshow') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="mv_id" value="{{$data->mother_vassel_id}}">
+                                    <button type="submit" class="btn btn-warning btn-xs">Check</button>
+                                  </form>
+
+
+
                                 </li>
                                 
 
