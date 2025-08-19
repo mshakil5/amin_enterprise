@@ -96,23 +96,23 @@
                             <table class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Mother Vessel</th>
-                                        <th>Con. No</th>
-                                        <th>Total Trip</th>
-                                        <th>Quantity</th>
-                                        <th>Amount</th>
-                                        <th>Scale Charge</th>
-                                        <th>Grand Total</th>
-                                        <th>Advance</th>
-                                        <th>Balance</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Mother Vessel</th>
+                                        <th class="text-center">Con. No</th>
+                                        <th class="text-center">Total Trip</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-center">Amount</th>
+                                        <th class="text-center">Scale Charge</th>
+                                        <th class="text-center">Grand Total</th>
+                                        <th class="text-center">Advance</th>
+                                        <th class="text-center">Balance</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td colspan="6"><b>Previous Balance</b></td>
                                         <td colspan="3"></td>
-                                        <td><b>{{ number_format($openingBalance, 2)}}</b></td>
+                                        <td class="text-right"><b>{{ number_format($openingBalance, 2)}}</b></td>
                                     </tr>
                                     @foreach ($sequence->programDetail as $detail)
                                         @php
@@ -130,7 +130,7 @@
                                             <td>{{ number_format($detail->total_scale_fee, 2) }}</td>
                                             <td>{{ number_format($detail->total_carrying_bill + $detail->total_scale_fee, 2) }}</td>
                                             <td>{{ number_format($detail->total_advance, 2) }}</td>
-                                            <td>{{ number_format($netAmount, 2) }}</td>
+                                            <td class="text-right">{{ number_format($netAmount, 2) }}</td>
                                         </tr>
                                     @endforeach
 
@@ -141,7 +141,7 @@
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td>{{ number_format($transaction->at_amount, 2) }}</td>
+                                            <td class="text-right">{{ number_format($transaction->at_amount, 2) }}</td>
                                         </tr>
                                         @php
                                             $openingBalance -= $transaction->at_amount;
@@ -153,8 +153,8 @@
                                         $totals = $sequence->getAdvancePaymentTotals();
                                     @endphp
                                     <tr>
-                                        <td colspan="4"><b>Total fuel qty for {{ $sequence->unique_id }}</b></td>
-                                        <td>{{ number_format($totals['total_fuelqty'], 2) }}</td>
+                                        <td colspan="4"><b>Total fuel qty for {{ $sequence->unique_id }}:  ({{ $totals['total_fuelqty'] }} ltr) </b></td>
+                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -163,7 +163,7 @@
                                     </tr>
                                     <tr>
                                         <td colspan="9"><b>Closing Balance:</b></td>
-                                        <td><b>{{ number_format($openingBalance, 2)}}</b></td>
+                                        <td class="text-right"><b>{{ number_format($openingBalance, 2)}}</b></td>
                                     </tr>
                                 </tbody>
                             </table>
