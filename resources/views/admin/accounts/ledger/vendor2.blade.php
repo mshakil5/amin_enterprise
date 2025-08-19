@@ -192,5 +192,9 @@
             "lengthMenu": [[100, -1, 50, 25], [100, "All", 50, 25]]
         }).buttons().container().appendTo('#dataTransactionsTable_wrapper .col-md-6:eq(0)');
     });
+
+    window.onload = function () {
+        window.scrollTo(0, document.body.scrollHeight);
+    };
 </script>
 @endsection

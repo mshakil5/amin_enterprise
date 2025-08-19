@@ -99,6 +99,7 @@ class VendorController extends Controller
         $data->email = $request->email;
         $data->address = $request->address;
         $data->company = $request->company;
+        $data->opening_balance = $request->opening_balance;
         $data->updated_by = Auth::user()->id;
         if ($data->save()) {
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Updated Successfully.</b></div>";

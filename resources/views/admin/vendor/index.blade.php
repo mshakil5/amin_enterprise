@@ -92,6 +92,10 @@
                       </div>
                     </div>
 
+                    <div  class="col-sm-12" id="PreBlanace">
+                      
+                    </div>
+
 
 
 
@@ -366,17 +370,6 @@
       "buttons": ["copy", "csv", "excel", "pdf", "print"],
       "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-    $('#example2').DataTable({
-      "paging": true,
-      "lengthChange": false,
-      "searching": false,
-      "ordering": true,
-      "info": true,
-      "autoWidth": false,
-      "responsive": true,
-    });
-
-
 
   });
 
@@ -426,6 +419,7 @@
       $("#addThisFormContainer").hide();
       $("#newBtn").click(function(){
           clearform();
+          $("#PreBlanace").html('');
           $("#newBtn").hide(100);
           $("#addThisFormContainer").show(300);
 
@@ -479,6 +473,7 @@
               form_data.append("email", $("#email").val());
               form_data.append("address", $("#address").val());
               form_data.append("company", $("#company").val());
+              form_data.append("opening_balance", $("#opening_balance").val());
               form_data.append("codeid", $("#codeid").val());
               
               $.ajax({
@@ -550,6 +545,7 @@
           $("#codeid").val(data.id);
           $("#addBtn").val('Update');
           $("#addBtn").html('Update');
+          $("#PreBlanace").html('<div class="form-group"><label>Starting Balance (Date: 2025-07-20)</label><input type="number" class="form-control" id="opening_balance" name="opening_balance" value="' + data.opening_balance + '"></div>');
           $("#addThisFormContainer").show(300);
           $("#newBtn").hide(100);
       }
