@@ -238,7 +238,10 @@
                                 @foreach ($sequence->transaction as $transaction)
                                     <tr>
                                         <td>{{ $transaction->date ? \Carbon\Carbon::parse($transaction->date)->format('Y-m-d') : '-' }}</td>
-                                        <td colspan="5">{{ $transaction->description ?? '-' }} from {{ $transaction->account->type ?? '-' }}</td>
+                                        <td colspan="5">{{ $transaction->description ?? '-' }} from {{ $transaction->account->type ?? '-' }}
+                                            <br>
+                                            {{ $transaction->note ?? '-' }}
+                                        </td>
                                         <td></td>
                                         <td></td>
                                         <td></td>

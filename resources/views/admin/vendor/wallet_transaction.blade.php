@@ -95,7 +95,7 @@
                                                 <td> {{ $key + 1 }} </td>
                                                 <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
                                                 <td>
-                                                    {{ $data->description }} 
+                                                    {{ $data->description }} {{ $data->note }} 
                                                 </td>
                                                 <td>
                                                     {{$data->vendorSequenceNumber->unique_id ?? ""}}
