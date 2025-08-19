@@ -215,11 +215,28 @@
                                     <td class="text-right"><b>{{ number_format($openingBalance, 2)}}</b></td>
                                 </tr>
 
+                                @php
+                                    $sum_total_trip = 0;
+                                    $sum_total_qty = 0;
+                                    $sum_total_carrying_bill = 0;
+                                    $sum_total_scale_fee = 0;
+                                    $sum_grand_total = 0;
+                                    $sum_total_advance = 0;
+                                    $sum_net_amount = 0;
+                                @endphp
                                 @foreach ($sequence->programDetail as $detail)
                                     @php
                                         $netAmount = ($detail->total_carrying_bill + $detail->total_scale_fee) - $detail->total_advance;
                                         $totalFuelQty = optional($detail->advancePayment)->fuelqty ?? 0;
                                         $openingBalance += $netAmount;
+
+                                        $sum_total_trip += $detail->total_trip;
+                                        $sum_total_qty += $detail->total_qty;
+                                        $sum_total_carrying_bill += $detail->total_carrying_bill;
+                                        $sum_total_scale_fee += $detail->total_scale_fee;
+                                        $sum_grand_total += ($detail->total_carrying_bill + $detail->total_scale_fee);
+                                        $sum_total_advance += $detail->total_advance;
+                                        $sum_net_amount += $netAmount;
                                     @endphp
                                     <tr>
                                         <td>{{ $sequence->created_at ? $sequence->created_at->format('Y-m-d') : '-' }}</td>
@@ -234,6 +251,18 @@
                                         <td class="text-right">{{ number_format($netAmount, 2) }}</td>
                                     </tr>
                                 @endforeach
+
+                                <tr>
+                                    <td></td>
+                                    <td colspan="2"><b>Total:</b></td>
+                                    <td class="text-center"><b>{{ $sum_total_trip }}</b></td>
+                                    <td class="text-right"><b>{{ number_format($sum_total_qty, 2) }}</b></td>
+                                    <td class="text-right"><b>{{ number_format($sum_total_carrying_bill, 2) }}</b></td>
+                                    <td class="text-right"><b>{{ number_format($sum_total_scale_fee, 2) }}</b></td>
+                                    <td class="text-right"><b>{{ number_format($sum_grand_total, 2) }}</b></td>
+                                    <td class="text-right"><b>{{ number_format($sum_total_advance, 2) }}</b></td>
+                                    <td class="text-right"><b>{{ number_format($sum_net_amount, 2) }}</b></td>
+                                </tr>
 
                                 @foreach ($sequence->transaction as $transaction)
                                     <tr>
