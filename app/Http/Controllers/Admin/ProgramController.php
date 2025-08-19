@@ -61,6 +61,9 @@ class ProgramController extends Controller
             'programDetail as before_challan_count' => function ($query) {
                 $query->whereNull('headerid');
             },
+            'programDetail as not_twelve_mt' => function ($query) {
+                $query->where('dest_qty', '!=', 12);
+            },
             
         ])->where('status', 1)->orderby('id','DESC')->get();
 
@@ -83,10 +86,15 @@ class ProgramController extends Controller
             $after_challan = 1;
         } elseif ($type == 'before_challan') {
             $after_challan = 0;
+        } elseif ($type == 'twelve_mt') {
+            $dest_qty = 0;
         }
 
         $data = Program::with([
-            'programDetail' => function ($query) use ($generate_bill, $after_challan) {
+            'programDetail' => function ($query) use ($generate_bill, $after_challan, $dest_qty) {
+                if (!is_null($dest_qty)) {
+                    $query->where('dest_qty', '!=', 12);
+                }
                 if (!is_null($generate_bill)) {
                     $query->where('generate_bill', $generate_bill);
                 }
@@ -242,32 +250,54 @@ class ProgramController extends Controller
             // CHALLAN RATE backup
             foreach ($program_details as $key => $pdtls) {
 
-                if($pdtls->ghat_id == Null || $pdtls->destination_id == Null ){
+                if ($pdtls->ghat_id == null || $pdtls->destination_id == null) {
                     continue;
                 }
 
-                $chkrate = DestinationSlabRate::where('ghat_id', $pdtls->ghat_id)->where('destination_id', $pdtls->destination_id)->first();
+                $chkrate = DestinationSlabRate::where('ghat_id', $pdtls->ghat_id)
+                    ->where('destination_id', $pdtls->destination_id)
+                    ->first();
 
-                $oldQty = ChallanRate::where('program_detail_id', $pdtls->id)->where('challan_no', $pdtls->challan_no)->first();
+                $oldQty = ChallanRate::where('program_detail_id', $pdtls->id)
+                    ->where('challan_no', $pdtls->challan_no)
+                    ->first();
 
                 if (!$chkrate) {
                     DB::rollBack();
+                    Log::error("Rate not found", [
+                        'program_detail_id' => $pdtls->id,
+                        'ghat_id' => $pdtls->ghat_id,
+                        'destination_id' => $pdtls->destination_id
+                    ]);
                     return response()->json(['status' => 400,'error' => 'Rate not found for ghat and destination'], 500);
                 }
+
+                if (!$oldQty) {
+                    DB::rollBack();
+                    Log::error("ChallanRate not found", [
+                        'program_detail_id' => $pdtls->id,
+                        'challan_no' => $pdtls->challan_no
+                    ]);
+                    // return response()->json(['status' => 400,'error' => 'ChallanRate not found for program_detail_id '.$pdtls->id], 500);
+                    continue;
+                }
+
                 $oldData[] = [
-                    'program_id' => $programId, 
-                    // 'ghat_id' => $pdtls->ghat_id, 
-                    // 'destination_id' => $pdtls->destination_id, 
-                    'program_detail_id' => $pdtls->id, 
-                    'challan_no' => $pdtls->challan_no, 
+                    'program_id' => $programId,
+                    'program_detail_id' => $pdtls->id,
+                    'challan_no' => $pdtls->challan_no,
                     'rate_per_unit' => $chkrate->below_rate_per_qty,
                     'qty' => $oldQty->qty,
                     'total' => $oldQty->qty * $chkrate->below_rate_per_qty,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
-                
+
+                Log::error("oldData not found", [
+                        'oldData' => $oldData
+                    ]);
             }
+
 
             // Bulk insert new records
             if (!empty($oldData)) {

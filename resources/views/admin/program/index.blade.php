@@ -132,9 +132,12 @@
                                     <input type="hidden" name="mv_id" value="{{$data->mother_vassel_id}}">
                                     <button type="submit" class="btn btn-warning btn-xs">Check</button>
                                   </form>
-
-
-
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Not twelve MT count:</span>
+                                  <a href="{{ route('admin.programDetail', [$data->id, 'twelve_mt']) }}" class="btn btn-warning btn-xs">
+                                  <strong>{{ $data->not_twelve_mt ?? 0 }}</strong>
+                                  </a>
                                 </li>
                                 
 

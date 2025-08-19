@@ -1041,7 +1041,10 @@ $(document).ready(function () {
 
     // change qty
     $('#qtyBtn').click(function() {
-        // console.log('work');
+
+        $(this).attr('disabled', true);
+          $('#loader').show();
+        
         var newQty = $('#newQty').val();
         var program_id = $('#program_id').val();
 
@@ -1058,7 +1061,11 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                // console.log(response);
+                
+                $(this).attr('disabled', false);
+                $('#loader').hide();
+                console.log(response);
+
                 if (response.status == 200) {
                     alert('Quantity updated successfully');
                     location.reload();
@@ -1076,7 +1083,8 @@ $(document).ready(function () {
     });
 
     $('#undoBtn').click(function() {
-
+            $(this).attr('disabled', true);
+            $('#loader').show();
         var program_id = $('#program_id').val();
 
         $.ajax({
