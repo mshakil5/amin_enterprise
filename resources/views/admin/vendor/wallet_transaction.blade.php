@@ -74,6 +74,7 @@
                                             <th>Sl</th>
                                             <th>Date</th>
                                             <th>Description</th>
+                                            <th>Sequence ID</th>
                                             <th>Type</th>
                                             <th>Voucher</th>                        
                                             <th>Challan#</th>                            
@@ -95,6 +96,9 @@
                                                 <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
                                                 <td>
                                                     {{ $data->description }} 
+                                                </td>
+                                                <td>
+                                                    {{$data->vendorSequenceNumber->unique_id ?? ""}}
                                                 </td>
                                                 <td>
                                                     {{ $data->tran_type }} {{ $data->payment_type }} 

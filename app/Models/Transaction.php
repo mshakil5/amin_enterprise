@@ -156,4 +156,13 @@ class Transaction extends Model
         return $increase - $decrease;
     }
     
+
+    public function vendorSequenceNumber()
+    {
+        return $this->belongsTo(VendorSequenceNumber::class);
+    }
+
+
+
+
 }
