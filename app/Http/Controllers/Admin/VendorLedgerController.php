@@ -71,6 +71,7 @@ class VendorLedgerController extends Controller
                         'payment_type',
                         'at_amount',
                         'account_id',
+                        'note',
                         'description'
                     );
                 }
