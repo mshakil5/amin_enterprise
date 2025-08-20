@@ -140,7 +140,6 @@ class CashSheetController extends Controller
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
 
-            dd( $debitTransferInOfficeCash, $debitTransferInFieldCash);
 
         
         $incomesInOfficeCash = Transaction::where('table_type', 'Income')

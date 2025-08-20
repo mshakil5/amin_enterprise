@@ -156,10 +156,16 @@
                   <th>Description</th>
                   <th>Payment type</th>
                   <th>Tran type</th>
-                  <th>Amount</th>
+                  <th>Amount IN</th>
+                  <th>Amount Out</th>
                 </tr>
                 </thead>
                 <tbody>
+
+                  @php
+                      $totalIN = 0;
+                      $totalOut = 0;
+                  @endphp
                   
                   @foreach ($transactions as $item)
                       <tr>
@@ -169,11 +175,30 @@
                         <td>{{$item->description}}</td>
                         <td>{{$item->payment_type}}</td>
                         <td>{{$item->tran_type}}</td>
-                        <td>{{$item->amount}}</td>
+                        @if ($item->tran_type == 'TransferIn')
+                          <td>{{$item->amount}}</td>
+                          <td></td>
+                          @php
+                              $totalIN += $item->amount;
+                          @endphp
+                        @else
+                          <td></td>
+                          <td>{{$item->amount}}</td>
+                          @php
+                              $totalOut += $item->amount;
+                          @endphp
+                        @endif
                       </tr>
                   @endforeach
                 
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6"></td>
+                    <td>{{$totalIN}}</td>
+                    <td>{{$totalOut}}</td>
+                  </tr>
+                </tfoot>
               </table>
 
             </div>
