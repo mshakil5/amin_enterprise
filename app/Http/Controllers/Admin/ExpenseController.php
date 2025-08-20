@@ -81,6 +81,10 @@ class ExpenseController extends Controller
             return response()->json(['status' => 303, 'message' => 'Transaction Type Field Is Required..!']);
         }
 
+        if (empty($request->account_id)) {
+            return response()->json(['status' => 303, 'message' => 'Account Field Is Required..!']);
+        }
+
         if ($request->transaction_type !== 'Prepaid Adjust' && empty($request->payment_type)) {
             return response()->json(['status' => 303, 'message' => 'Payment Type Field Is Required..!']);
         }
@@ -166,6 +170,10 @@ class ExpenseController extends Controller
 
         if (empty($request->transaction_type)) {
             return response()->json(['status' => 303, 'message' => 'Transaction Type Field Is Required..!']);
+        }
+
+        if (empty($request->account_id)) {
+            return response()->json(['status' => 303, 'message' => 'Account Field Is Required..!']);
         }
 
         if ($request->transaction_type !== 'Prepaid Adjust' && empty($request->payment_type)) {

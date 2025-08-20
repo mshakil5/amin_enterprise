@@ -60,12 +60,13 @@ class CashSheetController extends Controller
 
         $totalReceipts = $liabilitiesInCash->sum('amount') + $liabilitiesInBank->sum('amount');
 
-        // todays liability payments
+        // liability payments
 
         $liabilitiesPaymentInCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Payment')
             ->where('payment_type', 'Cash')
+            ->where('account_id', 1)
             ->whereDate('date', $date)
             ->get();
 
@@ -73,6 +74,7 @@ class CashSheetController extends Controller
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Payment')
             ->where('payment_type', 'Bank')
+            ->where('account_id', 1)
             ->whereDate('date', $date)
             ->get();
 
@@ -118,7 +120,7 @@ class CashSheetController extends Controller
         $suspenseAccount = 94599;
         $pettyCash = 5000.00;
 
-        // Query transactions for the previous day
+        // Query transactions for the current day
         $rcvLiabilitiesInOfficeCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Received')
@@ -139,7 +141,6 @@ class CashSheetController extends Controller
         $debitTransferInFieldCash = Transaction::where('tran_type', 'TransferIn')->where('account_id', 2)
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
-
 
         
         $incomesInOfficeCash = Transaction::where('table_type', 'Income')
@@ -169,14 +170,13 @@ class CashSheetController extends Controller
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
 
-
-        // previous liabilities payment
         $pmtLiabilitiesInOfficeCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Payment')
             ->where('account_id', 1)
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
+
         $pmtLiabilitiesInFieldCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Payment')
@@ -217,8 +217,9 @@ class CashSheetController extends Controller
         $previousCashInOfficeClosing = $totalDebitOfficeCash - $totalCreditOfficeCash;
         $previousCashInFieldClosing = $totalDebitFieldCash - $totalCreditFieldCash;
 
-        // dd($totalDebitFieldCash, $totalCreditFieldCash);
+        // dd($previousCashInOfficeClosing, $previousCashInFieldClosing);
 
+        // 18,46,864.0     4,97,030.0 
 
         return [
             'previousCashInOfficeClosing' => $previousCashInOfficeClosing,
@@ -229,5 +230,100 @@ class CashSheetController extends Controller
         
     }
 
+    public function downloadExcel(Request $request)
+    {
+        try {
+            $expectedDate = $request->searchDate
+                ? \Carbon\Carbon::parse($request->searchDate)->subDay()->toDateString()
+                : now()->subDay(2)->toDateString();
+            $date = $request->searchDate ?? now()->subDay()->toDateString();
 
+            if (\Carbon\Carbon::parse($expectedDate)->lt(\Carbon\Carbon::parse('2025-07-20'))) {
+                $expectedDate = '2025-07-20';
+            }
+
+            $previousBalance = $this->cashSheetPreviousBalance($expectedDate);
+            $cashInHandOpening = floatval($previousBalance['previousCashInOfficeClosing'] ?? 0);
+            $cashInFieldOpening = floatval($previousBalance['previousCashInFieldClosing'] ?? 0);
+            $suspenseAccount = 94599.00;
+            $pettyCash = 5000.00;
+
+            $liabilitiesInCash = Transaction::with('chartOfAccount')
+                ->where('table_type', 'Liabilities')
+                ->where('tran_type', 'Received')
+                ->where('payment_type', 'Cash')
+                ->whereDate('date', $date)
+                ->get();
+
+            $liabilitiesInBank = Transaction::with('chartOfAccount')
+                ->where('table_type', 'Liabilities')
+                ->where('tran_type', 'Received')
+                ->where('payment_type', 'Bank')
+                ->whereDate('date', $date)
+                ->get();
+
+            $debitTransfer = Transaction::where('tran_type', 'TransferIn')
+                ->whereDate('date', $date)->get();
+
+            $creditTransfer = Transaction::where('tran_type', 'TransferOut')
+                ->whereDate('date', $date)->get();
+
+            $liabilitiesPaymentInCash = Transaction::with('chartOfAccount')
+                ->where('table_type', 'Liabilities')
+                ->where('tran_type', 'Payment')
+                ->where('payment_type', 'Cash')
+                ->where('account_id', 1)
+                ->whereDate('date', $date)
+                ->get();
+
+            $liabilitiesPaymentInBank = Transaction::with('chartOfAccount')
+                ->where('table_type', 'Liabilities')
+                ->where('tran_type', 'Payment')
+                ->where('payment_type', 'Bank')
+                ->where('account_id', 1)
+                ->whereDate('date', $date)
+                ->get();
+
+            $expenses = Transaction::with('chartOfAccount')
+                ->whereIn('table_type', ['Expenses', 'Expense', 'Cogs'])
+                ->whereDate('date', $date)
+                ->get();
+
+            $vendorAdvances = Transaction::with(['motherVassel', 'programDetail'])
+                ->where([
+                    ['tran_type', 'Advance'],
+                    ['payment_type', 'Cash'],
+                ])
+                ->whereHas('programDetail', function ($query) use ($date) {
+                    $query->whereDate('date', $date);
+                })
+                ->get()
+                ->groupBy('mother_vassel_id');
+
+            $data = [
+                'date' => $date,
+                'cashInHandOpening' => $cashInHandOpening,
+                'cashInFieldOpening' => $cashInFieldOpening,
+                'pettyCash' => $pettyCash,
+                'suspenseAccount' => $suspenseAccount,
+                'liabilitiesInCash' => $liabilitiesInCash,
+                'liabilitiesInBank' => $liabilitiesInBank,
+                'totalReceipts' => $liabilitiesInCash->sum('amount') + $liabilitiesInBank->sum('amount'),
+                'expenses' => $expenses,
+                'totalExpenses' => $expenses->sum('amount'),
+                'vendorAdvances' => $vendorAdvances,
+                'liabilitiesPaymentInCash' => $liabilitiesPaymentInCash,
+                'liabilitiesPaymentInBank' => $liabilitiesPaymentInBank,
+                'debitTransfer' => $debitTransfer,
+                'creditTransfer' => $creditTransfer,
+                'totalBankCredits' => 0,
+            ];
+
+
+            return Excel::download(new CashSheetExport($data), 'Cash_Sheet_' . $date . '.xlsx');
+        } catch (\Exception $e) {
+            // \Log::error('Excel Export Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to generate Excel file.'], 500);
+        }
+    }
 }
