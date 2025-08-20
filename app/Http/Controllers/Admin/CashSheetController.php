@@ -140,6 +140,8 @@ class CashSheetController extends Controller
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
 
+            dd( $debitTransferInOfficeCash, $debitTransferInFieldCash);
+
         
         $incomesInOfficeCash = Transaction::where('table_type', 'Income')
             ->where('tran_type', 'Current')
@@ -216,9 +218,8 @@ class CashSheetController extends Controller
         $previousCashInOfficeClosing = $totalDebitOfficeCash - $totalCreditOfficeCash;
         $previousCashInFieldClosing = $totalDebitFieldCash - $totalCreditFieldCash;
 
-        // dd($previousCashInOfficeClosing, $previousCashInFieldClosing);
+        // dd($totalDebitFieldCash, $totalCreditFieldCash);
 
-        // 18,46,864.0     4,97,030.0 
 
         return [
             'previousCashInOfficeClosing' => $previousCashInOfficeClosing,

@@ -414,7 +414,7 @@
                                     <td></td>
                                     <td></td>
                                     <td class="text-right text-bold text-success">{{ number_format($closingCashInOffice, 2) }}</td>
-                                    <td class="text-right text-bold text-success">{{ number_format($closingBankInOffice, 2) }}</td>
+                                    <td class="text-right text-bold text-success"></td>
                                 </tr>
                                 <tr>
                                     <td>{{ $date }}</td>
@@ -452,7 +452,7 @@
                                 @php
                                     $netCashCredit = $closingCashInOffice + $closingCashInField + $pettyCash + $suspenseAccount + $totalCashCredits;
 
-                                    $netBankCredit = $closingBankInOffice + $totalBankCredits; 
+                                    $netBankCredit = $totalBankCredits; 
 
                                 @endphp
 

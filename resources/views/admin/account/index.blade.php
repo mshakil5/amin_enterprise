@@ -130,6 +130,65 @@
 </section>
 <!-- /.content -->
 
+
+<!-- Main content -->
+<section class="content pt-3">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <!-- /.card -->
+
+          <div class="card card-secondary">
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row mt-5">
+                  <div class="col-12 text-center">
+                    <h3>All transfer transaction </h3>
+                  </div>
+                </div>
+
+              <table id="example2" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Trn ID</th>
+                  <th>Description</th>
+                  <th>Payment type</th>
+                  <th>Tran type</th>
+                  <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                  
+                  @foreach ($transactions as $item)
+                      <tr>
+                        <td>{{$item->id}}</td>
+                        <td>{{$item->date}}</td>
+                        <td>{{$item->tran_id}}</td>
+                        <td>{{$item->description}}</td>
+                        <td>{{$item->payment_type}}</td>
+                        <td>{{$item->tran_type}}</td>
+                        <td>{{$item->amount}}</td>
+                      </tr>
+                  @endforeach
+                
+                </tbody>
+              </table>
+
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
 <!-- Add this modal at the bottom of your view file -->
 <div class="modal fade" id="transferModal" tabindex="-1" role="dialog" aria-labelledby="transferModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
