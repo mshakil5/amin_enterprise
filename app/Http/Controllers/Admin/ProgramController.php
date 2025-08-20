@@ -77,6 +77,7 @@ class ProgramController extends Controller
 
         $generate_bill = null;
         $after_challan = null;
+        $dest_qty = null;
 
         if ($type == 'bill_generated') {
             $generate_bill = 1;
