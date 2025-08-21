@@ -55,12 +55,11 @@ class ProgramDetail extends Model
         'deleted_at',
     ];
 
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logAll()
-            ->logOnlyDirty()
+            // ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->logExcept(['updated_at'])
             ->setDescriptionForEvent(fn(string $eventName) => "Program detail was {$eventName}")
