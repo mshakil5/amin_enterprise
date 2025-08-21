@@ -2,53 +2,9 @@
 
 @section('content')
 
-@if (!isset($motherVassel))
-<section class="content pt-3" id="contentContainer">
-    <div class="container-fluid">
-        <div class="row justify-content-md-center">
-            <div class="col-md-6">
-                <div class="card card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title" id="cardTitle">Trial Balance</h3>
-                    </div>
-                              
-                    <div class="card-body">
-                      <div class="ermsg"> </div>
-                      <form action="{{ route('admin.trialBalance') }}" method="POST">
-                          @csrf
-                  
-                          <div class="form-row">
-                              <div class="form-group col-md-6">
-                                  <label for="mv_id">Mother Vassel</label>
-                                  <select name="mv_id" id="mv_id" class="form-control select2">
-                                      <option value="">Select</option>
-                                      @foreach ($mvassels as $mvassel)
-                                          <option value="{{ $mvassel->id }}" {{ isset($selectedId) && $selectedId == $mvassel->id ? 'selected' : '' }}>
-                                              {{ $mvassel->name }}
-                                          </option>
-                                      @endforeach
-                                  </select>
-                              </div>
-                  
-                              <div class="form-group col-md-6 d-flex align-items-end">
-                                  <button type="submit" class="btn btn-secondary">Check</button>
-                              </div>
-                          </div>
-                      </form>
-                    </div>
-                  
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-@endif
-
-@if (isset($motherVassel))
-
 <section class="content pt-3" id="contentContainer">
   <div class="container-fluid">
-      <div class="page-header d-flex justify-content-between">
+      <div class="page-header d-flex justify-content-between align-items-center">
           <a href="{{ url()->previous() }}" class="btn btn-secondary mb-2">Back</a>
           <button onclick="window.print();" class="btn btn-info mb-2">Print</button>
       </div>
@@ -56,97 +12,175 @@
       <div class="row print-area">
           <div class="col-12">
               <div class="card card-secondary">
-
                   <div class="card-body">
-                      <h1 class="text-center">Amin Enterprise-BSRM Program</h1>
-                      <h3 class="text-center">Trial Balance</h3>
-                      <h3 class="text-center">Mother Vessel-{{ $motherVassel->name }}</h3>
-                      <div class="card card-primary mt-3">
-                          <table class="table table-bordered table-hover">
-                              <thead>
+
+                      {{-- ===== Header ===== --}}
+                      <h2 class="text-center mb-0">Amin Enterprise - BSRM Program</h2>
+                      <h4 class="text-center mb-0">Trial Balance</h4>
+                      <p class="text-center">As on {{ now()->format('d M, Y') }}</p>
+
+                      {{-- ===== Trial Balance Table ===== --}}
+                      <div class="table-responsive mt-3">
+                          <table class="table table-bordered table-striped">
+                              <thead class="thead-dark text-center">
                                   <tr>
-                                      <th>Acc Code</th>
+                                      <th style="width: 120px;">Acc Code</th>
                                       <th>Particulars</th>
-                                      <th>Dr.</th>
-                                      <th>Cr.</th>
+                                      <th style="width: 150px;">Debit (Dr.)</th>
+                                      <th style="width: 150px;">Credit (Cr.)</th>
                                   </tr>
                               </thead>
                               <tbody>
 
-                                  <tr>
+                                  {{-- ===== Assets Section ===== --}}
+                                  <tr class="table-secondary">
                                       <td></td>
-                                      <td class="text-bold">Openings</td>
-                                      <td></td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td></td>
-                                      <td>Cash</td>
-                                      <td></td>
-                                      <td>0</td>
-                                  </tr>
-                                  <tr>
-                                      <td></td>
-                                      <td>Bank</td>
-                                      <td></td>
-                                      <td>0</td>
-                                  </tr>
-                                  <tr>
-                                      <td></td>
-                                      <td class="text-bold">NON CURRENT ASSETS</td>
-                                      <td></td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td></td>
-                                      <td class="text-bold">INVESTMENTS</td>
-                                      <td></td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td></td>
-                                      <td class="text-bold">CURRENT ASSETS</td>
-                                      <td></td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td></td>
-                                      <td>Receivables from BSRM</td>
-                                      <td>2529680</td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td></td>
-                                      <td></td>
+                                      <td class="text-bold">ASSETS</td>
                                       <td></td>
                                       <td></td>
                                   </tr>
 
-                                  <tr>
+                                  {{-- Fixed Assets --}}
+                                  <tr class="table-light">
                                       <td></td>
-                                      <td>EXPENSES</td>
+                                      <td class="text-bold pl-3">Fixed Assets</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>101</td>
+                                      <td class="pl-5">Land & Building</td>
+                                      <td>1,000,000</td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>102</td>
+                                      <td class="pl-5">Furniture & Equipment</td>
+                                      <td>200,000</td>
+                                      <td></td>
+                                  </tr>
+
+                                  {{-- Current Assets --}}
+                                  <tr class="table-light">
+                                      <td></td>
+                                      <td class="text-bold pl-3">Current Assets</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>103</td>
+                                      <td class="pl-5">Cash</td>
+                                      <td>50,000</td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>104</td>
+                                      <td class="pl-5">Bank</td>
+                                      <td>100,000</td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>105</td>
+                                      <td class="pl-5">Receivables from BSRM</td>
+                                      <td>2,529,680</td>
+                                      <td></td>
+                                  </tr>
+
+                                  {{-- ===== Liabilities Section ===== --}}
+                                  <tr class="table-secondary">
+                                      <td></td>
+                                      <td class="text-bold">LIABILITIES</td>
                                       <td></td>
                                       <td></td>
                                   </tr>
 
-                                  @foreach ($expenses as $expense)
-                                    <tr>
-                                        <td></td>
-                                        <td>{{ $expense->chartOfAccount->account_name }}</td>
-                                        <td></td>
-                                        <td>{{ $expense->amount }}</td>
-                                    </tr>
-                                  @endforeach
-
-                                  <tr>
+                                  {{-- Long-Term Liabilities --}}
+                                  <tr class="table-light">
+                                      <td></td>
+                                      <td class="text-bold pl-3">Long-Term Liabilities</td>
                                       <td></td>
                                       <td></td>
-                                      <td><strong> 50000 </strong></td>
-                                      <td><strong>10000</strong></td>
                                   </tr>
+                                  <tr>
+                                      <td>201</td>
+                                      <td class="pl-5">Bank Loan</td>
+                                      <td></td>
+                                      <td>500,000</td>
+                                  </tr>
+
+                                  {{-- Short-Term Liabilities --}}
+                                  <tr class="table-light">
+                                      <td></td>
+                                      <td class="text-bold pl-3">Short-Term Liabilities</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>202</td>
+                                      <td class="pl-5">Accounts Payable</td>
+                                      <td></td>
+                                      <td>200,000</td>
+                                  </tr>
+
+                                  {{-- ===== Equity Section ===== --}}
+                                  <tr class="table-secondary">
+                                      <td></td>
+                                      <td class="text-bold">EQUITY / CAPITAL</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>301</td>
+                                      <td class="pl-5">Owner’s Equity</td>
+                                      <td></td>
+                                      <td>1,000,000</td>
+                                  </tr>
+
+                                  {{-- ===== Income Section ===== --}}
+                                  <tr class="table-secondary">
+                                      <td></td>
+                                      <td class="text-bold">INCOME / REVENUE</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>401</td>
+                                      <td class="pl-5">Sales Revenue</td>
+                                      <td></td>
+                                      <td>750,000</td>
+                                  </tr>
+
+                                  {{-- ===== Expenses Section ===== --}}
+                                  <tr class="table-secondary">
+                                      <td></td>
+                                      <td class="text-bold">EXPENSES</td>
+                                      <td></td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>501</td>
+                                      <td class="pl-5">Operating Expenses</td>
+                                      <td>100,000</td>
+                                      <td></td>
+                                  </tr>
+                                  <tr>
+                                      <td>502</td>
+                                      <td class="pl-5">Salaries & Wages</td>
+                                      <td>150,000</td>
+                                      <td></td>
+                                  </tr>
+
                               </tbody>
+                              <tfoot>
+                                  <tr class="table-dark text-bold text-center">
+                                      <td colspan="2" class="text-right">TOTAL</td>
+                                      <td>4,129,680</td>
+                                      <td>2,450,000</td>
+                                  </tr>
+                              </tfoot>
                           </table>
                       </div>
+
                   </div>
               </div>
           </div>
@@ -154,37 +188,7 @@
   </div>
 </section>
 
-<style>
-  @media print {
-      body * {
-          visibility: hidden;
-      }
-      .print-area, .print-area * {
-          visibility: visible;
-      }
-      .print-area {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-      }
-  
-      .no-print {
-          display: none !important;
-      }
-  
-      body {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          font-size: 12px;
-      }
-  }
-  </style>
-    
-@endif
-
 @endsection
 
 @section('script')
-
 @endsection

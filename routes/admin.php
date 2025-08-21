@@ -319,8 +319,6 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // pl statement
     Route::get('profit-statement', [PLStatementController::class, 'profitAndLossStatement'])->name('admin.profitAndLossStatement');
 
-    // Trial balance
-    Route::match(['get', 'post'], 'trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
 
     Route::get('cash-sheet', [CashSheetController::class, 'cashSheet'])->name('admin.cashSheet');
     Route::post('cash-sheet', [CashSheetController::class, 'cashSheet'])->name('admin.cashSheet.Search');
@@ -342,6 +340,10 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
 
     Route::get('program-detail-logs', [ProgramController::class, 'programDetailLogs'])->name('program.detail.logs');
+
+    
+    // Trial balance
+    Route::get('trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
 
 });
   
