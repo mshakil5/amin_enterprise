@@ -1951,7 +1951,7 @@ class ProgramController extends Controller
         
     }
 
-    public function programDetailLogs()
+    public function programDetailLogs2()
     {
         $todayCarbon = Carbon::today();
         $yesterdayCarbon = Carbon::yesterday();
@@ -2008,6 +2008,81 @@ class ProgramController extends Controller
 
         return view('admin.programs.program_detail_logs', compact('todayLogs', 'yesterdayLogs', 'todayDeletedLogs', 'yesterdayDeletedLogs', 'vsnumbersToday', 'vsnumbersYesterday'));
     }
+
+
+    public function programDetailLogs()
+    {
+        // Last 7 days including today
+        $end   = Carbon::today();
+        $start = Carbon::today()->subDays(6);
+
+        // Helper: fetch & group logs by causer_id for a given date
+        $getLogsGrouped = function ($date, $filterDeleted = false) {
+            $query = Activity::where('log_name', 'program_detail')
+                ->whereDate('created_at', $date)
+                ->with([
+                    'causer:id,name',
+                    'subject:id,headerid,dest_qty,challan_no'
+                ]);
+
+            if ($filterDeleted) {
+                $query->where('event', 'deleted');
+            }
+
+            return $query->get()
+                ->groupBy('causer_id')
+                ->map(function ($group) {
+                    return $group->map(function ($log) {
+                        // Safely resolve fields from subject or properties
+                        $headerid   = $log->subject->headerid
+                            ?? data_get($log->properties, 'attributes.headerid', '-');
+                        $dest_qty   = $log->subject->dest_qty
+                            ?? data_get($log->properties, 'attributes.dest_qty', '-');
+                        $challan_no = $log->subject->challan_no
+                            ?? data_get($log->properties, 'attributes.challan_no', '-');
+
+                        return [
+                            'id'          => $log->id,
+                            'headerid'    => $headerid,
+                            'dest_qty'    => $dest_qty,
+                            'challan_no'  => $challan_no,
+                            'causer_id'   => $log->causer_id,
+                            'causer_name' => optional($log->causer)->name ?? 'Unknown',
+                            'event'       => $log->event,
+                            'description' => $log->description,
+                            'subject_id'  => $log->subject_id,
+                            'created_at'  => optional($log->created_at)?->toDateTimeString(),
+                            'properties'  => $log->properties, // full JSON for Details view
+                        ];
+                    });
+                });
+        };
+
+        // Build per-day structures
+        $logsByDate         = collect();
+        $deletedLogsByDate  = collect();
+
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $key = $date->toDateString();
+            $logsByDate[$key]        = $getLogsGrouped($date);
+            $deletedLogsByDate[$key] = $getLogsGrouped($date, true);
+        }
+
+        // Challan register for last 7 days
+        $vsnumbersLast7Days = VendorSequenceNumber::with(['programDetail', 'vendor'])
+            ->whereBetween(DB::raw('DATE(date)'), [$start->toDateString(), $end->toDateString()])
+            ->orderBy('date', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        return view(
+            'admin.programs.program_detail_logs',
+            compact('logsByDate', 'deletedLogsByDate', 'vsnumbersLast7Days', 'start', 'end')
+        );
+    }
+
+
+
 
     public function deletedProgramDetail($id)
     {
