@@ -81,10 +81,6 @@ class VendorLedgerController extends Controller
             ->orderBy('id', 'ASC')
             ->get();
 
-            // dd($vsequence);
-
-
-
         return view('admin.accounts.ledger.vendor2', compact('data', 'totalBalance', 'vendor', 'id', 'vsequence'));
     }
 

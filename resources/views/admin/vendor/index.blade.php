@@ -92,6 +92,8 @@
                       </div>
                     </div>
 
+                    
+
                     <div  class="col-sm-12" id="PreBlanace">
                       
                     </div>
@@ -178,8 +180,12 @@
                         <a href="{{ url('/admin/ledger/vendor/' . $data->id) }}" class="btn btn-default btn-xs">Ledger Details</a>
                     </td>
                     <td style="text-align: center">
-                      <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
+
+                      @if (Auth::user()->role_id == 1)
+                        <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
                       {{-- <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a> --}}
+                      @endif
+                      
                     </td>
                   </tr>
                   @endforeach
