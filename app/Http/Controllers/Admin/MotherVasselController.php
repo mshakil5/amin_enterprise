@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MotherVassel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MotherVasselController extends Controller
 {
@@ -14,8 +15,49 @@ class MotherVasselController extends Controller
         if (!(in_array('4', json_decode(auth()->user()->role->permission)))) {
           return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
-        $data = MotherVassel::orderby('id','DESC')->get();
-        return view('admin.mothervassel.index', compact('data'));
+        $data = MotherVassel::withCount([
+            'programDetail as unique_challan_count' => function ($query) {
+                $query->select(DB::raw('COUNT(DISTINCT challan_no)'));
+            },
+            'programDetail as generate_bill_count' => function ($query) {
+                $query->where('generate_bill', 1);
+            },
+            'programDetail as not_generate_bill_count' => function ($query) {
+                $query->where('generate_bill', 0);
+            },
+            'programDetail as deleted_count' => function ($query) {
+                $query->onlyTrashed();
+            },
+            'programDetail as pump_count' => function ($query) {
+                $query->whereHas('advancePayment', function ($q) {
+                    $q->whereNotNull('petrol_pump_id');
+                });
+            },
+            'programDetail as after_challan_posting_count' => function ($query) {
+                $query->whereNotNull('headerid');
+            },
+            'programDetail as before_challan_count' => function ($query) {
+                $query->whereNull('headerid');
+            },
+            'programDetail as not_twelve_mt' => function ($query) {
+                $query->where('dest_qty', '!=', 12);
+            },
+            
+        ])->orderby('id','DESC')->get();
+
+
+
+        $query = DB::table('mother_vassels as mv')
+            ->join('program_details as pd', 'pd.mother_vassel_id', '=', 'mv.id')
+            ->where('mv.id', '>', 42)
+            ->select(
+                DB::raw("SUM(CASE WHEN pd.generate_bill = 1 THEN 1 ELSE 0 END) as total_generated"),
+                DB::raw("SUM(CASE WHEN pd.generate_bill = 0 THEN 1 ELSE 0 END) as total_not_generated"),
+                DB::raw("COUNT(pd.id) as total_programs")
+            )
+            ->first();
+
+        return view('admin.mothervassel.index', compact('data', 'query'));
     }
 
     public function getConsignmentNumber(Request $request)

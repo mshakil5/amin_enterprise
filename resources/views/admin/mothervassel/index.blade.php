@@ -9,6 +9,63 @@
         <div class="col-2">
             <button type="button" class="btn btn-secondary my-3" id="newBtn">Add new</button>
         </div>
+        <div class="col-2">
+            <!-- Small Modal Trigger -->
+            <button type="button" class="btn btn-info my-3" data-toggle="modal" data-target="#smallModal">
+              Summery
+            </button>
+
+            <!-- Small Modal -->
+            <div class="modal fade" id="smallModal" tabindex="-1" role="dialog" aria-labelledby="smallModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="smallModalLabel">Summery</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+
+                        
+                    <div class="card">
+                      <div class="card-header">
+                        <h3>Summery</h3>
+                      </div>
+
+                      <div class="card-body">
+                          <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between">
+                              <span>Total Challan:</span>
+                              <strong>
+                                {{ $query->total_programs ?? 0 }}
+                              </strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                              <span>Bill Generated Challan:</span>
+                              <a href="#" class="btn btn-warning btn-xs">
+                                {{ $query->total_generated ?? 0 }}
+                              </a>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                              <span>Bill Not Generated Challan:</span>
+                              <a href="#" class="btn btn-warning btn-xs">
+                                {{ $query->total_not_generated ?? 0 }}
+                              </a>
+                            </li>
+                            
+                          </ul>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
       </div>
     </div>
 </section>
@@ -99,6 +156,7 @@
                 <tr>
                   <th>Sl</th>
                   <th>Name</th>
+                  <th>Logs</th>
                   <th>Description</th>
                   <th>Consignment</th>
                   <th>Status</th>
@@ -110,8 +168,72 @@
                   <tr>
                     <td style="text-align: center">{{ $key + 1 }}</td>
                     <td style="text-align: center">
-                      <a href="{{route('challanPostingDateReport', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">{{$data->name}}</a>
+                      <a href="{{route('challanPostingDateReport', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">{{$data->name}} - {{ $data->id }}</a>
                       
+                    </td>
+                    <td style="text-align: center">
+                      <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#logModal_{{ $data->id }}">
+                        Log
+                      </button>
+
+                      <div class="modal fade" id="logModal_{{ $data->id }}" tabindex="-1" role="dialog" aria-labelledby="logModalLabel_{{ $data->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                              <h5 class="modal-title" id="logModalLabel_{{ $data->id }}">Log Details (Program ID: {{ $data->id }})</h5>
+                              <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                <span>&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total Challan:</span>
+                                  <strong>
+                                    {{ ($data->generate_bill_count + $data->not_generate_bill_count) ?? 0 }}
+                                  </strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Bill Generated Challan:</span>
+                                  <a href="#" class="btn btn-warning btn-xs">
+                                  <strong>{{ $data->generate_bill_count ?? 0 }}</strong>
+                                  </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Bill Not Generated Challan:</span>
+                                  <a href="#" class="btn btn-warning btn-xs">
+                                  <strong>{{ $data->not_generate_bill_count ?? 0 }}</strong>
+                                  </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total After Challan Posting:</span>
+                                  <a href="#" class="btn btn-warning btn-xs">
+                                  <strong>{{ $data->after_challan_posting_count ?? 0 }}</strong>
+                                  </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total Before Challan Posting:</span>
+                                  <a href="#" class="btn btn-warning btn-xs">
+                                  <strong>{{ $data->before_challan_count ?? 0 }}</strong>
+                                  </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Not twelve MT count:</span>
+                                  <a href="#" class="btn btn-warning btn-xs">
+                                  <strong>{{ $data->not_twelve_mt ?? 0 }}</strong>
+                                  </a>
+                                </li>
+                                
+
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Total Petrol Pump:</span>
+                                  <strong>{{ $data->pump_count ?? 0 }}</strong>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td style="text-align: center">{{$data->description}}</td>
                     <td style="text-align: center">{{$data->code}}</td>

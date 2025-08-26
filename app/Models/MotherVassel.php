@@ -27,4 +27,9 @@ class MotherVassel extends Model
             }
         });
     }
+
+    public function programDetail()
+    {
+        return $this->hasMany(ProgramDetail::class);
+    }
 }
