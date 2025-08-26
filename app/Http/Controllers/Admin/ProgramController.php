@@ -944,6 +944,11 @@ class ProgramController extends Controller
             $advancePayment->amount = ($request->cashamount ?? 0) + $fuelAmount;
             $advancePayment->save();
 
+            
+            $programDetail->advance = $advancePayment->amount;
+            $programDetail->due = $programDetail->carrying_bill + $programDetail->scale_fee - $advancePayment->amount;
+            $programDetail->save();
+
             if ($request->cashamount) {
                 $cashTran = Transaction::where('program_detail_id', $request->program_detail_id)
                             ->where('payment_type', 'Cash')
