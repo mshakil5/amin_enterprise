@@ -190,13 +190,25 @@ class ProgramController extends Controller
             )
             ->with('vendor:id,name')
             ->where('program_id', $programId)
-            ->whereHas('programDetail', function ($query) use ($date) {
-                $query->whereDate('date', $date);
-            })
+            ->whereDate('date', $date)
             ->groupBy('vendor_id')
             ->get();
 
-        return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date, 'program' => $program]);
+        $totalCount = AdvancePayment::select(
+                'vendor_id',
+                DB::raw('SUM(fuelqty) as total_fuelqty'),
+                DB::raw('SUM(fuelamount) as total_fuelamount'),
+                DB::raw('SUM(cashamount) as total_cashamount'),
+                DB::raw('SUM(amount) as total_amount'),
+                DB::raw('COUNT(*) as vendor_count')
+            )
+            ->with('vendor:id,name')
+            ->where('program_id', $programId)
+            ->whereDate('date', $date)
+            ->groupBy('vendor_id')
+            ->count();
+
+        return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date, 'program' => $program, 'totalCount' => $totalCount, 'programId' => $programId]);
     }
 
     // changeQuantity
@@ -740,7 +752,7 @@ class ProgramController extends Controller
 
 
         $program = Program::find($request->pid);
-        $program->date = $request->input('date');
+        // $program->date = $request->input('date');
         $program->client_id = $request->input('client_id');
         $program->mother_vassel_id = $request->input('mother_vassel_id');
         $program->lighter_vassel_id = $request->input('lighter_vassel_id');
@@ -763,7 +775,7 @@ class ProgramController extends Controller
             {
                 if (isset($programDtlIds[$key])) {
                     $invdtl = ProgramDetail::find($programDtlIds[$key]);
-                    $invdtl->date = $request->input('date');
+                    // $invdtl->date = $request->input('date');
                     $invdtl->program_id = $program->id;
                     $invdtl->consignmentno = $request->input('consignmentno');
                     $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
@@ -778,7 +790,7 @@ class ProgramController extends Controller
 
                     $fuelAmnt = $fuel_rates[$key] * $fuelqtys[$key];
                     $data = AdvancePayment::find($advancePaymentIds[$key]);
-                    $data->date = $request->input('date');
+                    // $data->date = $request->input('date');
                     $data->program_id = $program->id;
                     $data->program_detail_id  = $invdtl->id;
                     $data->vendor_id = $vendorIds[$key];
@@ -830,7 +842,7 @@ class ProgramController extends Controller
                 } else {
 
                     $invdtl = new ProgramDetail();
-                    $invdtl->date = $request->input('date');
+                    $invdtl->date =  date('Y-m-d');
                     $invdtl->program_id = $program->id;
                     $invdtl->consignmentno = $request->input('consignmentno');
                     $invdtl->mother_vassel_id = $request->input('mother_vassel_id');
@@ -855,7 +867,7 @@ class ProgramController extends Controller
                     $data->fueltoken = $fueltokens[$key];
                     $data->fuelamount = $fuel_rates[$key] * $fuelqtys[$key];
                     $data->amount = $fuelAmnt + $cashamounts[$key];
-                    $data->date = $request->input('date');
+                    $data->date =  date('Y-m-d');
                     $data->save();
 
                     if ($cashamounts[$key] > 0) {
@@ -870,7 +882,7 @@ class ProgramController extends Controller
                         $transaction->tran_type = "Advance";
                         $transaction->payment_type = "Cash";
                         $transaction->description = "Cash Advance to Vendor";
-                        $transaction->date = $request->input('date');
+                        $transaction->date =  date('Y-m-d');
                         $transaction->save();
                         $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                         $transaction->save();
@@ -888,7 +900,7 @@ class ProgramController extends Controller
                         $transaction->tran_type = "Advance";
                         $transaction->payment_type = "Fuel";
                         $transaction->description = "Fuel Advance to Vendor";
-                        $transaction->date = $request->input('date');
+                        $transaction->date =  date('Y-m-d');
                         $transaction->save();
                         $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
                         $transaction->save();

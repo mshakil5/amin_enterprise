@@ -793,16 +793,7 @@ $(document).ready(function () {
       "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
     }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
 
-      
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
+
     });
 </script>
 
@@ -940,7 +931,7 @@ $(document).ready(function () {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    // console.log(response)
+                    console.log(response) 
                     $('#advTitle').html(`
                         <h2>Vendor Advance Summary</h2>
                         <h4>Mother Vessel: ${response.program.mother_vassel.name}</h4>

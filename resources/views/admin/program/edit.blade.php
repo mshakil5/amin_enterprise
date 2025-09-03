@@ -67,7 +67,7 @@
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="date">Date</label>
-                                            <input type="date" class="form-control" id="date" name="date" value="{{ $program->date}}">
+                                            <input type="date" class="form-control" id="date" name="date" value="{{ $program->date}}" disabled>
                                             <input type="hidden" class="form-control" id="pid" name="pid" value="{{ $program->id}}">
                                         </div>
                                         <div class="form-group col-md-4">
@@ -227,7 +227,7 @@
                                         </td>
                                         <td>
                                             @if ($key == 0)
-                                                <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
+                                                {{-- <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button> --}}
                                             @else
                                             
                                             {{-- <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button> --}}
@@ -396,6 +396,12 @@
 
 @endsection
 @section('script')
+
+
+<script>
+    // $("#programTable").DataTable();
+</script>
+
 
 <script>
   $(document).ready(function () {
