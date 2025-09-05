@@ -48,7 +48,7 @@
                 Phone: 01713-603882, Email: aminent.bd1@gmail.com</p>
             </div>
             @php
-                $debitTables = ['Liabilities', 'Expenses'];
+                $debitTables = ['Liabilities', 'Expenses', 'Expense'];
                 $isDebit = !$data->table_type || in_array($data->table_type, $debitTables);
             @endphp
 
