@@ -67,24 +67,17 @@
                                       <td></td>
                                       <td></td>
                                   </tr>
+                                  @foreach ($currentAssets as $currentAsset)
+                                      
                                   <tr>
-                                      <td>103</td>
-                                      <td class="pl-5">Cash</td>
-                                      <td>50,000</td>
-                                      <td></td>
+                                      <td>{{$currentAsset->serial ?? "" }}</td>
+                                      <td class="pl-5">{{$currentAsset->account_name ?? "" }}</td>
+                                      <td class="text-right">{{ number_format($currentAsset->net, 2)}}</td>
+                                      <td class="text-right"></td>
                                   </tr>
-                                  <tr>
-                                      <td>104</td>
-                                      <td class="pl-5">Bank</td>
-                                      <td>100,000</td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td>105</td>
-                                      <td class="pl-5">Receivables from BSRM</td>
-                                      <td>2,529,680</td>
-                                      <td></td>
-                                  </tr>
+
+                                  @endforeach
+                                  
 
                                   {{-- ===== Liabilities Section ===== --}}
                                   <tr class="table-secondary">

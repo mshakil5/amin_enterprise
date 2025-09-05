@@ -45,8 +45,28 @@ class TrialBalanceController extends Controller
                     // dd($fixedAssets);
 
 
+        $currentAssets = DB::table('chart_of_accounts as coa')
+                    ->leftJoin('transactions as t', 't.chart_of_account_id', '=', 'coa.id')
+                    ->select(
+                        'coa.id',
+                        'coa.serial', 
+                        'coa.account_name',
+                        DB::raw("COALESCE(SUM(CASE WHEN t.tran_type = 'Received' THEN t.amount ELSE 0 END), 0) AS 	received"),
+                        DB::raw("COALESCE(SUM(CASE WHEN t.tran_type = 'Payment' THEN t.amount ELSE 0 END), 0) AS payments"),
+                        DB::raw("(
+                            COALESCE(SUM(CASE WHEN t.tran_type = 'Received' THEN t.amount ELSE 0 END), 0)
+                            - COALESCE(SUM(CASE WHEN t.tran_type = 'Payment' THEN t.amount ELSE 0 END), 0)
+                        ) AS net")
+                    )
+                    ->where('coa.account_head', 'Assets')
+                    ->where('coa.sub_account_head', 'Current Asset')
+                    ->groupBy('coa.id', 'coa.serial', 'coa.account_name')
+                    ->orderBy('coa.account_name')
+                    ->get();
 
+
+                    // dd($currentAssets);
         
-        return view('admin.accounts.trial_balance.index', compact('fixedAssets'));
+        return view('admin.accounts.trial_balance.index', compact('fixedAssets','currentAssets'));
     }
 }
