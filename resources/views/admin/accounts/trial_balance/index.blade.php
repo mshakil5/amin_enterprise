@@ -47,18 +47,18 @@
                                       <td></td>
                                       <td></td>
                                   </tr>
-                                  <tr>
-                                      <td>101</td>
-                                      <td class="pl-5">Land & Building</td>
-                                      <td>1,000,000</td>
-                                      <td></td>
-                                  </tr>
-                                  <tr>
-                                      <td>102</td>
-                                      <td class="pl-5">Furniture & Equipment</td>
-                                      <td>200,000</td>
-                                      <td></td>
-                                  </tr>
+                                  @foreach ($fixedAssets as $fixedAsset)
+                                    <tr>
+                                        <td>
+                                            {{$fixedAsset->serial ?? "" }}
+                                        </td>
+                                        <td class="pl-5">{{$fixedAsset->account_name ?? "" }}</td>
+                                        <td class="text-right">{{ number_format($fixedAsset->net, 2)}}</td>
+                                        <td class="text-right"></td>
+                                    </tr>
+                                  @endforeach
+                                  
+                                  
 
                                   {{-- Current Assets --}}
                                   <tr class="table-light">
