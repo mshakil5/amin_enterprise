@@ -386,7 +386,7 @@ class VendorController extends Controller
             'walletamount' => 'required',
         ]);
 
-        $account = Account::find(1);
+        $account = Account::find($request->account_id);
         
         if (!$account || $account->amount < $request->walletamount) {
             $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Office..!</b></div>";
@@ -439,7 +439,6 @@ class VendorController extends Controller
 
         $transaction->amount =  $request->walletamount;
         $transaction->at_amount =  $request->walletamount;
-        $transaction->tran_type = "Wallet";
         $transaction->payment_type = $request->payment_type;
         $transaction->account_id = $request->account_id;
         $transaction->date = $request->wallet_date ?? date('Y-m-d');
@@ -460,15 +459,58 @@ class VendorController extends Controller
     }
 
 
+    public function reduceWalletBalance(Request $request)
+    {
+        $request->validate([
+            'vendorId' => 'required',
+            'walletamount' => 'required',
+        ]);
+
+        $account = Account::find($request->account_id);
+        
+        if (!$account || $account->amount < $request->walletamount) {
+            $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Account..!</b></div>";
+            return response()->json(['status' => 303, 'message' => $message]);
+        }
+
+        $account->amount += $request->walletamount;
+        $account->save();
+
+        $transaction = new Transaction();
+        $transaction->amount =  $request->walletamount;
+        $transaction->at_amount =  $request->walletamount;
+        $transaction->tran_type = "Wallet";
+        $transaction->description = "Reduce Wallet Balance";
+        $transaction->payment_type = $request->payment_type;
+        $transaction->table_type = "Income";
+        $transaction->vendor_id = $request->vendorId;
+        $transaction->account_id = $request->account_id;
+        $transaction->date = $request->wallet_date ?? date('Y-m-d');
+        $transaction->note = $request->note;
+        $transaction->vendor_sequence_number_id = $request->vsequence;
+        $transaction->created_by = Auth::user()->id;
+        $transaction->save();
+        $transaction->tran_id = 'DP' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+        if ($transaction->save()) {
+           
+            $vendor = Vendor::where('id', $request->vendorId)->first();
+            $vendor->balance -= $request->walletamount;
+            $vendor->save();
+            $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Vendor balance reduce Successfully.</b></div>";
+            return response()->json(['status'=> 300,'message'=>$message]);
+        }
+
+    }
+
+
 
 
     public function getWalletTransaction($id)
     {
         $vendor = Vendor::where('id', $id)->first();
         $transactions = Transaction::where('vendor_id', $id)
-            ->whereIn('table_type', ['Expenses', 'Expense'])
+            ->whereIn('table_type', ['Expenses', 'Expense', 'Income'])
             ->where('tran_type', 'Wallet')
-            ->where('description', 'Add Wallet Balance')
             ->orderBy('id', 'DESC')
             ->get();
 

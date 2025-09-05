@@ -75,10 +75,10 @@
                                             <th>Date</th>
                                             <th>Description</th>
                                             <th>Sequence ID</th>
-                                            <th>Type</th>
-                                            <th>Voucher</th>                        
-                                            <th>Challan#</th>                            
+                                            <th>Account</th>
+                                            <th>Voucher</th>                              
                                             <th>Debit</th>                            
+                                            <th>Credit</th>                            
                                             <th>Action</th>                            
                                             {{-- <th>Credit</th>                            
                                             <th>Balance</th>                             --}}
@@ -101,30 +101,30 @@
                                                     {{$data->vendorSequenceNumber->unique_id ?? ""}}
                                                 </td>
                                                 <td>
-                                                    {{ $data->tran_type }} {{ $data->payment_type }} 
+                                                    {{ $data->account->type ?? '' }}
                                                 </td>
                                                 <td>
                                                     <a href="{{ route('admin.expense.voucher', $data->id) }}" target="_blank" class="btn btn-info btn-xs" title="Voucher">
                                                         <i class="fa fa-info-circle" aria-hidden="true"></i> Voucher
                                                     </a>
-                                                  </td>
-                                                <td>{{ $data->challan_no }}</td>
-                                                @if(in_array($data->tran_type, ['Wallet']))
-                                                <td>{{ number_format($data->amount, 2) }}</td>
-                                                {{-- <td></td>
-                                                <td>{{ number_format($balance, 2) }}</td> --}}
-                                                @php
-                                                    $balance = $balance - $data->amount;
-                                                @endphp
-                                                @elseif(in_array($data->tran_type, ['Advance']))
-                                                {{-- <td></td>
-                                                <td>{{ number_format($data->amount, 2) }}</td>
-                                                <td>{{ number_format($balance, 2) }}</td> --}}
-                                                @php
-                                                    $balance = $balance + $data->amount;
-                                                @endphp
+                                                </td>
+
+                                                @if(in_array($data->table_type, ['Expenses', 'Expense']) && in_array($data->tran_type, ['Wallet']))
+                                                    <td>{{ number_format($data->amount, 2) }}</td>
+                                                    <td></td>
+                                                    @php
+                                                        $balance = $balance - $data->amount;
+                                                    @endphp
+                                                @elseif(in_array($data->table_type, ['Income']) && in_array($data->tran_type, ['Wallet']))
+                                                    <td></td>
+                                                    <td>{{ number_format($data->amount, 2) }}</td>
+                                                    {{-- <td>{{ number_format($balance, 2) }}</td> --}}
+                                                    @php
+                                                        $balance = $balance + $data->amount;
+                                                    @endphp
 
                                                 @endif
+
                                                 <td>
                                                     <a class="btn btn-info btn-xs detailsBtn" 
                                                         data-date="{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}"

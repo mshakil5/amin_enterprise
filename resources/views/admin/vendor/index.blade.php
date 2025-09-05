@@ -162,10 +162,11 @@
                     <td style="text-align: center">{{$data->balance}}</td>
                     <td style="text-align: center">
                       
-                      <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Wallet</span>
+                      <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Payment</span>
 
                       <a class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" target="bla
                       " href="{{ route('getWalletTransaction', $data->id)}}">Tran</a>
+                      <span class="btn btn-primary btn-xs receive-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Received</span>
 
                     </td>
                     <td style="text-align: center">
@@ -330,7 +331,7 @@
                       <input type="number" class="form-control" id="walletamount" name="walletamount" >
                   </div>
                   <div class="form-group">
-                      <label for="walletamount">Payment Type <span style="color: red;">*</span></label>
+                      <label for="walletamount">Type <span style="color: red;">*</span></label>
                       <select name="payment_type" id="payment_type" class="form-control">
                         <option value="Cash">Cash</option>
                         <option value="Bank">Bank</option>
@@ -360,12 +361,14 @@
               </div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-warning">Add Money</button>
+                  <button type="submit" class="btn btn-warning" id="moneySubmitBtn">Add Money</button>
               </div>
           </form>
       </div>
   </div>
 </div>
+
+
 
 @endsection
 @section('script')
@@ -718,62 +721,6 @@
 
 
       // vendor wallet add
-      // $("#contentContainer").on('click', '.add-money-btn', function () {
-      //     var id = $(this).data('id');
-      //     $('#addWalletModal').modal('show');
-      //     $('#addWalletForm').off('submit').on('submit', function (event) {
-      //         event.preventDefault();
-
-      //         var form_data = new FormData();
-      //         form_data.append("vendorId", id);
-      //         form_data.append("walletamount", $("#walletamount").val());
-      //         form_data.append("payment_type", $("#payment_type").val());
-      //         form_data.append("account_id", $("#account_id").val());
-      //         form_data.append("wallet_date", $("#wallet_date").val());
-      //         form_data.append("note", $("#note").val());
-      //         // form_data.append("sequence", $("#sequence").val());
-
-      //         if (!$("#walletamount").val()) {
-      //             alert('Please enter wallet amount.');
-      //             return;
-      //         }
-
-      //         if (!$("#payment_type").val()) {
-      //             alert('Please enter payment type.');
-      //             return;
-      //         }
-
-      //         if (!$("#account_id").val()) {
-      //             alert('Please enter Account.');
-      //             return;
-      //         }
-
-
-      //         $.ajax({
-      //             url: '{{ URL::to('/admin/add-vendor-wallet-balance') }}',
-      //             method: 'POST',
-      //             data:form_data,
-      //             contentType: false,
-      //             processData: false,
-      //             // dataType: 'json',
-      //             success: function (response) {
-      //               if (response.status == 303) {
-      //                   $(".permsg").html(response.message);
-      //               }else if(response.status == 300){
-
-      //                 $(".permsg").html(response.message);
-      //                 window.setTimeout(function(){location.reload()},2000)
-      //               }
-                    
-
-      //             },
-      //             error: function (xhr) {
-      //                 console.log(xhr.responseText);
-      //             }
-      //         });
-      //     });
-      // });
-
       $("#contentContainer").on('click', '.add-money-btn', function () {
           var id = $(this).data('id');
           $('#addWalletModal').modal('show');
@@ -826,6 +773,83 @@
 
               $.ajax({
                   url: '{{ URL::to("/admin/add-vendor-wallet-balance") }}',
+                  method: 'POST',
+                  data: form_data,
+                  contentType: false,
+                  processData: false,
+                  success: function (response) {
+                      if (response.status == 303) {
+                          $(".permsg").html(response.message);
+                      } else if (response.status == 300) {
+                          $(".permsg").html(response.message);
+                          window.setTimeout(function () {
+                              location.reload();
+                          }, 2000);
+                      }
+                  },
+                  error: function (xhr) {
+                      console.log(xhr.responseText);
+                  }
+              });
+          });
+      });
+
+
+      $("#contentContainer").on('click', '.receive-money-btn', function () {
+          var id = $(this).data('id');
+          $('#addWalletModal').modal('show');
+          
+          $('#addWalletLabel').text('Receive from vendor');
+          $('#moneySubmitBtn').text('Receive');
+
+          $('#vsequence').html('<option value="">Select Sequence Number</option>');
+
+          var vendorSequences = vendorSeqNums.filter(function (seq) {
+              return seq.vendor_id == id;
+          });
+
+
+          // Populate the dropdown
+          if (vendorSequences.length > 0) {
+              $.each(vendorSequences, function (index, seq) {
+                  $('#vsequence').append(
+                      $('<option>', {
+                          value: seq.id,
+                          text: seq.unique_id 
+                      })
+                  );
+              });
+          } else {
+              $('#vsequence').append(
+                  $('<option>', {
+                      value: '',
+                      text: 'No sequence numbers available'
+                  })
+              );
+          }
+
+          $('#addWalletForm').off('submit').on('submit', function (event) {
+              event.preventDefault();
+
+              var form_data = new FormData();
+              form_data.append("vendorId", id);
+              form_data.append("walletamount", $("#walletamount").val());
+              form_data.append("payment_type", $("#payment_type").val());
+              form_data.append("account_id", $("#account_id").val());
+              form_data.append("wallet_date", $("#wallet_date").val());
+              form_data.append("vsequence", $("#vsequence").val());
+              form_data.append("note", $("#note").val());
+
+              const fields = [
+                  { id: 'walletamount', message: 'Please enter wallet amount.' },
+                  { id: 'payment_type', message: 'Please enter payment type.' },
+                  { id: 'account_id', message: 'Please enter Account.' },
+                  { id: 'vsequence', message: 'Please select a sequence number.' }
+              ];
+
+
+              $.ajax({
+                  url: '{{ URL::to("/admin/reduce-vendor-wallet-balance") }}',
                   method: 'POST',
                   data: form_data,
                   contentType: false,
