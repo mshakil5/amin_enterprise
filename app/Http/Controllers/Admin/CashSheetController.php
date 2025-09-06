@@ -97,7 +97,8 @@ class CashSheetController extends Controller
                 ->groupBy('mother_vassel_id');
 
         $incomes = Transaction::where('table_type', 'Income')
-            ->whereDate('date', $date)->where('tran_type', 'Current')->get();
+            ->whereDate('date', $date)
+            ->whereIn('tran_type', ['Current', 'Received'])->get();
 
 
 
@@ -144,13 +145,13 @@ class CashSheetController extends Controller
 
         
         $incomesInOfficeCash = Transaction::where('table_type', 'Income')
-            ->where('tran_type', 'Current')
+            ->whereIn('tran_type', ['Current', 'Received'])
             ->where('account_id', 1)
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
 
         $incomesInFieldCash = Transaction::where('table_type', 'Income')
-            ->where('tran_type', 'Current')
+            ->whereIn('tran_type', ['Current', 'Received'])
             ->where('account_id', 2)
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
