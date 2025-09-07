@@ -155,7 +155,8 @@
                                 @foreach ($liabilitiesInBank as $bankliability)
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($bankliability->date)->format('d-m-Y') }}</td>
-                                    <td>{{ $bankliability->chartOfAccount->account_name ?? '' }} - {{ $bankliability->description ?? '' }}</td>
+                                    <td>{{ $bankliability->chartOfAccount->account_name ?? '' }} 
+                                         - {{ $bankliability->description ?? '' }}</td>
                                     <td >{{ $bankliability->tran_id ?? '' }}</td>
                                     <td ></td>
                                     <td class="text-right"></td>
@@ -181,7 +182,11 @@
                                 @foreach ($incomes as $income)
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($income->date)->format('d-m-Y') }}</td>
-                                    <td>{{ $income->chartOfAccount->account_name ?? '' }} - {{ $income->description ?? '' }}</td>
+                                    <td>{{ $income->chartOfAccount->account_name ?? '' }}
+                                        @if ($income->tran_type === 'Wallet')
+                                            {{$income->vendor->name ?? ''}}
+                                        @endif
+                                        - {{ $income->description ?? '' }}</td>
                                     <td >{{ $income->tran_id ?? '' }}</td>
                                     <td ></td>
                                     <td class="text-right">
