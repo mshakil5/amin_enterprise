@@ -30,10 +30,18 @@ class CashSheetController extends Controller
         if (\Carbon\Carbon::parse($expectedDate)->lt(\Carbon\Carbon::parse('2025-07-20'))) {
             $expectedDate = '2025-07-20';
         }
+
+        // dd($expectedDate);
         // opening balance
         $previousBalance = $this->cashSheetPreviousBalance($expectedDate);
-        $cashInHandOpening = $previousBalance['previousCashInOfficeClosing'];
-        $cashInFieldOpening = $previousBalance['previousCashInFieldClosing'];
+        if ($request->searchDate == '2025-07-20') {
+            $cashInHandOpening = 347224.00;
+            $cashInFieldOpening = 321130.00;
+        } else {
+            $cashInHandOpening = $previousBalance['previousCashInOfficeClosing'];
+            $cashInFieldOpening = $previousBalance['previousCashInFieldClosing'];
+        }
+        
         $suspenseAccount = 94599;
         $pettyCash = 5000.00;
 
@@ -117,8 +125,9 @@ class CashSheetController extends Controller
 
         // For previous day's opening balance, we need transactions for $date
         // Initial opening balances (you may need to fetch these from a database or previous day's closing)
-        $cashInHandOpening = 347224.00; // Example value; replace with actual data
-        $cashInFieldOpening = 281130.00; // Example value; replace with actual data
+        $cashInHandOpening = 347224.00; 
+        $cashInFieldOpening = 321130.00; 
+        // $cashInFieldOpening = 281130.00;
         $suspenseAccount = 94599;
         $pettyCash = 5000.00;
 

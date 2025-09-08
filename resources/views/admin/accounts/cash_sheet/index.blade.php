@@ -210,6 +210,7 @@
 
                                 @php
                                     $totalCashDebit = $cashInHandOpening + $cashInFieldOpening + $pettyCash + $liabilitiesInCash->sum('amount') + $suspenseAccount + $incomes->sum('amount');
+                                    // $totalCashDebit = $liabilitiesInCash->sum('amount') + $incomes->sum('amount');
                                     $totalBankDebit = $liabilitiesInBank->sum('amount');
                                 @endphp
 
