@@ -180,7 +180,7 @@
                                 </select>
                             </div>
                         </div>
-                                                <div class="col-md-4">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="account_id" class="col-form-label">Account Type</label>
                                 <select class="form-control" id="account_id" name="account_id">
@@ -221,9 +221,9 @@
                             
                         </div>
 
-                        <div class="row d-none">
+                        <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group d-none" id="showpayable">
+                                <div class="form-group" id="showpayable">
                                     <label for="" class="control-label">Payable Holder Name</label>
                                     <select class="form-control" id="payable_holder_id" name="payable_holder_id">
                                         <option value="">Select payable holder</option>
