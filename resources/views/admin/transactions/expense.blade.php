@@ -2,6 +2,13 @@
 
 @section('content')
 
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+
 <section class="content pt-3" id="contentContainer">
     <div class="container-fluid">
         <div class="row">
@@ -91,8 +98,8 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="chart_of_account_id" class="control-label">Chart of Account</label>
-                                <select class="form-control" id="chart_of_account_id" name="chart_of_account_id">
+                                <label for="chart_of_account_id" class="control-label">Chart of Account</label> <br>
+                                <select class="form-control select2" id="chart_of_account_id" name="chart_of_account_id">
                                     <option value="">Select chart of account</option>
                                     @php
                                     use App\Models\ChartOfAccount;
@@ -121,10 +128,10 @@
                                 <select class="form-control" id="transaction_type" name="transaction_type">
                                     <option value="">Select transaction type</option>
                                     <option value="Current">New Exp</option>
-                                    {{-- <option value="Prepaid">Prepaid</option>
+                                    <option value="Prepaid">Prepaid</option>
                                     <option value="Due">Due</option>
                                     <option value="Prepaid Adjust">Prepaid Adjust</option>
-                                    <option value="Due Adjust">Due Adjust</option> --}}
+                                    <option value="Due Adjust">Due Adjust</option>
                                 </select>
                             </div>
                         </div>

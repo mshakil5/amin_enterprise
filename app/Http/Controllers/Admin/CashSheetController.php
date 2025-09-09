@@ -74,7 +74,6 @@ class CashSheetController extends Controller
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Payment')
             ->where('payment_type', 'Cash')
-            ->where('account_id', 1)
             ->whereDate('date', $date)
             ->get();
 
@@ -82,7 +81,6 @@ class CashSheetController extends Controller
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Payment')
             ->where('payment_type', 'Bank')
-            ->where('account_id', 1)
             ->whereDate('date', $date)
             ->get();
 

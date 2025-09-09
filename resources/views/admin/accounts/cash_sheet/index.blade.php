@@ -320,7 +320,7 @@
                                         <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
                                         <td >{{ $liability->tran_id ?? '' }}</td>
                                         <td ></td>
-                                        <td class="text-right"> this </td>
+                                        <td class="text-right"> </td>
                                         <td ></td>
                                         <td class="text-right">
                                             @if ($liability->payment_type === 'Cash')
