@@ -318,7 +318,7 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
                                         <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
-                                        <td >{{ $liability->tran_id ?? '' }}</td>
+                                        <td >{{ $liability->tran_id ?? '' }} - ({{ $liability->account->type ?? '' }})</td>
                                         <td ></td>
                                         <td class="text-right"> </td>
                                         <td ></td>
@@ -358,7 +358,7 @@
                                     <tr>
                                         <td>{{ \Carbon\Carbon::parse($liability->date)->format('d-m-Y') }}</td>
                                         <td>{{ $liability->chartOfAccount->account_name ?? '' }} - {{ $liability->description ?? '' }}</td>
-                                        <td >{{ $liability->tran_id ?? '' }}</td>
+                                        <td >{{ $liability->tran_id ?? '' }} - ({{ $liability->account->type ?? '' }})</td>
                                         <td ></td>
                                         <td class="text-right"></td>
                                         <td ></td>
