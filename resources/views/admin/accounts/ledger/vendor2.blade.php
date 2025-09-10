@@ -91,7 +91,7 @@
             <div class="col-md-12">
                 <div class="card card-secondary">
                     <div class="card-header">
-                        <h4>{{ $vendor->name }} Ledger</h4>
+                        <h4>{{ $vendor->name }} Ledger </h4>
                     </div>
                     <div class="card-body">
 
@@ -174,7 +174,7 @@
             <div class="col-md-12">
                 <div class="card card-secondary printable" id="{{ $printId }}">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">{{ $sequence->unique_id }}</h4>
+                        <h4 class="mb-0">{{ $sequence->unique_id }} <a href="{{route('admin.vendor.sequence.show', $sequence->id )}}" class="btn btn-primary">Details</a></h4>
                         <button class="btn btn-sm btn-primary no-print" onclick="printSection('{{ $printId }}')">
                             Print
                         </button>
