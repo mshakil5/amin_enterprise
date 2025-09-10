@@ -129,9 +129,9 @@
                                     <option value="">Select transaction type</option>
                                     <option value="Current">New Exp</option>
                                     <option value="Prepaid">Prepaid</option>
-                                    <option value="Due">Due</option>
+                                    {{-- <option value="Due">Due</option> --}}
                                     <option value="Prepaid Adjust">Prepaid Adjust</option>
-                                    <option value="Due Adjust">Due Adjust</option>
+                                    {{-- <option value="Due Adjust">Due Adjust</option> --}}
                                 </select>
                             </div>
                         </div>
@@ -151,7 +151,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="mother_vassel_id" class="control-label">Mother Vessel</label>
-                                <select class="form-control" id="mother_vassel_id" name="mother_vassel_id">
+                                <select class="form-control select2" id="mother_vassel_id" name="mother_vassel_id">
                                     <option value="">Select Mother Vessel</option>
                                     @foreach (\App\Models\MotherVassel::where('status', 1)->select('id', 'name')->get() as $mv)
                                     <option value="{{$mv->id}}">{{$mv->name}}</option>
@@ -161,6 +161,20 @@
                         </div>
 
 
+                    </div>
+
+                    <div class="row" id="employeeDiv">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="employee_id" class="control-label">Employee</label>
+                                <select class="form-control select2" id="employee_id" name="employee_id">
+                                    <option value="">Select Employee</option>
+                                    @foreach (\App\Models\User::where('status', 1)->select('id', 'name')->get() as $user)
+                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -259,6 +273,19 @@
 <!-- Payable holder id -->
 <script>
     $(document).ready(function() {
+        $('#employeeDiv').hide();
+
+        $('#chart_of_account_id').on('change', function() {
+            let selectedText = $("#chart_of_account_id option:selected").text().toLowerCase();
+
+            if (selectedText.includes("salary") || selectedText.includes("wages")) {
+                $("#employeeDiv").show();
+            } else {
+                $("#employeeDiv").hide();
+            }
+        });
+
+
         $("#transaction_type").change(function() {
             var transaction_type = $(this).val();
             if (transaction_type == "Due") {
@@ -583,8 +610,10 @@
         $('#chartModal .submit-btn').removeClass('update-btn').addClass('save-btn').text('Save').val("");
 
         $('#payment_type').html("<option value=''>Please Select</option>" + "<option value='Cash'>Cash</option>" + "<option value='Bank'>Bank</option>");
+        $('#employeeDiv').hide();
         $('#showpayable').hide();
         $('#payable_holder_id').val('');
+        $('#employee_id').val('');
     });
 </script>
 
