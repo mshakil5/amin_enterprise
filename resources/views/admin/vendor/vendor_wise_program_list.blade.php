@@ -92,7 +92,6 @@
                 @php
                     $totalfuelamount = 0;
                     $totalcashamount = 0;
-                    $netcashamount = 0;
                     $totalfuelqty = 0;
                     $totalcarrying_bill = 0;
                     $totaladvance = 0;
@@ -179,7 +178,6 @@
                           @php
                               $totalfuelamount += $data->advancePayment->fuelamount ?? 0;
                               $totalcashamount += $data->advancePayment->cashamount ?? 0;
-                              $netcashamount += $data->advancePayment->cashamount ?? 0;
                               $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
                               $totalcarrying_bill += $data->carrying_bill ?? 0;
                               $totaladvance += $data->advance ?? 0;
@@ -477,7 +475,7 @@
                 </div>
                 <div class="row mb-2">
                   <div class="col-6 text-left">Total Cash Amount</div>
-                  <div class="col-6 text-right">- {{ number_format($netcashamount, 2) }}</div>
+                  <div class="col-6 text-right">- {{ number_format($alltotalcashamount, 2) }}</div>
                 </div>
                 <div class="row mb-2">
                   <div class="col-6 text-left">Total Fuel Advance</div>
