@@ -47,9 +47,10 @@ class VendorLedgerController extends Controller
                         DB::raw('COUNT(DISTINCT challan_no) as total_trip'),
                         DB::raw('SUM(carrying_bill) as total_carrying_bill'),
                         DB::raw('SUM(dest_qty) as total_qty'),
-                        DB::raw('SUM(advance) as total_advance'),
-                        DB::raw('SUM(scale_fee) as total_scale_fee')
+                        DB::raw('SUM(scale_fee) as total_scale_fee'),
+                        DB::raw('SUM(COALESCE(advance_payments.fuelamount,0) + COALESCE(advance_payments.cashamount,0)) as total_advance')
                     )
+                    ->leftJoin('advance_payments', 'program_details.id', '=', 'advance_payments.program_detail_id')
                     ->with('motherVassel:id,name')
                     ->groupBy('mother_vassel_id', 'vendor_sequence_number_id');
                 },
