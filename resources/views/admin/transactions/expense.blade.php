@@ -609,19 +609,38 @@
 
 <script>
     $('#chartModal').on('hidden.bs.modal', function(e) {
-
+        // Reset whole form
         $('#customer-form')[0].reset();
-        $("#pre_adjust").show();
-        $('#customer-form textarea').text('');
 
-        $('#chartModal .submit-btn').removeClass('update-btn').addClass('save-btn').text('Save').val("");
+        // Reset textareas properly
+        $('#customer-form textarea').val('');
 
-        $('#payment_type').html("<option value=''>Please Select</option>" + "<option value='Cash'>Cash</option>" + "<option value='Bank'>Bank</option>");
+        // Reset select2 fields
+        $('#customer-form .select2').val(null).trigger('change');
+
+        // Reset button state
+        $('#chartModal .submit-btn')
+            .removeClass('update-btn')
+            .addClass('save-btn')
+            .text('Save')
+            .val("");
+
+        // Reset payment_type options
+        $('#payment_type').html(
+            "<option value=''>Please Select</option>" +
+            "<option value='Cash'>Cash</option>" +
+            "<option value='Bank'>Bank</option>"
+        ).val('').trigger('change');
+
+        // Hide conditional divs
         $('#employeeDiv').hide();
         $('#showpayable').hide();
-        $('#payable_holder_id').val('');
-        $('#employee_id').val('');
+
+        // Reset dependent dropdowns
+        $('#payable_holder_id').val('').trigger('change');
+        $('#employee_id').val('').trigger('change');
     });
+
 </script>
 
 @endsection
