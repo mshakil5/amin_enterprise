@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
+use Illuminate\Support\Facades\DB;
 
 class ExpenseController extends Controller
 {
@@ -58,76 +59,64 @@ class ExpenseController extends Controller
         return view('admin.transactions.expVoucher', compact('data'));
     }
 
-    public function store(Request $request)
-    {
+public function store(Request $request)
+{
+    // Validate inputs
+    $validated = $request->validate([
+        'date'              => 'required|date',
+        'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
+        'table_type'        => 'required|string',
+        'amount'            => 'required|numeric|min:0',
+        'transaction_type'  => 'required|string',
+        'account_id'        => 'required|exists:accounts,id',
+        'payment_type'      => 'required_if:transaction_type,!=,Prepaid Adjust|string|nullable',
+        'client_id'         => 'nullable|exists:clients,id',
+        'ref'               => 'nullable|string',
+        'description'       => 'nullable|string',
+        'tax_rate'          => 'nullable|numeric',
+        'tax_amount'        => 'nullable|numeric',
+        'vat_rate'          => 'nullable|numeric',
+        'vat_amount'        => 'nullable|numeric',
+        'at_amount'         => 'nullable|numeric',
+        'payable_holder_id' => 'nullable|integer',
+        'mother_vassel_id'  => 'nullable|integer',
+        'employee_id'  => 'nullable|integer',
+    ]);
 
-        if (empty($request->date)) {
-            return response()->json(['status' => 303, 'message' => 'Date Field Is Required..!']);
-        }
+    DB::beginTransaction();
 
-        if (empty($request->chart_of_account_id)) {
-            return response()->json(['status' => 303, 'message' => 'Chart of Account ID Field Is Required..!']);
-        }
-
-        if (empty($request->table_type)) {
-            return response()->json(['status' => 303, 'message' => 'Table Type Field Is Required..!']);
-        }
-
-        if (empty($request->amount)) {
-            return response()->json(['status' => 303, 'message' => 'Amount Field Is Required..!']);
-        }
-
-        if (empty($request->transaction_type)) {
-            return response()->json(['status' => 303, 'message' => 'Transaction Type Field Is Required..!']);
-        }
-
-        if (empty($request->account_id)) {
-            return response()->json(['status' => 303, 'message' => 'Account Field Is Required..!']);
-        }
-
-        if ($request->transaction_type !== 'Prepaid Adjust' && empty($request->payment_type)) {
-            return response()->json(['status' => 303, 'message' => 'Payment Type Field Is Required..!']);
-        }
-
-        $transaction = new Transaction();
-        $transaction->tran_id = strtoupper(Str::random(2)) . date('Y') . str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->client_id = $request->input('client_id');
-        $transaction->table_type = $request->input('table_type');
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        $transaction->tax_rate = $request->input('tax_rate');
-        $transaction->tax_amount = $request->input('tax_amount');
-        $transaction->vat_rate = $request->input('vat_rate');
-        $transaction->vat_amount = $request->input('vat_amount');
-        $transaction->at_amount = $request->input('at_amount');
-        $transaction->tran_type = $request->input('transaction_type');
-        $transaction->liability_id = $request->input('payable_holder_id');
-        $transaction->payment_type = $request->input('payment_type');
-        $transaction->expense_id = $request->input('chart_of_account_id');
-        $transaction->mother_vassel_id = $request->input('mother_vassel_id');
-        $transaction->created_by = Auth()->user()->id;
-
+    try {
+        // Create transaction
+        $transaction = new Transaction($validated);
+        $transaction->created_by = auth()->id();
+        $transaction->expense_id = $validated['chart_of_account_id']; 
         $transaction->save();
         $transaction->tran_id = 'EX' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         $transaction->save();
 
-       if ($request->account_id) {
-            $account = Account::find($request->account_id);
-            if ($account) {
-                if ($request->transaction_type === 'Current') {
-                    $account->amount -= $request->amount;
-                }
+        // Update account balance if applicable
+        if (!empty($validated['account_id'])) {
+            $account = Account::find($validated['account_id']);
+            if ($account && $validated['transaction_type'] === 'Current') {
+                $account->amount -= $validated['amount'];
                 $account->save();
             }
         }
 
-        return response()->json(['status' => 200, 'message' => 'Created Successfully']);
+        DB::commit();
 
+        return response()->json(['status' => 200, 'message' => 'Transaction created successfully.']);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 500,
+            'message' => 'Something went wrong.',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function edit($id)
     {
@@ -149,100 +138,97 @@ class ExpenseController extends Controller
             'payable_holder_id' => $transaction->liability_id,
             'mother_vassel_id' => $transaction->mother_vassel_id,
             'account_id' => $transaction->account_id,
+            'employee_id' => $transaction->employee_id,
         ];
         return response()->json($responseData);
     }
 
     public function update(Request $request, $id)
     {
+        
+        $validated = $request->validate([
+            'date'               => 'required|date',
+            'chart_of_account_id'=> 'required|exists:chart_of_accounts,id',
+            'amount'             => 'required|numeric|min:0',
+            'transaction_type'   => 'required|string',
+            'account_id'         => 'required|exists:accounts,id',
+            'payment_type'       => 'required_if:transaction_type,!=,Prepaid Adjust|string|nullable',
+            'client_id'          => 'nullable|exists:clients,id',
+            'ref'                => 'nullable|string',
+            'description'        => 'nullable|string',
+            'employee_id'        => 'nullable|exists:users,id',
+            'vat_rate'           => 'nullable|numeric',
+            'vat_amount'         => 'nullable|numeric',
+            'at_amount'          => 'nullable|numeric',
+            'payable_holder_id'  => 'nullable',
+            'mother_vassel_id'   => 'nullable',
+        ]);
 
-        if (empty($request->date)) {
-            return response()->json(['status' => 303, 'message' => 'Date Field Is Required..!']);
-        }
+        return DB::transaction(function () use ($validated, $id) {
+            
+            $transaction = Transaction::findOrFail($id);
 
-        if (empty($request->chart_of_account_id)) {
-            return response()->json(['status' => 303, 'message' => 'Chart of Account ID Field Is Required..!']);
-        }
+            $oldAccountId = $transaction->account_id;
+            $oldTranType  = $transaction->tran_type;
+            $oldAmount    = $transaction->amount;
 
-        if (empty($request->amount)) {
-            return response()->json(['status' => 303, 'message' => 'Amount Field Is Required..!']);
-        }
-
-        if (empty($request->transaction_type)) {
-            return response()->json(['status' => 303, 'message' => 'Transaction Type Field Is Required..!']);
-        }
-
-        if (empty($request->account_id)) {
-            return response()->json(['status' => 303, 'message' => 'Account Field Is Required..!']);
-        }
-
-        if ($request->transaction_type !== 'Prepaid Adjust' && empty($request->payment_type)) {
-            return response()->json(['status' => 303, 'message' => 'Payment Type Field Is Required..!']);
-        }
-
-        $transaction = Transaction::find($id);
-        $oldAccountId = $transaction->account_id;
-        $oldTranType = $transaction->tran_type;
-        $oldAmount = $transaction->amount;
-
-        // Reverse old only if type is "Current"
-        if ($oldTranType === 'Current' && $oldAccountId) {
-            $oldAccount = Account::find($oldAccountId);
-            if ($oldAccount) {
-                $oldAccount->amount += $oldAmount;
-                $oldAccount->save();
+            
+            if ($oldTranType === 'Current' && $oldAccountId) {
+                $oldAccount = Account::find($oldAccountId);
+                if ($oldAccount) {
+                    $oldAccount->increment('amount', $oldAmount);
+                }
             }
-        }
 
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->client_id = $request->input('client_id');
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        // $transaction->tax_rate = $request->input('tax_rate');
-        // $transaction->tax_amount = $request->input('tax_amount');
-        $transaction->vat_rate = $request->input('vat_rate');
-        $transaction->vat_amount = $request->input('vat_amount');
-        $transaction->at_amount = $request->input('at_amount');
-        $transaction->tran_type = $request->input('transaction_type');
+            
+            $transaction->fill([
+                'account_id'         => $validated['account_id'],
+                'date'               => $validated['date'],
+                'chart_of_account_id'=> $validated['chart_of_account_id'],
+                'client_id'          => $validated['client_id'] ?? null,
+                'ref'                => $validated['ref'] ?? null,
+                'description'        => $validated['description'] ?? null,
+                'amount'             => $validated['amount'],
+                'employee_id'        => $validated['employee_id'] ?? null,
+                'vat_rate'           => $validated['vat_rate'] ?? null,
+                'vat_amount'         => $validated['vat_amount'] ?? null,
+                'at_amount'          => $validated['at_amount'] ?? null,
+                'tran_type'          => $validated['transaction_type'],
+                'liability_id'       => $validated['transaction_type'] === 'Due' 
+                                        ? ($validated['payable_holder_id'] ?? null) 
+                                        : null,
+                'expense_id'         => $validated['chart_of_account_id'],
+                'mother_vassel_id'   => $validated['mother_vassel_id'] ?? null,
+                'updated_by'         => Auth::id(),
+            ]);
 
-        if ($request->input('transaction_type') !== 'Due') {
-        $transaction->liability_id = null;
-        } else {
-            $transaction->liability_id = $request->input('payable_holder_id');
-        }
-
-        // $transaction->liability_id = $request->input('payable_holder_id');
-        // $transaction->payment_type = $request->input('payment_type');
-        $transaction->expense_id = $request->input('chart_of_account_id');
-        $transaction->mother_vassel_id = $request->input('mother_vassel_id');
-        $transaction->updated_by = Auth()->user()->id;
-
-        if ($request->input('transaction_type') === 'Prepaid Adjust') {
-            $transaction->tax_rate = null;
-            $transaction->tax_amount = null;
-            $transaction->payment_type = null;
-            $transaction->at_amount = $request->input('amount');
-        } else {
-            $transaction->tax_rate = $request->input('tax_rate');
-            $transaction->tax_amount = $request->input('tax_amount');
-            $transaction->payment_type = $request->input('payment_type');
-        }
-
-        $transaction->save();
-
-        if ($request->transaction_type === 'Current' && $request->account_id) {
-            $newAccount = Account::find($request->account_id);
-            if ($newAccount) {
-                $newAccount->amount -= $request->amount;
-                $newAccount->save();
+            
+            if ($validated['transaction_type'] === 'Prepaid Adjust') {
+                $transaction->tax_rate   = null;
+                $transaction->tax_amount = null;
+                $transaction->payment_type = null;
+                $transaction->at_amount  = $validated['amount'];
+            } else {
+                $transaction->tax_rate   = $validated['vat_rate'] ?? null;
+                $transaction->tax_amount = $validated['vat_amount'] ?? null;
+                $transaction->payment_type = $validated['payment_type'];
             }
-        }
 
-        return response()->json(['status' => 200, 'message' => 'Updated Successfully']);
+            $transaction->save();
 
+            
+            if ($validated['transaction_type'] === 'Current' && $validated['account_id']) {
+                $newAccount = Account::find($validated['account_id']);
+                if ($newAccount) {
+                    $newAccount->decrement('amount', $validated['amount']);
+                }
+            }
+
+            return response()->json([
+                'status'  => 200,
+                'message' => 'Transaction updated successfully.',
+            ]);
+        });
     }
     
 }

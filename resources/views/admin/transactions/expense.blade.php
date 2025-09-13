@@ -466,6 +466,13 @@
                     } else {
                         $("#pre_adjust").show();
                     }
+                    if (response.employee_id) {
+                        $("#employeeDiv").show();
+                        $('#employee_id').val(response.employee_id).trigger('change');
+                    } else {
+                        $("#employeeDiv").hide();
+                    }
+
                     $('#transaction_type').val(response.transaction_type);
                     $('#amount').val(response.amount);
                     $('#tax_rate').val(response.tax_rate);
@@ -475,7 +482,7 @@
                     $('#description').val(response.description);
 
                     $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
-                    $('#chart_of_account_id').val(response.chart_of_account_id);
+                    $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
                     $('#account_id').val(response.account_id);
                     $('#client_id').val(response.client_id);
 
