@@ -609,34 +609,21 @@
 
 <script>
     $('#chartModal').on('hidden.bs.modal', function(e) {
-        // Reset whole form
         $('#customer-form')[0].reset();
-
-        // Reset textareas properly
         $('#customer-form textarea').val('');
-
-        // Reset select2 fields
         $('#customer-form .select2').val(null).trigger('change');
-
-        // Reset button state
         $('#chartModal .submit-btn')
             .removeClass('update-btn')
             .addClass('save-btn')
             .text('Save')
             .val("");
-
-        // Reset payment_type options
         $('#payment_type').html(
             "<option value=''>Please Select</option>" +
             "<option value='Cash'>Cash</option>" +
             "<option value='Bank'>Bank</option>"
         ).val('').trigger('change');
-
-        // Hide conditional divs
         $('#employeeDiv').hide();
         $('#showpayable').hide();
-
-        // Reset dependent dropdowns
         $('#payable_holder_id').val('').trigger('change');
         $('#employee_id').val('').trigger('change');
     });
