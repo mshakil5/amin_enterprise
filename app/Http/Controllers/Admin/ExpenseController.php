@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ExpenseController extends Controller
 {
@@ -45,6 +46,9 @@ class ExpenseController extends Controller
                 ->addColumn('chart_of_account', function ($transaction) {
                     return $transaction->chartOfAccount ? $transaction->chartOfAccount->account_name : $transaction->description;
                 })
+                ->addColumn('accountname', function ($transaction) {
+                    return $transaction->account ? $transaction->account->type : 'Not Found';
+                })
                 ->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Expenses')->get();
@@ -68,8 +72,8 @@ public function store(Request $request)
         'table_type'        => 'required|string',
         'amount'            => 'required|numeric|min:0',
         'transaction_type'  => 'required|string',
-        'account_id'        => 'required|exists:accounts,id',
-        'payment_type'      => 'required_if:transaction_type,!=,Prepaid Adjust|string|nullable',
+            'account_id'         => 'required_unless:transaction_type,Prepaid Adjust|nullable',
+            'payment_type'       => 'required_unless:transaction_type,Prepaid Adjust|string|nullable',
         'client_id'         => 'nullable|exists:clients,id',
         'ref'               => 'nullable|string',
         'description'       => 'nullable|string',
@@ -90,6 +94,8 @@ public function store(Request $request)
         $transaction = new Transaction($validated);
         $transaction->created_by = auth()->id();
         $transaction->expense_id = $validated['chart_of_account_id']; 
+        $transaction->account_id = $request->account_id ?? null; 
+        $transaction->tran_type =  $request->transaction_type ?? null;
         $transaction->save();
         $transaction->tran_id = 'EX' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
         $transaction->save();
@@ -151,8 +157,8 @@ public function store(Request $request)
             'chart_of_account_id'=> 'required|exists:chart_of_accounts,id',
             'amount'             => 'required|numeric|min:0',
             'transaction_type'   => 'required|string',
-            'account_id'         => 'required|exists:accounts,id',
-            'payment_type'       => 'required_if:transaction_type,!=,Prepaid Adjust|string|nullable',
+            'account_id'         => 'required_unless:transaction_type,Prepaid Adjust|nullable',
+            'payment_type'       => 'required_unless:transaction_type,Prepaid Adjust|string|nullable',
             'client_id'          => 'nullable|exists:clients,id',
             'ref'                => 'nullable|string',
             'description'        => 'nullable|string',
@@ -164,7 +170,7 @@ public function store(Request $request)
             'mother_vassel_id'   => 'nullable',
         ]);
 
-        return DB::transaction(function () use ($validated, $id) {
+        return DB::transaction(function () use ($validated, $id, $request) {
             
             $transaction = Transaction::findOrFail($id);
 
@@ -180,9 +186,11 @@ public function store(Request $request)
                 }
             }
 
+            Log::info('account_id:' . $request->account_id );
+
             
             $transaction->fill([
-                'account_id'         => $validated['account_id'],
+                'account_id'         => $request->account_id,
                 'date'               => $validated['date'],
                 'chart_of_account_id'=> $validated['chart_of_account_id'],
                 'client_id'          => $validated['client_id'] ?? null,
