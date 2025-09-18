@@ -271,7 +271,7 @@
                                             <br>
                                             {{ $transaction->note ?? '-' }}
                                         </td>
-                                        <td></td>
+                                        <td>{{ $transaction->payment_type ?? '-' }}{{ $transaction->tran_type ?? '-' }}</td>
                                         <td></td>
                                         <td></td>
                                         <td class="text-right">{{ number_format($transaction->at_amount, 2) }}</td>
