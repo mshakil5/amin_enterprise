@@ -277,7 +277,12 @@
                                         <td class="text-right">{{ number_format($transaction->at_amount, 2) }}</td>
                                     </tr>
                                     @php
+                                    if ($transaction->table_type == "Income") {
+                                        $openingBalance += $transaction->at_amount;
+                                    } else {
                                         $openingBalance -= $transaction->at_amount;
+                                    }
+                                    
                                     @endphp
                                 @endforeach
 
