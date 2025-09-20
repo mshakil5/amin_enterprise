@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
+use App\Models\VendorSequenceNumber;
 
 class IncomeController extends Controller
 {
@@ -92,6 +93,8 @@ class IncomeController extends Controller
         // $transaction->liability_id = $request->input('payable_holder_id');
         $transaction->payment_type = $request->input('payment_type');
         $transaction->income_id = $request->input('chart_of_account_id');
+        $transaction->vendor_id = $request->input('vendor_id');
+        $transaction->vendor_sequence_number_id  = $request->input('vendor_sequence_id');
         $transaction->mother_vassel_id = $request->input('mother_vassel_id');
         $transaction->created_by = Auth()->user()->id;
 
@@ -132,6 +135,8 @@ class IncomeController extends Controller
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
             'mother_vassel_id' => $transaction->mother_vassel_id,
+            'vendor_sequence_number_id' => $transaction->vendor_sequence_number_id,
+            'vendor_id' => $transaction->vendor_id,
             'account_id' => $transaction->account_id,
         ];
         return response()->json($responseData);
@@ -190,6 +195,8 @@ class IncomeController extends Controller
         $transaction->tran_type = $request->input('transaction_type');
         $transaction->income_id = $request->input('chart_of_account_id');
         $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+        $transaction->vendor_id = $request->input('vendor_id');
+        $transaction->vendor_sequence_number_id  = $request->input('vendor_sequence_id');
         $transaction->updated_by = Auth()->user()->id;
 
         if ($request->input('transaction_type') === 'Advance Adjust') {

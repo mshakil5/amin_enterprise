@@ -2,6 +2,12 @@
 
 @section('content')
 
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+
 <section class="content pt-3" id="contentContainer">
     <div class="container-fluid">
         <div class="row">
@@ -191,6 +197,34 @@
                         </div>
                     </div>
 
+                    
+                    <div class="row" id="vendorDiv">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="vendor_id" class="control-label">Vendor</label>
+                                <select class="form-control select2" id="vendor_id" name="vendor_id">
+                                    <option value="">Select Vendor</option>
+                                    @foreach (\App\Models\Vendor::where('status', 1)->orderby('id', 'DESC')->select('id', 'name')->get() as $vendor)
+                                    <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="vendor_sequence_id" class="control-label">Vendor</label>
+                                <select class="form-control select2" id="vendor_sequence_id" name="vendor_sequence_id">
+                                    <option value="">Select Sequence Number</option>
+                                    @foreach (\App\Models\VendorSequenceNumber::where('status', 1)->select('id', 'unique_id')->get() as $vsno)
+                                    <option value="{{$vsno->id}}">{{$vsno->unique_id}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
 
                     
 
@@ -211,6 +245,48 @@
 @endsection
     
 @section('script')
+
+<script>
+$(document).ready(function () {
+    $('#vendor_id').on('change', function () {
+        var vendorId = $(this).val();
+        var $sequenceSelect = $('#vendor_sequence_id');
+
+        $sequenceSelect.empty().append('<option value="">Select Sequence Number</option>');
+
+        if (vendorId) {
+            $.ajax({
+                url: '/admin/vendor/' + vendorId + '/sequences',
+                type: 'GET',
+                success: function (data) {
+                    $.each(data, function (key, sequence) {
+                        $sequenceSelect.append('<option value="'+ sequence.id +'">'+ sequence.unique_id +'</option>');
+                    });
+                }
+            });
+        }
+    });
+});
+</script>
+
+<!-- Payable holder id -->
+<script>
+    $(document).ready(function() {
+        $('#vendorDiv').hide();
+
+        $('#chart_of_account_id').on('change', function() {
+            let selectedText = $("#chart_of_account_id option:selected").text().toLowerCase();
+
+            if (selectedText.includes("token fee") || selectedText.includes("token")) {
+                $("#vendorDiv").show();
+            } else {
+                $("#vendorDiv").hide();
+            }
+        });
+
+
+    });
+</script>
 
 <!-- Payable holder id -->
 <script>
@@ -331,7 +407,7 @@
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
                 success: function (response) {
-                    // console.log(response);
+                    console.log(response);
                     $('#date').val(response.date);
                     $('#ref').val(response.ref);
 
@@ -339,6 +415,13 @@
                         $("#pre_adjust").hide();
                     }else{
                         $("#pre_adjust").show();
+                    }
+                    if (response.vendor_id) {
+                        $("#vendorDiv").show();
+                        $('#vendor_id').val(response.vendor_id).trigger('change');
+                        $('#vendor_sequence_id').val(response.vendor_sequence_number_id).trigger('change');
+                    } else {
+                        $("#vendorDiv").hide();
                     }
 
                     $('#transaction_type').val(response.transaction_type);
@@ -444,13 +527,29 @@
 <!-- Main script -->
 
 <script>
-    $(document).ready(function() {
-        $('#chartModal').on('hidden.bs.modal', function (e) {
-            $('#payment_type').val('');
-            $("#pre_adjust").show();
-            $('#payment_type_container').show();
-        });
+    $('#chartModal').on('hidden.bs.modal', function(e) {
+        $('#customer-form')[0].reset();
+        $('#customer-form textarea').val('');
+        $('#customer-form .select2').val(null).trigger('change');
+        $('#chartModal .submit-btn')
+            .removeClass('update-btn')
+            .addClass('save-btn')
+            .text('Save')
+            .val("");
+        $('#payment_type').html(
+            "<option value=''>Please Select</option>" +
+            "<option value='Cash'>Cash</option>" +
+            "<option value='Bank'>Bank</option>"
+        ).val('').trigger('change');
+        $('#vendorDiv').hide();
+        $('#showpayable').hide();
+        $('#vendor_id').val('').trigger('change');
+        $('#vendor_sequence_id').val('').trigger('change');
+        $('#payable_holder_id').val('').trigger('change');
+        $('#employee_id').val('').trigger('change');
     });
+
+</script>
 </script>
 
 @endsection

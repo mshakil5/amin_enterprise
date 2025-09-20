@@ -136,6 +136,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/vendor-trip/export-excel', [VendorController::class, 'exportExcel'])->name('admin.vendor-trip.export-excel');
     Route::post('/check-duplicate-data', [VendorController::class,'checkDuplicateWrongData'])->name('checkDuplicateWrongData');
     Route::get('/get-vendors-sequence-ledger/{id}', [VendorController::class, 'getVendorWiseProgramLedger'])->name('admin.vendor.sequence.ledger');
+    Route::get('/vendor/{id}/sequences', [VendorController::class, 'getSequences']);
+
 
 
     // approved and checked sequence 

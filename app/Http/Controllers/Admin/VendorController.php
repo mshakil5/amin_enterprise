@@ -682,4 +682,16 @@ class VendorController extends Controller
 
     }
 
+    
+    public function getSequences($id)
+    {
+        $sequences = VendorSequenceNumber::where('vendor_id', $id)
+                        ->where('status', 1)->orderby('id', 'DESC')
+                        ->select('id', 'unique_id')
+                        ->get();
+
+        return response()->json($sequences);
+    }
+
+
 }
