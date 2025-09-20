@@ -68,6 +68,7 @@ class VendorLedgerController extends Controller
                         'vendor_sequence_number_id',
                         'program_detail_id',
                         'date',
+                        'table_type',
                         'tran_type',
                         'payment_type',
                         'at_amount',
