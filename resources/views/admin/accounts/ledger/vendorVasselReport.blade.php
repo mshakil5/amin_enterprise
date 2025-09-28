@@ -15,8 +15,8 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-              <h4 class="text-center">{{$vendors->name}}</h4>
-              <h5 class="text-center">{{$mvassels->name}}</h5>
+              <h4 class="text-center">{{$vendors->name ?? " "}}</h4>
+              <h5 class="text-center">{{$mvassels->name ?? " "}}</h5>
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                   <tr>

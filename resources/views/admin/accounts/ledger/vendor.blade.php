@@ -33,7 +33,7 @@
                                         </div> --}}
                                         <div class="form-group col-md-3">
                                             <label for="vendor_id">Vendor</label>
-                                            <select name="vendor_id" id="vendor_id" class="form-control select2">
+                                            <select name="vendor_id" id="vendor_id" class="form-control select2" required>
                                               <option value="">Select</option>
                                               @foreach ($vendors as $vendor)
                                               <option value="{{$vendor->id}}">{{$vendor->name}}</option>
@@ -42,7 +42,7 @@
                                         </div>
                                         <div class="form-group col-md-3">
                                             <label for="mv_id">Mother Vassel </label>
-                                            <select name="mv_id" id="mv_id" class="form-control select2">
+                                            <select name="mv_id" id="mv_id" class="form-control select2" required>
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
                                               <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>

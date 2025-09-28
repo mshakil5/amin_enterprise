@@ -1752,6 +1752,7 @@ class ProgramController extends Controller
         $programDetail->save();
 
         // Step 7: Create or update ChallanRates
+        Log::info("destination_id: $dstnID, ghat_id: $ghatID, challan_qty: $cQty");
         
         $this->challanRateUpdate($cQty, $dstnID, $ghatID, $programDetail);
 

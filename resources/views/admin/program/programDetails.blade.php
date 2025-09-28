@@ -133,7 +133,7 @@
                                             <select class="form-control" id="vendor_id{{$data->id}}" name="vendor_id">
                                                 
                                                 @foreach ($vendors as $vendor)
-                                                    <option value="{{$vendor->name}}" @if ($data->vendor_id == $vendor->id) selected @endif>{{$vendor->name}}</option>
+                                                    <option value="{{$vendor->id}}" @if ($data->vendor_id == $vendor->id) selected @endif>{{$vendor->name}}</option>
                                                 @endforeach
                                                 
                                             </select>
@@ -718,6 +718,9 @@
             formData.append("fuel_amount", $('#fuel_amount'+prgmdtlid).val());
             formData.append("amount", $('#amount'+prgmdtlid).val());
             formData.append("fueltoken", $('#fueltoken'+prgmdtlid).val());
+            formData.append("ghat_id", $("#ghat_id").val());
+
+            console.log($("#ghat_id").val());
 
             $.ajax({
                 url: '{{ route("after-challan-store") }}',
