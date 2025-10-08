@@ -213,7 +213,7 @@
                         
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="vendor_sequence_id" class="control-label">Vendor</label>
+                                <label for="vendor_sequence_id" class="control-label">Vendor Sequence No. </label>
                                 <select class="form-control select2" id="vendor_sequence_id" name="vendor_sequence_id">
                                     <option value="">Select Sequence Number</option>
                                     @foreach (\App\Models\VendorSequenceNumber::where('status', 1)->select('id', 'unique_id')->get() as $vsno)
@@ -277,7 +277,7 @@ $(document).ready(function () {
         $('#chart_of_account_id').on('change', function() {
             let selectedText = $("#chart_of_account_id option:selected").text().toLowerCase();
 
-            if (selectedText.includes("token fee") || selectedText.includes("token")) {
+            if (selectedText.includes("token fee") || selectedText.includes("token") || selectedText.includes("discount")) {
                 $("#vendorDiv").show();
             } else {
                 $("#vendorDiv").hide();

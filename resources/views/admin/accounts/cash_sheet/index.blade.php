@@ -96,7 +96,7 @@
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($dtranfer->date)->format('d-m-Y') }}</td>
                                     <td> {{ $dtranfer->description ?? '' }}</td>
-                                    <td >{{ $dtranfer->tran_id ?? '' }}</td>
+                                    <td >{{ $dtranfer->tran_id ?? '' }}  ({{ $dtranfer->account->type ?? '' }})</td>
                                     <td ></td>
                                     <td class="text-right">
                                         @if ($dtranfer->payment_type === 'Cash')
@@ -130,7 +130,7 @@
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($cashliability->date)->format('d-m-Y') }}</td>
                                     <td>{{ $cashliability->chartOfAccount->account_name ?? '' }} - {{ $cashliability->description ?? '' }}</td>
-                                    <td >{{ $cashliability->tran_id ?? '' }}</td>
+                                    <td >{{ $cashliability->tran_id ?? '' }}  ({{ $cashliability->account->type ?? '' }})</td>
                                     <td ></td>
                                     <td class="text-right">
                                         @if ($cashliability->payment_type === 'Cash')
@@ -157,7 +157,7 @@
                                     <td>{{ \Carbon\Carbon::parse($bankliability->date)->format('d-m-Y') }}</td>
                                     <td>{{ $bankliability->chartOfAccount->account_name ?? '' }} 
                                          - {{ $bankliability->description ?? '' }}</td>
-                                    <td >{{ $bankliability->tran_id ?? '' }}</td>
+                                    <td >{{ $bankliability->tran_id ?? '' }}  ({{ $bankliability->account->type ?? '' }})</td>
                                     <td ></td>
                                     <td class="text-right"></td>
                                     <td class="text-right">
@@ -187,7 +187,7 @@
                                             {{$income->vendor->name ?? ''}}
                                         @endif
                                         - {{ $income->description ?? '' }}</td>
-                                    <td >{{ $income->tran_id ?? '' }}</td>
+                                    <td >{{ $income->tran_id ?? '' }}  ({{ $income->account->type ?? '' }})</td>
                                     <td ></td>
                                     <td class="text-right">
                                         @if ($income->payment_type === 'Cash')
