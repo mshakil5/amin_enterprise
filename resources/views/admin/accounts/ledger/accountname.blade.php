@@ -15,58 +15,38 @@
                         <div id="alert-container"></div>
 
                         <table id="chartOfAccountsTable" class="table table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Assets</th>
-                                    <th>Expenses</th>
-                                    <th>Income</th>
-                                    <th>Liabilities</th>
-                                    <th>Equity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                    <tr>
-                                        <td>
-                                            @foreach($chartOfAccounts as $asset)
-                                                @if($asset->account_head == 'Assets')   
-                                                    <a href="{{ url('/admin/ledger/asset-details/' . $asset->id) }}" class="btn btn-block btn-default btn-xs">{{ $asset->account_name }}</a>
-                                                @endif  
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @foreach($chartOfAccounts as $expense)
-                                                @if($expense->account_head == 'Expenses')   
-                                                    <a href="{{ url('/admin/ledger/expense-details/' . $expense->id) }}" class="btn btn-block btn-default btn-xs">{{ $expense->account_name }}</a>
-                                                @endif  
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @foreach($chartOfAccounts as $income)
-                                                @if($income->account_head == 'Income')   
-                                                    <a href="{{ url('/admin/ledger/income-details/' . $income->id) }}" class="btn btn-block btn-default btn-xs">{{ $income->account_name }}</a>
-                                                @endif  
-                                            @endforeach
-                                        </td>
-                                        <td>
-                                            @foreach($chartOfAccounts as $liability)
-                                                @if($liability->account_head == 'Liabilities')   
-                                                    <a href="{{ url('/admin/ledger/liability-details/' . $liability->id) }}" class="btn btn-block btn-default btn-xs">{{ $liability->account_name }}</a>
-                                                @endif  
-                                            @endforeach
-                                            <hr>
-                                            
+    <thead>
+        <tr>
+            <th>SL</th>
+            <th>Account Name</th>
+            <th>Account Head</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($chartOfAccounts as $key => $account)
+            <tr>
+                <td>{{ $key + 1 }}</td>
+                <td>{{ $account->account_name }}</td>
+                <td>{{ $account->account_head }}</td>
+                <td>
+                    @php
+                        $url = '';
+                        switch ($account->account_head) {
+                            case 'Assets': $url = '/admin/ledger/asset-details/'; break;
+                            case 'Expenses': $url = '/admin/ledger/expense-details/'; break;
+                            case 'Income': $url = '/admin/ledger/income-details/'; break;
+                            case 'Liabilities': $url = '/admin/ledger/liability-details/'; break;
+                            case 'Equity': $url = '/admin/ledger/equity-details/'; break;
+                        }
+                    @endphp
+                    <a href="{{ url($url . $account->id) }}" class="btn btn-primary btn-sm">View</a>
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
 
-                                        </td>
-                                        <td>
-                                            @foreach($chartOfAccounts as $equity)
-                                                @if($equity->account_head == 'Equity')   
-                                                    <a href="{{ url('/admin/ledger/equity-details/' . $equity->id) }}" class="btn btn-block btn-default btn-xs">{{ $equity->account_name }}</a>
-                                                @endif  
-                                            @endforeach
-                                        </td>
-                                    </tr>
-                            </tbody>
-                        </table>
 
 
                     </div>
@@ -82,25 +62,18 @@
 @endsection
 
 @section('script')
-
 <script>
-    $(function () {
-      $("#dataTransactionsTable").DataTable({
-        "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
-        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
-      }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
-      
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
+$(document).ready(function () {
+    $('#chartOfAccountsTable').DataTable({
+        responsive: true,
+        lengthChange: true,
+        autoWidth: false,
+        pageLength: 25,
+        order: [[1, 'asc']], // sort by Account Name
+        buttons: ["copy", "csv", "excel", "pdf", "print"],
+        dom: 'Bfrtip', // show buttons on top
     });
+});
 </script>
 @endsection
+

@@ -227,7 +227,7 @@ class LedgerController extends Controller
             $query->whereBetween('date', [$request->start_date, $endDate]);
         }
 
-        $data = $query->get();
+        $data = $query->orderby('id', 'DESC')->get();
 
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Purchase', 'Payment'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Sold', 'Deprication'])->sum('at_amount');
@@ -256,7 +256,7 @@ class LedgerController extends Controller
             $query->whereBetween('date', [$request->start_date, $endDate]);
         }
 
-        $data = $query->get();
+        $data = $query->orderby('id', 'DESC')->get();
         $totalDrAmount = (clone $query)->sum('at_amount');
         $totalBalance = $totalDrAmount;
         $accountName = ChartOfAccount::find($id)?->account_name;
@@ -284,7 +284,7 @@ class LedgerController extends Controller
             $query->whereBetween('date', [$request->start_date, $endDate]);
         }
 
-        $data = $query->get();
+        $data = $query->orderby('id', 'DESC')->get();
 
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Refund'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Current', 'Advance Adjust'])->sum('at_amount');
@@ -314,7 +314,7 @@ class LedgerController extends Controller
             $query->whereBetween('date', [$request->start_date, $endDate]);
         }
 
-        $data = $query->get();
+        $data = $query->orderby('id', 'DESC')->get();
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Received'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Payment'])->sum('at_amount');
         $totalBalance = $totalDrAmount - $totalCrAmount;
@@ -343,7 +343,7 @@ class LedgerController extends Controller
             $query->whereBetween('date', [$request->start_date, $endDate]);
         }
 
-        $data = $query->get();
+        $data = $query->orderby('id', 'DESC')->get();
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Payment'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Received'])->sum('at_amount');
         $totalBalance = $totalCrAmount - $totalDrAmount;
