@@ -316,19 +316,28 @@
             });
         });
       //Delete  
-      function populateForm(data){
-          $("#name").val(data.name);
-          $("#surname").val(data.surname);
-          $("#phone").val(data.phone);
-          $("#email").val(data.email);
-          $("#role_id").val(data.role_id);
-          $("#codeid").val(data.id);
-          $("#addBtn").val('Update');
-          $("#addBtn").html('Update');
-          $("#addThisFormContainer").show(300);
-          $("#newBtn").hide(100);
-          $("#role_id").hide();
-      }
+      
+        function populateForm(data){
+            $("#name").val(data.name);
+            $("#surname").val(data.surname);
+            $("#phone").val(data.phone);
+            $("#email").val(data.email);
+            $("#role_id").val(data.role_id);
+            $("#codeid").val(data.id);
+            $("#addBtn").val('Update');
+            $("#addBtn").html('Update');
+            $("#addThisFormContainer").show(300);
+            $("#newBtn").hide(100);
+
+            let userRole = {{ Auth::user()->role_id ?? 'null' }};
+
+            if (userRole == 1) {
+                $("#role_id").show();
+            } else {
+                $("#role_id").hide();
+            }
+        }
+
       function clearform(){
           $('#createThisForm')[0].reset();
           $("#addBtn").val('Create');
