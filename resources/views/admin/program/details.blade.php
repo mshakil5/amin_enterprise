@@ -38,6 +38,10 @@
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quantitymodal">
             Change Quantity
           </button>
+
+          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-truckSummary">
+            Truck Summary
+          </button>
           
       </div>
     </div>
@@ -546,6 +550,64 @@
 <!-- /.modal -->
 
 
+
+
+<div class="modal fade" id="modal-truckSummary">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-secondary">
+          <h4 class="modal-title">Mother Vessel: {{$data->motherVassel->name ?? ''}}</h4>
+          
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-12 text-center" id="advTitle">
+                    <h2>Truck Summary</h2>
+                </div>
+            </div>
+
+            <div>
+                <table id="example4" class="table table-bordered table-striped vendorsummery">
+                    <thead class="bg-secondary">
+                        <tr>
+                            <th style="text-align: center">SL</th>
+                            <th style="text-align: center">Truck Number</th>
+                            <th style="text-align: center">Count</th>
+                            <th style="text-align: center">Cash Advance</th>
+                            <th style="text-align: center">Fuel Qty</th>
+                            <th style="text-align: center">Fuel Advance</th>
+                            <th style="text-align: center">Total Advance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($truckSummary as $key => $data)
+                            <tr>
+                                <td style="text-align: center">{{ $key + 1 }}</td>
+                                <td style="text-align: center">{{$data->truck_number  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->vehicle_count  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->total_cashamount  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->total_fuelqty  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->total_fuelamount  ?? ""}}</td>
+                                <td style="text-align: center">{{$data->total_amount  ?? ""}}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <!-- /. qty change modal -->
 <div class="modal fade" id="quantitymodal">
     <div class="modal-dialog modal-xs">
@@ -792,6 +854,29 @@ $(document).ready(function () {
       ],
       "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
     }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
+
+    
+      $(".vendorsummery").DataTable({
+        "responsive": true, "lengthChange": false, "autoWidth": false,
+        "buttons": [
+          "copy", 
+          "csv", 
+          "excel", 
+          {
+            extend: 'pdf',
+            customize: function (doc) {
+              doc.content.splice(0, 0, {
+                text: 'Program details',
+                style: 'header',
+                alignment: 'center'
+              });
+            },
+            filename: 'Program_Details'
+          }, 
+          "print"
+        ],
+        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+      }).buttons().container().appendTo('#vendorsummery_wrapper .col-md-6:eq(0)');
 
 
     });

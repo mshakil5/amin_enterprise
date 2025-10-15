@@ -135,10 +135,27 @@ class ProgramController extends Controller
                     ->orderBy('date', 'DESC')
                     ->get();
 
+        // truc number count
+
+        $truckSummary = ProgramDetail::select(
+            'program_details.truck_number',
+            DB::raw('SUM(advance_payments.fuelqty) as total_fuelqty'),
+            DB::raw('SUM(advance_payments.fuelamount) as total_fuelamount'),
+            DB::raw('SUM(advance_payments.cashamount) as total_cashamount'),
+            DB::raw('SUM(advance_payments.amount) as total_amount'),
+            DB::raw('COUNT(*) as vehicle_count')
+        )
+        ->join('advance_payments', 'advance_payments.program_detail_id', '=', 'program_details.id')
+        ->where('program_details.program_id', $id)
+        ->groupBy('program_details.truck_number')
+        ->orderBy('program_details.truck_number')
+        ->get();
+
+        // dd($truckSummary);
 
                     
 
-        return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName'));
+        return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName','truckSummary'));
     }
 
     public function vendorWiseProgramDetails(Request $request)
