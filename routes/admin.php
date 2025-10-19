@@ -194,6 +194,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/add-more-challan', [ProgramController::class, 'addMoreChallan'])->name('addMoreChallan');
     Route::post('/update-program', [ProgramController::class, 'programUpdate'])->name('programUpdate');
     Route::post('/get-vendor-advance-by-date', [ProgramController::class, 'getVendorAdvanceByDate'])->name('getAdvancePayments');
+    Route::post('/get-truc-list-by-vendor', [ProgramController::class, 'getProgramDetailsByVendor'])->name('getProgramDetailsByVendor');
     Route::post('/change-quantity', [ProgramController::class, 'changeQuantity'])->name('changeQuantity');
     Route::post('/undo-change-quantity', [ProgramController::class, 'undoChangeQuantity'])->name('undoChangeQuantity');
 

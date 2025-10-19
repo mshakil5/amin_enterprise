@@ -563,6 +563,27 @@
           </button>
         </div>
         <div class="modal-body">
+
+
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="vendors_truc">Vendor</label>
+                        <select class="form-control" name="vendors_truc" id="vendors_truc">
+                            <option value="">Select Date</option>
+                            @foreach ($vlist as $vendor)
+                                <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <button type="button" id="vtrucBtn" class="btn btn-secondary" style="margin-top: 32px;">Submit</button>
+                </div>
+            </div>
+
+
+
             <div class="row">
                 <div class="col-12 text-center" id="advTitle">
                     <h2>Truck Summary</h2>
@@ -1186,6 +1207,81 @@ $(document).ready(function () {
 
 
     });
+
+
+    
+    // vtruc Btn search
+    $('#vtrucBtn').click(function() {
+        var vendor = $('#vendors_truc').val();
+        var program_id = $('#program_id').val();
+        
+        if (vendor) {
+            $.ajax({
+                url: '{{ route("getProgramDetailsByVendor") }}',
+                method: 'POST',
+                data: { vendor: vendor, program_id: program_id },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    
+                    // Destroy the old DataTable instance
+                    if ($.fn.DataTable.isDataTable('#example4')) {
+                        $('#example4').DataTable().destroy();
+                    }
+
+
+                    // Process the response and update the table
+                    var tbody = $('#example4 tbody');
+                    tbody.empty();
+                    $.each(response.data, function(index, payment) {
+                        var row = `<tr>
+                            <td style="text-align: center">${index + 1}</td>
+                            <td style="text-align: center">${payment.truck_number ?? ''}</td>
+                            <td style="text-align: center">${payment.vehicle_count}</td>
+                            <td style="text-align: center">${payment.total_cashamount}</td>
+                            <td style="text-align: center">${payment.total_fuelqty}</td>
+                            <td style="text-align: center">${payment.total_fuelamount}</td>
+                            <td style="text-align: center">${payment.total_amount}</td>
+                        </tr>`;
+                        tbody.append(row);
+                    });
+
+                    var tfoot = $('#example4 tfoot');
+                    tfoot.empty();
+                    var totalRow = `<tr>
+                        <th style="text-align: center"></th>
+                        <th style="text-align: center"><b>Total</b></th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.vendor_count, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_cashamount, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_fuelqty, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_fuelamount, 0)}</th>
+                        <th style="text-align: center">${response.data.reduce((sum, payment) => sum + payment.total_amount, 0)}</th>
+                    </tr>`;
+                    tfoot.append(totalRow);
+
+
+                    // Re-initialize DataTable
+                    $('#example4').DataTable({
+                        "responsive": true,
+                        "lengthChange": false,
+                        "autoWidth": false,
+                        "destroy": true,
+                        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
+                    }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
+
+
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseJSON.message);
+                }
+            });
+        }
+    });
+
+
     
 
 

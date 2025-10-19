@@ -117,15 +117,19 @@ class ProgramController extends Controller
         $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $motherVesselName = $data->motherVassel->name;
 
-        $vlist = AdvancePayment::select('vendor_id',
-                    DB::raw('SUM(fuelqty) as total_fuelqty'),
-                    DB::raw('SUM(fuelamount) as total_fuelamount'),
-                    DB::raw('SUM(cashamount) as total_cashamount'),
-                    DB::raw('SUM(amount) as total_amount'),
-                    DB::raw('COUNT(*) as vendor_count')
-            )->where([
-                ['program_id','=', $id]
-            ])->groupBy('vendor_id')->get();
+        $vlist = AdvancePayment::select(
+                'advance_payments.vendor_id',
+                'vendors.name as vendor_name',
+                DB::raw('SUM(fuelqty) as total_fuelqty'),
+                DB::raw('SUM(fuelamount) as total_fuelamount'),
+                DB::raw('SUM(cashamount) as total_cashamount'),
+                DB::raw('SUM(amount) as total_amount'),
+                DB::raw('COUNT(*) as vendor_count')
+            )
+            ->join('vendors', 'vendors.id', '=', 'advance_payments.vendor_id')
+            ->where('program_id', $id)
+            ->groupBy('advance_payments.vendor_id', 'vendors.name')
+            ->get();
 
 
 
@@ -227,6 +231,58 @@ class ProgramController extends Controller
 
         return response()->json(['status' => 200, 'data' => $vendorAdvances, 'date' => $date, 'program' => $program, 'totalCount' => $totalCount, 'programId' => $programId]);
     }
+
+
+    // get truck list group by vendor
+    public function getProgramDetailsByVendor(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'program_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 400, 'errors' => $validator->errors()]);
+        }
+
+        $programId = $request->input('program_id');
+        $vendor = $request->input('vendor');
+
+        // program details
+        $program = Program::with('motherVassel:id,name')->where('id', $programId)->first();
+
+        $truckSummary = ProgramDetail::select(
+            'program_details.truck_number',
+                DB::raw('SUM(advance_payments.fuelqty) as total_fuelqty'),
+                DB::raw('SUM(advance_payments.fuelamount) as total_fuelamount'),
+                DB::raw('SUM(advance_payments.cashamount) as total_cashamount'),
+                DB::raw('SUM(advance_payments.amount) as total_amount'),
+                DB::raw('COUNT(*) as vehicle_count')
+            )
+            ->join('advance_payments', 'advance_payments.program_detail_id', '=', 'program_details.id')
+            ->where('program_details.program_id', $programId)
+            ->where('program_details.vendor_id', $vendor)
+            ->groupBy('program_details.truck_number')
+            ->orderBy('program_details.truck_number')
+            ->get();
+
+        $totalCount = ProgramDetail::select(
+            'program_details.truck_number',
+                DB::raw('SUM(advance_payments.fuelqty) as total_fuelqty'),
+                DB::raw('SUM(advance_payments.fuelamount) as total_fuelamount'),
+                DB::raw('SUM(advance_payments.cashamount) as total_cashamount'),
+                DB::raw('SUM(advance_payments.amount) as total_amount'),
+                DB::raw('COUNT(*) as vehicle_count')
+            )
+            ->join('advance_payments', 'advance_payments.program_detail_id', '=', 'program_details.id')
+            ->where('program_details.program_id', $programId)
+            ->where('program_details.vendor_id', $vendor)
+            ->groupBy('program_details.truck_number')
+            ->count();
+
+        return response()->json(['status' => 200, 'data' => $truckSummary, 'program' => $program, 'totalCount' => $totalCount, 'programId' => $programId]);
+    }
+
+
 
     // changeQuantity
     public function changeQuantity2(Request $request)
