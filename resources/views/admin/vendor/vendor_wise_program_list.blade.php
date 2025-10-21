@@ -113,23 +113,23 @@
                       <th>Sl</th>
                       <th>Bill Status</th>
                       <th>Petrol Pump</th>
-                      <th>Bill No</th>
+                      <th>Bill <br> No</th>
                       <th>Date</th>
                       <th>Vendor</th>
-                      <th>Header ID</th>
-                      <th>Truck Number</th>
-                      <th>Challan no</th>
-                      <th>Destination</th>
+                      <th>HeaderID</th>
+                      <th>Truck <br> Number</th>
+                      <th>Challan <br> no</th>
+                      <th>Dest.</th>
                       <th>Qty</th>
-                      <th>Carring Bill</th>
-                      <th>Line Charge</th>
-                      <th>Scale fee</th>
-                      <th>Other Cost</th>
-                      <th>Cash Advance</th>
-                      <th>Fuel qty</th>
-                      <th>Fuel Amount</th>
-                      <th>Fuel token</th>
-                      <th>Pump name</th>
+                      <th>Carring <br> Bill</th>
+                      <th>Line  <br>Charge</th>
+                      <th>Scale <br> fee</th>
+                      <th>Other <br> Cost</th>
+                      <th>Cash <br> Advance</th>
+                      <th>Fuel <br> qty</th>
+                      <th>Fuel <br> Amount</th>
+                      <th>Fuel <br> token</th>
+                      <th>Pump  <br>name</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -615,32 +615,73 @@
                 lengthChange: false,
                 autoWidth: false,
                 buttons: [
-                    {
-                        extend: 'copy',
-                        footer: true,
-                        title: 'Vendor Report',
-                    },
-                    {
-                        extend: 'csv',
-                        footer: true,
-                        title: 'Vendor Report',
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        footer: true,
-                        title: 'Vendor Report',
-                    },
-                    {
-                        extend: 'pdf',
-                        footer: true,
-                        title: 'Vendor Report',
-                    },
-                    {
-                        extend: 'print',
-                        footer: true,
-                        title: 'Vendor Report',
+                {
+                    extend: 'copy',
+                    footer: true,
+                    title: 'Vendor Report',
+                    exportOptions: {
+                        columns: ':visible' // Export all visible columns
                     }
-                ],
+                },
+                {
+                    extend: 'csv',
+                    footer: true,
+                    title: 'Vendor Report',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excelHtml5',
+                    footer: true,
+                    title: 'Vendor Report',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                  extend: 'pdfHtml5',
+                  footer: true, 
+                  title: 'Vendor Report',
+                  orientation: 'landscape',
+                  pageSize: 'A4',
+                  exportOptions: {
+                  columns: ':not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3))' // Skip first 3 columns only
+                  },
+                  customize: function (doc) {
+                  // Smaller font size for content
+                  doc.defaultStyle.fontSize = 7;
+                  doc.styles.tableHeader.fontSize = 8;
+                  doc.styles.title.fontSize = 10;
+
+                  // Auto-size columns
+                  doc.content[1].table.widths = 
+                    Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+
+                  // Ensure all columns are included
+                  doc.content[1].table.widths = doc.content[1].table.widths.map(() => 'auto');
+                  }
+                },
+                {
+                    extend: 'print',
+                    footer: true,
+                    title: 'Vendor Report',
+                    exportOptions: {
+                        columns: ':visible'
+                    },
+                    customize: function (win) {
+                        $(win.document.body)
+                            .css('font-size', '10px')
+                            .prepend(
+                                '<h3 class="text-center">Vendor Report</h3>'
+                            );
+                        $(win.document.body).find('table')
+                            .addClass('compact')
+                            .css('font-size', '9px')
+                            .css('width', '100%');
+                    }
+                }
+            ],
                 lengthMenu: [[10, -1, 50, 25], [100, "All", 50, 25]]
             });
 
