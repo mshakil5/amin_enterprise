@@ -570,9 +570,20 @@
                     <div class="form-group">
                         <label for="vendors_truc">Vendor</label>
                         <select class="form-control" name="vendors_truc" id="vendors_truc">
-                            <option value="">Select Date</option>
+                            <option value="">Select Vendor</option>
                             @foreach ($vlist as $vendor)
                                 <option value="{{ $vendor->vendor_id }}">{{ $vendor->vendor_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="trucksearchdate">Select Date</label>
+                        <select class="form-control" name="trucksearchdate" id="trucksearchdate">
+                            <option value="">Select Date</option>
+                            @foreach ($dates as $date)
+                                <option value="{{ $date->date }}">{{ $date->date }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -1214,12 +1225,18 @@ $(document).ready(function () {
     $('#vtrucBtn').click(function() {
         var vendor = $('#vendors_truc').val();
         var program_id = $('#program_id').val();
+        var selectedDate = $('#trucksearchdate').val();
+
+        if (!vendor) {
+            alert('Please select a vendor');
+            return;
+        }
         
         if (vendor) {
             $.ajax({
                 url: '{{ route("getProgramDetailsByVendor") }}',
                 method: 'POST',
-                data: { vendor: vendor, program_id: program_id },
+                data: { date: selectedDate, vendor: vendor, program_id: program_id },
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },

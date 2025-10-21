@@ -246,6 +246,7 @@ class ProgramController extends Controller
 
         $programId = $request->input('program_id');
         $vendor = $request->input('vendor');
+        $date = $request->input('date');
 
         // program details
         $program = Program::with('motherVassel:id,name')->where('id', $programId)->first();
@@ -261,6 +262,9 @@ class ProgramController extends Controller
             ->join('advance_payments', 'advance_payments.program_detail_id', '=', 'program_details.id')
             ->where('program_details.program_id', $programId)
             ->where('program_details.vendor_id', $vendor)
+            ->when($date, function ($query, $date) {
+                return $query->whereDate('program_details.date', $date);
+            })
             ->groupBy('program_details.truck_number')
             ->orderBy('program_details.truck_number')
             ->get();
