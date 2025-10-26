@@ -176,6 +176,21 @@ class CashSheetController extends Controller
             ->where('account_id', 2)
             ->sum('amount');
 
+            // equity received
+        $rcvEquityInOfficeCash = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
+            ->where('tran_type', 'Received')
+            ->whereBetween('date', [$startDate, $date])
+            ->where('account_id', 1)
+            ->sum('amount');
+        $rcvEquityInFieldCash = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
+            ->where('tran_type', 'Received')
+            ->whereBetween('date', [$startDate, $date])
+            ->where('account_id', 2)
+            ->sum('amount');
+
+
         $debitTransferInOfficeCash = Transaction::where('tran_type', 'TransferIn')->where('account_id', 1)
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
@@ -197,8 +212,8 @@ class CashSheetController extends Controller
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
 
-        $totalDebitOfficeCash = $cashInHandOpening + $rcvLiabilitiesInOfficeCash + $debitTransferInOfficeCash + $incomesInOfficeCash; 
-        $totalDebitFieldCash = $cashInFieldOpening + $rcvLiabilitiesInFieldCash + $debitTransferInFieldCash + $incomesInFieldCash;
+        $totalDebitOfficeCash = $cashInHandOpening + $rcvLiabilitiesInOfficeCash + $debitTransferInOfficeCash + $incomesInOfficeCash + $rcvEquityInOfficeCash; 
+        $totalDebitFieldCash = $cashInFieldOpening + $rcvLiabilitiesInFieldCash + $debitTransferInFieldCash + $incomesInFieldCash + $rcvEquityInFieldCash;
 
 
 
@@ -221,6 +236,21 @@ class CashSheetController extends Controller
 
         $pmtLiabilitiesInFieldCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
+            ->where('tran_type', 'Payment')
+            ->where('account_id', 2)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+            // Equity payment
+        $pmtEquityInOfficeCash = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
+            ->where('tran_type', 'Payment')
+            ->where('account_id', 1)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+        $pmtEquityInFieldCash = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
             ->where('tran_type', 'Payment')
             ->where('account_id', 2)
             ->whereBetween('date', [$startDate, $date])
@@ -253,8 +283,8 @@ class CashSheetController extends Controller
             // this item always reduce from field cash
 
 
-        $totalCreditOfficeCash = $pmtLiabilitiesInOfficeCash + $expensesInOfficeCash + $creditTransferOutOfficeCash;
-        $totalCreditFieldCash = $pmtLiabilitiesInFieldCash + $expensesInFieldCash + $creditTransferOutFieldCash + $vendorAdvances;
+        $totalCreditOfficeCash = $pmtLiabilitiesInOfficeCash + $expensesInOfficeCash + $creditTransferOutOfficeCash + $pmtEquityInOfficeCash;
+        $totalCreditFieldCash = $pmtLiabilitiesInFieldCash + $expensesInFieldCash + $creditTransferOutFieldCash + $vendorAdvances + $pmtEquityInFieldCash;
 
         $previousCashInOfficeClosing = $totalDebitOfficeCash - $totalCreditOfficeCash;
         $previousCashInFieldClosing = $totalDebitFieldCash - $totalCreditFieldCash;
