@@ -59,6 +59,22 @@ class CashSheetController extends Controller
             ->whereDate('date', $date)
             ->get();
 
+        //equity transaction
+        $equityInCashReceived = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
+            ->where('tran_type', 'Received')
+            ->where('payment_type', 'Cash')
+            ->whereDate('date', $date)
+            ->get();
+
+        $equityInBankReceived = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
+            ->where('tran_type', 'Received')
+            ->where('payment_type', 'Bank')
+            ->whereDate('date', $date)
+            ->get();
+        //equity transaction
+
         $debitTransfer = Transaction::where('tran_type', 'TransferIn')
             ->whereDate('date', $date)->get();
 
@@ -69,7 +85,6 @@ class CashSheetController extends Controller
         $totalReceipts = $liabilitiesInCash->sum('amount') + $liabilitiesInBank->sum('amount');
 
         // liability payments
-
         $liabilitiesPaymentInCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
             ->where('tran_type', 'Payment')
@@ -83,6 +98,24 @@ class CashSheetController extends Controller
             ->where('payment_type', 'Bank')
             ->whereDate('date', $date)
             ->get();
+
+
+        // Equity Payment 
+        $equityPaymentInCash = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
+            ->where('tran_type', 'Payment')
+            ->where('payment_type', 'Cash')
+            ->whereDate('date', $date)
+            ->get();
+        $equityPaymentInBank = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Equity')
+            ->where('tran_type', 'Payment')
+            ->where('payment_type', 'Bank')
+            ->whereDate('date', $date)
+            ->get();
+
+
+
 
         $expenses = Transaction::with('chartOfAccount')
             ->whereIn('table_type', ['Expenses', 'Expense', 'Cogs'])
@@ -110,7 +143,7 @@ class CashSheetController extends Controller
 
 
         return view('admin.accounts.cash_sheet.index', compact(
-            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer','incomes'
+            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer','incomes','equityInBankReceived','equityInCashReceived','equityPaymentInBank', 'equityPaymentInCash'
         ));
     }
 
