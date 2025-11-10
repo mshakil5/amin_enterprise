@@ -1406,8 +1406,14 @@ class ProgramController extends Controller
         
         session()->put('mv_id', $request->mv_id);
         $chkprgmid = ProgramDetail::with('advancePayment')->where('status',1)->where('rate_status',0)->where('challan_no', $request->challan_no)->where('mother_vassel_id', $request->mv_id)->first();
+
         
         if ($chkprgmid) {
+            $challanHistory = ProgramDetail::with(['motherVassel', 'vendor', 'ghat'])
+                        ->select('id','date','challan_no','ghat_id','headerid','mother_vassel_id','vendor_id')
+                        ->where('status', 1)
+                        ->where('challan_no', $request->challan_no)
+                        ->get();
 
             $prgmdtls = ProgramDetail::with('advancePayment')
                                     ->where('status',1)
@@ -1483,7 +1489,7 @@ class ProgramController extends Controller
 
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan found.</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program, 'prgmdtls'=>$prgmdtls, 'prate'=>$prate, 'program_detail_id'=>$chkprgmid->id, 'chkprgmid' => $chkprgmid, 'ghatID' => $ghatID]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$prop, 'program'=>$program, 'prgmdtls'=>$prgmdtls, 'prate'=>$prate, 'program_detail_id'=>$chkprgmid->id, 'chkprgmid' => $chkprgmid, 'ghatID' => $ghatID, 'challanHistory' => $challanHistory]);
 
 
         } else {
@@ -1492,10 +1498,15 @@ class ProgramController extends Controller
             $program = 'empty';
             $data = 'empty';
             $chkprgmid = 'empty';
+            $challanHistory = ProgramDetail::with(['motherVassel', 'vendor', 'ghat'])
+                        ->select('id','date','challan_no','ghat_id','headerid','mother_vassel_id','vendor_id')
+                        ->where('status', 1)
+                        ->where('challan_no', $request->challan_no)
+                        ->get();
 
             $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Challan No not  found.</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program, 'program_detail_id'=> $chkprgmid]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$data, 'program'=>$program, 'program_detail_id'=> $chkprgmid, 'challanHistory' => $challanHistory]);
         }
         
     }

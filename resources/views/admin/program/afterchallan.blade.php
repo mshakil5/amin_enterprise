@@ -81,6 +81,13 @@
                                             <label>Action</label> <br>
                                             <button type="button" form="createThisForm" id="checkBtn"  class="btn btn-secondary">Check</button>
                                         </div>
+
+                                        
+                                        <div class="form-group col-md-2"> <br>
+                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-challan-history">
+                                                Challan History
+                                            </button>
+                                        </div>
                                         
                                     </div>
                                 </div>
@@ -420,6 +427,45 @@
 
 
 
+  
+  <div class="modal fade" id="modal-challan-history">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-secondary">
+          <h4 class="modal-title">Your searching challan previous record.</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <table id="challanHistoryTable" class="table table-bordered table-striped">
+                    <thead class="bg-secondary">
+                        <tr>
+                            <th style="text-align: center">Date</th>
+                            <th style="text-align: center">Mother Vessel</th>
+                            <th style="text-align: center">Challan No</th>
+                            <th style="text-align: center">Vendor</th>
+                            <th style="text-align: center">Ghat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+
+
 @endsection
 @section('script')
 
@@ -616,6 +662,7 @@
                 },
                 success: function(response) {
                     console.log(response);
+
                     if (response.data == "empty") {
 
                         $("#mother_vassel_id").val('');
@@ -640,6 +687,24 @@
                         $('#programTable tbody').append(response.data);
                         $('#rateTable tbody').append(response.prate);
 
+                        if (response.challanHistory && response.challanHistory.length > 0) {
+                            let rows = '';
+
+                            response.challanHistory.forEach(function(item) {
+                                rows += `
+                                    <tr>
+                                        <td class="text-center">${item.date ?? ''}</td>
+                                        <td class="text-center">${item.mother_vassel?.name ?? ''}</td>
+                                        <td class="text-center">${item.challan_no ?? ''}</td>
+                                        <td class="text-center">${item.vendor?.name ?? ''}</td>
+                                        <td class="text-center">${item.ghat?.name ?? ''}</td>
+                                    </tr>
+                                `;
+                            });
+
+                            $('#challanHistoryTable tbody').html(rows);
+                        }
+
                         // Focus on the first prgmDtlArrowKey button
                         const $targetButton = $('#programTable tbody [id^="prgmDtlArrowKey_"]').first();
                         $targetButton.addClass('focused-button').focus();
@@ -649,8 +714,6 @@
                         }, 3000);
 
                     }
-                    
-                    
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseJSON.message);

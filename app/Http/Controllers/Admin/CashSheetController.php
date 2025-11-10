@@ -289,10 +289,6 @@ class CashSheetController extends Controller
         $previousCashInOfficeClosing = $totalDebitOfficeCash - $totalCreditOfficeCash;
         $previousCashInFieldClosing = $totalDebitFieldCash - $totalCreditFieldCash;
 
-        // dd($previousCashInOfficeClosing, $previousCashInFieldClosing);
-
-        // 18,46,864.0     4,97,030.0 
-
         return [
             'previousCashInOfficeClosing' => $previousCashInOfficeClosing,
             'previousCashInFieldClosing' => $previousCashInFieldClosing
