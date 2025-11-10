@@ -1097,24 +1097,15 @@ $(document).ready(function () {
                         "lengthChange": false,
                         "autoWidth": false,
                         "destroy": true,
+                        "footer": true,
                         "buttons": [
-                            {
-                                extend: 'copy',
-                                title: 'Vendor Advance Summary'
-                            },
-                            {
-                                extend: 'csv',
-                                title: 'Vendor Advance Summary',
+                            { extend: 'copy', title: 'Vendor Advance Summary', footer: true },
+                            { extend: 'csv', title: 'Vendor Advance Summary', footer: true },
+                            { extend: 'excel', title: 'Vendor Advance Summary', footer: true },
+                            { 
+                                extend: 'pdf', 
+                                title: `Mother Vessel: ${response.program.mother_vassel.name}`, 
                                 footer: true,
-                            },
-                            {
-                                extend: 'excel',
-                                title: 'Vendor Advance Summary',
-                                footer: true
-                            },
-                            {
-                                extend: 'pdf',
-                                title: `Mother Vessel: ${response.program.mother_vassel.name}`,
                                 customize: function (doc) {
                                     doc.content.splice(0, 0, {
                                         text: 'Vendor Advance Summary',
@@ -1123,9 +1114,10 @@ $(document).ready(function () {
                                     });
                                 }
                             },
-                            {
-                                extend: 'print',
+                            { 
+                                extend: 'print', 
                                 title: `Mother Vessel: ${response.program.mother_vassel.name}`,
+                                footer: true,
                                 customize: function (win) {
                                     $(win.document.body).prepend(
                                         '<h1 style="text-align:center;">Vendor Advance Summary</h1>'
