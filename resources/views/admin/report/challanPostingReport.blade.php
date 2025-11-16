@@ -67,47 +67,6 @@
                     $totalDue = $totalcarrying_bill - $totaladvance - $duePaymentTransaction;    
                 @endphp
 
-                {{-- @if ($duePaymentTransaction != null && $duePaymentTransaction > 0)
-                  <button type="button" class="btn btn-success mb-3">
-                    Due Payment Paid: {{ number_format($duePaymentTransaction, 2) }}
-                </button>
-                @endif
-                @if ($totalDue > 0)
-                <button type="button" class="btn btn-warning mb-3" data-toggle="modal" data-target="#duePaymentModal">
-                    Due Payment: {{ number_format($totalDue, 2) }}
-                </button>
-                @endif
-
-                <form action="{{ route('due.payment.store') }}" method="POST">
-                  @csrf
-                  <div class="modal fade" id="duePaymentModal" tabindex="-1" role="dialog" aria-labelledby="duePaymentModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header bg-warning">
-                          <h5 class="modal-title">Due Payment</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span>&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body">
-                          <h4>Total Due: <strong>{{ number_format($totalDue, 2) }} Tk</strong></h4>
-                          <input type="text" name="comment" class="form-control mb-3" placeholder="Enter comment" required>
-                          <input type="hidden" name="due_amount" value="{{ $totalDue }}">
-                          <input type="hidden" name="mother_vessel_id" value="{{ $mid }}">
-                          <input type="hidden" name="vendor_id" value="{{ $vid }}">
-                          <input type="hidden" name="client_id" value="{{ optional($data->first())->client_id }}">
-                          <p>Note: This due payment from vendors wallet. </p>
-                          <p>Note: Vendors avaiable balance: <b>{{$vendor->balance}}TK</b></p>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="submit" class="btn btn-warning">Pay</button>
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </form>                 --}}
-
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
