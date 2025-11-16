@@ -70,4 +70,9 @@ class Program extends Model
         });
     }
 
+    public function notes()
+    {
+        return $this->hasMany(ReportNote::class);
+    }
+
 }

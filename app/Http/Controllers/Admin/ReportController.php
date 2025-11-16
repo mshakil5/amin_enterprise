@@ -11,6 +11,8 @@ use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\ReportNote;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -22,6 +24,7 @@ class ReportController extends Controller
 
         if ($request->mv_id) {
             $data = ProgramDetail::selectRaw('
+                                        MIN(program_id) as program_id,
                                         vendor_id,
                                         COUNT(*) as total_records,
                                         SUM(CASE WHEN headerid IS NOT NULL THEN 1 ELSE 0 END) as challan_received,
@@ -49,6 +52,43 @@ class ReportController extends Controller
         
     }
 
+    public function storeReportNotes(Request $request)
+    {
+        $request->validate([
+            'program_id' => 'required',
+            'vendor_id' => 'required',
+            'note' => 'required',
+            'date' => 'required|date',
+        ]);
+
+        ReportNote::create([
+            'program_id' => $request->program_id,
+            'vendor_id' => $request->vendor_id,
+            'mother_vassel_id' => null,
+            'note' => $request->note,
+            'date' => $request->date,
+            'created_by' => Auth::id(),
+        ]);
+
+        $message = "<div class='alert alert-success'>Note added successfully.</div>";
+        return response()->json(['status'=>300,'message'=>$message]);
+    }
+
+    public function updateNote(Request $request, ReportNote $note)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'note' => 'required',
+        ]);
+
+        $note->update([
+            'date' => $request->date,
+            'note' => $request->note,
+            'updated_by' => Auth::id(),
+        ]);
+
+        return response()->json(['status'=>300,'message'=>"<div class='alert alert-success'>Note updated successfully.</div>"]);
+    }
 
     public function challanPostingReport($vid, $mid)
     {

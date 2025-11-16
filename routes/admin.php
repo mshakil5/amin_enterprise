@@ -236,6 +236,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/before-posting-challan-report/{vid}/{mid}', [ReportController::class, 'challanPostingReport'])->name('challanPostingReport');
     Route::get('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReport');
     Route::post('/before-posting-challan-report', [ReportController::class, 'challanPostingVendorReport'])->name('challanPostingVendorReportshow');
+    Route::post('report-notes', [ReportController::class,'storeReportNotes'])->name('reportNotes.store');
+    Route::put('report-notes/{note}', [ReportController::class,'updateNote'])->name('reportNotes.update');
 
     Route::delete('/program-details/{id}', [ReportController::class, 'deleteProgramDetails'])->name('programDetails.delete');
 
