@@ -152,7 +152,9 @@
                       </div>
                     </td>
                     <td style="text-align: center">
+                      @if(in_array('13', json_decode(auth()->user()->role->permission)))
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>
+                      @endif
 
                       @if ($data->generate_bill_count > 0)
                           <a href="{{ route('bill.generated', $data->id) }}" class="badge badge-success" style="font-size: 12px;">
