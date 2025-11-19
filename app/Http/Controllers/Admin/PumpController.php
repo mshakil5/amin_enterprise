@@ -252,9 +252,12 @@ class PumpController extends Controller
             return $motherVassel ? $motherVassel->name : 'Unknown';
             });
 
-    
 
-        return view('admin.pump.fuelbill_wise_program_list', compact('data','pump','pumpSequenceNumber'));
+        $allTrips = $pdtls;
+
+        return view('admin.pump.fuelbill_wise_program_list', compact(
+            'data','pump','pumpSequenceNumber','allTrips'
+        ));
     }
 
     public function pumpUpdate(Request $request)
