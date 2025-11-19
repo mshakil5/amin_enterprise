@@ -27,7 +27,9 @@
           @if ($data->bill_status == 1)
           <a href="{{route('generatingBillShow', $data->id)}}" class="btn btn-secondary my-3">Bill Show </a>
           @else
+          @if(in_array('13', json_decode(auth()->user()->role->permission)))
           <a href="{{route('billGenerating', $data->id)}}" class="btn btn-secondary my-3 ">Generate Bill</a>
+          @endif
           @endif
           <button type="button" class="btn btn-secondary my-3" id="newBtn">Add new</button>
 
