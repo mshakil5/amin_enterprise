@@ -155,7 +155,7 @@ class ProgramController extends Controller
         ->orderBy('program_details.truck_number')
         ->get();
 
-        // dd($truckSummary);
+        // dd($data);
 
                     
 

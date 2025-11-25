@@ -144,4 +144,9 @@ class ProgramDetail extends Model
         return $this->belongsTo(VendorSequenceNumber::class);
     }
 
+    public function fuelBill()
+    {
+        return $this->belongsTo(FuelBill::class);
+    }
+
 }

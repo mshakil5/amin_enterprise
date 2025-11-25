@@ -370,6 +370,9 @@
                                   data-program-detail-id="{{ $data->id }}" 
                                   @if($data->fuel_bill_id) checked disabled @endif>
                                 </label>
+                                @if($data->fuel_bill_id)
+                                    <span class="text-small">{{$data->fuelBill->bill_number ?? ''}} <br> {{$data->fuelBill->unique_id ?? ''}} </span>
+                                @endif
                               </div>
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>

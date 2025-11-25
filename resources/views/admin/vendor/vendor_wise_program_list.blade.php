@@ -121,6 +121,7 @@
                       <th>Challan <br> no</th>
                       <th>Dest.</th>
                       <th>Qty</th>
+                      <th>Prev. Qty</th>
                       <th>Carring <br> Bill</th>
                       <th>Line  <br>Charge</th>
                       <th>Scale <br> fee</th>
@@ -166,6 +167,7 @@
                           <td style="text-align: center">{{$data->challan_no}}</td>
                           <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
                           <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->old_qty, 2) }}</td>
                           <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
                           <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
                           <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
@@ -201,6 +203,7 @@
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
                           <td style="text-align: center">{{ number_format($totaldest_qty, 2) }}</td>
                           <td style="text-align: center">{{ number_format($totalcarrying_bill, 2) }}</td>
                           <td style="text-align: center">{{ number_format($totalline_charge, 2) }}</td>
@@ -217,7 +220,7 @@
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
                         <td style="text-align: center"></td>
-                        <td style="text-align: center" colspan="5">
+                        <td style="text-align: center" colspan="6">
                           <b>Total adv:</b><b>{{ number_format($totalcashamount + $totalfuelamount, 2) }}</b>
                         </td>
                         <td style="text-align: center"  colspan="8">
@@ -266,6 +269,7 @@
                       <th>Mother Vessel</th>
                       <th>Destination</th>
                       <th>Qty</th>
+                      <th>Prev. Qty</th>
                       <th>Carring Bill</th>
                       <th>Line Charge</th>
                       <th>Scale fee</th>
@@ -317,6 +321,7 @@
                           <td style="text-align: center">{{$data->motherVassel->name ?? ''}}</td>
                           <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
                           <td style="text-align: center">{{ number_format($data->dest_qty, 2) }}</td>
+                          <td style="text-align: center">{{ number_format($data->old_qty, 2) }}</td>
                           <td style="text-align: center">{{ number_format($data->carrying_bill, 2) }}</td>
                           <td style="text-align: center">{{ number_format($data->line_charge, 2) }}</td>
                           <td style="text-align: center">{{ number_format($data->scale_fee, 2) }}</td>
@@ -351,6 +356,7 @@
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
+                          <td style="text-align: center"></td>
                           <td style="text-align: center">{{ number_format($alltotaldest_qty, 2) }}</td>
                           <td style="text-align: center">{{ number_format($alltotalcarrying_bill, 2) }}</td>
                           <td style="text-align: center">{{ number_format($alltotalline_charge, 2) }}</td>
@@ -368,7 +374,7 @@
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
 
-                          <td style="text-align: center" colspan="3">
+                          <td style="text-align: center" colspan="4">
                               <b>Total Adv:</b> <b>{{ number_format($alltotalcashamount + $alltotalfuelamount, 2) }}</b>
                           </td>
                           @php
