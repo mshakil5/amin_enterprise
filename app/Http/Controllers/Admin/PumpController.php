@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\PetrolPump;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ProgramDetail;
+use App\Models\Transaction;
+use App\Models\Vendor;
 
 class PumpController extends Controller
 {
@@ -150,50 +152,64 @@ class PumpController extends Controller
 
     public function getFuelBillNumber(Request $request)
     {
-        
         $pump = PetrolPump::where('id', $request->pumpId)->first();
-
-        $data = FuelBill::where('petrol_pump_id',$request->pumpId)->orderby('id', 'DESC')->get();
+        $data = FuelBill::where('petrol_pump_id', $request->pumpId)->orderby('id', 'DESC')->get();
         
         $prop = '';
         
-            foreach ($data as $tran){
+        foreach ($data as $tran) {
+            $pdtls = ProgramDetail::where('fuel_bill_id', $tran->id)->get();
+            
+            $totalCarryingBill = $pdtls->sum('carrying_bill');
+            $totalScaleFee = $pdtls->sum('scale_fee');
+            $totalCashAmount = $pdtls->sum(function($item) {
+                return $item->advancePayment->cashamount ?? 0;
+            });
+            $totalFuelAmount = $pdtls->sum(function($item) {
+                return $item->advancePayment->fuelamount ?? 0;
+            });
+            
+            $balance = $totalCarryingBill + $totalScaleFee - $totalCashAmount - $totalFuelAmount;
 
+            $formattedBalance = number_format($balance, 2);
 
-                // <!-- Single Property Start -->
-                $prop.= '<tr>
-                            <td>
-                                '.$tran->date.'
-                            </td>
-                            <td>
-                                '.$tran->bill_number.'
-                            </td>
-                            <td>
-                                '.$tran->qty.'
-                            </td>
-                            <td>
-                                '.$tran->vehicle_count.'
-                            </td>
-                            <td>
-                            <a class="btn btn-success btn-xs" href="'.route('admin.pump.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>
-                            </td>
-                             <td>
-                                <button class="btn btn-info btn-xs editFullBtn" 
-                                        data-id="' . $tran->id . '" 
-                                        data-date="' . $tran->date . '"
-                                        data-bill_number="' . $tran->bill_number . '"
-                                        data-qty="' . $tran->qty . '" 
-                                        data-vehicle_count="' . $tran->vehicle_count . '" 
-                                        data-toggle="modal" 
-                                        data-target="#editFullModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                              </td>
-                        </tr>';
-                        
-            }
+            $tripCount = $pdtls->count();
 
-        return response()->json(['status'=> 300,'data'=>$prop, 'pump'=>$pump]);
+            $prop .= '<tr>
+                        <td>
+                            ' . $tran->date . '
+                        </td>
+                        <td>
+                            ' . $tran->bill_number . '
+                        </td>
+                        <td>
+                            ' . $tran->qty . '
+                        </td>
+                        <td>
+                            ' . $tripCount . '
+                        </td>
+                        <td>
+                            ' . $formattedBalance . '
+                        </td>
+                        <td>
+                            <a class="btn btn-success btn-xs" href="' . route('admin.pump.sequence.show', $tran->id) . '">' . $tran->unique_id . '</a>
+                        </td>
+                        <td>
+                            <button class="btn btn-info btn-xs editFullBtn" 
+                                    data-id="' . $tran->id . '" 
+                                    data-date="' . $tran->date . '"
+                                    data-bill_number="' . $tran->bill_number . '"
+                                    data-qty="' . $tran->qty . '" 
+                                    data-vehicle_count="' . $tran->vehicle_count . '" 
+                                    data-toggle="modal" 
+                                    data-target="#editFullModal">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>';
+        }
+
+        return response()->json(['status' => 300, 'data' => $prop, 'pump' => $pump]);
     }
 
     public function updateMarkQty(Request $request)
@@ -252,11 +268,46 @@ class PumpController extends Controller
             return $motherVassel ? $motherVassel->name : 'Unknown';
             });
 
-
         $allTrips = $pdtls;
 
+        // Get transactions for the vendor sequence
+        $totalPaidTransaction = Transaction::where('vendor_sequence_number_id', $pumpSequenceNumber->vendor_sequence_number_id)
+            ->latest()
+            ->get();
+        
+        // Calculate totals in controller
+        $totals = [
+            'total_carrying_bill' => $allTrips->sum('carrying_bill'),
+            'total_scale_fee' => $allTrips->sum('scale_fee'),
+            'total_cash_amount' => $allTrips->sum(function($item) {
+                return $item->advancePayment->cashamount ?? 0;
+            }),
+            'total_fuel_amount' => $allTrips->sum(function($item) {
+                return $item->advancePayment->fuelamount ?? 0;
+            }),
+            'total_paid' => $totalPaidTransaction->where('tran_type', 'Due Payment')->sum('amount'),
+            'total_received' => $totalPaidTransaction->where('tran_type', 'Advance Adjust')->sum('amount'),
+        ];
+        
+        // Calculate total due
+        $totals['total_due'] = $totals['total_carrying_bill'] + $totals['total_scale_fee'] 
+            - $totals['total_cash_amount'] - $totals['total_fuel_amount'] 
+            - $totals['total_paid'] + $totals['total_received'];
+        
+        $totals['total_due'] = round($totals['total_due'], 2);
+        if ($totals['total_due'] === -0.0) {
+            $totals['total_due'] = 0.0;
+        }
+        
+        $totals['label'] = $totals['total_due'] >= 0 ? 'Vendors Payable' : 'Vendors Receivable';
+
         return view('admin.pump.fuelbill_wise_program_list', compact(
-            'data','pump','pumpSequenceNumber','allTrips'
+            'data',
+            'pump',
+            'pumpSequenceNumber',
+            'allTrips',
+            'totalPaidTransaction',
+            'totals'
         ));
     }
 

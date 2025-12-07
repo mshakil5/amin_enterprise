@@ -438,6 +438,38 @@
       </li>
       @endif
 
+    <li class="nav-item {{ Route::is('excel.upload') || Route::is('excel.template') || Route::is('excel.store') || 
+                        Route::is('fuel.excel.upload') || Route::is('fuel.excel.template') || Route::is('fuel.excel.store') ||
+                        Route::is('client.excel.upload') || Route::is('client.excel.template') || Route::is('client.excel.store') ? 'menu-open' : '' }}">
+        <a href="#" class="nav-link {{ Route::is('excel.*') || Route::is('fuel.excel.*') || Route::is('client.excel.*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-file-excel"></i>
+            <p>
+                Excel Uploads
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="{{ route('excel.upload') }}" class="nav-link {{ Route::is('excel.upload') || Route::is('excel.template') || Route::is('excel.store') ? 'active' : '' }}">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Bill Upload</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('fuel.excel.upload') }}" class="nav-link {{ Route::is('fuel.excel.upload') || Route::is('fuel.excel.template') || Route::is('fuel.excel.store') ? 'active' : '' }}">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Fuel Bill Upload</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('client.excel.upload') }}" class="nav-link {{ Route::is('client.excel.upload') || Route::is('client.excel.template') || Route::is('client.excel.store') ? 'active' : '' }}">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Client Bill Upload</p>
+                </a>
+            </li>
+        </ul>
+    </li>
+
       {{-- <li class="nav-item">
         <a href="#" class="nav-link ">
           <i class="nav-icon fas fa-th"></i>

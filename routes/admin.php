@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\FinancialStatementController;
 use App\Http\Controllers\Admin\CashSheetController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\VendorLedgerController;
+use App\Http\Controllers\Admin\ExcelUploadController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -350,6 +351,21 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     
     // Trial balance
     Route::get('trial-balance', [TrialBalanceController::class, 'trialBalance'])->name('admin.trialBalance');
+
+    // Original Bill routes
+    Route::get('/excel-upload', [ExcelUploadController::class, 'index'])->name('excel.upload');
+    Route::get('/excel-template', [ExcelUploadController::class, 'exportTemplate'])->name('excel.template');
+    Route::post('/excel-upload/store', [ExcelUploadController::class, 'store'])->name('excel.store');
+
+    // Fuel Bill routes
+    Route::get('/fuel-excel-upload', [ExcelUploadController::class, 'fuelIndex'])->name('fuel.excel.upload');
+    Route::get('/fuel-excel-template', [ExcelUploadController::class, 'fuelExportTemplate'])->name('fuel.excel.template');
+    Route::post('/fuel-excel-upload/store', [ExcelUploadController::class, 'fuelStore'])->name('fuel.excel.store');
+
+    // Client Bill routes
+    Route::get('/client-excel-upload', [ExcelUploadController::class, 'clientIndex'])->name('client.excel.upload');
+    Route::get('/client-excel-template', [ExcelUploadController::class, 'clientExportTemplate'])->name('client.excel.template');
+    Route::post('/client-excel-upload/store', [ExcelUploadController::class, 'clientStore'])->name('client.excel.store');
 
 });
   

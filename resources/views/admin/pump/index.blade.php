@@ -200,6 +200,7 @@
                   <th>Fuel Bill Number</th>
                   <th>Invoice Qty</th>
                   <th>Total Vehicle</th>
+                  <th>Due/Advance</th>
                   <th>Unique ID</th>
                   <th>Edit</th>
                 </tr>
