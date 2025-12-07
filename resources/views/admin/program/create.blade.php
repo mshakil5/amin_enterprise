@@ -186,7 +186,7 @@
                                             <input type="number" class="form-control fuelqty" name="fuelqty[]" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="102">
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="104">
                                         </td>
                                         <td> 
                                             <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
@@ -237,7 +237,7 @@
                                             <input type="number" class="form-control fuelqty" name="fuelqty[]" >
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="102">
+                                            <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="104">
                                         </td>
                                         <td> 
                                             <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
@@ -397,7 +397,7 @@
                                 <input type="number" class="form-control fuelqty" name="fuelqty[]" >
                             </td>
                             <td>
-                                <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="102">
+                                <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="104">
                             </td>
                             <td> 
                                 <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
