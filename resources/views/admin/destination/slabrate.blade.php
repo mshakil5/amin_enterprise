@@ -120,8 +120,8 @@
                 <tbody>
                     @foreach (\App\Models\DestinationSlabRate::get() as $key => $data)
                     <tr>
-                        <td style="text-align: center">{{$data->ghat->name ?? ""}}</td>
-                        <td style="text-align: center">{{$data->destination->name ?? ""}}</td>
+                        <td style="text-align: center">{{$data->ghat->name ?? ""}} ({{$data->ghat_id ?? ""}})</td>
+                        <td style="text-align: center">{{$data->destination->name ?? ""}} ({{$data->destination_id ?? ""}})</td>
                         <td style="text-align: center">{{$data->maxqty ?? ""}}</td>
                         <td style="text-align: center">{{$data->below_rate_per_qty ?? ""}}</td>
                         <td style="text-align: center">{{$data->above_rate_per_qty ?? ""}}</td>
@@ -153,18 +153,14 @@
 <script>
     $(function () {
       $("#example1").DataTable({
-        "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"]
+          "responsive": true,
+          "lengthChange": true, // Must be true to show length menu
+          "autoWidth": false,
+          "buttons": ["copy", "csv", "excel", "pdf", "print"],
+          "pageLength": 50, // Sets the initial number of items per page to 50
+          "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ] // Defines the options in the 'Show X entries' dropdown
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
+      
     });
   </script>
 

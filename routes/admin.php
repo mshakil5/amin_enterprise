@@ -367,5 +367,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/client-excel-template', [ExcelUploadController::class, 'clientExportTemplate'])->name('client.excel.template');
     Route::post('/client-excel-upload/store', [ExcelUploadController::class, 'clientStore'])->name('client.excel.store');
 
+    
+    Route::get('/vendor-rate-upload', [ExcelUploadController::class, 'vendorRateIndex'])->name('vendor.slabrate.upload');
+    Route::post('/vendor-rate-upload', [ExcelUploadController::class, 'carryingBillUpdate'])->name('vendor.slabrate.store');
+
 });
   
