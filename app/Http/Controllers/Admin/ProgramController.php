@@ -155,10 +155,6 @@ class ProgramController extends Controller
         ->orderBy('program_details.truck_number')
         ->get();
 
-        // dd($data);
-
-                    
-
         return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName','truckSummary'));
     }
 
@@ -288,31 +284,7 @@ class ProgramController extends Controller
 
 
 
-    // changeQuantity
-    public function changeQuantity2(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'program_id' => 'required|integer',
-            'newQty' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json(['status' => 400, 'errors' => $validator->errors()]);
-        }
-
-        $programId = $request->input('program_id');
-        $newQty = $request->input('newQty');
-
-        $programDetails = ProgramDetail::where('program_id', $request->program_id)->get();
-
-        foreach ($programDetails as $detail) {
-            $detail->old_qty = $detail->dest_qty;
-            $detail->dest_qty = $newQty;
-            $detail->save(); 
-        }
-        
-        return response()->json(['status' => 200,  'program' => $programId]);
-    }
 
     public function changeQuantity(Request $request)
     {
@@ -327,6 +299,20 @@ class ProgramController extends Controller
 
         $programId = $request->program_id;
         $newQty = $request->newQty; // Expecting an array of new data
+
+        // --- NEW CHECK START ---
+        // Fetch the program to check the qty_change status
+        $program = Program::find($programId);
+
+        if (!$program) {
+            return response()->json(['status' => 404, 'error' => 'Program not found.'], 404);
+        }
+
+        // Check if quantity change has already been performed
+        if ($program->qty_change == 1) {
+            return response()->json(['status' => 200,'message' => 'Quantity change has already been performed for this program and should not be permitted to change qty again.']);
+        }
+        // --- NEW CHECK END ---
 
         $program_details = ProgramDetail::where('program_id', $programId)->get();
 
@@ -435,6 +421,10 @@ class ProgramController extends Controller
                 ChallanRate::insert($newData);
             }
 
+            $program = Program::find($programId);
+            $program->qty_change = 1;
+            $program->save();
+
             DB::commit();
 
             return response()->json(['status' => 200,'message' => 'Challan rates updated successfully']);
@@ -443,6 +433,8 @@ class ProgramController extends Controller
             return response()->json(['status' => 400,'error' => 'Something went wrong', 'message' => $e->getMessage()], 500);
         }
     }
+
+
 
     public function undoChangeQuantity(Request $request)
     {

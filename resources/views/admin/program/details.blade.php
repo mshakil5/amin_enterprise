@@ -1166,13 +1166,13 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
+                console.log(response);
                 
                 $(this).attr('disabled', false);
                 $('#loader').hide();
-                console.log(response);
 
                 if (response.status == 200) {
-                    alert('Quantity updated successfully');
+                    alert(response.message);
                     location.reload();
                 } else {
                     alert('Failed to update quantity');
