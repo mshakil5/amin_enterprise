@@ -117,7 +117,7 @@
                                     
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
-                                            <label for="date">Date </label>
+                                            <label for="date">After challan posting Date </label>
                                             <input type="date" class="form-control" id="date" name="date" value="{{date('Y-m-d')}}">
                                         </div>
                                         <div class="form-group col-md-4">
@@ -257,6 +257,10 @@
                                                     <option value="{{$vsequence->id}}">{{$vsequence->unique_id}}</option>
                                                 @endforeach
                                             </select>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="challan_posting_date">Challan Posting Date</label>
+                                            <input type="date" class="form-control" id="challan_posting_date" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -593,6 +597,7 @@
                                 var dueAmnt = parseFloat($("#totalDue").val()) || 0; // Example: Use previous due amount or 0
                                 $('#rateTable tbody').append(response.rate);
                                 $("#totalamount").val(response.totalAmount);
+                                $("#challan_posting_date").val(response.alldata.date);
                                 $("#sequence_id").html(response.vdata);
                                 $("#totalDue").val(response.totalAmount - dueAmnt);
 

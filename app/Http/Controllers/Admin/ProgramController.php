@@ -18,6 +18,7 @@ use App\Models\ProgramDetail;
 use App\Models\ProgramDestination;
 use App\Models\DestinationSlabRate;
 use App\Models\Ghat;
+use App\Models\PreviousSlabRate;
 use App\Models\Transaction;
 use App\Models\VendorSequenceNumber;
 use Illuminate\Http\Request;
@@ -1509,24 +1510,25 @@ class ProgramController extends Controller
     {
         $vsno = VendorSequenceNumber::where('status', 1)->where('vendor_id', $request->vendor)->get();
         $challanqty = $request->challanqty;
-        $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+
+        $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
+        if ($prgmDtl->date < '2025-12-03') {
+            $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+        } else {
+            $chkrate = PreviousSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+        }
+        
 
         if ($vsno) {
             $vdata = '<option value="">Select</option>';
             foreach ($vsno as $key => $vsvalue) {
-
                 $programCount = ProgramDetail::where('vendor_sequence_number_id', $vsvalue->id)->count();
-
-                // if ($programCount < $vsvalue->qty) {
-                    $vdata.= '<option value="'.$vsvalue->id.'">'.$vsvalue->unique_id.' ('.$vsvalue->date.') '.$vsvalue->qty.'/'.$programCount.' </option>';
-                // }
-                
+                $vdata.= '<option value="'.$vsvalue->id.'">'.$vsvalue->unique_id.' ('.$vsvalue->date.') '.$vsvalue->qty.'/'.$programCount.' </option>';
             }
         } else {
             $vdata = '<option value="">Select</option>';
         }
 
-        $alldata = $request->all();
         
         
         if ($chkrate) {
@@ -1557,20 +1559,15 @@ class ProgramController extends Controller
             }
             
             
-        
-                
-
-
-
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate found</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop, 'totalAmount' => $totalAmount, 'vdata' => $vdata]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop, 'totalAmount' => $totalAmount, 'alldata' => $prgmDtl]);
 
 
         }else {
             $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate not found</b></div>";
             $totalAmount = 0;
-            return response()->json(['status'=> 200,'message'=>$message, 'data'=>'', 'alldata' => $alldata]);
+            return response()->json(['status'=> 200,'message'=>$message, 'data'=>'', 'alldata' => $prgmDtl]);
         }
         
     }
