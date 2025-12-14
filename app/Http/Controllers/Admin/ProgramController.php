@@ -333,9 +333,9 @@ class ProgramController extends Controller
 
                 $prgmDtl = ProgramDetail::where('id', $pdtls->id)->first();
                 if ($prgmDtl->date < '2025-12-03') {
-                    $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+                    $chkrate = DestinationSlabRate::where('destination_id', $pdtls->destination_id)->where('ghat_id', $pdtls->ghat_id)->first();
                 } else {
-                    $chkrate = PreviousSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+                    $chkrate = PreviousSlabRate::where('destination_id', $pdtls->destination_id)->where('ghat_id', $pdtls->ghat_id)->first();
                 }
 
                 $oldQty = ChallanRate::where('program_detail_id', $pdtls->id)
@@ -398,9 +398,9 @@ class ProgramController extends Controller
 
                 $prgmDtl = ProgramDetail::where('id', $program_detail->id)->first();
                 if ($prgmDtl->date < '2025-12-03') {
-                    $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+                    $chkrate = DestinationSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
                 } else {
-                    $chkrate = PreviousSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+                    $chkrate = PreviousSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
                 }
                 if (!$chkrate) {
                     DB::rollBack();
@@ -454,6 +454,16 @@ class ProgramController extends Controller
         if ($validator->fails()) {
             return response()->json(['status' => 400, 'errors' => $validator->errors()]);
         }
+
+        
+        $program = Program::find($request->program_id);
+        if ($program->qty_change == 1) {
+            return response()->json(['status' => 200,'message' => 'Quantity change has already been performed for this program and should not be permitted to change qty again.']);
+        }
+
+        $program->qty_change = 0;
+        $program->save();
+
 
         $programId = $request->input('program_id');
         $programDetails = ProgramDetail::where('program_id', $request->program_id)->get();
@@ -1521,9 +1531,9 @@ class ProgramController extends Controller
 
         $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
         if ($prgmDtl->date < '2025-12-03') {
-            $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+            $chkrate = DestinationSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
         } else {
-            $chkrate = PreviousSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+            $chkrate = PreviousSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
         }
         
 
