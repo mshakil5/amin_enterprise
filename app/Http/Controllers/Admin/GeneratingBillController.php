@@ -91,7 +91,7 @@ class GeneratingBillController extends Controller
                 continue;
             }else {
 
-                $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[8])->first();
+                $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[8])->orWhere('old_qty',$row[8])->first();
                 if (isset($chkPrgmDetail)) {
                     $chkPrgmDetail->bill_no = $row[26];
                     $chkPrgmDetail->generate_bill = 1;
