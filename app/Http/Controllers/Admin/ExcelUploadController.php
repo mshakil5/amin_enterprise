@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\ChallanRate;
+use App\Models\Program;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -197,39 +198,6 @@ class ExcelUploadController extends Controller
         return view('admin.excel.vendor-slabrate-upload');
     }
 
-    public function carryingBillUpdate2(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv|max:20480',
-        ]);
-
-
-        $date = "2025-12-03";
-
-        // Build the Eloquent query
-        $programDetails = ProgramDetail::where('created_at', '<', $date)
-            ->where('updated_at', '>', $date)
-            ->where('date', '<', $date)
-            ->orderBy('id', 'DESC')
-            ->get();
-
-
-        $file = $request->file('file')->getRealPath();
-        $spreadsheet = IOFactory::load($file);
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
-        // $rows = array_slice($rows, 1);
-
-        // Skip header row
-        $row = $rows[1] ?? [];
-
-
-        dd($rows);
-
-
-
-    }
-
 
     public function carryingBillUpdate(Request $request)
     {
@@ -371,6 +339,61 @@ class ExcelUploadController extends Controller
             // Log the error for debugging
             \Log::error("Carrying Bill Update Failed: " . $e->getMessage());
             return back()->with('error', 'An error occurred during the update process. Changes were rolled back.');
+        }
+    }
+
+
+    public function programDetailsQtyUpdate(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:20480',
+        ]);
+
+        $file = $request->file('file')->getRealPath();
+        $spreadsheet = IOFactory::load($file);
+        $rows = $spreadsheet->getActiveSheet()->toArray();
+
+        DB::beginTransaction();
+
+        $program = Program::find(136);
+            $program->qty_change = 0;
+            $program->save();
+
+        try {
+            foreach ($rows as $index => $row) {
+
+                // Skip header row
+                if ($index === 0) {
+                    continue;
+                }
+
+                $id         = (int) $row[0];
+                $program_id = (int) $row[1];
+                $dest_qty   = (float) $row[3];
+                $old_qty    = (float) $row[2];
+
+                // Extra safety check
+                if ($program_id !== 136) {
+                    continue;
+                }
+
+                DB::table('program_details')
+                    ->where('id', $id)
+                    ->where('program_id', 136)
+                    ->update([
+                        'dest_qty' => $dest_qty,
+                        'old_qty'  => $old_qty,
+                    ]);
+            }
+
+            DB::commit();
+
+            return back()->with('success', 'Program details quantities updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->with('error', 'Update failed: ' . $e->getMessage());
         }
     }
 
