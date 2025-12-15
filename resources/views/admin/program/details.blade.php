@@ -1203,7 +1203,7 @@ $(document).ready(function () {
             success: function(response) {
                 console.log(response);
                 if (response.status == 200) {
-                    alert('Quantity updated successfully');
+                    alert(response.message);
                     // location.reload();
                 } else {
                     alert('Failed to update quantity');

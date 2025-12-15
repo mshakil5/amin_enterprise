@@ -457,7 +457,7 @@ class ProgramController extends Controller
 
         
         $program = Program::find($request->program_id);
-        if ($program->qty_change == 1) {
+        if ($program->qty_change == 0) {
             return response()->json(['status' => 200,'message' => 'Quantity change has already been performed for this program and should not be permitted to change qty again.']);
         }
 
@@ -474,7 +474,7 @@ class ProgramController extends Controller
             $detail->save(); 
         }
         
-        return response()->json(['status' => 200,  'program' => $programId]);
+        return response()->json(['status' => 200,  'program' => $programId, 'message' => 'Quantity undo again.']);
     }
 
 
