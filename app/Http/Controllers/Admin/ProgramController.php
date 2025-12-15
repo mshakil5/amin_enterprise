@@ -333,9 +333,9 @@ class ProgramController extends Controller
 
                 $prgmDtl = ProgramDetail::where('id', $pdtls->id)->first();
                 if ($prgmDtl->date < '2025-12-03') {
-                    $chkrate = DestinationSlabRate::where('destination_id', $pdtls->destination_id)->where('ghat_id', $pdtls->ghat_id)->first();
-                } else {
                     $chkrate = PreviousSlabRate::where('destination_id', $pdtls->destination_id)->where('ghat_id', $pdtls->ghat_id)->first();
+                } else {
+                    $chkrate = DestinationSlabRate::where('destination_id', $pdtls->destination_id)->where('ghat_id', $pdtls->ghat_id)->first();
                 }
 
                 $oldQty = ChallanRate::where('program_detail_id', $pdtls->id)
@@ -398,9 +398,9 @@ class ProgramController extends Controller
 
                 $prgmDtl = ProgramDetail::where('id', $program_detail->id)->first();
                 if ($prgmDtl->date < '2025-12-03') {
-                    $chkrate = DestinationSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
-                } else {
                     $chkrate = PreviousSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
+                } else {
+                    $chkrate = DestinationSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
                 }
                 if (!$chkrate) {
                     DB::rollBack();
