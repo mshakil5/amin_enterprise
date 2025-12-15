@@ -355,7 +355,7 @@ class ExcelUploadController extends Controller
 
         DB::beginTransaction();
 
-        $program = Program::find(136);
+        $program = Program::find(137);
             $program->qty_change = 0;
             $program->save();
 
@@ -373,13 +373,13 @@ class ExcelUploadController extends Controller
                 $old_qty    = (float) $row[2];
 
                 // Extra safety check
-                if ($program_id !== 136) {
+                if ($program_id !== 137) {
                     continue;
                 }
 
                 DB::table('program_details')
                     ->where('id', $id)
-                    ->where('program_id', 136)
+                    ->where('program_id', 137)
                     ->update([
                         'dest_qty' => $dest_qty,
                         'old_qty'  => $old_qty,
