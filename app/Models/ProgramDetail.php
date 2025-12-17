@@ -149,4 +149,9 @@ class ProgramDetail extends Model
         return $this->belongsTo(FuelBill::class);
     }
 
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
+    }
+
 }

@@ -241,7 +241,9 @@
                                     <tr>
                                         <td>{{ $sequence->created_at ? $sequence->created_at->format('Y-m-d') : '-' }}</td>
                                         <td>{{ optional($detail->motherVassel)->name ?? '-' }}</td>
-                                        <td>{{ $detail->consignmentno ?? '-' }}</td>
+                                        <td>
+                                            {{ $detail->consignmentno ?? '-' }} 
+                                        </td>
                                         <td class="text-center">{{ $detail->total_trip }}</td>
                                         <td class="text-right">{{ number_format($detail->total_qty, 2) }}</td>
                                         <td class="text-right">{{ number_format($detail->total_carrying_bill, 2) }}</td>
@@ -283,7 +285,7 @@
                                     </tr>
                                     @php
                                     if ($transaction->table_type == "Income") {
-                                        $openingBalance += $transaction->at_amount;
+                                        $openingBalance -= $transaction->at_amount;
                                     } else {
                                         $openingBalance -= $transaction->at_amount;
                                     }

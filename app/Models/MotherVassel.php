@@ -32,4 +32,11 @@ class MotherVassel extends Model
     {
         return $this->hasMany(ProgramDetail::class);
     }
+
+
+    public function program()
+    {
+        return $this->hasMany(Program::class);
+    }
+
 }
