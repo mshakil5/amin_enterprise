@@ -1529,11 +1529,13 @@ class ProgramController extends Controller
         $vsno = VendorSequenceNumber::where('status', 1)->where('vendor_id', $request->vendor)->get();
         $challanqty = $request->challanqty;
 
+        $allData = $request->all();
+
         $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
-        if ($prgmDtl->date < '2025-12-03') {
-            $chkrate = DestinationSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
+        if ($prgmDtl->date > '2025-12-03') {
+            $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
         } else {
-            $chkrate = PreviousSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
+            $chkrate = PreviousSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
         }
         
 
@@ -1585,7 +1587,7 @@ class ProgramController extends Controller
         }else {
             $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate not found</b></div>";
             $totalAmount = 0;
-            return response()->json(['status'=> 200,'message'=>$message, 'data'=>'', 'alldata' => $prgmDtl]);
+            return response()->json(['status'=> 200,'message'=>$message, 'data'=>$chkrate, 'alldata' => $allData]);
         }
         
     }
