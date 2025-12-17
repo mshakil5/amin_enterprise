@@ -180,6 +180,16 @@
                         <span>Total Challan-{{$data->unique_challan_count}}</span>
                       </a>
 
+                      @if ($data->qty_change == 1)
+                          <a href="#" class="badge badge-danger" style="font-size: 12px;">
+                              12 MT
+                          </a>
+                          @else
+                          <a href="#" class="badge badge-success" style="font-size: 12px;">
+                              Actual
+                          </a>
+                      @endif
+
                       @if ($data->generate_bill_count > 0)
                         <span class="btn btn-success btn-xs d-none">{{$data->generate_bill_count}} </span>
                       @endif
