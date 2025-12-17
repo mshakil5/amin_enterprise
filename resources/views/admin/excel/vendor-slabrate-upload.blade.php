@@ -1,6 +1,27 @@
 @extends('admin.layouts.admin')
 
 @section('content')
+
+    <section class="content pt-4">
+        <div class="container">
+
+            @if ($message = Session::get('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> {{ $message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($message = Session::get('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+        </div>
+    </section>
+
+
     <section class="content pt-4">
         <div class="container-fluid">
             <div class="card shadow-sm col-md-6 mx-auto border-secondary">
