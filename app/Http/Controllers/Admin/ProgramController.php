@@ -156,7 +156,7 @@ class ProgramController extends Controller
         ->orderBy('program_details.truck_number')
         ->get();
 
-        return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName','truckSummary'));
+        return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName','truckSummary','type'));
     }
 
     public function vendorWiseProgramDetails(Request $request)
@@ -310,18 +310,27 @@ class ProgramController extends Controller
         }
 
         // Check if quantity change has already been performed
-        if ($program->qty_change == 1) {
+        if ($program->qty_change == 1 && $request->type != 'twelve_mt') {
             return response()->json(['status' => 200,'message' => 'Quantity change has already been performed for this program and should not be permitted to change qty again.']);
         }
         // --- NEW CHECK END ---
 
-        $program_details = ProgramDetail::where('program_id', $programId)->get();
+        $program_details = ProgramDetail::where('program_id', $programId)
+            ->when($request->type == 'twelve_mt', function ($query) {
+                return $query->whereNull('old_qty'); 
+            })
+            ->get();
+
 
         DB::beginTransaction();
 
         try {
             // Get all program_details IDs related to the program
-            $programDetailIds = ProgramDetail::where('program_id', $programId)->pluck('id');
+            $programDetailIds = ProgramDetail::where('program_id', $programId)
+            ->when($request->type == 'twelve_mt', function ($query) {
+                return $query->whereNull('old_qty'); 
+            })
+            ->pluck('id');
             
 
             // CHALLAN RATE backup

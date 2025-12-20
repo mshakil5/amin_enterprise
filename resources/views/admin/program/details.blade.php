@@ -38,7 +38,7 @@
           </button>
 
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quantitymodal">
-            Change Quantity
+            Change Quantity 
           </button>
 
           <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-truckSummary">
@@ -664,6 +664,7 @@
                     <div class="form-group">
                         <label for="newQty">Quantity</label>
                         <input type="number" name="newQty" id="newQty" value="12" class="form-control">
+                        <input type="hidden" name="type" id="type" value="{{$type ?? ''}}" class="form-control">
                     </div>
                 </div>
                 <div class="col-12">
@@ -1151,6 +1152,7 @@ $(document).ready(function () {
           $('#loader').show();
         
         var newQty = $('#newQty').val();
+        var type = $('#type').val();
         var program_id = $('#program_id').val();
 
         if (!newQty) {
@@ -1161,7 +1163,7 @@ $(document).ready(function () {
         $.ajax({
             url: '{{ route("changeQuantity") }}',
             method: 'POST',
-            data: { newQty: newQty, program_id: program_id },
+            data: { newQty: newQty, program_id: program_id, type: type },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
