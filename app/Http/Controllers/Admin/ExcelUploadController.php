@@ -12,6 +12,8 @@ use App\Models\ChallanRate;
 use App\Models\Program;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\ProgramLogsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExcelUploadController extends Controller
 {
@@ -355,7 +357,7 @@ class ExcelUploadController extends Controller
 
         DB::beginTransaction();
 
-        $program = Program::find(137);
+        $program = Program::find(93);
             $program->qty_change = 0;
             $program->save();
 
@@ -369,20 +371,20 @@ class ExcelUploadController extends Controller
 
                 $id         = (int) $row[0];
                 $program_id = (int) $row[1];
-                $dest_qty   = (float) $row[3];
-                $old_qty    = (float) $row[2];
+                $dest_qty   = (float) $row[2];
+                // $old_qty    = (float) $row[3];
 
                 // Extra safety check
-                if ($program_id !== 137) {
+                if ($program_id !== 93) {
                     continue;
                 }
 
                 DB::table('program_details')
                     ->where('id', $id)
-                    ->where('program_id', 137)
+                    ->where('program_id', 93)
                     ->update([
                         'dest_qty' => $dest_qty,
-                        'old_qty'  => $old_qty,
+                        // 'old_qty'  => $old_qty,
                     ]);
             }
 
@@ -395,6 +397,57 @@ class ExcelUploadController extends Controller
 
             return back()->with('error', 'Update failed: ' . $e->getMessage());
         }
+    }
+
+
+
+    public function activityLog2()
+    {
+        // 1. Get all the IDs first
+        $detailIds = ProgramDetail::where('program_id', 93)->pluck('id');
+
+        if ($detailIds->isEmpty()) {
+            return []; 
+        }
+
+        // 2. Fetch all logs for all IDs in one query
+        $allLogs = DB::table('activity_log')
+            ->whereIn('subject_id', $detailIds)
+            ->where('subject_type', 'App\Models\ProgramDetail') // Good practice to include this
+            ->whereNotNull('properties->attributes->vendor_sequence_number_id')
+            ->whereNotNull('properties->attributes->headerid')
+            ->whereNull('properties->old->vendor_sequence_number_id')
+            ->whereNull('properties->old->headerid')
+            ->limit(10)
+            ->get()
+            ->groupBy('subject_id'); // 3. Groups them by the ID automatically
+
+        // 4. Dump and die to see the result
+        dd($allLogs);
+    }
+
+    public function activityLog()
+    {
+        $program_id = 93;
+        $detailIds = ProgramDetail::where('program_id', $program_id)->pluck('id');
+
+
+        if ($detailIds->isEmpty()) {
+            return back()->with('error', 'No data found');
+        }
+
+        $allLogs = DB::table('activity_log')
+            ->whereIn('subject_id', $detailIds)
+            ->where('log_name', 'program_detail')
+            ->whereNotNull('properties->attributes->vendor_sequence_number_id')
+            ->whereNotNull('properties->attributes->headerid')
+            ->whereNull('properties->old->vendor_sequence_number_id')
+            ->whereNull('properties->old->headerid')
+            ->get()
+            ->groupBy('subject_id');
+
+        // Return the excel download
+        return Excel::download(new ProgramLogsExport($allLogs), 'program_logs.xlsx');
     }
 
 }

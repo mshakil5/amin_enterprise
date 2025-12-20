@@ -372,5 +372,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/vendor-rate-upload', [ExcelUploadController::class, 'carryingBillUpdate'])->name('vendor.slabrate.store');
     Route::post('/program-details-qty-restore', [ExcelUploadController::class, 'programDetailsQtyUpdate'])->name('programDetailsQtyUpdate');
 
+    
+    Route::get('/check-activity-log', [ExcelUploadController::class, 'activityLog'])->name('log.activityLog');
+
 });
   
