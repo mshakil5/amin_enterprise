@@ -299,7 +299,7 @@ class ProgramController extends Controller
         }
 
         $programId = $request->program_id;
-        $newQty = $request->newQty; // Expecting an array of new data
+        $newQty = $request->newQty; 
 
         // --- NEW CHECK START ---
         // Fetch the program to check the qty_change status
@@ -1590,7 +1590,7 @@ class ProgramController extends Controller
             
             $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate found</b></div>";
 
-            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop, 'totalAmount' => $totalAmount, 'alldata' => $prgmDtl]);
+            return response()->json(['status'=> 300,'message'=>$message, 'data'=>$chkrate, 'rate'=>$prop, 'totalAmount' => $totalAmount, 'alldata' => $prgmDtl, 'vdata' => $vdata]);
 
 
         }else {
