@@ -52,6 +52,10 @@
                 $isDebit = !$data->table_type || in_array($data->table_type, $debitTables);
             @endphp
 
+            @php
+                $reverse = $data->reverseTransaction;
+            @endphp
+
             <div class="voucher-title">{{ $isDebit ? 'DEBIT VOUCHER' : 'CREDIT VOUCHER' }}</div>
 
             <div class="row mb-2">
@@ -69,6 +73,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @if($reverse)
+                    <tr>
+                        <td>2</td>
+                        <td> Reverse: {{$reverse->note ?? $reverse->description ?? ''}} </td>
+                        <td class="text-end"> -{{$data->at_amount}}/-</td>
+                    </tr>
+                    @endif
                     <tr>
                         <td>1</td>
                         <td> {{$data->description}} </td>
@@ -93,8 +104,13 @@
 
 
             <hr>
-            <div class="amount-box">Total: <strong>{{$data->at_amount}}/-</strong></div>
-            <div class="mt-3"><strong>Taka (In Words):</strong> {{$inWords}}.</div>
+            <div class="amount-box">
+                Total: <strong>{{ $data->reverseTransaction ? 0 : $data->at_amount }}/-</strong>
+            </div>
+            <div class="mt-3">
+                <strong>Taka (In Words):</strong> 
+                {{ \Rmunate\Utilities\SpellNumber::value($data->reverseTransaction ? 0 : $data->at_amount)->locale('en')->toLetters() }}
+            </div>
             <div class="row mt-4">
                 <div class="col">Checked by: <br> ________</div>
                 <div class="col">Received by: <br> ________</div>
