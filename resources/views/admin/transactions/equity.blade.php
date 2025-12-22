@@ -239,6 +239,13 @@
                 searchable: false,
                 render: function (data, type, row, meta) {
                     let button = `<button type="button" class="btn btn-warning btn-xs edit-btn" data-toggle="modal" data-target="#chartModal" value="${row.id}" title="Edit" data-purpose='1'><i class="fa fa-edit" aria-hidden="true"></i> Edit</button>`;
+
+                    let reverseUrl = "{{ route('admin.transactions.reverse', ['id' => '__id__']) }}".replace('__id__', row.id);
+
+                    button += `<a href="${reverseUrl}" class="btn btn-success btn-xs" title="Reverse">
+                        <i class="fa fa-undo"></i> Reverse
+                    </a>`;
+                    
                     if (row.amount < 0) {
                     }
                     return button;

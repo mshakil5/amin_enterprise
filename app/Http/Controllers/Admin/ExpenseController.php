@@ -63,66 +63,65 @@ class ExpenseController extends Controller
         return view('admin.transactions.expVoucher', compact('data'));
     }
 
-public function store(Request $request)
-{
-    // Validate inputs
-    $validated = $request->validate([
-        'date'              => 'required|date',
-        'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
-        'table_type'        => 'required|string',
-        'amount'            => 'required|numeric|min:0',
-        'transaction_type'  => 'required|string',
-            'account_id'         => 'required_unless:transaction_type,Prepaid Adjust|nullable',
-            'payment_type'       => 'required_unless:transaction_type,Prepaid Adjust|string|nullable',
-        'client_id'         => 'nullable|exists:clients,id',
-        'ref'               => 'nullable|string',
-        'description'       => 'nullable|string',
-        'tax_rate'          => 'nullable|numeric',
-        'tax_amount'        => 'nullable|numeric',
-        'vat_rate'          => 'nullable|numeric',
-        'vat_amount'        => 'nullable|numeric',
-        'at_amount'         => 'nullable|numeric',
-        'payable_holder_id' => 'nullable|integer',
-        'mother_vassel_id'  => 'nullable|integer',
-        'employee_id'  => 'nullable|integer',
-    ]);
+    public function store(Request $request)
+    {
+        // Validate inputs
+        $validated = $request->validate([
+            'date'              => 'required|date',
+            'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
+            'table_type'        => 'required|string',
+            'amount'            => 'required|numeric|min:0',
+            'transaction_type'  => 'required|string',
+                'account_id'         => 'required_unless:transaction_type,Prepaid Adjust|nullable',
+                'payment_type'       => 'required_unless:transaction_type,Prepaid Adjust|string|nullable',
+            'client_id'         => 'nullable|exists:clients,id',
+            'ref'               => 'nullable|string',
+            'description'       => 'nullable|string',
+            'tax_rate'          => 'nullable|numeric',
+            'tax_amount'        => 'nullable|numeric',
+            'vat_rate'          => 'nullable|numeric',
+            'vat_amount'        => 'nullable|numeric',
+            'at_amount'         => 'nullable|numeric',
+            'payable_holder_id' => 'nullable|integer',
+            'mother_vassel_id'  => 'nullable|integer',
+            'employee_id'  => 'nullable|integer',
+        ]);
 
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
-        // Create transaction
-        $transaction = new Transaction($validated);
-        $transaction->created_by = auth()->id();
-        $transaction->expense_id = $validated['chart_of_account_id']; 
-        $transaction->account_id = $request->account_id ?? null; 
-        $transaction->tran_type =  $request->transaction_type ?? null;
-        $transaction->save();
-        $transaction->tran_id = 'EX' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-        $transaction->save();
+        try {
+            // Create transaction
+            $transaction = new Transaction($validated);
+            $transaction->created_by = auth()->id();
+            $transaction->expense_id = $validated['chart_of_account_id']; 
+            $transaction->account_id = $request->account_id ?? null; 
+            $transaction->tran_type =  $request->transaction_type ?? null;
+            $transaction->save();
+            $transaction->tran_id = 'EX' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+            $transaction->save();
 
-        // Update account balance if applicable
-        if (!empty($validated['account_id'])) {
-            $account = Account::find($validated['account_id']);
-            if ($account && $validated['transaction_type'] === 'Current') {
-                $account->amount -= $validated['amount'];
-                $account->save();
+            // Update account balance if applicable
+            if (!empty($validated['account_id'])) {
+                $account = Account::find($validated['account_id']);
+                if ($account && $validated['transaction_type'] === 'Current') {
+                    $account->amount -= $validated['amount'];
+                    $account->save();
+                }
             }
+
+            DB::commit();
+
+            return response()->json(['status' => 200, 'message' => 'Transaction created successfully.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        DB::commit();
-
-        return response()->json(['status' => 200, 'message' => 'Transaction created successfully.']);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'status' => 500,
-            'message' => 'Something went wrong.',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
-
 
     public function edit($id)
     {

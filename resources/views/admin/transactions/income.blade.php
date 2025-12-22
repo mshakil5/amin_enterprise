@@ -377,6 +377,12 @@ $(document).ready(function () {
                 let voucherUrl = "{{ route('admin.expense.voucher', ['id' => '__id__']) }}".replace('__id__', row.id);
                 
                 button += `<a href="${voucherUrl}" target="blank" class="btn btn-info btn-xs" title="Voucher"><i class="fa fa-info-circle" aria-hidden="true"></i> Voucher</a>`;
+ 
+                let reverseUrl = "{{ route('admin.transactions.reverse', ['id' => '__id__']) }}".replace('__id__', row.id);
+
+                button += `<a href="${reverseUrl}" class="btn btn-success btn-xs" title="Reverse">
+                    <i class="fa fa-undo"></i> Reverse
+                </a>`;
 
                 if (row.amount < 0) {}
                 

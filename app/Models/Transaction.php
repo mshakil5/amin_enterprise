@@ -163,7 +163,9 @@ class Transaction extends Model
         return $this->belongsTo(VendorSequenceNumber::class);
     }
 
-
-
+    public function reverseTransaction()
+    {
+        return $this->hasOne(Transaction::class, 'reverse_id', 'id'); 
+    }
 
 }

@@ -276,6 +276,11 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::put('chart-of-account/{id}', [ChartOfAccountController::class, 'update']);
     Route::get('chart-of-account/{id}/change-status', [ChartOfAccountController::class, 'changeStatus']);
 
+    Route::get('transactions/{id}/reverse', [ChartOfAccountController::class, 'reverse'])
+        ->name('admin.transactions.reverse');
+
+    Route::post('transactions/reverse-save', [ChartOfAccountController::class, 'reverseSave'])
+        ->name('admin.transactions.reverse.save');
 
     //Income
     Route::get('income', [IncomeController::class, 'index'])->name('admin.income');

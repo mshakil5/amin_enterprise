@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ChartOfAccount;
 use Illuminate\Support\Carbon;
 use App\Models\Branch;
+use App\Models\Transaction;
 
 
 class ChartOfAccountController extends Controller
@@ -168,5 +169,42 @@ class ChartOfAccountController extends Controller
         }
         $chartOfAccount->save();
         return $chartOfAccount;
+    }
+
+    public function reverse($id)
+    {
+        $transaction = Transaction::with('reverseTransaction')->findOrFail($id);
+        $reverse = $transaction->reverseTransaction;
+        return view('admin.transactions.reverse', compact('transaction', 'reverse'));
+    }
+
+    public function reverseSave(Request $request)
+    {
+        $request->validate([
+            'transaction_id' => 'required|exists:transactions,id',
+            'date' => 'required|date',
+        ]);
+        
+        $transaction = Transaction::findOrFail($request->transaction_id);
+        
+        if ($transaction->reverseTransaction) {
+            $reverse = $transaction->reverseTransaction;
+        } else {
+            $reverse = new Transaction();
+        }
+        
+        $accountHead = $transaction->chartOfAccount->head ?? null;
+        
+        if ($accountHead === 'Income' || $accountHead === 'Equity') {
+            $reverse->reverse_type = 'Decrement';
+        } else if ($accountHead === 'Assets' || $accountHead === 'Expense' || $accountHead === 'Cogs' || $accountHead === 'Liabilities') {
+            $reverse->reverse_type = 'Increment';
+        }
+        
+        $reverse->reverse_id = $transaction->id;
+        $reverse->date = $request->date;
+        $reverse->note = $request->note;
+        $reverse->save();
+        return redirect()->back()->with('success', 'Reverse transaction saved');
     }
 }
