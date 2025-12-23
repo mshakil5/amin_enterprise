@@ -73,18 +73,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($reverse)
-                    <tr>
-                        <td>2</td>
-                        <td> Reverse: {{$reverse->note ?? $reverse->description ?? ''}} </td>
-                        <td class="text-end"> -{{$data->at_amount}}/-</td>
-                    </tr>
-                    @endif
                     <tr>
                         <td>1</td>
                         <td> {{$data->description}} </td>
                         <td class="text-end"> {{$data->at_amount}}/-</td>
                     </tr>
+                    @if($reverse)
+                    <tr>
+                        <td>2</td>
+                        <td> {{$reverse->note ?? $reverse->note ?? 'Reversed'}} </td>
+                        <td class="text-end"> -{{$data->at_amount}}/-</td>
+                    </tr>
+                    @endif
                 </tbody>
 
             </table>

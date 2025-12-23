@@ -184,27 +184,50 @@ class ChartOfAccountController extends Controller
             'transaction_id' => 'required|exists:transactions,id',
             'date' => 'required|date',
         ]);
-        
+
         $transaction = Transaction::findOrFail($request->transaction_id);
-        
+        $accountHead = $transaction->table_type ?? null;
+
+        if ($accountHead == 'Income' || $accountHead == 'Equity') {
+            $parentReverseType = 'Decrement';
+            $childReverseType = 'Increment';
+        } else if ($accountHead == 'Assets' || $accountHead == 'Expense' || $accountHead == 'Cogs' || $accountHead == 'Liabilities') {
+            $parentReverseType = 'Increment';
+            $childReverseType = 'Decrement';
+        } else {
+            $parentReverseType = null;
+            $childReverseType = null;
+        }
+
         if ($transaction->reverseTransaction) {
             $reverse = $transaction->reverseTransaction;
+            $reverse->date = $request->date;
+            $reverse->note = $request->note ?? $reverse->note;
+            $reverse->save();
         } else {
             $reverse = new Transaction();
+            
+            // Copy all attributes from original transaction
+            foreach ($transaction->getAttributes() as $key => $value) {
+                if (!in_array($key, ['id', 'date', 'note', 'reverse_id', 'reverse_type', 'created_at', 'updated_at'])) {
+                    $reverse->$key = $value;
+                }
+            }
+            
+            // Set the specific fields
+            $reverse->date = $request->date;
+            $reverse->note = $request->note;
+            $reverse->reverse_id = $transaction->id;
+            $reverse->reverse_type = $childReverseType;
+            
+            $reverse->save();
+            
+            // Update parent transaction with reverse info
+            $transaction->reverse_id = $reverse->id;
+            $transaction->reverse_type = $parentReverseType;
+            $transaction->save();
         }
-        
-        $accountHead = $transaction->chartOfAccount->head ?? null;
-        
-        if ($accountHead === 'Income' || $accountHead === 'Equity') {
-            $reverse->reverse_type = 'Decrement';
-        } else if ($accountHead === 'Assets' || $accountHead === 'Expense' || $accountHead === 'Cogs' || $accountHead === 'Liabilities') {
-            $reverse->reverse_type = 'Increment';
-        }
-        
-        $reverse->reverse_id = $transaction->id;
-        $reverse->date = $request->date;
-        $reverse->note = $request->note;
-        $reverse->save();
+
         return redirect()->back()->with('success', 'Reverse transaction saved');
     }
 }
