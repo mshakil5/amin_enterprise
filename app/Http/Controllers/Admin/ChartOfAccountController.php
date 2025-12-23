@@ -209,7 +209,7 @@ class ChartOfAccountController extends Controller
             
             // Copy all attributes from original transaction
             foreach ($transaction->getAttributes() as $key => $value) {
-                if (!in_array($key, ['id', 'date', 'note', 'reverse_id', 'reverse_type', 'created_at', 'updated_at'])) {
+                if (!in_array($key, ['id', 'date', 'tran_id', 'note', 'reverse_id', 'reverse_type', 'created_at', 'updated_at'])) {
                     $reverse->$key = $value;
                 }
             }
@@ -221,6 +221,9 @@ class ChartOfAccountController extends Controller
             $reverse->reverse_type = $childReverseType;
             
             $reverse->save();
+
+            $reverse->tran_id = 'REV' . date('ymd') . str_pad($reverse->id, 4, '0', STR_PAD_LEFT);
+            $reverse->save();   
             
             // Update parent transaction with reverse info
             $transaction->reverse_id = $reverse->id;
