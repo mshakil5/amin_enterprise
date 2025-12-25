@@ -189,11 +189,11 @@ class ChartOfAccountController extends Controller
         $accountHead = $transaction->table_type ?? null;
 
         if ($accountHead == 'Income' || $accountHead == 'Equity') {
-            $parentReverseType = 'Decrement';
-            $childReverseType = 'Increment';
-        } else if ($accountHead == 'Assets' || $accountHead == 'Expense' || $accountHead == 'Cogs' || $accountHead == 'Liabilities') {
             $parentReverseType = 'Increment';
             $childReverseType = 'Decrement';
+        } else if ($accountHead == 'Assets' || $accountHead == 'Expense' || $accountHead == 'Cogs' || $accountHead == 'Liabilities') {
+            $parentReverseType = 'Decrement';
+            $childReverseType = 'Increment';
         } else {
             $parentReverseType = null;
             $childReverseType = null;
