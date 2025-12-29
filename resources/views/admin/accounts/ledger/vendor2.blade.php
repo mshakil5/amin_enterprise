@@ -285,7 +285,7 @@
                                     </tr>
                                     @php
                                     if ($transaction->table_type == "Income") {
-                                        $openingBalance -= $transaction->at_amount;
+                                        $openingBalance += $transaction->at_amount;
                                     } else {
                                         $openingBalance -= $transaction->at_amount;
                                     }

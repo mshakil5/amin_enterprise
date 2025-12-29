@@ -80,6 +80,7 @@ class GeneratingBillController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $rows = $sheet->toArray();
 
+
         // Iterate through the rows and save to the database
         foreach ($rows as $index => $row) {
             // Skip the first row if it is the header
@@ -91,7 +92,13 @@ class GeneratingBillController extends Controller
                 continue;
             }else {
 
-                $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[8])->orWhere('old_qty',$row[8])->first();
+                // $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where('dest_qty',$row[8])->orWhere('old_qty',$row[8])->first();
+                $chkPrgmDetail = ProgramDetail::where('headerid', $row[1])->where(function($q) use ($row) {
+                    $q->where('dest_qty', 'like', '%' . $row[8] . '%')
+                      ->orWhere('old_qty', 'like', '%' . $row[8] . '%');
+                })->first();
+
+
                 if (isset($chkPrgmDetail)) {
                     $chkPrgmDetail->bill_no = $row[26];
                     $chkPrgmDetail->generate_bill = 1;
