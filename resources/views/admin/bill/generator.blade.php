@@ -146,22 +146,33 @@
 
                         <div style="overflow-x:auto;">
                             <!-- Destination Filter -->
-                            <div class="col-md-4 mb-3">
-                                <label for="destinationFilter"><strong>Filter by Destination:</strong></label>
-                                <select id="destinationFilter" class="form-control select2">
-                                    <option value="">-- All Destinations --</option>
-                                    @php
-                                        $uniqueDestinations = collect($data->programDetail)
-                                            ->pluck('destination.name')
-                                            ->filter()
-                                            ->unique()
-                                            ->sort()
-                                            ->values();
-                                    @endphp
-                                    @foreach ($uniqueDestinations as $dest)
-                                        <option value="{{ $dest }}">{{ $dest }}</option>
-                                    @endforeach
-                                </select>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="destinationFilter"><strong>Filter by Destination:</strong></label>
+                                    <select id="destinationFilter" class="form-control select2">
+                                        <option value="">-- All Destinations --</option>
+                                        @php
+                                            $uniqueDestinations = collect($data->programDetail)
+                                                ->pluck('destination.name')
+                                                ->filter()
+                                                ->unique()
+                                                ->sort()
+                                                ->values();
+                                        @endphp
+                                        @foreach ($uniqueDestinations as $dest)
+                                            <option value="{{ $dest }}">{{ $dest }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="billStatusFilter"><strong>Filter by Bill Status:</strong></label>
+                                    <select id="billStatusFilter" class="form-control">
+                                        <option value="all">-- All Statuses --</option>
+                                        <option value="null">Pending Bill (Bill No is NULL)</option>
+                                        <option value="generated">Bill Generated</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <!-- Table -->
@@ -200,7 +211,7 @@
                                         $totaldest_qty = 0;
                                     @endphp
                                     @foreach ($data->programDetail as $key => $data)
-                                        <tr class="{{ $data->generate_bill == 1 ? 'table-warning' : '' }}" data-id="{{ $data->id }}">
+                                        <tr class="{{ $data->generate_bill == 1 ? 'table-warning' : '' }} {{ $data->bill_no == NULL ? 'table-danger' : '' }}" data-id="{{ $data->id }}">
                                             <td style="text-align: center">{{ $key + 1 }}</td>
                                             <td style="text-align: center">
                                                 <div style="display: flex; align-items: center; gap: 6px; justify-content: center">
@@ -417,6 +428,26 @@
             ],
             "lengthMenu": [[20, 100, -1, 50, 25], [20, 100, "All", 50, 25]]
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+        // Handle Bill Status Filter
+        $('#billStatusFilter').on('change', function () {
+            const table = $('#example1').DataTable();
+            const val = $(this).val();
+
+            if (val === "null") {
+                // Filter for empty cells in the Bill No column (Column index 2)
+                // ^$ is the regex for an empty string
+                table.column(2).search('^$', true, false).draw();
+            } else if (val === "generated") {
+                // Filter for any row that has content (is NOT empty)
+                table.column(2).search('.+', true, false).draw();
+            } else {
+                // Clear search
+                table.column(2).search('').draw();
+            }
+        });
+
+
     });
 
     // Auto-remove alerts after 3 seconds
