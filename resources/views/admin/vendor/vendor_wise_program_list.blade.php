@@ -110,10 +110,10 @@
                 <table class="table table-bordered table-striped datatable">
                   <thead>
                   <tr>
-                      <th>Sl</th>
-                      <th>Bill Status</th>
-                      <th>Petrol Pump</th>
-                      <th>Bill <br> No</th>
+                      <th class="no-export">Sl</th>
+                      <th class="no-export">Bill Status</th>
+                      <th class="no-export">Petrol Pump</th>
+                      <th class="no-export">Bill <br> No</th>
                       <th>Date</th>
                       <th>Vendor</th>
                       <th>HeaderID</th>
@@ -136,8 +136,8 @@
                   <tbody>
                       @foreach ($pdtl as $key => $data)
                       <tr>
-                          <td style="text-align: center">{{ $key + 1 }}</td>
-                          <td style="text-align: center">
+                          <td style="text-align: center" class="no-export">{{ $key + 1 }}</td>
+                          <td style="text-align: center" class="no-export">
                               <label class="form-checkbox  grid layout">
                                   <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
                               </label>
@@ -149,7 +149,7 @@
                                       ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
                                   : collect();
                           @endphp
-                          <td style="text-align: center">
+                          <td style="text-align: center" class="no-export">
                               <label class="form-checkbox grid layout">
                                 <input type="checkbox" class="petrol-checkbox custom-checkbox" 
                                 data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
@@ -159,7 +159,7 @@
                                 @if($data->fuel_bill_id) checked disabled @endif>
                               </label>
                           </td>
-                          <td style="text-align: center">{{$data->bill_no}}</td>
+                          <td style="text-align: center" class="no-export">{{$data->bill_no}}</td>
                           <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
                           <td style="text-align: center">{{$data->vendor->name}}</td>
                           <td style="text-align: center">{{$data->headerid}}</td>
@@ -193,11 +193,10 @@
                   </tbody>
                   <tfoot>
                       <tr>
-                          <td style="text-align: center"></td>
-                          <td style="text-align: center"></td>
-                          <td style="text-align: center"></td>
-                          <td style="text-align: center"></td>
-                          <td style="text-align: center"></td>
+                          <td style="text-align: center" class="no-export"></td>
+                          <td style="text-align: center" class="no-export"></td>
+                          <td style="text-align: center" class="no-export"></td>
+                          <td style="text-align: center" class="no-export"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
@@ -205,6 +204,7 @@
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center">{{ number_format($totaldest_qty, 2) }}</td>
+                          <td style="text-align: center"></td>
                           <td style="text-align: center">{{ number_format($totalcarrying_bill, 2) }}</td>
                           <td style="text-align: center">{{ number_format($totalline_charge, 2) }}</td>
                           <td style="text-align: center">{{ number_format($totalscale_fee, 2) }}</td>
@@ -216,10 +216,10 @@
                         <td style="text-align: center"></td>
                       </tr>
                       <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
+                        <td style="text-align: center" class="no-export"></td>
+                        <td style="text-align: center" class="no-export"></td>
+                        <td style="text-align: center" class="no-export"></td>
+                        <td style="text-align: center" class="no-export"></td>
                         <td style="text-align: center" colspan="6">
                           <b>Total adv:</b><b>{{ number_format($totalcashamount + $totalfuelamount, 2) }}</b>
                         </td>
@@ -253,14 +253,14 @@
               </div>
               <div class="card-body">
                 <div style="text-align: center; margin-bottom: 20px;">
-                  <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
-                  <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
+                  <h4 id="vendorName">Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
+                  <h5 id="seqNumber">Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
                 </div>
                 <table class="table table-bordered table-striped datatable">
                   <thead>
                   <tr>
-                      <th>Sl</th>
-                      <th>Petrol Pump</th>
+                      <th class="no-export">Sl</th>
+                      <th class="no-export">Petrol Pump</th>
                       <th>Date</th>
                       <th>Vendor</th>
                       <th>Header ID</th>
@@ -295,7 +295,7 @@
                       @endphp
                       @foreach ($alldata as $key => $data)
                       <tr>
-                          <td style="text-align: center">{{ $key + 1 }}</td>
+                          <td style="text-align: center" class="no-export">{{ $key + 1 }}</td>
                           @php
                               $fuelBills = $data->advancePayment->petrolPump ?? '' 
                                   ? \App\Models\FuelBill::with('petrolPump:id,name')
@@ -303,7 +303,7 @@
                                       ->get(['id', 'unique_id', 'qty', 'bill_number', 'petrol_pump_id'])
                                   : collect();
                           @endphp
-                          <td style="text-align: center">
+                          <td style="text-align: center" class="no-export">
                               <label class="form-checkbox grid layout">
                                 <input type="checkbox" class="petrol-checkbox custom-checkbox" 
                                 data-pump-id="{{ $data->advancePayment->petrolPump->id ?? '' }}"
@@ -347,9 +347,8 @@
                   </tbody>
                   <tfoot>
                       <tr>
-                          <td style="text-align: center"></td>
-                          <td style="text-align: center"></td>
-                          <td style="text-align: center"></td>
+                          <td style="text-align: center" class="no-export"></td>
+                          <td style="text-align: center" class="no-export"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
@@ -358,6 +357,7 @@
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center">{{ number_format($alltotaldest_qty, 2) }}</td>
+                          <td style="text-align: center"></td>
                           <td style="text-align: center">{{ number_format($alltotalcarrying_bill, 2) }}</td>
                           <td style="text-align: center">{{ number_format($alltotalline_charge, 2) }}</td>
                           <td style="text-align: center">{{ number_format($alltotalscale_fee, 2) }}</td>
@@ -369,8 +369,8 @@
                           <td style="text-align: center"><b>{{ number_format($alltotaladvance, 2) }}</b></td>
                       </tr>
                       <tr>
-                          <td style="text-align: center"></td>
-                          <td style="text-align: center"></td>
+                          <td style="text-align: center" class="no-export"></td>
+                          <td style="text-align: center" class="no-export"></td>
                           <td style="text-align: center"></td>
                           <td style="text-align: center"></td>
 
@@ -462,61 +462,113 @@
     </section>
   </div>
 
-  <section class="content">
+  <style>
+    @media print {
+      /* Hide everything else on the page */
+      
+      /* Show only the card and its children */
+      #printableCard, #printableCard * {
+          visibility: visible;
+      }
+      /* Position the card at the top left of the printed page */
+      #printableCard {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          border: none !important;
+          box-shadow: none !important;
+      }
+      /* Hide the print button during printing */
+      .no-print {
+          display: none !important;
+      }
+      /* Keep the background colors (Chrome/Safari) */
+      .bg-primary {
+          background-color: #007bff !important;
+          -webkit-print-color-adjust: exact;
+      }
+      .text-white {
+          color: white !important;
+      }
+  }
+  </style>
+
+
+<section class="content" id="billSummaryContainer">
     <div class="container-fluid">
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white text-center">
-              <h5 class="mb-0">Bill Summary</h5>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm" id="printableCard">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Bill Summary</h5>
+                        <button onclick="printDiv('printableCard')" class="btn btn-sm btn-light no-print">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+
+                    
+                    
+                    <div class="card-body">
+
+                      <div style="text-align: center; margin-bottom: 20px;">
+                        <h4>Vendor: {{ $vendor->name ?? 'N/A' }}</h4>
+                        <h5>Sequence Number: {{ $vendorSequenceNumber->unique_id ?? 'N/A' }}</h5>
+                      </div>
+
+
+                      <div class="row mb-2">
+                        <div class="col-6 text-left">Total Carrying Bill</div>
+                        <div class="col-6 text-right">{{ number_format($alltotalcarrying_bill, 2) }}</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6 text-left">Total Scale Fee</div>
+                        <div class="col-6 text-right">{{ number_format($alltotalscale_fee, 2) }}</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6 text-left">Total Cash Amount</div>
+                        <div class="col-6 text-right">- {{ number_format($alltotalcashamount, 2) }}</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6 text-left">Total Fuel Advance</div>
+                        <div class="col-6 text-right">- {{ number_format($alltotalfuelamount, 2) }}</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6 text-left">Bill Paid</div>
+                        <div class="col-6 text-right">- {{ number_format($totalPaid, 2) }}</div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-6 text-left">Advance Adjust</div>
+                        <div class="col-6 text-right"> {{ number_format($totalReceived, 2) }}</div>
+                      </div>
+                      <hr>
+                      @php
+                        $totalDue = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount - $totalPaid + $totalReceived;
+                        $label = $totalDue >= 0 ? 'Vendors Payable' : 'Vendors Receivable';
+                      @endphp
+                      <div class="row">
+                        <div class="col-6 text-left font-weight-bold">Total {{ $label }}</div>
+                        <div class="col-6 text-right font-weight-bold"> {{ number_format($totalDue, 2) }}</div>
+                      </div>
+                      <div class="mt-3 small text-muted">
+                        <strong>Calculation:</strong><br>
+                        (Carrying Bill + Scale Fee) - (Cash Amount + Fuel Advance) + (Bill Paid - Advance Adjust) <br>
+                        ({{ number_format($alltotalcarrying_bill, 2) }} + {{ number_format($alltotalscale_fee, 2) }})
+                        - ({{ number_format($alltotalcashamount, 2) }} + {{ number_format($alltotalfuelamount, 2) }}) + ({{ number_format($totalPaid, 2) }} - {{ number_format($totalReceived, 2) }})
+                        = {{ number_format($totalDue, 2) }}
+                      </div>
+                    </div>
+                </div>
             </div>
-              <div class="card-body">
-                <div class="row mb-2">
-                  <div class="col-6 text-left">Total Carrying Bill</div>
-                  <div class="col-6 text-right">{{ number_format($alltotalcarrying_bill, 2) }}</div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-6 text-left">Total Scale Fee</div>
-                  <div class="col-6 text-right">{{ number_format($alltotalscale_fee, 2) }}</div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-6 text-left">Total Cash Amount</div>
-                  <div class="col-6 text-right">- {{ number_format($alltotalcashamount, 2) }}</div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-6 text-left">Total Fuel Advance</div>
-                  <div class="col-6 text-right">- {{ number_format($alltotalfuelamount, 2) }}</div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-6 text-left">Bill Paid</div>
-                  <div class="col-6 text-right">- {{ number_format($totalPaid, 2) }}</div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-6 text-left">Advance Adjust</div>
-                  <div class="col-6 text-right"> {{ number_format($totalReceived, 2) }}</div>
-                </div>
-                <hr>
-                @php
-                  $totalDue = $alltotalcarrying_bill + $alltotalscale_fee - $alltotalcashamount - $alltotalfuelamount - $totalPaid + $totalReceived;
-                  $label = $totalDue >= 0 ? 'Vendors Payable' : 'Vendors Receivable';
-                @endphp
-                <div class="row">
-                  <div class="col-6 text-left font-weight-bold">Total {{ $label }}</div>
-                  <div class="col-6 text-right font-weight-bold"> {{ number_format($totalDue, 2) }}</div>
-                </div>
-                <div class="mt-3 small text-muted">
-                  <strong>Calculation:</strong><br>
-                  (Carrying Bill + Scale Fee) - (Cash Amount + Fuel Advance) + (Bill Paid - Advance Adjust) <br>
-                  ({{ number_format($alltotalcarrying_bill, 2) }} + {{ number_format($alltotalscale_fee, 2) }})
-                  - ({{ number_format($alltotalcashamount, 2) }} + {{ number_format($alltotalfuelamount, 2) }}) + ({{ number_format($totalPaid, 2) }} - {{ number_format($totalReceived, 2) }})
-                  = {{ number_format($totalDue, 2) }}
-                </div>
-              </div>
-          </div>
         </div>
-      </div>
     </div>
-  </section>
+</section>
+
+
+
+
+
+
 
 @php
   $totalDue = round($totalDue, 2);
@@ -594,7 +646,11 @@
 
 </div>
 
-@push('scripts')
+
+
+
+@endsection
+@section('script')
 <script>
   $(function() {
     // If you use Bootstrap 4/5, tabs will work automatically.
@@ -606,95 +662,101 @@
     });
   });
 </script>
-@endpush
-
-
-@endsection
-@section('script')
-
-
 <script>
-    $(function () {
-        $('.datatable').each(function (index) {
-            const table = $(this).DataTable({
-                responsive: true,
-                lengthChange: false,
-                autoWidth: false,
-                buttons: [
-                {
-                    extend: 'copy',
-                    footer: true,
-                    title: 'Vendor Report',
-                    exportOptions: {
-                        columns: ':visible' // Export all visible columns
-                    }
-                },
-                {
-                    extend: 'csv',
-                    footer: true,
-                    title: 'Vendor Report',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
+  $(function() {
+    // 1. Handle Tab Switching
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      $.fn.dataTable.tables({visible: true, api: true}).columns.adjust().responsive.recalc();
+    });
+
+    // 2. Initialize DataTables
+    $('.datatable').each(function () {
+        // Find the closest headers relative to this specific table
+        // This works for the Mother Vessel loop and the All Trip tab
+        const container = $(this).closest('.card-body, .tab-pane');
+        const vendorName = container.find('h4').first().text().replace('Vendor: ', '') || 'Vendor Report';
+        const subTitle = container.find('h5').first().text() || '';
+
+        const table = $(this).DataTable({
+            responsive: true,
+            lengthChange: false,
+            autoWidth: false,
+            buttons: [
                 {
                     extend: 'excelHtml5',
                     footer: true,
-                    title: 'Vendor Report',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
+                    title: vendorName + ' - ' + subTitle,
+                    exportOptions: { columns: ':visible:not(.no-export)' }
                 },
                 {
-                  extend: 'pdfHtml5',
-                  footer: true, 
-                  title: 'Vendor Report',
-                  orientation: 'landscape',
-                  pageSize: 'A4',
-                  exportOptions: {
-                  columns: ':not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3))' // Skip first 3 columns only
-                  },
-                  customize: function (doc) {
-                  // Smaller font size for content
-                  doc.defaultStyle.fontSize = 7;
-                  doc.styles.tableHeader.fontSize = 8;
-                  doc.styles.title.fontSize = 10;
+                    extend: 'pdfHtml5',
+                    footer: true,
+                    title: vendorName, 
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    exportOptions: { columns: ':visible:not(.no-export)' },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 8;
+                        doc.styles.tableHeader.fontSize = 9;
+                        doc.styles.title = { fontSize: 14, alignment: 'center', bold: true };
+                        
+                        // Add Subtitle (Sequence Number/Mother Vessel)
+                        doc.content.splice(1, 0, {
+                            text: subTitle,
+                            fontSize: 11,
+                            alignment: 'center',
+                            margin: [0, 0, 0, 12]
+                        });
 
-                  // Auto-size columns
-                  doc.content[1].table.widths = 
-                    Array(doc.content[1].table.body[0].length + 1).join('*').split('');
-
-                  // Ensure all columns are included
-                  doc.content[1].table.widths = doc.content[1].table.widths.map(() => 'auto');
-                  }
+                        // Make table width 100%
+                        doc.content[2].table.widths = Array(doc.content[2].table.body[0].length).fill('*');
+                    }
                 },
                 {
                     extend: 'print',
                     footer: true,
-                    title: 'Vendor Report',
-                    exportOptions: {
-                        columns: ':visible'
-                    },
+                    title: '', // Custom header used instead
+                    exportOptions: { columns: ':visible:not(.no-export)' },
                     customize: function (win) {
                         $(win.document.body)
-                            .css('font-size', '10px')
-                            .prepend(
-                                '<h3 class="text-center">Vendor Report</h3>'
-                            );
+                            .css('font-size', '10pt')
+                            .prepend(`
+                                <div style="text-align:center; margin-bottom:20px; border-bottom: 2px solid #333; padding-bottom:10px;">
+                                    <h2 style="margin:0;">${vendorName}</h2>
+                                    <h4 style="margin:5px 0; color:#666;">${subTitle}</h4>
+                                    <small>Generated on: ${new Date().toLocaleString()}</small>
+                                </div>
+                            `);
+
                         $(win.document.body).find('table')
                             .addClass('compact')
-                            .css('font-size', '9px')
-                            .css('width', '100%');
+                            .css('font-size', 'inherit');
                     }
                 }
             ],
-                lengthMenu: [[10, -1, 50, 25], [100, "All", 50, 25]]
-            });
-
-            // Append buttons to each table's wrapper
-            table.buttons().container().appendTo($(this).closest('.dataTables_wrapper').find('.col-md-6:eq(0)'));
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
         });
+
+        table.buttons().container().appendTo($(this).closest('.dataTables_wrapper').find('.col-md-6:eq(0)'));
     });
+  });
+
+  // 3. Specialized Print function for the Bill Summary Card
+  function printDiv(divName) {
+      const printContents = document.getElementById(divName).innerHTML;
+      const originalContents = document.body.innerHTML;
+
+      // Add a specific class for the summary print to handle styling
+      document.body.innerHTML = `
+        <html>
+            <head><title>Bill Summary</title></head>
+            <body style="padding:40px;">${printContents}</body>
+        </html>`;
+      
+      window.print();
+      document.body.innerHTML = originalContents;
+      window.location.reload(); // Reload to restore JS bindings
+  }
 </script>
 
 
@@ -753,24 +815,6 @@
                 $('#program_detail_ids').val('');
             }
         });
-
-  });
-</script>
-
-
-
-<script>
-  $(document).ready(function () {
-
-
-    //
-    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
-    //
-
-
-
-          
-
 
   });
 </script>
