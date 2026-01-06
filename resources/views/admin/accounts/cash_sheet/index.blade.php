@@ -1,23 +1,124 @@
 @extends('admin.layouts.admin')
 
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+<style>
+    /* Styling the Flatpickr Input */
+    #kt_datepicker {
+        min-width: 220px;
+        font-weight: 600;
+        color: #495057;
+        cursor: pointer;
+    }
+
+    /* Customizing the Input Group appearance */
+    .input-group-text {
+        border-radius: 6px 0 0 6px !important;
+        border: 1px solid #ced4da;
+    }
+
+    .input-group .btn-primary {
+        border-radius: 0 6px 6px 0 !important;
+    }
+
+    /* Making the calendar look more modern */
+    .flatpickr-calendar {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        border: none !important;
+    }
+
+
+    /* Styling for the Flatpickr calendar specifically */
+    .flatpickr-day.flatpickr-disabled, 
+    .flatpickr-day.flatpickr-disabled:hover {
+        background: #f8f9fa !important;
+        color: #dee2e6 !important;
+        cursor: not-allowed !important;
+        border-color: transparent !important;
+    }
+
+    /* Highlight the current selection */
+    .flatpickr-day.selected {
+        background: #007bff !important;
+        border-color: #007bff !important;
+    }
+
+    /* Ensure the input looks professional */
+    #kt_datepicker.flatpickr-input {
+        min-width: 200px;
+        font-weight: 500;
+        color: #333;
+    }
+
+
+
+</style>
+
+
 <section class="content pt-3">
     <div class="container-fluid">
-        <div class="page-header d-flex justify-content-between">
-            <div class="row w-100">
-                <div class="col-auto">
-                    <form action="{{ route('admin.cashSheet.Search')}}" method="POST" class="d-flex align-items-center">
+
+        
+        <div class="page-header mb-4 pb-3 border-bottom">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+
+
+                <div class="search-section">
+                    <form action="{{ route('admin.cashSheet.Search')}}" method="POST" class="form-inline">
                         @csrf
-                        <input type="date" name="searchDate" class="form-control mb-2 mr-2" value="{{ $date }}" required min="2025-07-20">
-                        <button type="submit" class="btn btn-primary mb-2 mr-2">Search</button>
+                        <div class="input-group shadow-sm border-radius-lg">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-light border-right-0">
+                                    <i class="fas fa-history text-secondary"></i>
+                                </span>
+                            </div>
+                            <input type="text" name="searchDate" id="kt_datepicker"
+                                class="form-control border-left-0 bg-white" 
+                                value="{{ $date }}" 
+                                placeholder="Select Past Date" 
+                                readonly required>
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary px-4 shadow-none">
+                                    <i class="fas fa-search mr-1"></i> View Sheet
+                                </button>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted ml-2 d-none d-md-block">
+                            Available from July 20, 2025
+                        </small>
                     </form>
                 </div>
-                <div class="col-auto">
-                    <button onclick="window.print();" class="btn btn-info mb-2 mr-2">Print</button>
-                    <button id="customExcelButton" class="btn btn-success mb-2">Download Excel</button>
+
+
+
+
+                <div class="action-section mt-md-0 mt-3">
+                    <div class="btn-group" role="group">
+                        <button onclick="window.print();" class="btn btn-outline-secondary">
+                            <i class="fas fa-print mr-1"></i> Print
+                        </button>
+                        <button id="customExcelButton" class="btn btn-outline-success">
+                            <i class="fas fa-file-excel mr-1"></i> Export Excel
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+
+
+    </div>
+</section>
+
+
+<section class="content pt-3">
+    <div class="container-fluid">
+
+
 
         <div class="row print-area">
             <div class="col-12">
@@ -260,7 +361,7 @@
                                 </tr>
                                     @php
                                     if ($income->account_id === 1) {
-                                        $closingCashInField += $income->amount;
+                                        $closingCashInOffice += $income->amount; // this
                                     }
                                     if ($income->account_id === 2) {
                                         $closingCashInField += $income->amount;
@@ -515,7 +616,7 @@
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($ctranfer->date)->format('d-m-Y') }}</td>
                                     <td> {{ $ctranfer->description ?? '' }}</td>
-                                    <td >{{ $ctranfer->tran_id ?? '' }}</td>
+                                    <td >{{ $ctranfer->tran_id ?? '' }} - ({{ $ctranfer->account->type ?? '' }})</td>
                                     <td ></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
@@ -668,4 +769,24 @@
         });
     });
 </script>
+
+<script>
+    // Calculate yesterday's date
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    flatpickr("#kt_datepicker", {
+        dateFormat: "Y-m-d",      // Raw format for the hidden input
+        altInput: true,           // Enable the pretty display
+        altFormat: "d F Y",       // Display: 4 January 2026
+        minDate: "2025-07-20",    // Fixed start date
+        maxDate: yesterday,       // Disable today and future
+        disableMobile: "true",    // Forces the professional UI on mobile
+        locale: {
+            firstDayOfWeek: 1     // Starts week on Monday
+        }
+    });
+</script>
+
 @endsection

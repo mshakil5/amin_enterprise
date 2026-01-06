@@ -162,6 +162,33 @@ class CashSheetController extends Controller
         $suspenseAccount = 94599;
         $pettyCash = 5000.00;
 
+
+        /** Transfer transactions */
+
+
+        $debitTransferInOfficeCash = Transaction::where('tran_type', 'TransferIn')->where('account_id', 1)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+        $debitTransferInFieldCash = Transaction::where('tran_type', 'TransferIn')->where('account_id', 2)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+
+        $creditTransferOutOfficeCash = Transaction::where('tran_type', 'TransferOut')->where('account_id', 1)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+        $creditTransferOutFieldCash = Transaction::where('tran_type', 'TransferOut')->where('account_id', 2)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+            // dd($debitTransferInOfficeCash, $debitTransferInFieldCash,  $creditTransferOutOfficeCash,  $creditTransferOutFieldCash);
+
+
+
+        /** Transfer transactions */
+
         // Query transactions for the current day
         $rcvLiabilitiesInOfficeCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
@@ -191,13 +218,7 @@ class CashSheetController extends Controller
             ->sum('amount');
 
 
-        $debitTransferInOfficeCash = Transaction::where('tran_type', 'TransferIn')->where('account_id', 1)
-            ->whereBetween('date', [$startDate, $date])
-            ->sum('amount');
 
-        $debitTransferInFieldCash = Transaction::where('tran_type', 'TransferIn')->where('account_id', 2)
-            ->whereBetween('date', [$startDate, $date])
-            ->sum('amount');
 
         
         $incomesInOfficeCash = Transaction::where('table_type', 'Income')
@@ -212,20 +233,20 @@ class CashSheetController extends Controller
             ->whereBetween('date', [$startDate, $date])
             ->sum('amount');
 
-        $totalDebitOfficeCash = $cashInHandOpening + $rcvLiabilitiesInOfficeCash + $debitTransferInOfficeCash + $incomesInOfficeCash + $rcvEquityInOfficeCash; 
-        $totalDebitFieldCash = $cashInFieldOpening + $rcvLiabilitiesInFieldCash + $debitTransferInFieldCash + $incomesInFieldCash + $rcvEquityInFieldCash;
+        $totalDebitOfficeCash = $cashInHandOpening 
+                                + $rcvLiabilitiesInOfficeCash 
+                                + $debitTransferInOfficeCash 
+                                + $incomesInOfficeCash 
+                                + $rcvEquityInOfficeCash; 
+        $totalDebitFieldCash = $cashInFieldOpening 
+                                + $rcvLiabilitiesInFieldCash 
+                                + $debitTransferInFieldCash 
+                                + $incomesInFieldCash 
+                                + $rcvEquityInFieldCash;
 
 
 
-            // credit calculation start
-
-        $creditTransferOutOfficeCash = Transaction::where('tran_type', 'TransferOut')->where('account_id', 1)
-            ->whereBetween('date', [$startDate, $date])
-            ->sum('amount');
-
-        $creditTransferOutFieldCash = Transaction::where('tran_type', 'TransferOut')->where('account_id', 2)
-            ->whereBetween('date', [$startDate, $date])
-            ->sum('amount');
+        // credit calculation start
 
         $pmtLiabilitiesInOfficeCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
@@ -283,11 +304,32 @@ class CashSheetController extends Controller
             // this item always reduce from field cash
 
 
-        $totalCreditOfficeCash = $pmtLiabilitiesInOfficeCash + $expensesInOfficeCash + $creditTransferOutOfficeCash + $pmtEquityInOfficeCash;
-        $totalCreditFieldCash = $pmtLiabilitiesInFieldCash + $expensesInFieldCash + $creditTransferOutFieldCash + $vendorAdvances + $pmtEquityInFieldCash;
+        $totalCreditOfficeCash = $pmtLiabilitiesInOfficeCash 
+                                    + $expensesInOfficeCash 
+                                    + $creditTransferOutOfficeCash 
+                                    + $pmtEquityInOfficeCash;
+        $totalCreditFieldCash = $pmtLiabilitiesInFieldCash 
+                                    + $expensesInFieldCash 
+                                    + $creditTransferOutFieldCash 
+                                    + $vendorAdvances 
+                                    + $pmtEquityInFieldCash;
+
+                                // dd(
+                                //     "totalDebitOfficeCash", $totalDebitOfficeCash, 
+                                //     "totalCreditOfficeCash", $totalCreditOfficeCash, 
+                                //     "totalDebitFieldCash", $totalDebitFieldCash, 
+                                //     "totalCreditFieldCash", $totalCreditFieldCash, 
+                                // );
 
         $previousCashInOfficeClosing = $totalDebitOfficeCash - $totalCreditOfficeCash;
         $previousCashInFieldClosing = $totalDebitFieldCash - $totalCreditFieldCash;
+
+                                // dd(
+                                //     "previousCashInOfficeClosing", $previousCashInOfficeClosing, 
+                                //     "previousCashInFieldClosing", $previousCashInFieldClosing, 
+                                // );
+
+
 
         return [
             'previousCashInOfficeClosing' => $previousCashInOfficeClosing,
