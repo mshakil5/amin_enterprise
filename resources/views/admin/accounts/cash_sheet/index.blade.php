@@ -364,7 +364,7 @@
                                             {{ number_format($income->amount, 2) }}
                                         @endif
                                     </td>
-                                    <td class="text-right">this</td>
+                                    <td class="text-right"></td>
                                     <td class="text-right"></td>
                                 </tr>
                                     @php
