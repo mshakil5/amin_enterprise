@@ -147,59 +147,69 @@
                   </div>
                 </div>
 
-              <table id="example2" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Trn ID</th>
-                  <th>Description</th>
-                  <th>Payment type</th>
-                  <th>Tran type</th>
-                  <th>Amount IN</th>
-                  <th>Amount Out</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                  @php
-                      $totalIN = 0;
-                      $totalOut = 0;
-                  @endphp
-                  
-                  @foreach ($transactions as $item)
+              <table id="example2" class="table table-bordered table-striped table-hover">
+                  <thead class="thead-dark">
                       <tr>
-                        <td>{{$item->id}}</td>
-                        <td>{{$item->date}}</td>
-                        <td>{{$item->tran_id}}</td>
-                        <td>{{$item->description}}</td>
-                        <td>{{$item->payment_type}}</td>
-                        <td>{{$item->tran_type}}</td>
-                        @if ($item->tran_type == 'TransferIn')
-                          <td>{{$item->amount}}</td>
-                          <td></td>
-                          @php
-                              $totalIN += $item->amount;
-                          @endphp
-                        @else
-                          <td></td>
-                          <td>{{$item->amount}}</td>
-                          @php
-                              $totalOut += $item->amount;
-                          @endphp
-                        @endif
+                          <th>ID</th>
+                          <th>Date</th>
+                          <th>Tran ID</th>
+                          <th>Description</th>
+                          <th>Payment Type</th>
+                          <th>Tran Type</th>
+                          <th class="text-end">Amount IN</th>
+                          <th class="text-end">Amount OUT</th>
                       </tr>
-                  @endforeach
-                
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="6"></td>
-                    <td>{{$totalIN}}</td>
-                    <td>{{$totalOut}}</td>
-                  </tr>
-                </tfoot>
+                  </thead>
+
+                  <tbody>
+                      @php
+                          $totalIn = 0;
+                          $totalOut = 0;
+                      @endphp
+
+                      @foreach ($transactions as $transaction)
+                          <tr>
+                              <td>{{ $transaction->id }}</td>
+                              <td>{{ \Carbon\Carbon::parse($transaction->date)->format('d M Y') }}</td>
+                              <td>{{ $transaction->tran_id }}</td>
+                              <td>{{ $transaction->description }}</td>
+                              <td>{{ $transaction->payment_type }}</td>
+                              <td>
+                                  <span class="badge {{ $transaction->tran_type == 'TransferIn' ? 'bg-success' : 'bg-danger' }}">
+                                      {{ $transaction->tran_type }}
+                                  </span>
+                              </td>
+
+                              @if ($transaction->tran_type === 'TransferIn')
+                                  <td class="text-end text-success fw-bold">
+                                      {{ number_format($transaction->amount, 2) }}
+                                  </td>
+                                  <td></td>
+                                  @php $totalIn += $transaction->amount; @endphp
+                              @else
+                                  <td></td>
+                                  <td class="text-end text-danger fw-bold">
+                                      {{ number_format($transaction->amount, 2) }}
+                                  </td>
+                                  @php $totalOut += $transaction->amount; @endphp
+                              @endif
+                          </tr>
+                      @endforeach
+                  </tbody>
+
+                  <tfoot>
+                      <tr class="fw-bold bg-light">
+                          <td colspan="6" class="text-end">Total</td>
+                          <td class="text-end text-success">
+                              {{ number_format($totalIn, 2) }}
+                          </td>
+                          <td class="text-end text-danger">
+                              {{ number_format($totalOut, 2) }}
+                          </td>
+                      </tr>
+                  </tfoot>
               </table>
+
 
             </div>
             <!-- /.card-body -->
@@ -338,15 +348,24 @@
         "responsive": true, "lengthChange": false, "autoWidth": false,
         "buttons": ["copy", "csv", "excel", "pdf", "print"]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
+
+      
+      $("#example2").DataTable({
+          responsive: true,
+          lengthChange: false,
+          autoWidth: false,
+          order: [[0, 'desc']], // ID DESC
+          buttons: [
+              "copy",
+              "csv",
+              "excel",
+              "pdf",
+              "print"
+          ]
+      }).buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
+
+
+
     });
 </script>
 

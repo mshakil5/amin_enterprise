@@ -11,11 +11,23 @@ use App\Models\Transaction;
 
 class AccountController extends Controller
 {
+
+
     public function index()
     {
         $data = Account::latest()->get();
         $allAccounts = Account::latest()->get();
-        $transactions = Transaction::whereIn('tran_type',['TransferIn', 'TransferOut'])->select('date', 'id','amount','tran_id', 'description','payment_type','tran_type', 'at_amount')->latest()->get();
+        $transactions = Transaction::whereIn('tran_type', ['TransferIn', 'TransferOut'])
+        ->select(
+            'id',
+            'date',
+            'tran_id',
+            'description',
+            'payment_type',
+            'tran_type',
+            'amount'
+        )
+        ->get();
         
         return view('admin.account.index', compact('data', 'allAccounts','transactions'));
     }
