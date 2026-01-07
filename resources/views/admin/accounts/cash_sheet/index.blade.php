@@ -336,6 +336,10 @@
                                 @endforeach
 
 
+                                @php
+                                    $debitIncomeInOfficeCash = 0;
+                                    $debitIncomeInFieldCash = 0;
+                                @endphp
 
 
 
@@ -355,31 +359,41 @@
                                             {{ number_format($income->amount, 2) }}
                                         @endif
                                     </td>
-                                    <td class="text-right"></td>
+                                    <td class="text-right">
+                                        @if ($income->payment_type === 'Bank')
+                                            {{ number_format($income->amount, 2) }}
+                                        @endif
+                                    </td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                 </tr>
                                     @php
                                     if ($income->account_id === 1) {
-                                        $closingCashInOffice += $income->amount; // this
+                                        //$closingCashInOffice += $income->amount; // this
                                     }
                                     if ($income->account_id === 2) {
                                         $closingCashInField += $income->amount;
+                                    }
+                                    if ($income->payment_type === 'Cash'){
+                                        $debitIncomeInOfficeCash += $income->amount; // this
+                                    }
+                                    if ($income->payment_type === 'Bank'){
+                                        $debitIncomeInFieldCash += $income->amount;
                                     }
                                     @endphp
                                 @endforeach
 
                                 @php
-                                    $totalCashDebit = $cashInHandOpening + $cashInFieldOpening + $pettyCash + $liabilitiesInCash->sum('amount') + $suspenseAccount + $incomes->sum('amount');
-                                    // $totalCashDebit = $liabilitiesInCash->sum('amount') + $incomes->sum('amount');
-                                    $totalBankDebit = $liabilitiesInBank->sum('amount');
+                                    $totalCashDebit = $cashInHandOpening + $cashInFieldOpening + $pettyCash + $liabilitiesInCash->sum('amount') + $suspenseAccount + $debitIncomeInOfficeCash;
+                                    $totalCashDebitReceipt = $liabilitiesInCash->sum('amount') + $debitIncomeInOfficeCash;
+                                    $totalBankDebit = $liabilitiesInBank->sum('amount') + $debitIncomeInFieldCash;
                                 @endphp
 
 
                                 <tr class="font-weight-bold">
                                     <td colspan="4">Total Receipts</td>
-                                    <td class="text-right">{{ number_format($liabilitiesInCash->sum('amount') + $incomes->sum('amount'), 2) }}</td>
-                                    <td class="text-right">{{ number_format($liabilitiesInBank->sum('amount'), 2) }}</td>
+                                    <td class="text-right">{{ number_format($totalCashDebitReceipt, 2) }}</td>
+                                    <td class="text-right">{{ number_format($liabilitiesInBank->sum('amount') + $debitIncomeInFieldCash, 2) }}</td>
                                     <td class="text-right"></td>
                                     <td class="text-right"></td>
                                 </tr>
