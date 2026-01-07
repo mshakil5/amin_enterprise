@@ -364,12 +364,12 @@
                                             {{ number_format($income->amount, 2) }}
                                         @endif
                                     </td>
-                                    <td class="text-right"></td>
+                                    <td class="text-right">this</td>
                                     <td class="text-right"></td>
                                 </tr>
                                     @php
                                     if ($income->account_id === 1) {
-                                        //$closingCashInOffice += $income->amount; // this
+                                        $closingCashInOffice += $income->amount; // this
                                     }
                                     if ($income->account_id === 2) {
                                         $closingCashInField += $income->amount;
