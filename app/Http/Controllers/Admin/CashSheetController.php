@@ -139,11 +139,15 @@ class CashSheetController extends Controller
             ->whereDate('date', $date)
             ->whereIn('tran_type', ['Current', 'Received', 'Wallet'])->get();
 
+        $assetsPurchase = Transaction::where('table_type','Assets')
+            ->whereDate('date', $date)
+            ->whereIn('tran_type', ['Purchase'])->get();
+
 
 
 
         return view('admin.accounts.cash_sheet.index', compact(
-            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer','incomes','equityInBankReceived','equityInCashReceived','equityPaymentInBank', 'equityPaymentInCash'
+            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer','incomes','equityInBankReceived','equityInCashReceived','equityPaymentInBank', 'equityPaymentInCash','assetsPurchase'
         ));
     }
 
@@ -303,15 +307,29 @@ class CashSheetController extends Controller
                 ->sum('amount');
             // this item always reduce from field cash
 
+        $assetsPurchaseOfficeCash = Transaction::where('table_type','Assets')
+            ->whereBetween('date', [$startDate, $date])
+            ->whereIn('tran_type', ['Purchase'])
+            ->where('account_id', 1)
+            ->sum('amount');
+
+        $assetsPurchaseFieldCash = Transaction::where('table_type','Assets')
+            ->whereBetween('date', [$startDate, $date])
+            ->whereIn('tran_type', ['Purchase'])
+            ->where('account_id', 2)
+            ->sum('amount');
+
 
         $totalCreditOfficeCash = $pmtLiabilitiesInOfficeCash 
                                     + $expensesInOfficeCash 
                                     + $creditTransferOutOfficeCash 
+                                    + $assetsPurchaseOfficeCash 
                                     + $pmtEquityInOfficeCash;
         $totalCreditFieldCash = $pmtLiabilitiesInFieldCash 
                                     + $expensesInFieldCash 
                                     + $creditTransferOutFieldCash 
                                     + $vendorAdvances 
+                                    + $assetsPurchaseFieldCash 
                                     + $pmtEquityInFieldCash;
 
                                 // dd(

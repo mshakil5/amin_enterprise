@@ -350,8 +350,6 @@ $(document).ready(function () {
             {
               data: 'tran_id',
               name: 'tran_id',
-              orderable: false,
-              searchable: false,
             },
             {
               data: 'date',

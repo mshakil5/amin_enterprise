@@ -233,7 +233,7 @@
             var transaction_type = $(this).val();
             if (transaction_type == "Purchase") {
                 $("#payment_type_container").show();
-                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option><option value='Account Payable'>Account Payable</option>");
+                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
             } else if (transaction_type == "Receipt") {
                 $("#showpayable, #showreceivable").hide();
                 $("#payment_type_container").show();
@@ -250,7 +250,7 @@
             } else if (transaction_type == "Sold") {
                 $("#showpayable , #showreceivable").hide();
                 $("#payment_type_container").show();
-                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option> <option value='Account Receivable'>Account Receivable</option>");
+                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
                 clearPayableHolder();
             }
         });
