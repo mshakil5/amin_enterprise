@@ -163,7 +163,6 @@
                     <td style="text-align: center">
                       
                       <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Payment</span>
-
                       <a class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" target="bla
                       " href="{{ route('getWalletTransaction', $data->id)}}">Tran</a>
                       <span class="btn btn-primary btn-xs receive-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Received</span>
@@ -172,7 +171,6 @@
                     <td style="text-align: center">
                       
                       <span class="btn btn-success btn-xs add-sq-btn" style="cursor: pointer;" data-id="{{ $data->id }}">+ add</span>
-
                       <span class="btn btn-info btn-xs view-btn" style="cursor: pointer;" data-id="{{ $data->id }}">View</span>
 
                     </td>
@@ -564,48 +562,60 @@
       }
 
       $("#contentContainer").on('click', '.add-sq-btn', function () {
-          var id = $(this).data('id');
-          $('#payModal').modal('show');
-          $('#payForm').off('submit').on('submit', function (event) {
-              event.preventDefault();
+            var id = $(this).data('id');
+            var $modal = $('#payModal');
+            var $form = $('#payForm');
+            var $msgContainer = $(".permsg");
 
-              var form_data = new FormData();
-              form_data.append("vendorId", id);
-              form_data.append("challanqty", $("#challanqty").val());
-              // form_data.append("sequence", $("#sequence").val());
+            // Reset form and messages when opening
+            $form[0].reset();
+            $msgContainer.html('');
 
-              if (!$("#challanqty").val()) {
-                  alert('Please enter challan quantity.');
-                  return;
-              }
+            $modal.modal('show');
 
+            $form.off('submit').on('submit', function (event) {
+                event.preventDefault();
 
-              $.ajax({
-                  url: '{{ URL::to('/admin/add-vendor-sequence') }}',
-                  method: 'POST',
-                  data:form_data,
-                  contentType: false,
-                  processData: false,
-                  // dataType: 'json',
-                  success: function (response) {
-                    if (response.status == 303) {
-                        $(".permsg").html(response.message);
-                    }else if(response.status == 300){
+                // Basic Validation
+                var qty = $("#challanqty").val();
+                if (!qty || qty <= 0) {
+                    $msgContainer.html("<div class='alert alert-danger'>Please enter a valid quantity.</div>");
+                    return;
+                }
 
-                      $(".permsg").html(response.message);
-                      window.setTimeout(function(){location.reload()},2000)
+                var form_data = new FormData();
+                form_data.append("vendorId", id);
+                form_data.append("challanqty", qty);
+                form_data.append("_token", "{{ csrf_token() }}"); 
+
+                $.ajax({
+                    url: '{{ URL::to("/admin/add-vendor-sequence") }}',
+                    method: 'POST',
+                    data: form_data,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        // Display the message (Success or Error)
+                        $msgContainer.html(response.message);
+
+                        if (response.status == 200) { 
+                            
+                            $form.find('button[type="submit"]').prop('disabled', true);
+
+                            setTimeout(function() {
+                                $modal.modal('hide');
+                                location.reload();
+                            }, 1000);
+                        }
+                    },
+                    error: function (xhr) {
+                        var errorMsg = "<div class='alert alert-danger'>Something went wrong. Please try again.</div>";
+                        $msgContainer.html(errorMsg);
+                        console.error(xhr.responseText);
                     }
-                    
-                      console.log(response);
-                      $('#payModal').modal('hide');
-
-                  },
-                  error: function (xhr) {
-                      console.log(xhr.responseText);
-                  }
-              });
-          });
-      });
+                });
+            });
+        });
 
       $('#payModal').on('hidden.bs.modal', function () {
             $('#paymentAmount').val('');

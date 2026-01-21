@@ -10,6 +10,7 @@ class VendorSequenceNumber extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    protected $guarded = [];
 
     protected static function boot()
     {

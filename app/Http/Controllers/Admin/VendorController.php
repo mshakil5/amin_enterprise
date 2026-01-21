@@ -139,32 +139,42 @@ class VendorController extends Controller
         return $uniqueCode;
     }
 
+
     public function addSequenceNumber(Request $request)
     {
-        $request->validate([
-            'vendorId' => 'required',
-            'challanqty' => 'required',
+        // 1. Better Validation
+        $validated = $request->validate([
+            'vendorId'   => 'required|exists:vendors,id',
+            'challanqty' => 'required|integer|min:1',
         ]);
 
-        $vendor = Vendor::where('id', $request->vendorId)->first();
+        return DB::transaction(function () use ($validated) {
+            
+            $vendor = Vendor::findOrFail($validated['vendorId']);
+            $lastSequence = VendorSequenceNumber::where('vendor_id', $vendor->id)
+                ->whereYear('created_at', date('Y'))
+                ->lockForUpdate()
+                ->max('sequence');
 
+            $nextSequence = ($lastSequence ?? 0) + 1;
+            $uniqueCode = $this->generateUniqueCode($vendor->name);
 
-        $vendorName = $vendor->name;
-        $uniqueCode = $this->generateUniqueCode($vendorName);
+            $data = VendorSequenceNumber::create([
+                'vendor_id'  => $vendor->id,
+                'qty'        => $validated['challanqty'],
+                'notmarkqty' => $validated['challanqty'],
+                'sequence'   => $nextSequence,
+                'unique_id'  => "{$uniqueCode}_{$nextSequence}_" . date('Y'),
+                'date'       => now()->format('Y-m-d'),
+                'created_by' => auth()->id(),
+            ]);
 
-        $data = new VendorSequenceNumber();
-        $data->vendor_id = $request->vendorId;
-        $data->qty = $request->challanqty;
-        $data->notmarkqty = $request->challanqty;
-        $lastSequence = VendorSequenceNumber::where('vendor_id', $request->vendorId)->where('created_at', 'like', date('Y'.'%'))->max('sequence');
-        $data->sequence = $lastSequence ? $lastSequence + 1 : 1;
-        $data->unique_id = $uniqueCode."_".$data->sequence."_".date('Y');
-        $data->date = date('Y-m-d');
-        $data->created_by = Auth::user()->id;
-        $data->save();
-
-        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data store Successfully.</b></div>";
-        return response()->json(['status'=> 300,'message'=>$message]);
+            return response()->json([
+                'status'  => 200,
+                'message' => '<div class="alert alert-success">Data stored successfully.</div>',
+                'data'    => $data
+            ]);
+        });
     }
 
 
