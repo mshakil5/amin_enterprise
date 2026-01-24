@@ -466,7 +466,7 @@
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
                 success: function(response) {
-                    // console.log(response);
+                    console.log(response);
                     $('#date').val(response.date);
                     $('#ref').val(response.ref);
 
@@ -491,7 +491,8 @@
                     $('#description').val(response.description);
 
                     $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
-                    $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
+                    // $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
+                    $('#chart_of_account_id').val(response.chart_of_account_id);
                     $('#account_id').val(response.account_id);
                     $('#client_id').val(response.client_id);
 

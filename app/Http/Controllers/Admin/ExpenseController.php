@@ -93,6 +93,7 @@ class ExpenseController extends Controller
             // Create transaction
             $transaction = new Transaction($validated);
             $transaction->created_by = auth()->id();
+            $transaction->chart_of_account_id = $validated['chart_of_account_id']; 
             $transaction->expense_id = $validated['chart_of_account_id']; 
             $transaction->account_id = $request->account_id ?? null; 
             $transaction->tran_type =  $request->transaction_type ?? null;
@@ -130,7 +131,7 @@ class ExpenseController extends Controller
         $responseData = [
             'id' => $transaction->id,
             'date' => $transaction->date,
-            'chart_of_account_id' => $transaction->chart_of_account_id,
+            'chart_of_account_id' => $transaction->chart_of_account_id ?? $transaction->expense_id,
             'client_id' => $transaction->client_id,
             'ref' => $transaction->ref,
             'transaction_type' => $transaction->tran_type,

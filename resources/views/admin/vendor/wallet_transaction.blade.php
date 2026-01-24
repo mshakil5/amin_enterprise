@@ -1,225 +1,190 @@
 @extends('admin.layouts.admin')
 
 @section('content')
-
 <style>
-    
-    .select2-container {
-        width: 100% !important;
-    }
+    /* Professional Select2 & UI Tweaks */
+    .select2-container--default .select2-selection--single { height: 38px; border-color: #ced4da; }
+    .table-hover tbody tr:hover { background-color: rgba(0,0,0,.03); transition: 0.3s; }
+    .card-title { font-weight: 600; font-size: 1.1rem; }
+    .badge-debit { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .badge-credit { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 </style>
 
-<section class="content pt-3" id="contentContainer">
+<div class="content-header">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title">Vendor Transaction</h3>
-                    </div>
-                    <div class="card-body">
-                        <div id="alert-container"></div>
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Vendor Ledger</h1>
+            </div>
+            <div class="col-sm-6 text-right">
+                <span class="badge badge-info p-2">Vendor: {{ $vendor->name }}</span>
+            </div>
+        </div>
+    </div>
+</div>
 
-                        <div class="row">
-                            {{-- <div class="row  justify-content-md-center mb-3">
-                                <form class="form-inline" role="form" method="POST" action="">
-                                    {{ csrf_field() }}
+<section class="content" id="contentContainer">
+    <div class="container-fluid">
+        <div class="card card-outline card-primary shadow-sm">
+            <div class="card-header bg-white">
+                <h3 class="card-title">
+                    <i class="fas fa-exchange-alt mr-1"></i> Transaction History
+                </h3>
+            </div>
+            
+            <div class="card-body">
+                <div id="alert-container"></div>
 
-                                    
-                                    <div class="form-group col-md-2">
-                                        <label for="vendor_id">Vendor</label>
-                                        <select name="vendor_id" id="vendor_id" class="form-control select2">
-                                          <option value="">Select</option>
-                                          @foreach (\App\Models\Vendor::where('status', 1)->get() as $vendor)
-                                          <option value="{{$vendor->id}}">{{$vendor->name}}</option>
-                                          @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-2">
-                                        <label for="mv_id">Mother Vassel </label>
-                                        <select name="mv_id" id="mv_id" class="form-control select2">
-                                          <option value="">Select</option>
-                                          @foreach (\App\Models\MotherVassel::where('status', 1)->get() as $mvassel)
-                                          <option value="{{$mvassel->id}}">{{$mvassel->name}}</option>
-                                          @endforeach
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="form-group col-md-2">
-                                        <label for="start_date">Start Date</label>
-                                        <input type="date" class="form-control" name="start_date" value="{{ request()->input('start_date') }}">
-                                    </div>
-                                    
-                                    <div class="form-group col-md-2">
-                                        <label for="end_date">End Date</label>
-                                        <input type="date" class="form-control" name="end_date" value="{{ request()->input('end_date') }}">
-                                    </div>
-
-                                    <div class="col-md-1">
-                                        <label class="label label-primary" style="visibility:hidden;">Action</label>
-                                        <button type="submit" class="btn btn-secondary btn-block">Search</button>
-                                    </div>
-                                </form>
-                            </div> --}}
-                            <div class="col-md-12">
-                                <div class="text-center my-4 company-name-container">
-                                    <h3>{{$vendor->name}}</h3>
-                                    <h4>Transaction</h4>
-                                </div>
-                        
+                <div class="table-responsive">
+                    <table id="daybookTable" class="table table-hover table-valign-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Account</th>
+                                <th>Voucher</th>
+                                <th class="text-right">Debit</th>
+                                <th class="text-right">Credit</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $balance = $balance ?? 0; @endphp
+                            @foreach($transactions as $key => $data)
+                            <tr>
+                                <td>{{ $key + 1 }}</td>
+                                <td class="text-nowrap font-weight-bold text-muted">
+                                    {{ \Carbon\Carbon::parse($data->date)->format('d M, Y') }}
+                                </td>
+                                <td>
+                                    <span class="d-block">{{ $data->description }}</span>
+                                    <small class="text-primary">{{ $data->vendorSequenceNumber->unique_id ?? "" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge badge-light border">{{ $data->account->type ?? 'N/A' }}</span>
+                                    <span class="badge badge-light border">{{ $data->tran_id ?? 'N/A' }}</span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.expense.voucher', $data->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </a>
+                                </td>
                                 
-                                <table id="daybookTable" class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Sl</th>
-                                            <th>Date</th>
-                                            <th>Description</th>
-                                            <th>Sequence ID</th>
-                                            <th>Account</th>
-                                            <th>Voucher</th>                              
-                                            <th>Debit</th>                            
-                                            <th>Credit</th>                            
-                                            <th>Action</th>                            
-                                            {{-- <th>Credit</th>                            
-                                            <th>Balance</th>                             --}}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                <td class="text-right font-weight-bold text-danger">
+                                    @if(in_array($data->table_type, ['Expenses', 'Expense']))
+                                        {{ number_format($data->amount, 2) }}
+                                        @php $balance -= $data->amount; @endphp
+                                    @endif
+                                </td>
+                                
+                                <td class="text-right font-weight-bold text-success">
+                                    @if(in_array($data->table_type, ['Income']))
+                                        {{ number_format($data->amount, 2) }}
+                                        @php $balance += $data->amount; @endphp
+                                    @endif
+                                </td>
 
-                                        @php
-                                            $balance = $balance ?? 0;
-                                        @endphp
-
-                                        @foreach($transactions as $key => $data)
-                                            <tr>
-                                                <td> {{ $key + 1 }} </td>
-                                                <td>{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}</td>
-                                                <td>
-                                                    {{ $data->description }} {{ $data->note }} 
-                                                </td>
-                                                <td>
-                                                    {{$data->vendorSequenceNumber->unique_id ?? ""}}
-                                                </td>
-                                                <td>
-                                                    {{ $data->account->type ?? '' }}
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('admin.expense.voucher', $data->id) }}" target="_blank" class="btn btn-info btn-xs" title="Voucher">
-                                                        <i class="fa fa-info-circle" aria-hidden="true"></i> Voucher
-                                                    </a>
-                                                </td>
-
-                                                @if(in_array($data->table_type, ['Expenses', 'Expense']) && in_array($data->tran_type, ['Wallet']))
-                                                    <td>{{ number_format($data->amount, 2) }}</td>
-                                                    <td></td>
-                                                    @php
-                                                        $balance = $balance - $data->amount;
-                                                    @endphp
-                                                @elseif(in_array($data->table_type, ['Income']) && in_array($data->tran_type, ['Wallet']))
-                                                    <td></td>
-                                                    <td>{{ number_format($data->amount, 2) }}</td>
-                                                    {{-- <td>{{ number_format($balance, 2) }}</td> --}}
-                                                    @php
-                                                        $balance = $balance + $data->amount;
-                                                    @endphp
-
-                                                @endif
-
-                                                <td>
-                                                    <a class="btn btn-info btn-xs detailsBtn" 
-                                                        data-date="{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}"
-                                                        data-description="{{ $data->description }}"
-                                                        data-type="{{ $data->tran_type }} {{ $data->payment_type }}"
-                                                        data-voucher="{{ route('admin.expense.voucher', $data->id) }}"
-                                                        data-challan="{{ $data->challan_no }}"
-                                                        data-amount="{{ $data->amount }}"
-                                                        data-note="{{ $data->note }}"
-                                                        data-account_id="{{ $data->account->type ?? '' }}"
-                                                        data-toggle="modal" data-target="#detailsModal"
-                                                        title="Details">
-                                                         <i class="fa fa-eye"></i> Details
-                                                    </a>
-                                                    <a  class="btn btn-primary btn-xs editBtn"  tranid="{{$data->id}}" data-date="{{ \Carbon\Carbon::parse($data->date)->format('Y-m-d') }}" data-amount="{{ $data->amount }}" data-payment_type="{{ $data->payment_type }}" data-account_id="{{ $data->account_id }}" data-note="{{ $data->note }}" data-vsid="{{ $data->vendor_sequence_number_id }}" data-toggle="modal" data-target="#addWalletModal" title="Edit">
-                                                        <i class="fa fa-edit"></i> Edit
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                        
-                            </div>
-                        </div>
-                    </div>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-xs btn-info detailsBtn" 
+                                            data-date="{{ \Carbon\Carbon::parse($data->date)->format('d-m-Y') }}"
+                                            data-description="{{ $data->description }}"
+                                            data-type="{{ $data->tran_type }} {{ $data->payment_type }}"
+                                            data-voucher="{{ route('admin.expense.voucher', $data->id) }}"
+                                            data-challan="{{ $data->challan_no }}"
+                                            data-amount="{{ $data->amount }}"
+                                            data-note="{{ $data->note }}"
+                                            data-account_id="{{ $data->account->type ?? '' }}"
+                                            title="View Details">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-xs btn-primary editBtn" 
+                                            tranid="{{$data->id}}" 
+                                            data-date="{{ \Carbon\Carbon::parse($data->date)->format('Y-m-d') }}" 
+                                            data-amount="{{ $data->amount }}" 
+                                            data-payment_type="{{ $data->payment_type }}" 
+                                            data-account_id="{{ $data->account_id }}" 
+                                            data-note="{{ $data->note }}" 
+                                            data-vsid="{{ $data->vendor_sequence_number_id }}" 
+                                            title="Edit">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-
 <!-- Modal for add money -->
-<div class="modal fade" id="addWalletModal" tabindex="-1" role="dialog" aria-labelledby="addWalletLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="addWalletLabel">Update transaction</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-              </button>
-          </div>
-          <form id="addWalletForm">
-              <div class="modal-body">
-                <div class="permsg"></div>
-                  <div class="form-group">
-                    <label for="wallet_date">Date <span style="color: red;">*</span></label>
-                    <input type="date" class="form-control" id="wallet_date" name="wallet_date" value="{{ date('Y-m-d') }}" required>
-                  </div>
-                  <div class="form-group">
-                      <label for="walletamount">Amount <span style="color: red;">*</span></label>
-                      <input type="number" class="form-control" id="walletamount" name="walletamount" >
-                  </div>
-                  <div class="form-group">
-                      <label for="walletamount">Payment Type <span style="color: red;">*</span></label>
-                      <select name="payment_type" id="payment_type" class="form-control">
-                        <option value="Cash">Cash</option>
-                        <option value="Bank">Bank</option>
-                      </select>
-                  </div>
-                  <div class="form-group">
-                      <label for="account_id">Account <span style="color: red;">*</span></label>
-                      <select name="account_id" id="account_id" class="form-control">
-                        @foreach (\App\Models\Account::latest()->get() as $item)
-                        <option value="{{$item->id}}">{{$item->type}}</option>
-                        @endforeach
-                      </select>
-                  </div>
+<div class="modal fade" id="addWalletModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document"> <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-edit mr-2"></i> Update Transaction</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="addWalletForm">
+                <div class="modal-body">
+                    <div class="permsg"></div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="wallet_date" name="wallet_date" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Amount <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                                <input type="number" class="form-control" id="walletamount" name="walletamount">
+                            </div>
+                        </div>
+                    </div>
 
-                  
-                  <div class="form-group">
-                      <label for="vsequence">Vendor Sequence <span style="color: red;">*</span></label>
-                      <select name="vsequence" id="vsequence" class="form-control select2">
-                        @foreach ($vendorSeqNums as $vitem)
-                        <option value="{{$vitem->id}}">{{$vitem->unique_id}}</option>
-                        @endforeach
-                      </select>
-                  </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Payment Type</label>
+                            <select name="payment_type" id="payment_type" class="form-control">
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Account</label>
+                            <select name="account_id" id="account_id" class="form-control">
+                                @foreach (\App\Models\Account::latest()->get() as $item)
+                                    <option value="{{$item->id}}">{{$item->type}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
 
+                    <div class="form-group">
+                        <label>Vendor Sequence</label>
+                        <select name="vsequence" id="vsequence" class="form-control select2">
+                            @foreach ($vendorSeqNums as $vitem)
+                                <option value="{{$vitem->id}}">{{$vitem->unique_id}}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                  <div class="form-group">
-                      <label for="note">Note</label>
-                      <textarea class="form-control" id="note" rows="3"></textarea>
-                  </div>
-
-
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-warning">Update</button>
-              </div>
-          </form>
-      </div>
-  </div>
+                    <div class="form-group">
+                        <label>Note / Remarks</label>
+                        <textarea class="form-control" id="note" rows="2" placeholder="Optional details..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning shadow-sm px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 
@@ -359,10 +324,6 @@
         $('body').append(modalHtml);
         $('#detailsModal').modal('show');
     });
-
-
-
-
 
     });
 </script>
