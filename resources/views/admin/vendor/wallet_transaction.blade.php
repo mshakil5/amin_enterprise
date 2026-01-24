@@ -8,7 +8,19 @@
     .card-title { font-weight: 600; font-size: 1.1rem; }
     .badge-debit { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     .badge-credit { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    /* Force Select2 to take full width of its parent container */
+.select2-container {
+    width: 100% !important;
+}
+
+/* Fix for Select2 inside Bootstrap Modals */
+.select2-container--open {
+    z-index: 9999 !important;
+}
+
 </style>
+
+
 
 <div class="content-header">
     <div class="container-fluid">
@@ -195,6 +207,7 @@
 <script>
     
     $(document).ready(function() {
+
         $('#daybookTable').DataTable({
             pageLength: 100,
             dom: 'Bfrtip',
@@ -202,7 +215,7 @@
                 {
                     extend: 'excelHtml5',
                     text: 'Download Excel',
-                    title: 'Vendor_Transaction'
+                    title: 'Vendor Transaction'
                 }
             ]
         });
