@@ -438,7 +438,7 @@
       </li>
       @endif
 
-    <li class="nav-item {{ Route::is('excel.upload') || Route::is('excel.template') || Route::is('excel.store') || 
+    <li class="nav-item d-none {{ Route::is('excel.upload') || Route::is('excel.template') || Route::is('excel.store') || 
                         Route::is('fuel.excel.upload') || Route::is('fuel.excel.template') || Route::is('fuel.excel.store') ||
                         Route::is('client.excel.upload') || Route::is('client.excel.template') || Route::is('client.excel.store') ? 'menu-open' : '' }}">
         <a href="#" class="nav-link {{ Route::is('excel.*') || Route::is('fuel.excel.*') || Route::is('client.excel.*') ? 'active' : '' }}">
