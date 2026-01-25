@@ -42,7 +42,7 @@
                     <div class="card-body">
                         <div class="ermsg"> </div>
                         
-                        <form id="createThisForm">
+                        {{-- <form id="createThisForm">
                             @csrf
 
                             <div class="row">
@@ -51,7 +51,7 @@
                                     <div class="form-row">
 
                                         <div class="form-group col-md-3">
-                                            <label for="client_id">Client<span style="color: red;">*</span> </label>
+                                            <label for="client_id">Client </label>
                                             <select name="client_id" id="client_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($clients as $client)
@@ -61,7 +61,7 @@
                                         </div>
 
                                         <div class="form-group col-md-3">
-                                            <label for="mv_id">Mother Vassel<span style="color: red;">*</span> </label>
+                                            <label for="mv_id">Mother Vassel </label>
                                             <select name="mv_id" id="mv_id" class="form-control select2">
                                               <option value="">Select</option>
                                               @foreach ($mvassels as $mvassel)
@@ -86,7 +86,7 @@
 
                             </div>
                             
-                        </form>
+                        </form> --}}
 
                         <hr>
 
@@ -196,110 +196,64 @@
 </section>
 
 <!-- Main content -->
-<section class="content d-none" id="contentContainer">
+<section class="content">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <!-- /.card -->
-
-          <div class="card card-secondary">
-            <div class="card-header">
-              <h3 class="card-title">All Generated bill not received from client.</h3>
-            </div>
-            <!-- /.card-header -->
+        <div class="card card-primary card-outline">
             <div class="card-body">
-              <table id="example1" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                  <th style="text-align: center">Sl</th>
-                  <th style="text-align: center">Bill Status</th>
-                  <th style="text-align: center">Bill No</th>
-                  <th style="text-align: center">Date</th>
-                  <th style="text-align: center">Vendor</th>
-                  <th style="text-align: center">Header ID</th>
-                  <th style="text-align: center">Challan no</th>
-                  <th> From-To </th>
-                  <th style="text-align: center">Qty</th>
-                  <th style="text-align: center">Receivable Amount</th>
-                </tr>
-                </thead>
-                <tbody>
-                  @foreach ($data as $key => $data)
-
-                  @php
-                      $rate = \App\Models\ClientRate::where('client_id', $data->client_id)->where('destination_id', $data->destination_id)->where('ghat_id', $data->ghat_id)->first();
-                      $totalQty = $data->dest_qty;
-
-                      if ($rate) {
-                        if ( $totalQty > $rate->maxqty) {
-                            $belowAmount = $rate->maxqty * $rate->below_rate_per_qty;
-                            $aboveQty = $totalQty - $rate->maxqty;
-                            $aboveAmount = $aboveQty * $rate->above_rate_per_qty;
-                            $totalAmount = $belowAmount + $aboveAmount;
-                        } else {
-                            $totalAmount = $totalQty * $rate->below_rate_per_qty;
-                        }
-                      }
-                  @endphp
-
-                  <tr>
-                    <td style="text-align: center">{{ $key + 1 }}</td>
-                    <td style="text-align: center">
-
-                      <label class="form-checkbox  grid layout">
-                        <input type="checkbox" name="checkbox-checked" class="custom-checkbox"  @if ($data->generate_bill == 1) checked @endif  />
-                      </label>
-
-                    </td>
-                    <td style="text-align: center">{{$data->bill_no}}</td>
-                    <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                    <td style="text-align: center">{{$data->vendor->name}}</td>
-                    <td style="text-align: center">{{$data->headerid}}</td>
-                    <td style="text-align: center">{{$data->challan_no}}</td>
-                    <td style="text-align: center">{{$data->ghat->name ?? ''}}-{{$data->destination->name ?? ''}}
-                    </td>
-                    <td style="text-align: center">{{$data->dest_qty}}</td>
-                    <td style="text-align: center">
-                        @if (isset($rate))
-                        {{$totalAmount}}
-                        @endif
-                    </td>
-
-
-                  </tr>
-                  @endforeach
-                
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <label>Total Amount</label> 
-                        </td>
-                        <td>
-                            <input type="number" id="totalBill" class="form-control" readonly>
-                        </td>
-                    </tr>
-                    
-                </tfoot>
-              </table>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Client</label>
+                        <select id="client_id" class="form-control select2">
+                          <option value="">Select</option>
+                            @foreach($clients as $client)
+                                <option value="{{ $client->id }}">{{ $client->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Bill Number</label>
+                        <div class="input-group">
+                            <input type="text" id="bill_number" class="form-control" placeholder="Search Bill No...">
+                            <div class="input-group-append">
+                                <button id="searchBtn" class="btn btn-primary"><i class="fas fa-search"></i> Find Bill</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
         </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
+
+        <div class="card card-secondary" id="resultCard" style="display:none;">
+            <div class="card-header">
+                <h3 class="card-title">Bill Details: <span id="displayBillNo"></span></h3>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover table-head-fixed table-striped">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Sl</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Challan No</th>
+                            <th>From - To</th>
+                            <th>Qty</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billTableBody">
+                        </tbody>
+                    <tfoot>
+                        <tr class="bg-light">
+                            <th colspan="6" class="text-right">Grand Total:</th>
+                            <th class="text-center" id="footerQty">0</th>
+                            <th class="text-center text-success" id="footerTotal">0.00</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
     </div>
-    <!-- /.container-fluid -->
 </section>
 <!-- /.content -->
 
@@ -309,11 +263,11 @@
 
 <script>
     $(function () {
-      $("#example1").DataTable({
+      $("#prgmDtl").DataTable({
         "responsive": true, "lengthChange": false, "autoWidth": false,
         "buttons": ["copy", "csv", "excel", "pdf", "print"],
         "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
-      }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+      }).buttons().container().appendTo('#prgmDtl_wrapper .col-md-6:eq(0)');
 
       
       $('#example2').DataTable({
@@ -332,57 +286,74 @@
 <!-- Create check challan Start -->
 <script>
     $(document).ready(function() {
-        $(document).on('click', '#checkBtn', function(e) {
-            e.preventDefault();
+    $('#searchBtn').click(function() {
+        const billNo = $('#bill_number').val();
+        const clientId = $('#client_id').val();
 
-            $(this).attr('disabled', true);
-            $('#loader').show();
-            $(this).attr('disabled', false);
+        if (!billNo) {
+            alert('Please enter a Bill Number');
+            return;
+        }
 
-            var formData = new FormData($('#createThisForm')[0]);
+        $.ajax({
+            url: "{{ route('admin.checkBill') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                bill_number: $('#bill_number').val(),
+                client_id: $('#client_id').val()
+            },
+            success: function(response) {
+                $('#searchBtn').prop('disabled', false).html('<i class="fas fa-search"></i> Find Bill');
+                
+                if (response.status === 200) {
+                    // Simply inject the HTML string directly from the response
+                    $('#billTableBody').html(response.html);
 
-            $.ajax({
-                url: '{{ route("admin.checkBill") }}',
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                cache: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    // console.log(response);
+                    // Update footer totals
+                    $('#footerQty').text(response.totalQty);
+                    $('#footerTotal').text(response.totalAmount);
 
-                    if (response.data == "empty") {
-                        // $("#mv_id").val('');
-                        // $("#client_id").val('');
-                        $(".ermsg").html(response.message);
-                        // $('#programTable tbody').html('');
-
-                    } else {
-
-                        $("#totalAmount").val(response.totalAmount);
-                        $("#netAmount").val(response.totalAmount);
-                        $("#totalqty").val(response.totalQty);
-                        $(".ermsg").html(response.message).fadeIn().delay(2000).fadeOut();
-
+                    // Update the form input fields for saving
+                    $('#totalqty').val(response.totalQty);
+                    $('#totalAmount').val(response.totalAmount);
+                    
+                    // Re-calculate net amount (from your existing function)
+                    if(typeof calculateNetAmount === "function") {
+                        calculateNetAmount();
                     }
-                    
-                    
-                },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseJSON.message);
-                    // console.error(xhr.responseText);
-                },
-                complete: function() {
-                    $('#loader').hide();
-                    $('#addBtn').attr('disabled', false);
-                }
-            });
-        });
 
+                    $('#resultCard').fadeIn();
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
     });
+
+
+
+    // Reusable Calculation Function
+    function calculateNetAmount() {
+        var totalAmount = parseFloat($('#totalAmount').val()) || 0;
+        var maintainance = parseFloat($('#maintainance').val()) || 0;
+        var otherexp = parseFloat($('#otherexp').val()) || 0;
+        var scaleCharge = parseFloat($('#scaleCharge').val()) || 0;
+        var otherRcv = parseFloat($('#otherRcv').val()) || 0;
+        
+        var netamnt = totalAmount + scaleCharge + otherRcv - otherexp - maintainance;
+        $("#netAmount").val(netamnt.toFixed(2));
+    }
+
+    // Trigger on typing
+    $(document).on('keyup', '#maintainance, #otherexp, #scaleCharge, #otherRcv', function() {
+        calculateNetAmount();
+    });
+
+
+
+
+});
 </script>
 <!-- Create  check challan End -->
 

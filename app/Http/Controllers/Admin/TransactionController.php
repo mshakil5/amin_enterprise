@@ -12,6 +12,7 @@ use App\Models\Program;
 use App\Models\ProgramDetail;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -89,36 +90,87 @@ class TransactionController extends Controller
 
     public function checkBill(Request $request)
     {
-        $data = $request->all();
-        
-        $chkprgms = ProgramDetail::where('client_id', $request->client_id)->where('bill_no', $request->bill_number)->where('mother_vassel_id', $request->mv_id)->get();
+        // Eager load relationships
+        $chkprgms = ProgramDetail::with(['vendor', 'ghat', 'destination'])
+            ->where('bill_no', $request->bill_number)
+            ->get();
 
-
-        
-        if ($chkprgms) {
-            $totalAmount = 0;
-            $totalQty = 0;
-            foreach ($chkprgms as $key => $prgmDtl) {
-                $rate = ClientRate::where('client_id', $request->client_id)->where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
-                      $qty = $prgmDtl->dest_qty;
-
-                      if ($rate) {
-                        if ( $qty > $rate->maxqty) {
-                            $belowAmount = $rate->maxqty * $rate->below_rate_per_qty;
-                            $aboveQty = $qty - $rate->maxqty;
-                            $aboveAmount = $aboveQty * $rate->above_rate_per_qty;
-                            $totalAmount += $belowAmount + $aboveAmount;
-                        } else {
-                            $totalAmount += $qty * $rate->below_rate_per_qty;
-                        }
-                        $totalQty = $totalQty + $qty;
-                      }
-            }
+        if ($chkprgms->isEmpty()) {
+            return response()->json(['status' => 404, 'message' => 'No bill records found.']);
         }
-        
 
-        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Bill Found.</b></div>";
-        return response()->json(['status'=> 300,'message'=>$message,'data'=>$chkprgms,'totalAmount'=>$totalAmount,'totalQty'=>$totalQty]);
+        $totalAmount = 0;
+        $totalQty = 0;
+        $html = ''; // Initialize the HTML string
+
+        foreach ($chkprgms as $key => $prgmDtl) {
+            // Calculate Rate
+            $rate = ClientRate::where('destination_id', $prgmDtl->destination_id)
+                ->where('ghat_id', $prgmDtl->ghat_id)
+                ->first();
+
+                // 2. LOG RECORD: Capture search attempts and results
+                Log::info("Bill Check Log - Bill No: {$request->bill_number}", [
+                    'row_index'      => $key + 1,
+                    'challan_no'     => $prgmDtl->challan_no,
+                    'search_params'  => [
+                        'client_id'      => $request->client_id,
+                        'destination_id' => $prgmDtl->destination_id,
+                        'ghat_id'        => $prgmDtl->ghat_id,
+                    ],
+                    'rate_found'     => $rate ? 'Yes' : 'No',
+                    'rate_details'   => $rate ? [
+                        'max_qty'      => $rate->maxqty,
+                        'below_rate'   => $rate->below_rate_per_qty,
+                        'above_rate'   => $rate->above_rate_per_qty
+                    ] : 'NULL'
+                ]);
+
+            $qty = (float) $prgmDtl->dest_qty;
+            $rowAmount = 0;
+
+            if ($rate) {
+                if ($qty > $rate->maxqty) {
+                    $belowAmount = $rate->maxqty * $rate->below_rate_per_qty;
+                    $aboveQty = $qty - $rate->maxqty;
+                    $aboveAmount = $aboveQty * $rate->above_rate_per_qty;
+                    $rowAmount = $belowAmount + $aboveAmount;
+                } else {
+                    $rowAmount = $qty * $rate->below_rate_per_qty;
+                }
+            }
+
+            $formattedDate = \Carbon\Carbon::parse($prgmDtl->date)->format('d/m/Y');
+            $vendorName = $prgmDtl->vendor->name ?? 'N/A';
+            $ghatName = $prgmDtl->ghat->name ?? '';
+            $destName = $prgmDtl->destination->name ?? '';
+
+            // Build the HTML row string
+            $html .= '<tr class="text-center">
+                        <td>' . ($key + 1) . '</td>
+                        <td><span class="badge badge-success">Generated</span></td>
+                        <td>' . $formattedDate . '</td>
+                        <td>' . $vendorName . '</td>
+                        <td>' . $prgmDtl->challan_no . '</td>
+                        <td>
+                            <small>' . $ghatName . '</small> 
+                            <i class="fas fa-arrow-right mx-1 text-muted"></i> 
+                            <small>' . $destName . '</small>
+                        </td>
+                        <td><b>' . number_format($qty, 2) . '</b></td>
+                        <td class="text-primary"><b>' . number_format($rowAmount, 2) . '</b></td>
+                    </tr>';
+
+            $totalAmount += $rowAmount;
+            $totalQty += $qty;
+        }
+
+        return response()->json([
+            'status' => 200,
+            'html' => $html, // Pass the pre-rendered HTML back
+            'totalAmount' => number_format($totalAmount, 2, '.', ''),
+            'totalQty' => number_format($totalQty, 2, '.', ''),
+        ]);
     }
 
     public function billStore(Request $request)
