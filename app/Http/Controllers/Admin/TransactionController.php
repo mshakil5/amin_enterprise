@@ -83,7 +83,7 @@ class TransactionController extends Controller
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         
-        $data = ProgramDetail::where('generate_bill', 1)->where('bill_status', 0)->get();
+        $data = ProgramDetail::where('generate_bill', 1)->where('bill_status', 0)->limit(10)->get();
         return view('admin.bill.index', compact('clients','mvassels','data'));
     }
 

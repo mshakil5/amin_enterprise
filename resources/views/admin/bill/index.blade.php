@@ -72,7 +72,7 @@
 
                                         <div class="form-group col-md-3">
                                             <label for="bill_number">Bill Number<span style="color: red;">*</span> </label>
-                                            <input type="number" id="bill_number" name="bill_number" class="form-control" value="134904">
+                                            <input type="number" id="bill_number" name="bill_number" class="form-control" value="">
                                         </div>
 
                                         
