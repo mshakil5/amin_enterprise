@@ -149,7 +149,7 @@ class TransactionController extends Controller
                     $OldaboveAmount = $OldaboveQty * $rate->above_rate_per_qty;
                     $rowOldAmount = $OldbelowAmount + $OldaboveAmount;
                 } else {
-                    $rowOldAmount = $rate->maxqty * $rate->below_rate_per_qty;
+                    $rowOldAmount = $old_qty * $rate->below_rate_per_qty;
                 }
             }
 
