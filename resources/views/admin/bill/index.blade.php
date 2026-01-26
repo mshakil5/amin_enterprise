@@ -248,7 +248,7 @@
                         </tbody>
                     <tfoot>
                         <tr class="bg-light">
-                            <th colspan="6" class="text-right">Grand Total:</th>
+                            <th colspan="7" class="text-right">Grand Total:</th>
                             <th class="text-center" id="footerPevQty">0</th>
                             <th class="text-center text-success" id="footerPevTotal">0.00</th>
                             <th class="text-center" id="footerQty">0</th>
