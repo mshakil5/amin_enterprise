@@ -100,6 +100,8 @@ class TransactionController extends Controller
         }
 
         $totalAmount = 0;
+        $totalprevAmount = 0;
+        $totalPrevQty = 0;
         $totalQty = 0;
         $html = ''; // Initialize the HTML string
 
@@ -127,7 +129,9 @@ class TransactionController extends Controller
                 ]);
 
             $qty = (float) $prgmDtl->dest_qty;
+            $old_qty = (float) $prgmDtl->old_qty;
             $rowAmount = 0;
+            $rowOldAmount = 0;
 
             if ($rate) {
                 if ($qty > $rate->maxqty) {
@@ -137,6 +141,15 @@ class TransactionController extends Controller
                     $rowAmount = $belowAmount + $aboveAmount;
                 } else {
                     $rowAmount = $qty * $rate->below_rate_per_qty;
+                }
+
+                if ($old_qty > $rate->maxqty) {
+                    $OldbelowAmount = $rate->maxqty * $rate->below_rate_per_qty;
+                    $OldaboveQty = $old_qty - $rate->maxqty;
+                    $OldaboveAmount = $OldaboveQty * $rate->above_rate_per_qty;
+                    $rowOldAmount = $OldbelowAmount + $OldaboveAmount;
+                } else {
+                    $rowOldAmount = $old_qty * $rate->below_rate_per_qty;
                 }
             }
 
@@ -157,19 +170,25 @@ class TransactionController extends Controller
                             <i class="fas fa-arrow-right mx-1 text-muted"></i> 
                             <small>' . $destName . '</small>
                         </td>
+                        <td><b>' . number_format($old_qty, 2) . '</b></td>
+                        <td class="text-primary"><b>' . number_format($rowOldAmount, 2) . '</b></td>
                         <td><b>' . number_format($qty, 2) . '</b></td>
                         <td class="text-primary"><b>' . number_format($rowAmount, 2) . '</b></td>
                     </tr>';
 
+            $totalprevAmount += $rowOldAmount;
             $totalAmount += $rowAmount;
             $totalQty += $qty;
+            $totalPrevQty += $old_qty;
         }
 
         return response()->json([
             'status' => 200,
             'html' => $html, // Pass the pre-rendered HTML back
+            'totalprevAmount' => number_format($totalprevAmount, 2, '.', ''),
             'totalAmount' => number_format($totalAmount, 2, '.', ''),
             'totalQty' => number_format($totalQty, 2, '.', ''),
+            'totalPrevQty' => number_format($totalPrevQty, 2, '.', ''),
         ]);
     }
 

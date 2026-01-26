@@ -237,6 +237,8 @@
                             <th>Vendor</th>
                             <th>Challan No</th>
                             <th>From - To</th>
+                            <th>Prev. Qty</th>
+                            <th>Prev. Amount</th>
                             <th>Qty</th>
                             <th>Amount</th>
                         </tr>
@@ -246,6 +248,8 @@
                     <tfoot>
                         <tr class="bg-light">
                             <th colspan="6" class="text-right">Grand Total:</th>
+                            <th class="text-center" id="footerPevQty">0</th>
+                            <th class="text-center text-success" id="footerPevTotal">0.00</th>
                             <th class="text-center" id="footerQty">0</th>
                             <th class="text-center text-success" id="footerTotal">0.00</th>
                         </tr>
@@ -313,6 +317,8 @@
                     // Update footer totals
                     $('#footerQty').text(response.totalQty);
                     $('#footerTotal').text(response.totalAmount);
+                    $('#footerPevQty').text(response.totalPrevQty);
+                    $('#footerPevTotal').text(response.totalprevAmount);
 
                     // Update the form input fields for saving
                     $('#totalqty').val(response.totalQty);
