@@ -236,6 +236,7 @@
                             <th>Date</th>
                             <th>Vendor</th>
                             <th>Challan No</th>
+                            <th>Header ID</th>
                             <th>From - To</th>
                             <th>Prev. Qty</th>
                             <th>Prev. Amount</th>

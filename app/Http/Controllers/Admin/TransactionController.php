@@ -165,6 +165,7 @@ class TransactionController extends Controller
                         <td>' . $formattedDate . '</td>
                         <td>' . $vendorName . '</td>
                         <td>' . $prgmDtl->challan_no . '</td>
+                        <td>' . $prgmDtl->headerid . '</td>
                         <td>
                             <small>' . $ghatName . '</small> 
                             <i class="fas fa-arrow-right mx-1 text-muted"></i> 
