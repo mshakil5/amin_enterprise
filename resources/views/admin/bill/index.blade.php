@@ -238,6 +238,7 @@
                             <th>Challan No</th>
                             <th>Header ID</th>
                             <th>From - To</th>
+                            <th>Scale Fee</th>
                             <th>Prev. Qty</th>
                             <th>Prev. Amount</th>
                             <th>Qty</th>
@@ -249,6 +250,7 @@
                     <tfoot>
                         <tr class="bg-light">
                             <th colspan="7" class="text-right">Grand Total:</th>
+                            <th class="text-center" id="totalScaleFee">0.00</th>
                             <th class="text-center" id="footerPevQty">0</th>
                             <th class="text-center text-success" id="footerPevTotal">0.00</th>
                             <th class="text-center" id="footerQty">0</th>
@@ -316,6 +318,7 @@
                     $('#billTableBody').html(response.html);
 
                     // Update footer totals
+                    $('#totalScaleFee').text(response.totalscalefee);
                     $('#footerQty').text(response.totalQty);
                     $('#footerTotal').text(response.totalAmount);
                     $('#footerPevQty').text(response.totalPrevQty);

@@ -103,6 +103,7 @@ class TransactionController extends Controller
         $totalprevAmount = 0;
         $totalPrevQty = 0;
         $totalQty = 0;
+        $totalscale_fee = 0;
         $html = ''; // Initialize the HTML string
 
         foreach ($chkprgms as $key => $prgmDtl) {
@@ -171,6 +172,7 @@ class TransactionController extends Controller
                             <i class="fas fa-arrow-right mx-1 text-muted"></i> 
                             <small>' . $destName . '</small>
                         </td>
+                        <td><b>' . number_format($prgmDtl->scale_fee, 2) . '</b></td>
                         <td><b>' . number_format($old_qty, 2) . '</b></td>
                         <td class="text-primary"><b>' . number_format($rowOldAmount, 2) . '</b></td>
                         <td><b>' . number_format($qty, 2) . '</b></td>
@@ -181,11 +183,13 @@ class TransactionController extends Controller
             $totalAmount += $rowAmount;
             $totalQty += $qty;
             $totalPrevQty += $old_qty;
+            $totalscale_fee += $prgmDtl->scale_fee;
         }
 
         return response()->json([
             'status' => 200,
             'html' => $html, // Pass the pre-rendered HTML back
+            'totalscalefee' => number_format($totalscale_fee, 2, '.', ''),
             'totalprevAmount' => number_format($totalprevAmount, 2, '.', ''),
             'totalAmount' => number_format($totalAmount, 2, '.', ''),
             'totalQty' => number_format($totalQty, 2, '.', ''),
