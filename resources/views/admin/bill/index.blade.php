@@ -228,7 +228,7 @@
                 <h3 class="card-title">Bill Details: <span id="displayBillNo"></span></h3>
             </div>
             <div class="card-body table-responsive p-0">
-                <table class="table table-hover table-head-fixed table-striped">
+                <table class="table table-hover table-head-fixed table-striped" id="prgmDtl">
                     <thead class="text-center">
                         <tr>
                             <th>Sl</th>
