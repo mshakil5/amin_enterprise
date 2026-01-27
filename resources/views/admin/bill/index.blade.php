@@ -293,6 +293,8 @@
 <!-- Create check challan Start -->
 <script>
     $(document).ready(function() {
+
+
     $('#searchBtn').click(function() {
         const billNo = $('#bill_number').val();
         const clientId = $('#client_id').val();
@@ -314,24 +316,30 @@
                 $('#searchBtn').prop('disabled', false).html('<i class="fas fa-search"></i> Find Bill');
                 
                 if (response.status === 200) {
-                    // Simply inject the HTML string directly from the response
+                    // 1. Get the DataTable instance
+                    var table = $('#prgmDtl').DataTable();
+
+                    // 2. Clear the existing table data
+                    table.clear().destroy(); 
+
+                    // 3. Inject the new HTML rows into the tbody
                     $('#billTableBody').html(response.html);
 
-                    // Update footer totals
+                    // 4. Re-initialize DataTable so it "sees" the new rows
+                    $("#prgmDtl").DataTable({
+                        "responsive": true, 
+                        "lengthChange": false, 
+                        "autoWidth": false,
+                        "buttons": ["copy", "csv", "excel", "pdf", "print"],
+                        "lengthMenu": [[100, 50, 25, -1], [100, 50, 25, "All"]]
+                    }).buttons().container().appendTo('#prgmDtl_wrapper .col-md-6:eq(0)');
+
+                    // 5. Update footer totals
                     $('#totalScaleFee').text(response.totalscalefee);
                     $('#footerQty').text(response.totalQty);
                     $('#footerTotal').text(response.totalAmount);
                     $('#footerPevQty').text(response.totalPrevQty);
                     $('#footerPevTotal').text(response.totalprevAmount);
-
-                    // Update the form input fields for saving
-                    $('#totalqty').val(response.totalQty);
-                    $('#totalAmount').val(response.totalAmount);
-                    
-                    // Re-calculate net amount (from your existing function)
-                    if(typeof calculateNetAmount === "function") {
-                        calculateNetAmount();
-                    }
 
                     $('#resultCard').fadeIn();
                 } else {
