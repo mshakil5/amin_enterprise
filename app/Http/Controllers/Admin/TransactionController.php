@@ -92,7 +92,7 @@ class TransactionController extends Controller
     {
         // Eager load relationships
         $chkprgms = ProgramDetail::with(['vendor', 'ghat', 'destination'])
-            ->where('bill_no', $request->bill_number)
+            ->where('bill_no', $request->bill_number)->orderby('headerid', 'ASC')
             ->get();
 
         if ($chkprgms->isEmpty()) {
