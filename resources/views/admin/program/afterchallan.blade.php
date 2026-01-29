@@ -777,6 +777,7 @@
         const due = $element.attr('data-due');
         const additional_cost = $element.attr('data-additional_cost');
         const carrying_bill = $element.attr('data-carrying_bill');
+        const before_date = $element.attr('data-before_date');
         const vendor_sequence_number_id = $element.attr('data-vendor_sequence_number_id');
 
         $("#advanceAmnt").val(advAmnt);
@@ -791,7 +792,8 @@
         $("#totalDue").val(due);
         $("#additionalCost").val(additional_cost);
         $("#totalamount").val(carrying_bill);
-        $("#sequence_id").val(vendor_sequence_number_id);
+        $("#challan_posting_date").val(before_date);
+        $("#sequence_id").val(vendor_sequence_number_id).trigger('change');
         $("#headerDiv").show();
     }
 
