@@ -1828,6 +1828,7 @@ class ProgramController extends Controller
             'truck_number'             => $request->truck_number,
             'headerid'                 => $request->headerid,
             'dest_qty'                 => $request->totalqtyasperchallan,
+            'old_qty'                   => null,
             'line_charge'              => $request->line_charge,
             'scale_fee'                => $request->scale_fee,
             'other_cost'               => $request->other_cost,
