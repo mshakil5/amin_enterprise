@@ -703,5 +703,16 @@ class VendorController extends Controller
         return response()->json($sequences);
     }
 
+    public function getWithoutTripFuelBillAdjust($id)
+    {
+        
+        $vendor = Vendor::where('id', $id)->first();
+        $sequences = VendorSequenceNumber::where('vendor_id', $id)
+                        ->where('status', 1)->orderby('id', 'DESC')
+                        ->select('id', 'unique_id')
+                        ->get();
+        return view('admin.vendor.without_trip_fuelcost', compact('vendor','sequences', 'id'));
+    }
+
 
 }

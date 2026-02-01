@@ -139,6 +139,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/get-vendors-sequence-ledger/{id}', [VendorController::class, 'getVendorWiseProgramLedger'])->name('admin.vendor.sequence.ledger');
     Route::get('/vendor/{id}/sequences', [VendorController::class, 'getSequences']);
 
+    
+    Route::get('/get-without-trip-fuel-bill-adjust/{id}', [VendorController::class, 'getWithoutTripFuelBillAdjust'])->name('admin.withouttrip.fuelbill');
+
 
 
     // approved and checked sequence 

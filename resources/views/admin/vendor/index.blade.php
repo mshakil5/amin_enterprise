@@ -145,6 +145,7 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th title="Without trip fuel bill" >Fuel Bill</th>
                   <th>Advance Balance</th>
                   <th>Wallet</th>
                   <th>Add Sequence Number</th>
@@ -159,12 +160,14 @@
                     <td style="text-align: center">{{$data->name}}</td>
                     <td style="text-align: center">{{$data->email}}</td>
                     <td style="text-align: center">{{$data->phone}}</td>
+                    <td style="text-align: center">
+                        <a class="btn btn-info btn-xs" style="cursor: pointer;" target="blank" href="{{ route('admin.withouttrip.fuelbill', $data->id)}}">Check</a>
+                    </td>
                     <td style="text-align: center">{{$data->balance}}</td>
                     <td style="text-align: center">
                       
                       <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Payment</span>
-                      <a class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" target="bla
-                      " href="{{ route('getWalletTransaction', $data->id)}}">Tran</a>
+                      <a class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" target="blank" href="{{ route('getWalletTransaction', $data->id)}}">Tran</a>
                       <span class="btn btn-primary btn-xs receive-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Received</span>
 
                     </td>
