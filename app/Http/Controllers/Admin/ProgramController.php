@@ -20,6 +20,7 @@ use App\Models\DestinationSlabRate;
 use App\Models\Ghat;
 use App\Models\PreviousSlabRate;
 use App\Models\Transaction;
+use App\Models\TransportRate;
 use App\Models\VendorSequenceNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -595,7 +596,23 @@ class ProgramController extends Controller
         $program->created_by = auth()->user()->id;
         $program->save();
 
-        
+        $slabRates = DestinationSlabRate::where('ghat_id', $program->ghat_id)->get();
+
+        foreach ($slabRates as $slab) {
+            $transportRate = new \App\Models\TransportRate();
+            $transportRate->program_id = $program->id;
+            $transportRate->date = $program->date;
+            $transportRate->title = $slab->title;
+            $transportRate->destination_id = $slab->destination_id;
+            $transportRate->ghat_id = $slab->ghat_id;
+            $transportRate->minqty = 0; 
+            $transportRate->maxqty = $slab->maxqty;
+            $transportRate->below_rate_per_qty = $slab->below_rate_per_qty;
+            $transportRate->above_rate_per_qty = $slab->above_rate_per_qty;
+            $transportRate->status = 1; 
+            $transportRate->created_by = Auth::user()->id;
+            $transportRate->save();
+        }
 
         foreach($vendorIds as $key => $value)
             {
@@ -1541,10 +1558,21 @@ class ProgramController extends Controller
         $allData = $request->all();
 
         $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
-        if ($prgmDtl->date > '2025-12-03') {
-            $chkrate = DestinationSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+        $date = $prgmDtl->date;
+
+        if ($date >= '2026-02-02') {
+            $chkrate = TransportRate::where('destination_id', $request->destid)
+                                    ->where('ghat_id', $request->ghat)
+                                    ->where('program_id', $prgmDtl->program_id)
+                                    ->first();
+        } elseif ($date > '2025-12-03' && $date < '2026-02-02') {
+            $chkrate = DestinationSlabRate::where('destination_id', $request->destid)
+                                        ->where('ghat_id', $request->ghat)
+                                        ->first();
         } else {
-            $chkrate = PreviousSlabRate::where('destination_id', $request->destid)->where('ghat_id', $request->ghat)->first();
+            $chkrate = PreviousSlabRate::where('destination_id', $request->destid)
+                                        ->where('ghat_id', $request->ghat)
+                                        ->first();
         }
         
 
@@ -1879,57 +1907,74 @@ class ProgramController extends Controller
 
     public function challanRateUpdate($cQty, $dstnID, $ghatID, $programDetail)
     {
+        // 1. Determine the correct rate source based on the program date
+        $date = $programDetail->date;
+        $chkrate = null;
 
-        $prgmDtl = ProgramDetail::where('id', $programDetail->id)->first();
-        if ($prgmDtl->date < '2025-12-03') {
-            $chkrate = DestinationSlabRate::where('destination_id', $dstnID)->where('ghat_id', $ghatID)->first();
+        if ($date >= '2026-02-02') {
+            // Condition for dates from Feb 2, 2026 onwards (New Transport Rates Table)
+            $chkrate = TransportRate::where('destination_id', $dstnID)
+                                    ->where('ghat_id', $ghatID)
+                                    ->where('program_id', $programDetail->program_id)
+                                    ->first();
+        } elseif ($date > '2025-12-03' && $date < '2026-02-02') {
+            // Condition for dates between Dec 4, 2025 and Feb 1, 2026
+            $chkrate = DestinationSlabRate::where('destination_id', $dstnID)
+                                        ->where('ghat_id', $ghatID)
+                                        ->first();
         } else {
-            $chkrate = PreviousSlabRate::where('destination_id', $dstnID)->where('ghat_id', $ghatID)->first();
+            // Condition for dates on or before 2025-12-03
+            $chkrate = PreviousSlabRate::where('destination_id', $dstnID)
+                                        ->where('ghat_id', $ghatID)
+                                        ->first();
         }
 
-        $chkrate = DestinationSlabRate::where('destination_id', $dstnID)
-            ->where('ghat_id', $ghatID)
-            ->first();
+        // Safety check: ensure a rate was actually found
+        if (!$chkrate) {
+            return false; 
+        }
 
-            $totalAmount = 0;
-            if ($cQty > $chkrate->maxqty) {
-                
-                $aboveqty = $cQty - $chkrate->maxqty;
-                $totalAmount = $totalAmount + $chkrate->above_rate_per_qty * $aboveqty + $chkrate->below_rate_per_qty * $chkrate->maxqty;
+        // 2. Calculate and Save Challan Rates
+        $totalAmount = 0;
 
-                $challanBelowRate = new ChallanRate();
-                $challanBelowRate->fill([
-                    'program_detail_id' => $programDetail->id,
-                    'challan_no'        => $programDetail->challan_no,
-                    'qty'               => $chkrate->maxqty,
-                    'rate_per_unit'     => $chkrate->below_rate_per_qty,
-                    'total'             => $chkrate->below_rate_per_qty * $chkrate->maxqty,
-                    'created_by'        => Auth::id(),
-                ])->save();
+        if ($cQty > $chkrate->maxqty) {
+            // Logic for quantity exceeding the slab
+            $aboveqty = $cQty - $chkrate->maxqty;
+            
+            // Save Below Rate Portion
+            $challanBelowRate = new ChallanRate();
+            $challanBelowRate->fill([
+                'program_detail_id' => $programDetail->id,
+                'challan_no'        => $programDetail->challan_no,
+                'qty'               => $chkrate->maxqty,
+                'rate_per_unit'     => $chkrate->below_rate_per_qty,
+                'total'             => $chkrate->below_rate_per_qty * $chkrate->maxqty,
+                'created_by'        => Auth::id(),
+            ])->save();
 
-                $challanAboveRate = new ChallanRate();
-                $challanAboveRate->fill([
-                    'program_detail_id' => $programDetail->id,
-                    'challan_no'        => $programDetail->challan_no,
-                    'qty'               => $aboveqty,
-                    'rate_per_unit'     => $chkrate->above_rate_per_qty,
-                    'total'             => $chkrate->above_rate_per_qty * $aboveqty,
-                    'created_by'        => Auth::id(),
-                ])->save();
+            // Save Above Rate Portion
+            $challanAboveRate = new ChallanRate();
+            $challanAboveRate->fill([
+                'program_detail_id' => $programDetail->id,
+                'challan_no'        => $programDetail->challan_no,
+                'qty'               => $aboveqty,
+                'rate_per_unit'     => $chkrate->above_rate_per_qty,
+                'total'             => $chkrate->above_rate_per_qty * $aboveqty,
+                'created_by'        => Auth::id(),
+            ])->save();
 
-            } else {
-
-                $challanBelowRate = new ChallanRate();
-                $challanBelowRate->fill([
-                    'program_detail_id' => $programDetail->id,
-                    'challan_no'        => $programDetail->challan_no,
-                    'qty'               => $cQty,
-                    'rate_per_unit'     => $chkrate->below_rate_per_qty,
-                    'total'             => $chkrate->below_rate_per_qty * $cQty,
-                    'created_by'        => Auth::id(),
-                ])->save();
-            }
-
+        } else {
+            // Logic for quantity within the slab
+            $challanBelowRate = new ChallanRate();
+            $challanBelowRate->fill([
+                'program_detail_id' => $programDetail->id,
+                'challan_no'        => $programDetail->challan_no,
+                'qty'               => $cQty,
+                'rate_per_unit'     => $chkrate->below_rate_per_qty,
+                'total'             => $chkrate->below_rate_per_qty * $cQty,
+                'created_by'        => Auth::id(),
+            ])->save();
+        }
     }
 
 
