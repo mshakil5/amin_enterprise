@@ -723,6 +723,28 @@ class ProgramController extends Controller
 
         $program = Program::where('id', $request->program_id)->first();
 
+        $slabRates = DestinationSlabRate::where('ghat_id', $program->ghat_id)->get();
+
+        foreach ($slabRates as $slab) {
+            \App\Models\TransportRate::updateOrCreate(
+                [
+                    'program_id'     => $program->id,
+                    'destination_id' => $slab->destination_id,
+                    'ghat_id'        => $slab->ghat_id,
+                ],
+                [
+                    'date'                => $program->date,
+                    'minqty'              => 0,
+                    'maxqty'              => $slab->maxqty,
+                    'below_rate_per_qty'  => $slab->below_rate_per_qty,
+                    'above_rate_per_qty'  => $slab->above_rate_per_qty,
+                    'status'              => 1,
+                    'created_by'          => Auth::user()->id,
+                    'updated_by'          => Auth::user()->id,
+                ]
+            );
+        }
+
         
 
         foreach($vendorIds as $key => $value)
