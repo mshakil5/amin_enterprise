@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+    namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\MotherVassel;
-use App\Models\ProgramDetail;
-use App\Models\Transaction;
-use Illuminate\Http\Request;
-use App\Models\Vendor;
-use App\Models\VendorSequenceNumber;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use App\Exports\VendorTripExport;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Log;
-use App\Models\Account;
-use Carbon\Carbon;
+    use App\Http\Controllers\Controller;
+    use App\Models\MotherVassel;
+    use App\Models\ProgramDetail;
+    use App\Models\Transaction;
+    use Illuminate\Http\Request;
+    use App\Models\Vendor;
+    use App\Models\VendorSequenceNumber;
+    use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Str;
+    use Illuminate\Support\Facades\DB;
+    use App\Exports\VendorTripExport;
+    use Maatwebsite\Excel\Facades\Excel;
+    use Illuminate\Support\Facades\Log;
+    use App\Models\Account;
+    use App\Models\FuelBill;
+    use App\Models\PetrolPump;
+    use Carbon\Carbon;
+    use Illuminate\Support\Facades\Validator;
 
 class VendorController extends Controller
 {
@@ -711,7 +714,56 @@ class VendorController extends Controller
                         ->where('status', 1)->orderby('id', 'DESC')
                         ->select('id', 'unique_id')
                         ->get();
-        return view('admin.vendor.without_trip_fuelcost', compact('vendor','sequences', 'id'));
+        $data = Transaction::where('vendor_id', $id)->whereNotNull('fuel_bill_id')->get();
+
+        $fuelBills = FuelBill::where('notmarkqty', '>', 'qty')->get();
+
+        return view('admin.vendor.without_trip_fuelcost', compact('vendor','sequences', 'id','fuelBills','data'));
+    }
+
+
+    public function storeWithoutTripFuelBill(Request $request)
+    {
+        // 1. Define Validation Rules
+        $validator = Validator::make($request->all(), [
+            'date'        => 'required|date',
+            'vendorid'    => 'required|exists:vendors,id',
+            'sequence_id' => 'required|exists:vendor_sequence_numbers,id',
+            'fuel_bill_id'=> 'required|exists:fuel_bills,id',
+            'amount'      => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        // 2. Check if Validation Fails
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 303, 
+                'message' => $validator->errors()->first() 
+            ]);
+        }
+
+        // 3. Save Data if Validation Passes
+        try {
+            $data = new Transaction();
+            $data->date = $request->date;
+            $data->vendor_id = $request->vendorid;
+            $data->vendor_sequence_number_id = $request->sequence_id;
+            $data->fuel_bill_id = $request->fuel_bill_id;
+            $data->amount = $request->amount;
+            $data->description = $request->description;
+
+            if ($data->save()) {
+                
+            $data->tran_id = 'VFB' . date('ymd') . str_pad($data->id, 4, '0', STR_PAD_LEFT);
+            $data->save();
+
+                return response()->json(['status' => 300, 'message' => 'Data Inserted Successfully']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 303, 'message' => 'Server Error: ' . $e->getMessage()]);
+        }
+
+        return response()->json(['status' => 303, 'message' => 'Submission Failed']);
     }
 
 

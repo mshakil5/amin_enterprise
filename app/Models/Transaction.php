@@ -168,4 +168,9 @@ class Transaction extends Model
         return $this->hasOne(Transaction::class, 'reverse_id', 'id'); 
     }
 
+    public function fuelBill()
+    {
+        return $this->belongsTo(FuelBill::class);
+    }
+
 }

@@ -770,64 +770,7 @@ $(document).ready(function () {
 
 </script>
 
-{{-- <script>
-  $(document).ready(function () {
-      let selectedPumpId = null;
 
-      $('.petrol-checkbox').on('change', function () {
-            const currentPumpId = $(this).data('pump-id');
-            const fuelBills = $(this).data('fuel-bills'); 
-            console.log(fuelBills);
-
-            if (this.checked) {
-                if (!selectedPumpId) {
-                    selectedPumpId = currentPumpId;
-                }
-
-                if (selectedPumpId !== currentPumpId) {
-                    alert('Only same petrol pump can be selected!');
-                    $(this).prop('checked', false);
-                    return;
-                }
-            } else {
-                if ($('.petrol-checkbox:checked').length === 0) {
-                    selectedPumpId = null;
-                }
-            }
-
-            const checkedBoxes = $('.petrol-checkbox:checked');
-            if (checkedBoxes.length > 0) {
-                $('#pump-form-row').show();
-                $('#petrol_pump_id').val(selectedPumpId);
-
-                let optionsHtml = `<option value="">Select Unique ID</option>`;
-                fuelBills.forEach(fb => {
-                    optionsHtml += `<option value="${fb.unique_id}">
-                        ${fb.unique_id} - ${fb.petrol_pump.name} - ${fb.qty}L - Bill#${fb.bill_number}
-                    </option>`;
-                });
-                $('#unique-id-display').html(optionsHtml);
-
-                let totalQty = 0;
-                selectedProgramDetailIds = [];
-                checkedBoxes.each(function () {
-                    totalQty += parseFloat($(this).data('qty')) || 0;
-                    const progId = $(this).data('program-detail-id');
-                    if (progId) selectedProgramDetailIds.push(progId);
-                });
-
-                $('#total_qty').val(totalQty);
-                $('#program_detail_ids').val(JSON.stringify(selectedProgramDetailIds));
-            } else {
-                $('#pump-form-row').hide();
-                $('#unique-id-display').empty();
-                $('#total_qty').val('');
-                $('#program_detail_ids').val('');
-            }
-        });
-
-  });
-</script> --}}
   
 <script>
     $(function () {

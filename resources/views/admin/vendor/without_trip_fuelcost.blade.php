@@ -16,82 +16,81 @@
 
 
 
-    <!-- Main content -->
-    <section class="content" id="addThisFormContainer">
-      <div class="container-fluid">
-        <div class="row justify-content-md-center">
-          <!-- right column -->
-          <div class="col-md-8">
-            <!-- general form elements disabled -->
-            <div class="card card-secondary">
-              <div class="card-header">
-                <h3 class="card-title">Add new without trip fuel bill transaction</h3>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <div class="ermsg"></div>
-                <form id="createThisForm">
-                  @csrf
-                  <input type="hidden" class="form-control" id="codeid" name="codeid">
-                  <input type="hidden" class="form-control" id="vendorid" name="vendorid" value="{{$vendor->id}}">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label>Select Vendor Sequence</label>
-                        <select name="sequence_id" id="sequence_id" class="form-control">
-                          <option value="">Select</option>
-                          @foreach ($sequences as $sequence)
-                              <option value="{{ $sequence->id }}">{{ $sequence->unique_id }}</option>
-                          @endforeach
-                        </select>
-                      </div>
-                    </div>
-
-                    
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label>Amount</label>
-                        <input type="number" class="form-control" id="amount" name="amount">
-                      </div>
-                    </div>
-                    {{-- 
-                    <div class="col-sm-12">
-                      <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" class="form-control" id="location" name="location">
-                      </div>
-                    </div> --}}
-
-                    <div class="col-sm-12">
-                      <div class="form-group">
-                        <label>Description</label>
-                        <input type="text" class="form-control" id="description" name="description">
-                      </div>
-                    </div>
-
-
-                  </div>
-
-                  
-                </form>
-              </div>
-
-              
-              <!-- /.card-body -->
-              <div class="card-footer">
-                <button type="submit" id="addBtn" class="btn btn-secondary" value="Create">Create</button>
-                <button type="submit" id="FormCloseBtn" class="btn btn-default">Cancel</button>
-              </div>
-              <!-- /.card-footer -->
-              <!-- /.card-body -->
-            </div>
+<section class="content" id="addThisFormContainer">
+  <div class="container-fluid">
+    <div class="row justify-content-md-center">
+      <div class="col-md-10">
+        <div class="card card-secondary">
+          <div class="card-header">
+            <h3 class="card-title">Add New Without Trip Fuel Bill</h3>
           </div>
-          <!--/.col (right) -->
+          <div class="card-body">
+            <div class="ermsg"></div>
+            <form id="createThisForm">
+              @csrf
+              <input type="hidden" id="codeid" name="codeid">
+              <input type="hidden" id="vendorid" name="vendorid" value="{{$vendor->id}}">
+              
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label for="sequence_id">Vendor Sequence</label>
+                    <select name="sequence_id" id="sequence_id" class="form-control select2" style="width: 100%;">
+                      <option value="">Select Sequence</option>
+                      @foreach ($sequences as $sequence)
+                        <option value="{{ $sequence->id }}">{{ $sequence->unique_id }}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label for="fuel_bill_id">Fuel Bill ID</label>
+                    <select name="fuel_bill_id" id="fuel_bill_id" class="form-control select2" style="width: 100%;">
+                      <option value="">Select Fuel Bill</option>
+                      @foreach ($fuelBills as $fuelBill)
+                        <option value="{{ $fuelBill->id }}">{{ $fuelBill->unique_id }} - ({{ $fuelBill->bill_number }})</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <div class="input-group">
+                      <input type="number" class="form-control" id="amount" name="amount" placeholder="0.00">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" class="form-control" id="date" name="date" value="{{ date('Y-m-d') }}">
+                  </div>
+                </div>
+
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="2" placeholder="Enter details..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="card-footer">
+            <button type="submit" id="addBtn" class="btn btn-secondary" value="Create">Create</button>
+            <button type="button" id="FormCloseBtn" class="btn btn-default">Cancel</button>
+          </div>
         </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+      </div>
+    </div>
+  </div>
+</section>
 
 
 <!-- Main content -->
@@ -111,13 +110,27 @@
                 <thead>
                 <tr>
                   <th>Sl</th>
-                  <th>Name</th>
-                  <th>Location</th>
+                  <th>Tran ID</th>
+                  <th>Vendor Sequence</th>
+                  <th>Fuel Bill ID</th>
+                  <th>Amount</th>
                   <th>Description</th>
-                  <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
+
+                  @foreach ($data as $key => $data)
+
+                  <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $data->tran_id }}</td>
+                    <td>{{ $data->vendorSequenceNumber->unique_id }}</td>
+                    <td>{{ $data->fuelBill->unique_id }} ({{ $data->fuelBill->bill_number }})</td>
+                    <td>{{ $data->amount }}</td>
+                    <td>{{ $data->description }}</td>
+                  </tr>
+                      
+                  @endforeach
                   
                 
                 </tbody>
@@ -149,138 +162,86 @@
   </script>
 
 <script>
-  $(document).ready(function () {
-      $("#addThisFormContainer").hide();
-      $("#newBtn").click(function(){
-          clearform();
-          $("#newBtn").hide(100);
-          $("#addThisFormContainer").show(300);
+    $(document).ready(function () {
+        $("#addThisFormContainer").hide();
+        
+        // CSRF Token Setup
+        $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 
-      });
-      $("#FormCloseBtn").click(function(){
-          $("#addThisFormContainer").hide(200);
-          $("#newBtn").show(100);
-          clearform();
-      });
-      //header for csrf-token is must in laravel
-      $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
-      //
-      var url = "{{ route('admin.withouttrip.fuelbill', $id) }}";
-      // var upurl = "{{URL::to('/admin/admin.withouttrip.fuelbill-update')}}";
-      // console.log(url);
-      $("#addBtn").click(function(){
-          alert("#Not Completed Yet");
-          // if($(this).val() == 'Create') {
-          //     var form_data = new FormData();
-          //     form_data.append("name", $("#name").val());
-          //     form_data.append("code", $("#code").val());
-          //     form_data.append("location", $("#location").val());
-          //     form_data.append("description", $("#description").val());
-          //     $.ajax({
-          //       url: url,
-          //       method: "POST",
-          //       contentType: false,
-          //       processData: false,
-          //       data:form_data,
-          //       success: function (d) {
-          //           if (d.status == 303) {
-          //               $(".ermsg").html(d.message);
-          //           }else if(d.status == 300){
+        const storeUrl = "{{ route('admin.withouttrip.fuelbill.store') }}";
+        const updateUrl = "{{ route('admin.withouttrip.fuelbill.update') }}";
 
-          //             $(".ermsg").html(d.message);
-          //             window.setTimeout(function(){location.reload()},2000)
-          //           }
-          //       },
-          //       error: function (d) {
-          //           console.log(d);
-          //       }
-          //   });
-          // }
-          //create  end
-          //Update
-          // if($(this).val() == 'Update'){
-          //     var form_data = new FormData();
-          //     form_data.append("name", $("#name").val());
-          //     form_data.append("code", $("#code").val());
-          //     form_data.append("location", $("#location").val());
-          //     form_data.append("description", $("#description").val());
-          //     form_data.append("codeid", $("#codeid").val());
-              
-          //     $.ajax({
-          //         url:upurl,
-          //         type: "POST",
-          //         dataType: 'json',
-          //         contentType: false,
-          //         processData: false,
-          //         data:form_data,
-          //         success: function(d){
-          //             console.log(d);
-          //             if (d.status == 303) {
-          //                 $(".ermsg").html(d.message);
-          //                 pagetop();
-          //             }else if(d.status == 300){
-          //               $(".ermsg").html(d.message);
-          //                 window.setTimeout(function(){location.reload()},2000)
-          //             }
-          //         },
-          //         error:function(d){
-          //             console.log(d);
-          //         }
-          //     });
-          // }
-          //Update
-      });
-      //Edit
-      $("#contentContainer").on('click','#EditBtn', function(){
-          //alert("btn work");
-          codeid = $(this).attr('rid');
-          //console.log($codeid);
-          info_url = url + '/'+codeid+'/edit';
-          //console.log($info_url);
-          $.get(info_url,{},function(d){
-              populateForm(d);
-              pagetop();
-          });
-      });
-      //Edit  end
-      //Delete 
-      $("#contentContainer").on('click','#deleteBtn', function(){
-            if(!confirm('Sure?')) return;
-            codeid = $(this).attr('rid');
-            info_url = url + '/'+codeid;
+        $("#newBtn").click(function(){
+            clearform();
+            $("#newBtn").hide(100);
+            $("#addThisFormContainer").show(300);
+        });
+
+        $("#FormCloseBtn").click(function(){
+            $("#addThisFormContainer").hide(200);
+            $("#newBtn").show(100);
+            clearform();
+        });
+
+        // Submit Logic (Create & Update)
+        $("#addBtn").click(function(e){
+            e.preventDefault();
+            
+            let form_data = new FormData();
+            form_data.append("date", $("#date").val());
+            form_data.append("vendorid", $("#vendorid").val());
+            form_data.append("sequence_id", $("#sequence_id").val());
+            form_data.append("fuel_bill_id", $("#fuel_bill_id").val());
+            form_data.append("amount", $("#amount").val());
+            form_data.append("description", $("#description").val());
+            form_data.append("codeid", $("#codeid").val());
+
+            let targetUrl = ($(this).val() === 'Update') ? updateUrl : storeUrl;
+
             $.ajax({
-                url:info_url,
-                method: "GET",
-                type: "DELETE",
-                data:{
-                },
-                success: function(d){
-                    if(d.success) {
-                        alert(d.message);
-                        location.reload();
+                url: targetUrl,
+                method: "POST",
+                contentType: false,
+                processData: false,
+                data: form_data,
+                success: function (d) {
+                    if (d.status == 303) {
+                        $(".ermsg").html('<div class="alert alert-danger">'+d.message+'</div>');
+                    } else if(d.status == 300) {
+                        $(".ermsg").html('<div class="alert alert-success">'+d.message+'</div>');
+                        window.setTimeout(function(){ location.reload() }, 1500);
                     }
                 },
-                error:function(d){
-                    console.log(d);
-                }
+                error: function (d) { console.log(d); }
             });
         });
-      //Delete  
-      function populateForm(data){
-          $("#name").val(data.name);
-          $("#code").val(data.code);
-          $("#location").val(data.location);
-          $("#description").val(data.description);
-          $("#codeid").val(data.id);
-          $("#addBtn").val('Update');
-          $("#addBtn").html('Update');
-          $("#addThisFormContainer").show(300);
-          $("#newBtn").hide(100);
-      }
-      function clearform(){
-          $('#createThisForm')[0].reset();
-          $("#addBtn").val('Create');
-      }
-  });
+
+        // Edit Functionality
+        function clearform(){
+            $('#createThisForm')[0].reset();
+            // 3. Reset Select2 values visually
+            $('.select2').val(null).trigger('change');
+            $("#addBtn").val('Create').html('Create');
+        }
+
+        // 4. If you use Edit, make sure to trigger change for Select2
+        window.populateForm = function(data) {
+            $("#codeid").val(data.id);
+            $("#amount").val(data.amount);
+            $("#date").val(data.date);
+            $("#description").val(data.description);
+            
+            // Trigger Select2 to show correct values
+            $("#sequence_id").val(data.sequence_id).trigger('change');
+            $("#fuel_bill_id").val(data.fuel_bill_id).trigger('change');
+
+            $("#addBtn").val('Update').html('Update');
+            $("#addThisFormContainer").show(300, function() {
+                initSelect2();
+            });
+            $("#newBtn").hide(100);
+        };
+    });
 </script>
+
 @endsection

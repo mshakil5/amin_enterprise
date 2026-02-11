@@ -141,6 +141,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     
     Route::get('/get-without-trip-fuel-bill-adjust/{id}', [VendorController::class, 'getWithoutTripFuelBillAdjust'])->name('admin.withouttrip.fuelbill');
+    Route::post('/without-trip-fuel-bill-store', [VendorController::class, 'storeWithoutTripFuelBill'])->name('admin.withouttrip.fuelbill.store');
+    Route::post('/without-trip-fuel-bill-update', [VendorController::class, 'updateWithoutTripFuelBill'])->name('admin.withouttrip.fuelbill.update');
 
 
 
