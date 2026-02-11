@@ -726,6 +726,7 @@ class ProgramController extends Controller
         $slabRates = DestinationSlabRate::where('ghat_id', $program->ghat_id)->get();
 
         foreach ($slabRates as $slab) {
+            
             \App\Models\TransportRate::updateOrCreate(
                 [
                     'program_id'     => $program->id,
