@@ -342,11 +342,14 @@ class ProgramController extends Controller
                 }
 
                 $prgmDtl = ProgramDetail::where('id', $pdtls->id)->first();
+                
+
                 if ($prgmDtl->date < '2025-12-03') {
                     $chkrate = PreviousSlabRate::where('destination_id', $pdtls->destination_id)->where('ghat_id', $pdtls->ghat_id)->first();
                 } else {
                     $chkrate = DestinationSlabRate::where('destination_id', $pdtls->destination_id)->where('ghat_id', $pdtls->ghat_id)->first();
                 }
+
 
                 $oldQty = ChallanRate::where('program_detail_id', $pdtls->id)
                     ->where('challan_no', $pdtls->challan_no)
@@ -407,11 +410,25 @@ class ProgramController extends Controller
                 }
 
                 $prgmDtl = ProgramDetail::where('id', $program_detail->id)->first();
-                if ($prgmDtl->date < '2025-12-03') {
-                    $chkrate = PreviousSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
+                
+                $date = $prgmDtl->date;
+                $chkrate = null;
+
+                if ($date >= '2026-02-02') {
+                    $chkrate = TransportRate::where('destination_id', $prgmDtl->destination_id)
+                                            ->where('ghat_id', $prgmDtl->ghat_id)
+                                            ->where('program_id', $prgmDtl->program_id)
+                                            ->first();
+                } elseif ($date > '2025-12-03' && $date < '2026-02-02') {
+                    $chkrate = DestinationSlabRate::where('destination_id', $prgmDtl->destination_id)
+                                                ->where('ghat_id', $prgmDtl->ghat_id)
+                                                ->first();
                 } else {
-                    $chkrate = DestinationSlabRate::where('destination_id', $prgmDtl->destination_id)->where('ghat_id', $prgmDtl->ghat_id)->first();
+                    $chkrate = PreviousSlabRate::where('destination_id', $prgmDtl->destination_id)
+                                                ->where('ghat_id', $prgmDtl->ghat_id)
+                                                ->first();
                 }
+
                 if (!$chkrate) {
                     DB::rollBack();
                     return response()->json(['status' => 400,'error' => 'Rate not found for ghat and destination'], 500);
