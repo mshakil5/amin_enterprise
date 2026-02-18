@@ -165,10 +165,13 @@
                     </td>
                     <td style="text-align: center">{{$data->balance}}</td>
                     <td style="text-align: center">
+
+                        @if ((in_array('28', json_decode(auth()->user()->role->permission))))
+                            <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Payment</span>
+                            <a class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" target="blank" href="{{ route('getWalletTransaction', $data->id)}}">Tran</a>
+                            <span class="btn btn-primary btn-xs receive-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Received</span>
+                        @endif
                       
-                      <span class="btn btn-success btn-xs add-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Payment</span>
-                      <a class="btn btn-info btn-xs viewtranbtn" style="cursor: pointer;" target="blank" href="{{ route('getWalletTransaction', $data->id)}}">Tran</a>
-                      <span class="btn btn-primary btn-xs receive-money-btn" style="cursor: pointer;" data-id="{{ $data->id }}">Received</span>
 
                     </td>
                     <td style="text-align: center">

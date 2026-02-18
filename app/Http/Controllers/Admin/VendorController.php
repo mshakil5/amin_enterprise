@@ -514,6 +514,12 @@ class VendorController extends Controller
 
     public function getWalletTransaction($id)
     {
+
+        if (!(in_array('28', json_decode(auth()->user()->role->permission)))) {
+          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
+
+
         $vendor = Vendor::where('id', $id)->first();
         $transactions = Transaction::where('vendor_id', $id)
             ->whereIn('table_type', ['Expenses', 'Expense', 'Income'])

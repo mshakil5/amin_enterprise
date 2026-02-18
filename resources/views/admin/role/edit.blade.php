@@ -139,6 +139,13 @@
                                               <label class="form-check-label" for="p8">Vendor</label>
                                           </div>
 
+                                          
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="p28" name="permission[]" value="28" 
+                                              @foreach (json_decode($data->permission) as $permission) @if ($permission == 28) checked @endif @endforeach>
+                                                <label class="form-check-label" for="p28">Vendor Payment</label>
+                                            </div>
+
                                           <div class="form-check">
                                               <input class="form-check-input" type="checkbox" id="p9" name="permission[]" value="9"
                                               @foreach (json_decode($data->permission) as $permission) @if ($permission == 9) checked @endif @endforeach>

@@ -162,6 +162,11 @@
                                             </div>
 
                                             <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="p28" name="permission[]" value="28">
+                                                <label class="form-check-label" for="p28">Vendor Payment</label>
+                                            </div>
+
+                                            <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="p9" name="permission[]" value="9">
                                                 <label class="form-check-label" for="p9">Client</label>
                                             </div>
