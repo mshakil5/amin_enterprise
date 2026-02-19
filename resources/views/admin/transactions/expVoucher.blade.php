@@ -75,7 +75,7 @@
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td> {{$data->description}} </td>
+                        <td>{{$data->note ?? ''}} <br> {{$data->description ?? ''}} </td>
                         <td class="text-end"> {{$data->at_amount}}/-</td>
                     </tr>
                     @if($reverse)
