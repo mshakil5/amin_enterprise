@@ -514,30 +514,41 @@ class VendorController extends Controller
 
     public function getWalletTransaction($id)
     {
-
         if (!(in_array('28', json_decode(auth()->user()->role->permission)))) {
-          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
 
-
         $vendor = Vendor::where('id', $id)->first();
+        
+        // The items shown in your table
         $transactions = Transaction::where('vendor_id', $id)
             ->whereIn('table_type', ['Expenses', 'Expense', 'Income'])
             ->where('tran_type', 'Wallet')
             ->orderBy('id', 'DESC')
             ->get();
 
+        // CALCULATING THE STARTING BALANCE:
+        // We sum all Income (+) and subtract all Expenses (-) for this vendor's wallet
+        $totalIncome = Transaction::where('vendor_id', $id)
+            ->where('tran_type', 'Wallet')
+            ->where('table_type', 'Income')
+            ->sum('amount');
 
-        $deposit = Transaction::where('vendor_id', $id)->where('tran_type', 'Wallet')->sum('amount');
-        $expenses = Transaction::where('vendor_id', $id)->where('tran_type', 'Advance')->sum('amount');
+        $totalExpense = Transaction::where('vendor_id', $id)
+            ->where('tran_type', 'Wallet')
+            ->whereIn('table_type', ['Expenses', 'Expense'])
+            ->sum('amount');
 
-        $balance = $deposit - $expenses;
+        // This is the Current Balance (Final state)
+        $balance = $totalIncome - $totalExpense;
         
         $startDate = Carbon::parse('2025-07-20');
-            
-        $vendorSeqNums = VendorSequenceNumber::orderby('id', 'DESC')->where('vendor_id', $id)->where('created_at', '>', $startDate)->get();
+        $vendorSeqNums = VendorSequenceNumber::orderby('id', 'DESC')
+            ->where('vendor_id', $id)
+            ->where('created_at', '>', $startDate)
+            ->get();
 
-        return view('admin.vendor.wallet_transaction', compact('transactions', 'vendor', 'balance','vendorSeqNums'));
+        return view('admin.vendor.wallet_transaction', compact('transactions', 'vendor', 'balance', 'vendorSeqNums'));
     }
 
     public function exportExcel(Request $request)

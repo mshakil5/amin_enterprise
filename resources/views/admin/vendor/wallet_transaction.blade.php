@@ -21,7 +21,6 @@
 </style>
 
 
-
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -29,6 +28,9 @@
                 <h1 class="m-0 text-dark">Vendor Ledger</h1>
             </div>
             <div class="col-sm-6 text-right">
+                <span class="badge badge-success p-2 mr-2" style="font-size: 1rem;">
+                    Current Balance: {{ number_format($balance, 2) }}
+                </span>
                 <span class="badge badge-info p-2">Vendor: {{ $vendor->name }}</span>
             </div>
         </div>
@@ -58,11 +60,15 @@
                                 <th>Voucher</th>
                                 <th class="text-right">Debit</th>
                                 <th class="text-right">Credit</th>
-                                <th class="text-center">Actions</th>
+                                <th class="text-right">Balance</th> <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $balance = $balance ?? 0; @endphp
+                            @php 
+                                // Start with the total balance passed from controller
+                                $runningBalance = $balance; 
+                            @endphp
+                            
                             @foreach($transactions as $key => $data)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
@@ -86,15 +92,25 @@
                                 <td class="text-right font-weight-bold text-danger">
                                     @if(in_array($data->table_type, ['Expenses', 'Expense']))
                                         {{ number_format($data->amount, 2) }}
-                                        @php $balance -= $data->amount; @endphp
                                     @endif
                                 </td>
                                 
                                 <td class="text-right font-weight-bold text-success">
                                     @if(in_array($data->table_type, ['Income']))
                                         {{ number_format($data->amount, 2) }}
-                                        @php $balance += $data->amount; @endphp
                                     @endif
+                                </td>
+
+                                <td class="text-right font-weight-bold">
+                                    {{ number_format($runningBalance, 2) }}
+                                    @php
+                                        // Since list is DESC, we "undo" the current transaction for the NEXT row
+                                        if(in_array($data->table_type, ['Income'])) {
+                                            $runningBalance -= $data->amount;
+                                        } else {
+                                            $runningBalance += $data->amount;
+                                        }
+                                    @endphp
                                 </td>
 
                                 <td class="text-center">
@@ -127,6 +143,8 @@
                             </tr>
                             @endforeach
                         </tbody>
+
+
                     </table>
                 </div>
             </div>
