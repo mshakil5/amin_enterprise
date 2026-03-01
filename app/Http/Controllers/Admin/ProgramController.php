@@ -846,9 +846,6 @@ class ProgramController extends Controller
     {
         $program = Program::with('programDetail.advancePayment','programDetail.transaction')->where('id', $id)->first();
 
-        // dd($program );
-        
-
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         $lvassels = LighterVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();

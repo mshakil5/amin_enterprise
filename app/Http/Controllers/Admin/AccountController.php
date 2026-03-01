@@ -28,7 +28,7 @@ class AccountController extends Controller
             'amount'
         )
         ->get();
-        
+
         return view('admin.account.index', compact('data', 'allAccounts','transactions'));
     }
 
@@ -167,6 +167,18 @@ class AccountController extends Controller
                 'message' => 'Transfer failed: ' . $e->getMessage()
             ]);
         }
+    }
+
+    public function transferUpdate(Request $request, $id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        
+        $transaction->update([
+            'date' => $request->date,
+            'amount' => $request->amount,
+        ]);
+
+        return redirect()->back()->with('success', 'Transaction updated successfully!');
     }
     
 }

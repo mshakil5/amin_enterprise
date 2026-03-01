@@ -158,6 +158,8 @@
                           <th>Tran Type</th>
                           <th class="text-end">Amount IN</th>
                           <th class="text-end">Amount OUT</th>
+                          
+                          <th>Action</th>
                       </tr>
                   </thead>
 
@@ -193,6 +195,21 @@
                                   </td>
                                   @php $totalOut += $transaction->amount; @endphp
                               @endif
+                              
+                                <td>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-primary edit-transaction-btn" 
+                                            data-toggle="modal" 
+                                            data-target="#editTransactionModal"
+                                            data-id="{{ $transaction->id }}"
+                                            data-date="{{ $transaction->date }}"
+                                            data-description="{{ $transaction->description }}"
+                                            data-amount="{{ $transaction->amount }}"
+                                            data-type="{{ $transaction->tran_type }}">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </td>
+                            
                           </tr>
                       @endforeach
                   </tbody>
@@ -277,6 +294,50 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="editTransactionModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editTransactionForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Transaction</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="date" id="edit_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" id="edit_description" class="form-control" rows="2" disabled></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" step="0.01" name="amount" id="edit_amount" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Transaction Type</label>
+                        <select name="tran_type" id="edit_tran_type" class="form-control" disabled>
+                            <option value="TransferIn">TransferIn</option>
+                            <option value="TransferOut">TransferOut</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 @endsection
 @section('script')
 
@@ -355,6 +416,7 @@
           lengthChange: false,
           autoWidth: false,
           order: [[0, 'desc']], // ID DESC
+
           buttons: [
               "copy",
               "csv",
@@ -499,4 +561,33 @@
       }
   });
 </script>
+
+<script>
+    $(document).ready(function () {
+        // Use delegated event handling for DataTables
+        $(document).on('click', '.edit-transaction-btn', function () {
+            // Get data from button attributes
+            var id = $(this).data('id');
+            var date = $(this).data('date');
+            var description = $(this).data('description');
+            var amount = $(this).data('amount');
+            var type = $(this).data('type');
+
+            // Fill the modal inputs
+            $('#edit_date').val(date);
+            $('#edit_description').val(description);
+            $('#edit_amount').val(amount);
+            $('#edit_tran_type').val(type);
+
+            // Set the form action URL dynamically
+            // Ensure this URL matches your actual Laravel route
+            var updateUrl = "{{ url('/admin/transfer-transactions') }}/" + id;
+            $('#editTransactionForm').attr('action', updateUrl);
+            
+            // Show the modal manually just in case
+            $('#editTransactionModal').modal('show');
+        });
+    });
+</script>
+
 @endsection
