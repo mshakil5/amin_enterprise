@@ -52,6 +52,25 @@
                                 </div>
                             </div>
                         </div>
+
+
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Upload Excel file</label>
+                                <div class="input-group">
+                                    <input type="file" id="document" class="form-control" accept=".xlsx, .xls">
+                                    <div class="input-group-append">
+                                        <button id="uploadBtn" class="btn btn-primary">
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            <i class="fas fa-file"></i> Upload
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
 
