@@ -55,24 +55,63 @@
 
 
                         
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label>Upload Excel file</label>
-                                <div class="input-group">
-                                    <input type="file" id="document" class="form-control" accept=".xlsx, .xls">
-                                    <div class="input-group-append">
-                                        <button id="uploadBtn" class="btn btn-primary">
-                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                            <i class="fas fa-file"></i> Upload
-                                        </button>
+                        <form id="uploadForm" action="{{ route('admin.checkReceivables') }}" method="POST" enctype="multipart/form-data">
+                            @csrf 
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Upload Excel file</label>
+                                    <div class="input-group">
+                                        <input type="file" name="document" id="document" class="form-control" accept=".xlsx, .xls" required>
+                                        <div class="input-group-append">
+                                            <button type="submit" id="uploadBtn" class="btn btn-primary">
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:none;"></span>
+                                                <i class="fas fa-file"></i> Upload
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </form>
 
 
                     </div>
                 </div>
+
+
+                <div class="card card-secondary" id="receivableBillCard" style="display:none;">
+                    <div class="card-header">
+                        <h3 class="card-title">Challan Details for: <span id="displayBillNo" class="badge badge-light"></span></h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm table-hover table-striped table-vcenter mb-0" id="billTable">
+                            <thead class="text-center">
+                                <tr>
+                                    <th>Sl</th>
+                                    <th>Bill Number</th>
+                                    <th>Scale Fee</th>
+                                    <th>Prev. Qty</th>
+                                    <th>Prev. Amount</th>
+                                    <th>Qty</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billTableBody">
+                                </tbody>
+                            <tfoot>
+                                <tr class="bg-light">
+                                    <th colspan="2" class="text-right">Grand Total:</th>
+                                    <th class="text-center" id="totalScaleFee2">0.00</th>
+                                    <th class="text-center" id="footerPevQty2">0</th>
+                                    <th class="text-center text-success" id="footerPevTotal2">0.00</th>
+                                    <th class="text-center" id="footerQty2">0</th>
+                                    <th class="text-center text-success" id="footerTotal2">0.00</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+
 
                 <div class="card card-secondary" id="resultCard" style="display:none;">
                     <div class="card-header">
@@ -96,7 +135,7 @@
                                     <th>Amount</th>
                                 </tr>
                             </thead>
-                            <tbody id="billTableBody">
+                            <tbody id="searchTableBody">
                                 </tbody>
                             <tfoot>
                                 <tr class="bg-light">
@@ -111,6 +150,8 @@
                         </table>
                     </div>
                 </div>
+
+
             </div>
 
             <div class="col-lg-4">
@@ -224,7 +265,7 @@ $(document).ready(function() {
                         $('#prgmDtl').DataTable().destroy();
                     }
                     
-                    $('#billTableBody').html(response.html);
+                    $('#searchTableBody').html(response.html);
                     $('#displayBillNo').text(billNo);
                     
                     // Update Summary Inputs
@@ -296,6 +337,61 @@ $(document).ready(function() {
             }
         });
     });
+
+
+    $('#uploadForm').on('submit', function(e) {
+        e.preventDefault(); // Stop page refresh
+
+        const $btn = $('#uploadBtn');
+        const formData = new FormData(this);
+
+        // Visual feedback
+        $btn.prop('disabled', true);
+        $btn.find('.spinner-border').show();
+
+        // Hide previous results
+        $('#receivableBillCard').hide();
+        $('#resultCard').hide();
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log(response);
+                if (response.status === 200) {
+                    // 1. Inject the rows into the specific Excel results table
+                    $('#billTableBody').html(response.html);
+
+                    // 2. Update the Footer Totals
+                    $('#footerPevTotal2').text(response.grandTotalPrev);
+                    $('#footerTotal2').text(response.grandTotalCurrent);
+
+                    // 3. Update the Right-Side Summary Sidebar
+                    $('#totalAmount2').val(response.grandTotalCurrent);
+                    calculateNetAmount(); // Recalculate the Net Amount box
+
+                    // 4. Show the card
+                    $('#receivableBillCard').fadeIn();
+
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function(xhr) {
+                let msg = xhr.responseJSON ? xhr.responseJSON.message : 'Error uploading file';
+                Swal.fire('Error', msg, 'error');
+            },
+            complete: function() {
+                $btn.prop('disabled', false);
+                $btn.find('.spinner-border').hide();
+            }
+        });
+    });
+
+
 });
 </script>
 @endsection

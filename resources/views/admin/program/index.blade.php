@@ -75,6 +75,9 @@
                       @endif
                     </td>
                     <td style="text-align: center">{{$data->consignmentno ?? ""}}</td>
+
+
+
                     <td style="text-align: center">
                       <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#logModal_{{ $data->id }}">
                         Log
@@ -91,6 +94,31 @@
                             </div>
                             <div class="modal-body">
                               <ul class="list-group">
+
+                                
+                                <li class="list-group-item d-flex justify-content-between">
+                                  <span>Mother Vessel: </span>
+                                  <strong>
+                                    @if (isset($data->mother_vassel_id))
+                                      {{$data->motherVassel->name ?? ""}}
+                                    @endif
+                                  </strong>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between bg-light">
+                                    <span>Details Start Date:</span>
+                                    <strong>
+                                        {{ $data->program_detail_min_date ? \Carbon\Carbon::parse($data->program_detail_min_date)->format('d/m/Y') : 'N/A' }}
+                                    </strong>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between bg-light">
+                                    <span>Details End Date:</span>
+                                    <strong>
+                                        {{ $data->program_detail_max_date ? \Carbon\Carbon::parse($data->program_detail_max_date)->format('d/m/Y') : 'N/A' }}
+                                    </strong>
+                                </li>
+
                                 <li class="list-group-item d-flex justify-content-between">
                                   <span>Total Challan:</span>
                                   <strong>
@@ -151,6 +179,10 @@
                         </div>
                       </div>
                     </td>
+
+
+
+
                     <td style="text-align: center">
                       @if(in_array('13', json_decode(auth()->user()->role->permission)))
                       <a href="{{route('billGenerating', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Generate Bill</a>

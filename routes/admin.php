@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\CashSheetController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\VendorLedgerController;
 use App\Http\Controllers\Admin\ExcelUploadController;
+use App\Http\Controllers\Admin\ReceivableController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -388,6 +389,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     
     Route::get('/check-activity-log', [ExcelUploadController::class, 'activityLog'])->name('log.activityLog');
+
+    // receivables create
+    Route::post('/check-receivables', [ReceivableController::class, 'checkReceivables'])->name('admin.checkReceivables');
 
 });
   

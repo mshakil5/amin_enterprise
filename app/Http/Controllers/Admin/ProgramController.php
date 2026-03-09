@@ -67,7 +67,12 @@ class ProgramController extends Controller
                 $query->where('dest_qty', '!=', 12);
             },
             
-        ])->where('status', 1)->orderby('id','DESC')->get();
+        ])
+        ->withMin('programDetail', 'date') // Adds program_detail_min_date
+        ->withMax('programDetail', 'date')
+        ->where('status', 1)
+        ->orderby('id','DESC')
+        ->get();
 
 
         return view('admin.program.index', compact('data'));
