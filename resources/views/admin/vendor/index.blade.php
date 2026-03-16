@@ -145,6 +145,7 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>Note</th>
                   <th title="Without trip fuel bill" >Fuel Bill</th>
                   <th>Advance Balance</th>
                   <th>Wallet</th>
@@ -160,6 +161,9 @@
                     <td style="text-align: center">{{$data->name}}</td>
                     <td style="text-align: center">{{$data->email}}</td>
                     <td style="text-align: center">{{$data->phone}}</td>
+                    <td style="text-align: center">
+                      <a class="btn btn-success btn-xs" style="cursor: pointer;" href="{{ route('vendorsNote.all', $data->id )}}">Note</a>
+                    </td>
                     <td style="text-align: center">
                         <a class="btn btn-info btn-xs" style="cursor: pointer;" target="blank" href="{{ route('admin.withouttrip.fuelbill', $data->id)}}">Check</a>
                     </td>

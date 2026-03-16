@@ -18,7 +18,8 @@
     use App\Models\Account;
     use App\Models\FuelBill;
     use App\Models\PetrolPump;
-    use Carbon\Carbon;
+use App\Models\VendorNote;
+use Carbon\Carbon;
     use Illuminate\Support\Facades\Validator;
 
 class VendorController extends Controller
@@ -782,6 +783,73 @@ class VendorController extends Controller
 
         return response()->json(['status' => 303, 'message' => 'Submission Failed']);
     }
+
+
+    // vendor note available
+
+    public function vendorNote($id)
+    {
+        $data = VendorNote::orderby('id','DESC')->where('vendor_id', $id)->get();
+
+        $vendor = Vendor::where('id', $id)->first();
+        return view('admin.vendor.note', compact('data','vendor'));
+
+    }
+
+
+    public function vendorNotestore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'date'        => 'required|date',
+            'description' => 'required|string',
+            'vendor_id'   => 'required|exists:vendors,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
+        }
+
+        $note = new VendorNote();
+        $note->vendor_id = $request->vendor_id;
+        $note->date = $request->date;
+        $note->note = $request->description; 
+
+        if ($note->save()) {
+            return response()->json(['status' => 300, 'message' => 'Note created successfully!']);
+        }
+
+        return response()->json(['status' => 303, 'message' => 'Server Error. Please try again.']);
+    }
+
+    public function vendorNoteedit($id)
+    {
+        $data = VendorNote::findOrFail($id);
+        return response()->json($data);
+    }
+
+    public function vendorNoteupdate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'date'        => 'required|date',
+            'description' => 'required|string',
+            'codeid'      => 'required|exists:vendor_notes,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
+        }
+
+        $note = VendorNote::find($request->codeid);
+        $note->date = $request->date;
+        $note->note = $request->description;
+
+        if ($note->save()) {
+            return response()->json(['status' => 300, 'message' => 'Note updated successfully!']);
+        }
+
+        return response()->json(['status' => 303, 'message' => 'Failed to update note.']);
+    }
+
 
 
 }
