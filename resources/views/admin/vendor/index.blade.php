@@ -162,7 +162,14 @@
                     <td style="text-align: center">{{$data->email}}</td>
                     <td style="text-align: center">{{$data->phone}}</td>
                     <td style="text-align: center">
-                      <a class="btn btn-success btn-xs" style="cursor: pointer;" href="{{ route('vendorsNote.all', $data->id )}}">Note</a>
+                      <a class="btn btn-success btn-xs" style="cursor: pointer;" href="{{ route('vendorsNote.all', $data->id )}}">Note</a> <hr>
+                      @if ($data->upcoming_notes_count > 0)
+                      <badge class="badge badge-danger">{{ $data->upcoming_notes_count }}</badge>
+                      @endif
+                      @if ($data->total_notes_count > 0)
+                      <badge class="badge badge-info">{{ $data->total_notes_count }}</badge>
+                      @endif
+
                     </td>
                     <td style="text-align: center">
                         <a class="btn btn-info btn-xs" style="cursor: pointer;" target="blank" href="{{ route('admin.withouttrip.fuelbill', $data->id)}}">Check</a>
