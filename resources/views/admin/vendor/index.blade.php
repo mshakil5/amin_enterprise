@@ -162,7 +162,7 @@
                     <td style="text-align: center">{{$data->email}}</td>
                     <td style="text-align: center">{{$data->phone}}</td>
                     <td style="text-align: center">
-                      <a class="btn btn-success btn-xs" style="cursor: pointer;" href="{{ route('vendorsNote.all', $data->id )}}">Note</a> <hr>
+                      <a class="btn btn-success btn-xs" style="cursor: pointer;" href="{{ route('vendorsNote.all', $data->id )}}">Note</a> <br>
                       @if ($data->upcoming_notes_count > 0)
                       <badge class="badge badge-danger">{{ $data->upcoming_notes_count }}</badge>
                       @endif
