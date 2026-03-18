@@ -768,6 +768,7 @@ class VendorController extends Controller
             $data->vendor_sequence_number_id = $request->sequence_id;
             $data->fuel_bill_id = $request->fuel_bill_id;
             $data->amount = $request->amount;
+            $data->at_amount = $request->amount;
             $data->description = $request->description;
 
             if ($data->save()) {
