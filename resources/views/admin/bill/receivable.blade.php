@@ -25,6 +25,10 @@
         <div class="row">
             <div class="col-12">
 
+
+                <!-- Toast Container -->
+                <div class="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
                 <!-- Flash Messages -->
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -168,10 +172,22 @@
                                                     <strong>{{ number_format($bill->net_amount, 2) }}</strong>
                                                 </td>
                                                 <td>
-                                                    @if($bill->status == 1)
-                                                        <span class="badge badge-success">Active</span>
+                                                    @if($bill->receive_status == 1)
+                                                        <button type="button" 
+                                                                class="btn btn-xs btn-success receive-toggle" 
+                                                                data-id="{{ $bill->id }}" 
+                                                                data-status="0"
+                                                                title="Click to mark as Not Received">
+                                                            <i class="fas fa-check-circle mr-1"></i>Received
+                                                        </button>
                                                     @else
-                                                        <span class="badge badge-danger">Inactive</span>
+                                                        <button type="button" 
+                                                                class="btn btn-xs btn-danger receive-toggle" 
+                                                                data-id="{{ $bill->id }}" 
+                                                                data-status="1"
+                                                                title="Click to mark as Received">
+                                                            <i class="fas fa-times-circle mr-1"></i>Not Received
+                                                        </button>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -266,6 +282,90 @@
             $('#deleteForm').attr('action', deleteUrl);
             $('#deleteModal').modal('show');
         });
+
+
+        // Receive Status Toggle
+        $(document).on('click', '.receive-toggle', function() {
+            var btn = $(this);
+            var id = btn.data('id');
+            var status = btn.data('status');
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Disable button and show loading
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin mr-1"></i>Updating...');
+
+            $.ajax({
+                url: '/admin/bill-receives/update-receive-status',
+                method: 'POST',
+                data: {
+                    _token: csrfToken,
+                    id: id,
+                    receive_status: status
+                },
+                success: function(response) {
+                    if (response.status == 1) {
+                        // Change to Received
+                        btn.removeClass('btn-danger').addClass('btn-success');
+                        btn.data('status', '0');
+                        btn.html('<i class="fas fa-check-circle mr-1"></i>Received');
+                        btn.attr('title', 'Click to mark as Not Received');
+
+                        // Show toast notification
+                        showToast('Marked as Received', 'success');
+                    } else {
+                        // Change to Not Received
+                        btn.removeClass('btn-success').addClass('btn-danger');
+                        btn.data('status', '1');
+                        btn.html('<i class="fas fa-times-circle mr-1"></i>Not Received');
+                        btn.attr('title', 'Click to mark as Received');
+
+                        showToast('Marked as Not Received', 'warning');
+                    }
+                },
+                error: function(xhr) {
+                    var msg = 'Failed to update status.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    showToast(msg, 'error');
+                },
+                complete: function() {
+                    btn.prop('disabled', false);
+                }
+            });
+        });
+
+        // Toast notification function
+        function showToast(message, type) {
+            var bgColor = type === 'success' ? 'bg-success' : 
+                        type === 'warning' ? 'bg-warning' : 'bg-danger';
+            var textColor = type === 'warning' ? 'text-dark' : 'text-white';
+
+            var toast = $(`
+                <div id="dynamicToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" 
+                    data-delay="3000" style="min-width: 300px;">
+                    <div class="toast-body ${bgColor} ${textColor} d-flex align-items-center px-3 py-2">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-circle' : 'fa-times-circle'} mr-2"></i>
+                        ${message}
+                        <button type="button" class="ml-auto ${textColor}" data-dismiss="toast" style="background:none;border:none;font-size:1.2rem;">
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            `);
+
+            $('.toast-container').append(toast);
+            toast.toast('show');
+
+            toast.on('hidden.bs.toast', function() {
+                toast.remove();
+            });
+        }
+
+
+
+
         
     });
 </script>

@@ -248,7 +248,6 @@ class ReceivableController extends Controller
         try {
             \DB::transaction(function () use ($billReceive) {
                 
-                // Soft delete related transaction
                 if ($billReceive->transaction) {
                     if (auth()->check()) {
                         $billReceive->transaction->deleted_by = auth()->id();
@@ -256,8 +255,6 @@ class ReceivableController extends Controller
                     }
                     $billReceive->transaction->delete();
                 }
-
-                // Soft delete bill receive (boot method handles deleted_by)
                 $billReceive->delete();
 
             });
@@ -273,6 +270,33 @@ class ReceivableController extends Controller
         }
     }
 
+
+    public function updateReceiveStatus(Request $request)
+    {
+        $request->validate([
+            'id'            => 'required|exists:bill_receives,id',
+            'receive_status' => 'required|in:0,1',
+        ]);
+
+        try {
+            $bill = BillReceive::find($request->id);
+            $bill->receive_status = $request->receive_status;
+            $bill->updated_by = auth()->id();
+            $bill->save();
+
+            return response()->json([
+                'status'  => $bill->receive_status,
+                'message' => $bill->receive_status == 1 
+                            ? 'Marked as Received' 
+                            : 'Marked as Not Received',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update status.',
+            ], 500);
+        }
+    }
 
 
 

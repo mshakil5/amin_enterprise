@@ -400,6 +400,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/check-receivables', [ReceivableController::class, 'checkReceivables'])->name('admin.checkReceivables');
     Route::get('/get-receivables', [ReceivableController::class, 'getReceivables'])->name('admin.getReceivables');
     Route::delete('admin/bill-receives/{billReceive}', [ReceivableController::class, 'destroy'])->name('admin.bill-receives.destroy');
+    Route::post('bill-receives/update-receive-status', [ReceivableController::class, 'updateReceiveStatus'])->name('admin.bill-receives.update-receive-status');
+
 
 });
   
