@@ -56,6 +56,7 @@ class Transaction extends Model
         'updated_by',
         'created_by',
         'deleted_at',
+        'deleted_by',
     ];
 
 
@@ -172,5 +173,11 @@ class Transaction extends Model
     {
         return $this->belongsTo(FuelBill::class);
     }
+
+    public function billReceive()
+    {
+        return $this->belongsTo(BillReceive::class);
+    }
+
 
 }

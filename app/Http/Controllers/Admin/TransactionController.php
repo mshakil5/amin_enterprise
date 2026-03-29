@@ -199,44 +199,70 @@ class TransactionController extends Controller
 
     public function billStore(Request $request)
     {
-        $data = $request->all();
         
-        $chkprgms = ProgramDetail::where('client_id', $request->client_id)->where('bill_no', $request->bill_number)->where('mother_vassel_id', $request->mv_id)->get();
-
-
-        $bill = new BillReceive();
-        $bill->date = $request->date;
-        $bill->client_id = $request->client_id;
-        $bill->mother_vassel_id = $request->mv_id;
-        $bill->bill_number = $request->bill_number;
-        $bill->rcv_type = $request->rcvType;
-        $bill->qty = $request->totalqty;
-        $bill->total_amount = $request->totalAmount;
-        $bill->maintainance = $request->maintainance;
-        $bill->scale_charge = $request->scaleCharge;
-        $bill->other_exp = $request->otherexp;
-        $bill->other_rcv = $request->otherRcv;
-        $bill->net_amount = $request->netAmount;
-        $bill->save();
-       
-        $tran = new Transaction();
-        $tran->date =  $request->date;
-        $tran->bill_number =  $request->bill_number;
-        $tran->client_id =  $request->client_id;
-        $tran->bill_receive_id =  $bill->id;
-        $tran->mother_vassel_id = $request->mv_id;
-        $tran->payment_type =  $request->rcvType;
-        $tran->tran_type =  "Received";
-        $tran->amount =  $request->netAmount;
-        $tran->save();
-        $tran->tran_id = 'RT' . date('ymd') . str_pad($tran->id, 4, '0', STR_PAD_LEFT);
-        $tran->save();
-
-        $pdtls = ProgramDetail::where('bill_no', $request->bill_number)->update(['bill_status' => 1]);
+        $request->validate([
+            'bill_numbers' => 'required|array',
+            'date' => 'required',
+            'netAmount' => 'required|numeric'
+        ]);
 
         
+        if ($request->has('bill_numbers')) {
+            $incomingBills = $request->bill_numbers; 
 
-        $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Bill Stored successfully.</b></div>";
-        return response()->json(['status'=> 300,'message'=>$message,'data'=>$data]);
+            foreach ($incomingBills as $billNumber) {
+                $exists = BillReceive::where('bill_list', 'LIKE', '%' . $billNumber . '%')->exists();
+
+                if ($exists) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => "<div class='alert alert-danger'>Error: Bill Number <b>{$billNumber}</b> has already been received!</div>"
+                    ], 400);
+                }
+            }
+        }
+
+        
+        try {
+            return \DB::transaction(function () use ($request) {
+                $bill = new BillReceive();
+                $bill->date = $request->date;
+                $bill->bill_list = implode(', ', $request->bill_numbers);
+                $bill->rcv_type = $request->rcvType;
+                $bill->qty = $request->totalqty;
+                $bill->total_amount = $request->totalAmount;
+                $bill->maintainance = $request->maintainance ?? 0;
+                $bill->scale_charge = $request->scaleCharge ?? 0;
+                $bill->other_exp = $request->otherexp ?? 0;
+                $bill->other_rcv = $request->otherRcv ?? 0;
+                $bill->net_amount = $request->netAmount;
+                $bill->note = $request->description; 
+                $bill->save();
+
+                $tran = new Transaction();
+                $tran->date = $request->date;
+                $tran->bill_receive_id = $bill->id;
+                $tran->payment_type = $request->rcvType;
+                $tran->description = $request->description;
+                $tran->table_type = "Assets";
+                $tran->tran_type = "Receivable";
+                $tran->amount = $request->netAmount;
+                $tran->at_amount = $request->netAmount;
+                $tran->save();
+
+                $tran->tran_id = 'RT' . date('ymd') . str_pad($tran->id, 4, '0', STR_PAD_LEFT);
+                $tran->save();
+
+                $message = "<div class='alert alert-success'><b>Receivable create successfully.</b></div>";
+                return response()->json(['status' => 200, 'message' => $message]);
+            });
+        } catch (\Exception $e) {
+            return response()->json(['status' => 500, 'message' => 'Internal Server Error: ' . $e->getMessage()], 500);
+        }
     }
+
+
+
+
+
 }

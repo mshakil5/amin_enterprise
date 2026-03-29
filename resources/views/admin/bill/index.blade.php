@@ -10,6 +10,19 @@
     .spinner-border-sm { display: none; }
 </style>
 
+
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <a href="{{ route('admin.getReceivables') }}" class="btn btn-sm btn-primary">Receivable list</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -106,6 +119,16 @@
                                     <th class="text-center" id="footerQty2">0</th>
                                     <th class="text-center text-success" id="footerTotal2">0.00</th>
                                 </tr>
+
+                                
+                                <tr class="bg-light">
+                                    <th colspan="7" class="text-right">
+                                        <div id="addToListDiv">
+                                            
+                                        </div>
+                                    </th>
+                                </tr>
+
                             </tfoot>
                         </table>
                     </div>
@@ -157,7 +180,7 @@
             <div class="col-lg-4">
                 <div class="card card-info sticky-top" style="top: 20px;">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-file-invoice-dollar mr-1"></i> Receive Payment</h3>
+                        <h3 class="card-title"><i class="fas fa-file-invoice-dollar mr-1"></i> Receivable Form </h3>
                     </div>
                     <form id="billForm">
                         <div class="card-body">
@@ -169,7 +192,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Payment Method</label>
+                                <label>Method</label>
                                 <select name="rcvType" class="form-control">
                                     <option value="Bank">Bank</option>
                                     <option value="Cash">Cash</option>
@@ -205,6 +228,21 @@
                                     <input type="number" class="form-control calc" id="scaleCharge" name="scaleCharge" placeholder="Scale">
                                     <input type="number" class="form-control calc" id="otherRcv" name="otherRcv" placeholder="Others">
                                 </div>
+                            </div>
+
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <label> Description </label>
+                                    <textarea name="description" id="description" cols="5" rows="2" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            
+
+                            <div class="card card-summary mt-3 p-2">
+                                <p class="mb-0">Bill Numbers: 
+                                    <span id="bill_numbers"></span>
+                                </p>
                             </div>
 
                             <div class="card card-summary mt-3 p-2 text-center">
@@ -314,11 +352,23 @@ $(document).ready(function() {
         e.preventDefault();
         
         let formData = new FormData(this);
-        formData.append("client_id", $('#client_id').val());
-        formData.append("bill_number", $('#bill_number').val());
 
+        // 1. Manually append client_id (assuming it's outside the form)
+        formData.append("client_id", $('#client_id').val());
+
+        // 2. Handle Multiple Bill Numbers
+        // If bill_numbers is a comma-separated string in the span, we convert to array
+        let billNumbersText = $('#bill_numbers').text().trim();
+        if (billNumbersText) {
+            let billsArray = billNumbersText.split(',').map(s => s.trim());
+            billsArray.forEach(num => {
+                formData.append("bill_numbers[]", num);
+            });
+        }
+
+        
         let $btn = $('#saveBtn');
-        $btn.prop('disabled', true).text('Processing...');
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Processing...');
 
         $.ajax({
             url: '{{ route("admin.billStore") }}',
@@ -326,18 +376,21 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(res) {
-                $(".billmsg").html(`<div class="alert alert-success">${res.message}</div>`);
-                setTimeout(() => location.reload(), 1500);
+                console.log(res);
+                $(".billmsg").html(`<div class="alert alert-success"><i class="fas fa-check"></i> ${res.message}</div>`);
+                // setTimeout(() => location.reload(), 1500);
             },
             error: function(xhr) {
-                $btn.prop('disabled', false).text('Confirm & Save');
+                $btn.prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Confirm & Save');
                 let msg = xhr.responseJSON ? xhr.responseJSON.message : 'Error saving bill';
-                $(".billmsg").html(`<div class="alert alert-danger">${msg}</div>`);
+                $(".billmsg").html(`<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> ${msg}</div>`);
             }
         });
     });
-
 
     $('#uploadForm').on('submit', function(e) {
         e.preventDefault(); // Stop page refresh
@@ -364,10 +417,14 @@ $(document).ready(function() {
                 if (response.status === 200) {
                     // 1. Inject the rows into the specific Excel results table
                     $('#billTableBody').html(response.html);
+                    $('#addToListDiv').html(response.button);
 
                     // 2. Update the Footer Totals
                     $('#footerPevTotal2').text(response.grandTotalPrev);
                     $('#footerTotal2').text(response.grandTotalCurrent);
+
+                    $('#footerQty2').text(response.grandQty);
+                    $('#footerPevQty2').text(response.grandPrevQty);
 
                     // 3. Update the Right-Side Summary Sidebar
                     $('#totalAmount2').val(response.grandTotalCurrent);
@@ -390,6 +447,30 @@ $(document).ready(function() {
             }
         });
     });
+
+    // onclick addToListBtn 
+    $(document).on('click', '#addToListBtn', function() {
+        const billNumbers = $(this).data('bill-numbers');
+        const currentQty = $(this).data('currentqty');
+        const prevQty = $(this).data('prevqty');
+        const grandTotalPrev = $(this).data('grandtotalprev');
+        const grandTotalCurrent = $(this).data('grandtotalcurrent');
+
+        console.log(billNumbers, currentQty, prevQty, grandTotalPrev, grandTotalCurrent);
+
+        
+
+        $('#bill_numbers').text(billNumbers);
+        $('#totalAmount').val(grandTotalCurrent);
+        $('#netAmount').val(grandTotalCurrent);
+        $('#netAmountDisplay').text(grandTotalCurrent.toLocaleString(undefined, {minimumFractionDigits: 2}));
+        $('#totalqty').val(currentQty);
+
+
+
+    });
+
+
 
 
 });

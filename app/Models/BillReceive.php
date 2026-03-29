@@ -21,5 +21,16 @@ class BillReceive extends Model
                 $model->save();
             }
         });
+
     }
+
+
+
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class);
+    }
+
+
+
 }

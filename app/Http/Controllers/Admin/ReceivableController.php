@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BillReceive;
 use Illuminate\Http\Request;
 use App\Models\GeneratingBill;
 use App\Models\Program;
@@ -150,14 +151,16 @@ class ReceivableController extends Controller
         $chkprgmsGrouped = ProgramDetail::with(['vendor', 'ghat', 'destination'])
             ->whereIn('bill_no', $billNumbers)
             ->get()
-            ->groupBy('bill_no'); // This creates a collection where keys are bill numbers
+            ->groupBy('bill_no'); 
 
         if ($chkprgmsGrouped->isEmpty()) {
             return response()->json(['status' => 404, 'message' => 'No matching bill records found.']);
         }
 
         $grandTotalAmount = 0; 
+        $grandQty = 0; 
         $grandTotalPrevAmount = 0;
+        $grandPrevQty = 0;
         $html = '';
         $sl = 1;
 
@@ -212,19 +215,64 @@ class ReceivableController extends Controller
             // Add to Grand Totals (if you still need them for the footer)
             $grandTotalPrevAmount += $billPrevAmount;
             $grandTotalAmount += $billCurrentAmount;
+            $grandQty += $billCurrentQty;
+            $grandPrevQty += $billPrevQty;
         }
 
-        // dd($html);
+        $button = '<button class="btn btn-sm btn-primary" id="addToListBtn" data-bill-numbers="' . implode(',', $chkprgmsGrouped->keys()->toArray()) . '" data-currentQty="'.$grandQty.'"  data-prevQty="'.$grandPrevQty.'"  data-grandTotalPrev="'.$grandTotalPrevAmount.'"  data-grandTotalCurrent="'.$grandTotalAmount.'" >Add to List</button>';
 
         return response()->json([
             'status' => 200,
             'html' => $html,
+            'button' => $button,
             'grandTotalPrev' => number_format($grandTotalPrevAmount, 2),
             'grandTotalCurrent' => number_format($grandTotalAmount, 2),
+            'grandQty' => number_format($grandQty, 2),
+            'grandPrevQty' => number_format($grandPrevQty, 2),
         ]);
 
 
     }
+
+    public function getReceivables()
+    {
+        
+        $billReceive = BillReceive::with('transaction')->orderby('id','DESC')->get();
+
+        
+        return view('admin.bill.receivable', compact('billReceive'));
+    }
+
+    public function destroy(BillReceive $billReceive)
+    {
+        try {
+            \DB::transaction(function () use ($billReceive) {
+                
+                // Soft delete related transaction
+                if ($billReceive->transaction) {
+                    if (auth()->check()) {
+                        $billReceive->transaction->deleted_by = auth()->id();
+                        $billReceive->transaction->save();
+                    }
+                    $billReceive->transaction->delete();
+                }
+
+                // Soft delete bill receive (boot method handles deleted_by)
+                $billReceive->delete();
+
+            });
+
+            return redirect()
+                ->back()
+                ->with('success', 'Bill receive and transaction deleted successfully.');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+
 
 
 
