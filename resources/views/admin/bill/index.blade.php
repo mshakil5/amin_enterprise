@@ -250,7 +250,13 @@
                                 <div class="net-amount-box">
                                     BDT <span id="netAmountDisplay">0.00</span>
                                 </div>
-                                <input type="hidden" id="netAmount" name="netAmount">
+                                <input type="number" 
+                                    id="netAmount" 
+                                    name="netAmount" 
+                                    class="form-control mt-2 text-center font-weight-bold" 
+                                    placeholder="0.00" 
+                                    step="0.01">
+                                <small class="text-muted">You can manually adjust the amount above</small>
                             </div>
                         </div>
                         <div class="card-footer">
@@ -306,15 +312,11 @@ $(document).ready(function() {
                     $('#searchTableBody').html(response.html);
                     $('#displayBillNo').text(billNo);
                     
-                    // Update Summary Inputs
-                    $('#totalqty').val(response.totalQty);
-                    $('#totalAmount').val(response.totalAmount);
                     
                     // Update Footer
                     $('#footerQty').text(response.totalQty);
                     $('#footerTotal').text(response.totalAmount);
 
-                    calculateNetAmount(); // Initial calc
                     $('#resultCard').fadeIn();
                     
                     // Re-init DataTable
@@ -468,6 +470,12 @@ $(document).ready(function() {
 
 
 
+    });
+
+    
+    $(document).on('keyup change', '#netAmount', function() {
+        let val = parseFloat($(this).val()) || 0;
+        $('#netAmountDisplay').text(val.toLocaleString(undefined, { minimumFractionDigits: 2 }));
     });
 
 
