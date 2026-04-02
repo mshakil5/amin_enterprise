@@ -384,7 +384,7 @@ $(document).ready(function() {
             success: function(res) {
                 console.log(res);
                 $(".billmsg").html(`<div class="alert alert-success"><i class="fas fa-check"></i> ${res.message}</div>`);
-                // setTimeout(() => location.reload(), 1500);
+                setTimeout(() => location.reload(), 1500); 
             },
             error: function(xhr) {
                 $btn.prop('disabled', false).html('<i class="fas fa-check-circle mr-1"></i> Confirm & Save');

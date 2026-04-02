@@ -43,7 +43,7 @@ class ReceivableController extends Controller
         // 1. Extract Bill Numbers (Skip header row 0)
         $billNumbers = [];
         foreach ($rows as $index => $row) {
-            if ($index == 0 || empty($row[1])) continue; 
+            if ($index < 2 || empty($row[1])) continue; 
             $billNumbers[] = trim($row[1]);
         }
 
@@ -143,8 +143,8 @@ class ReceivableController extends Controller
 
         $billNumbers = [];
         foreach ($rows as $index => $row) {
-            if ($index == 0 || empty($row[1])) continue; 
-            $billNumbers[] = trim($row[1]);
+            if ($index <= 2 || empty($row[4])) continue; 
+            $billNumbers[] = trim($row[4]);
         }
 
         // Fetch details and group them by bill_no
