@@ -307,21 +307,40 @@ class LedgerController extends Controller
 
     public function liability($id, Request $request)
     {
-        $query = Transaction::where('chart_of_account_id', $id);
-
-        if ($request->filled('start_date')) {
-            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
-            $query->whereBetween('date', [$request->start_date, $endDate]);
+        $accountName = ChartOfAccount::find($id)?->account_name;
+        
+        if (!$accountName) {
+            return redirect()->back()->with('error', 'Account not found.');
         }
 
-        $data = $query->orderby('id', 'DESC')->get();
+        $query = Transaction::where('chart_of_account_id', $id);
+
+        // Default start date: 2025-07-20
+        $startDate = $request->filled('start_date') ? $request->start_date : '2025-07-20';
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+        
+        $query->whereBetween('date', [$startDate, $endDate]);
+
+        // Clone BEFORE get()
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Received'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Payment'])->sum('at_amount');
-        $totalBalance = $totalDrAmount - $totalCrAmount;
+        
+        // Liability: Credit increases, Debit decreases
+        $totalBalance = $totalCrAmount - $totalDrAmount;
 
-        $accountName = ChartOfAccount::find($id)?->account_name;
+        // DESC order - closing balance at top
+        $data = $query->orderBy('date', 'DESC')->orderBy('id', 'DESC')->get();
 
-        return view('admin.accounts.ledger.liability', compact('data', 'totalBalance', 'accountName', 'id'));
+        return view('admin.accounts.ledger.liability', compact(
+            'data', 
+            'totalBalance', 
+            'totalDrAmount', 
+            'totalCrAmount', 
+            'accountName', 
+            'id',
+            'startDate',
+            'endDate'
+        ));
     }
 
     // public function equity($id, Request $request)

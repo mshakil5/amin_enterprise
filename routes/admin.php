@@ -339,7 +339,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('ledger/asset-details/{id}', [LedgerController::class, 'asset']);
     Route::get('ledger/expense-details/{id}', [LedgerController::class, 'expense']);
     Route::get('ledger/income-details/{id}', [LedgerController::class, 'income']);
-    Route::get('ledger/liability-details/{id}', [LedgerController::class, 'liability']);
+    Route::get('ledger/liability-details/{id}', [LedgerController::class, 'liability'])->name('admin.accounts.liability');
     Route::get('ledger/equity-details/{id}', [LedgerController::class, 'equity']);
     Route::get('ledger/vendor/{id}', [VendorLedgerController::class, 'vendor'])->name('admin.vendorledger');
 
