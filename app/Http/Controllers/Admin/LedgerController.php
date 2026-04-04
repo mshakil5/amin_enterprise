@@ -201,10 +201,13 @@ class LedgerController extends Controller
     public function showLedgerAccounts()
     {
         if (!(in_array('17', json_decode(auth()->user()->role->permission)))) {
-          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
-        $chartOfAccounts = ChartOfAccount::select('id', 'account_head', 'account_name','status')->where('status', 1)
-        ->get();
+        
+        $chartOfAccounts = ChartOfAccount::select('id', 'account_head', 'account_name','status')
+            ->where('status', 1)
+            ->get();
+            
         return view('admin.accounts.ledger.accountname', compact('chartOfAccounts'));
     }
 
@@ -220,22 +223,40 @@ class LedgerController extends Controller
 
     public function asset($id, Request $request)
     {
-        $query = Transaction::where('chart_of_account_id', $id);
-
-        if ($request->filled('start_date')) {
-            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
-            $query->whereBetween('date', [$request->start_date, $endDate]);
+        $accountName = ChartOfAccount::find($id)?->account_name;
+        
+        if (!$accountName) {
+            return redirect()->back()->with('error', 'Account not found.');
         }
 
-        $data = $query->orderby('id', 'DESC')->get();
+        $query = Transaction::where('chart_of_account_id', $id);
 
+        // Default start date: 2025-07-20
+        $startDate = $request->filled('start_date') ? $request->start_date : '2025-07-20';
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+        
+        $query->whereBetween('date', [$startDate, $endDate]);
+
+        // Clone BEFORE get() to prevent query reset
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Purchase', 'Payment'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Sold', 'Deprication'])->sum('at_amount');
+        
+        // Asset: Debit increases, Credit decreases
         $totalBalance = $totalDrAmount - $totalCrAmount;
 
-        $accountName = ChartOfAccount::find($id)?->account_name;
+        // DESC order - closing balance at top
+        $data = $query->orderBy('date', 'DESC')->orderBy('id', 'DESC')->get();
 
-        return view('admin.accounts.ledger.asset', compact('data', 'totalBalance', 'accountName', 'id'));
+        return view('admin.accounts.ledger.asset', compact(
+            'data', 
+            'totalBalance', 
+            'totalDrAmount', 
+            'totalCrAmount', 
+            'accountName', 
+            'id',
+            'startDate',
+            'endDate'
+        ));
     }
 
     // public function expense($id, Request $request)
@@ -248,20 +269,39 @@ class LedgerController extends Controller
     // }
     public function expense($id, Request $request)
     {
+        $accountName = ChartOfAccount::find($id)?->account_name;
+        
+        if (!$accountName) {
+            return redirect()->back()->with('error', 'Account not found.');
+        }
+
         $query = Transaction::where('chart_of_account_id', $id)
                     ->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust']);
 
-        if ($request->filled('start_date')) {
-            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
-            $query->whereBetween('date', [$request->start_date, $endDate]);
-        }
+        // Default start date: 2025-07-20
+        $startDate = $request->filled('start_date') ? $request->start_date : '2025-07-20';
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+        
+        $query->whereBetween('date', [$startDate, $endDate]);
 
-        $data = $query->orderby('id', 'DESC')->get();
+        // Clone BEFORE get() to prevent query reset
         $totalDrAmount = (clone $query)->sum('at_amount');
+        $totalCrAmount = 0; // Pure expense ledger has no credits in this context
         $totalBalance = $totalDrAmount;
-        $accountName = ChartOfAccount::find($id)?->account_name;
 
-        return view('admin.accounts.ledger.expense', compact('data', 'totalBalance', 'accountName', 'id'));
+        // DESC order - closing balance at top
+        $data = $query->orderBy('date', 'DESC')->orderBy('id', 'DESC')->get();
+
+        return view('admin.accounts.ledger.expense', compact(
+            'data', 
+            'totalBalance', 
+            'totalDrAmount', 
+            'totalCrAmount', 
+            'accountName', 
+            'id',
+            'startDate',
+            'endDate'
+        ));
     }
 
     // public function income($id, Request $request)
@@ -276,23 +316,41 @@ class LedgerController extends Controller
 
     public function income($id, Request $request)
     {
+        $accountName = ChartOfAccount::find($id)?->account_name;
+        
+        if (!$accountName) {
+            return redirect()->back()->with('error', 'Account not found.');
+        }
+
         $query = Transaction::where('chart_of_account_id', $id)
                     ->whereIn('tran_type', ['Current', 'Advance Adjust', 'Refund']);
 
-        if ($request->filled('start_date')) {
-            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
-            $query->whereBetween('date', [$request->start_date, $endDate]);
-        }
+        // Default start date: 2025-07-20
+        $startDate = $request->filled('start_date') ? $request->start_date : '2025-07-20';
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+        
+        $query->whereBetween('date', [$startDate, $endDate]);
 
-        $data = $query->orderby('id', 'DESC')->get();
-
+        // Clone BEFORE get() to prevent query reset
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Refund'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Current', 'Advance Adjust'])->sum('at_amount');
+        
+        // Income: Credit increases, Debit (Refund) decreases
         $totalBalance = $totalCrAmount - $totalDrAmount;
 
-        $accountName = ChartOfAccount::find($id)?->account_name;
+        // DESC order - closing balance at top
+        $data = $query->orderBy('date', 'DESC')->orderBy('id', 'DESC')->get();
 
-        return view('admin.accounts.ledger.income', compact('data', 'totalBalance', 'accountName', 'id'));
+        return view('admin.accounts.ledger.income', compact(
+            'data', 
+            'totalBalance', 
+            'totalDrAmount', 
+            'totalCrAmount', 
+            'accountName', 
+            'id',
+            'startDate',
+            'endDate'
+        ));
     }
 
     // public function liability($id, Request $request)
@@ -355,21 +413,40 @@ class LedgerController extends Controller
 
     public function equity($id, Request $request)
     {
-        $query = Transaction::where('chart_of_account_id', $id);
-
-        if ($request->filled('start_date')) {
-            $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
-            $query->whereBetween('date', [$request->start_date, $endDate]);
+        $accountName = ChartOfAccount::find($id)?->account_name;
+        
+        if (!$accountName) {
+            return redirect()->back()->with('error', 'Account not found.');
         }
 
-        $data = $query->orderby('id', 'DESC')->get();
+        $query = Transaction::where('chart_of_account_id', $id);
+
+        // Default start date: 2025-07-20
+        $startDate = $request->filled('start_date') ? $request->start_date : '2025-07-20';
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+        
+        $query->whereBetween('date', [$startDate, $endDate]);
+
+        // Clone BEFORE get() to prevent query reset
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Payment'])->sum('at_amount');
         $totalCrAmount = (clone $query)->whereIn('tran_type', ['Received'])->sum('at_amount');
+        
+        // Equity: Credit (Received) increases, Debit (Payment/Drawings) decreases
         $totalBalance = $totalCrAmount - $totalDrAmount;
 
-        $accountName = ChartOfAccount::find($id)?->account_name;
+        // DESC order - closing balance at top
+        $data = $query->orderBy('date', 'DESC')->orderBy('id', 'DESC')->get();
 
-        return view('admin.accounts.ledger.equity', compact('data', 'totalBalance', 'accountName', 'id'));
+        return view('admin.accounts.ledger.equity', compact(
+            'data', 
+            'totalBalance', 
+            'totalDrAmount', 
+            'totalCrAmount', 
+            'accountName', 
+            'id',
+            'startDate',
+            'endDate'
+        ));
     }
     
 
