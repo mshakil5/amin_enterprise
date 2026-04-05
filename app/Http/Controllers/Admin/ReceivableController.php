@@ -243,6 +243,23 @@ class ReceivableController extends Controller
         return view('admin.bill.receivable', compact('billReceive'));
     }
 
+    public function getReceivablesDetails($id)
+    {
+        $billReceive = BillReceive::with('transaction')->where('id', $id)->first();
+
+        $billNumbers = array_map('trim', explode(',', $billReceive->bill_list));
+
+        $programDetails = ProgramDetail::whereIn('bill_no', $billNumbers)
+                            ->orderBy('bill_no')
+                            ->get()
+                            ->groupBy('bill_no');
+
+                            // dd(  $programDetails );
+
+        return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails'));
+    }
+
+
     public function destroy(BillReceive $billReceive)
     {
         try {

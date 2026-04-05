@@ -25,7 +25,6 @@
         <div class="row">
             <div class="col-12">
 
-
                 <!-- Toast Container -->
                 <div class="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
@@ -121,18 +120,18 @@
                                     <thead class="thead-dark">
                                         <tr>
                                             <th width="50">SL</th>
-                                            <th>Date</th>
-                                            <th>Bill List</th>
-                                            <th>Receive Type</th>
-                                            <th class="text-right">Qty</th>
-                                            <th class="text-right">Total Amount</th>
-                                            <th class="text-right">Maintenance</th>
-                                            <th class="text-right">Scale Charge</th>
-                                            <th class="text-right">Other Exp</th>
-                                            <th class="text-right">Other Rcv</th>
-                                            <th class="text-right">Net Amount</th>
-                                            <th>Status</th>
-                                            <th width="120">Action</th>
+                                            <th width="100">Date</th>
+                                            <th width="250">Bill List</th>
+                                            <th width="110">Receive Type</th>
+                                            <th class="text-right" width="80">Qty</th>
+                                            <th class="text-right" width="110">Total Amount</th>
+                                            <th class="text-right" width="100">Maintenance</th>
+                                            <th class="text-right" width="100">Scale Charge</th>
+                                            <th class="text-right" width="90">Other Exp</th>
+                                            <th class="text-right" width="90">Other Rcv</th>
+                                            <th class="text-right" width="110">Net Amount</th>
+                                            <th width="130">Status</th>
+                                            <th width="70">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -140,15 +139,40 @@
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>{{ date('d-m-Y', strtotime($bill->date)) }}</td>
+                                                
+                                                <!-- FIXED BILL LIST COLUMN -->
                                                 <td>
                                                     @if($bill->bill_list)
-                                                        <span class="badge badge-secondary">
-                                                            {{ str_replace(',', ', ', $bill->bill_list) }}
-                                                        </span>
+                                                        @php
+                                                            // Split the comma-separated string into an array
+                                                            $bills = explode(',', $bill->bill_list);
+                                                            $displayLimit = 3; // Only show first 3 badges
+                                                            $displayBills = array_slice($bills, 0, $displayLimit);
+                                                            $remainingCount = count($bills) - $displayLimit;
+                                                            $hiddenBills = implode(', ', array_slice($bills, $displayLimit));
+                                                        @endphp
+                                                        
+                                                        <div class="d-flex flex-wrap" style="gap: 4px;">
+                                                            @foreach($displayBills as $b)
+                                                                <span class="badge badge-secondary text-sm">{{ trim($b) }}</span>
+                                                            @endforeach
+                                                            
+                                                            @if($remainingCount > 0)
+                                                                <span class="badge badge-primary text-sm" 
+                                                                      data-toggle="tooltip" 
+                                                                      data-html="true" 
+                                                                      data-placement="top" 
+                                                                      title="{{ htmlspecialchars($hiddenBills) }}">
+                                                                    +{{ $remainingCount }} more
+                                                                </span>
+                                                            @endif
+                                                        </div>
                                                     @else
-                                                        -
+                                                        <span class="text-muted">-</span>
                                                     @endif
                                                 </td>
+                                                <!-- END FIXED BILL LIST COLUMN -->
+
                                                 <td>
                                                     @if($bill->rcv_type == 'Bank')
                                                         <span class="badge badge-primary">
@@ -197,6 +221,11 @@
                                                                 data-id="{{ $bill->id }}" title="Delete">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
+
+                                                        <a href="{{ route('admin.getReceivablesDetails', $bill->id) }}" class="btn btn-success"  title="Details">
+                                                            Details
+                                                        </a>
+
                                                     </div>
                                                 </td>
                                             </tr>
@@ -256,33 +285,38 @@
     </div>
 </div>
 
-
-
 @endsection
 
 @section('script')
 <script>
     $(function() {
         // Initialize DataTable
-        $('#billReceiveTable').DataTable({
+        var table = $('#billReceiveTable').DataTable({
             responsive: true,
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
             pageLength: 25,
             order: [[0, 'desc']],
             columnDefs: [
-                { orderable: false, targets: -1 }
-            ]
+                { orderable: false, targets: -1 } // Disable sorting on Action column
+            ],
+            // Add fixed column widths so it doesn't collapse
+            autoWidth: false 
+        });
+
+        // Initialize Tooltips (Important for the "+ X more" button to work)
+        $('[data-toggle="tooltip"]').tooltip({
+            container: 'body', // Keeps tooltip inside the table bounds
+            boundary: 'window'
         });
 
         // Delete button handler
-         $('.delete-btn').on('click', function() {
+        $('.delete-btn').on('click', function() {
             var id = $(this).data('id');
             var deleteUrl = '{{ route("admin.bill-receives.destroy", ":id") }}';
             deleteUrl = deleteUrl.replace(':id', id);
             $('#deleteForm').attr('action', deleteUrl);
             $('#deleteModal').modal('show');
         });
-
 
         // Receive Status Toggle
         $(document).on('click', '.receive-toggle', function() {
@@ -305,21 +339,16 @@
                 },
                 success: function(response) {
                     if (response.status == 1) {
-                        // Change to Received
                         btn.removeClass('btn-danger').addClass('btn-success');
                         btn.data('status', '0');
                         btn.html('<i class="fas fa-check-circle mr-1"></i>Received');
                         btn.attr('title', 'Click to mark as Not Received');
-
-                        // Show toast notification
                         showToast('Marked as Received', 'success');
                     } else {
-                        // Change to Not Received
                         btn.removeClass('btn-success').addClass('btn-danger');
                         btn.data('status', '1');
                         btn.html('<i class="fas fa-times-circle mr-1"></i>Not Received');
                         btn.attr('title', 'Click to mark as Received');
-
                         showToast('Marked as Not Received', 'warning');
                     }
                 },
@@ -363,10 +392,6 @@
             });
         }
 
-
-
-
-        
     });
 </script>
 @endsection
