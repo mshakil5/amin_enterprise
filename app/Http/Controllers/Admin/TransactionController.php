@@ -185,10 +185,12 @@ class TransactionController extends Controller
             $totalPrevQty += $old_qty;
             $totalscale_fee += $prgmDtl->scale_fee;
         }
+        $button = '<button class="btn btn-sm btn-primary" id="addToListBtn" data-bill-numbers="' . $request->bill_number . '" data-currentQty="'.$totalQty.'"  data-prevQty="'.$totalPrevQty.'"  data-grandTotalPrev="'.$totalprevAmount.'"  data-grandTotalCurrent="'.$totalAmount.'" >Add to List</button>';
 
         return response()->json([
             'status' => 200,
             'html' => $html, // Pass the pre-rendered HTML back
+            'button' => $button,
             'totalscalefee' => number_format($totalscale_fee, 2, '.', ''),
             'totalprevAmount' => number_format($totalprevAmount, 2, '.', ''),
             'totalAmount' => number_format($totalAmount, 2, '.', ''),

@@ -106,6 +106,8 @@
                                     <th>Prev. Amount</th>
                                     <th>Qty</th>
                                     <th>Amount</th>
+                                    <th>Change Qty</th>
+                                    <th>Change Amount</th>
                                 </tr>
                             </thead>
                             <tbody id="billTableBody">
@@ -118,11 +120,13 @@
                                     <th class="text-center text-success" id="footerPevTotal2">0.00</th>
                                     <th class="text-center" id="footerQty2">0</th>
                                     <th class="text-center text-success" id="footerTotal2">0.00</th>
+                                    <th class="text-center"></th>
+                                    <th class="text-center"></th>
                                 </tr>
 
                                 
                                 <tr class="bg-light">
-                                    <th colspan="7" class="text-right">
+                                    <th colspan="9" class="text-right">
                                         <div id="addToListDiv">
                                             
                                         </div>
@@ -168,6 +172,13 @@
                                     <th class="text-center text-success" id="footerPevTotal">0.00</th>
                                     <th class="text-center" id="footerQty">0</th>
                                     <th class="text-center text-success" id="footerTotal">0.00</th>
+                                </tr>
+                                <tr class="bg-light">
+                                    <th colspan="12" class="text-right">
+                                        <div id="addToListBillDiv">
+                                            
+                                        </div>
+                                    </th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -311,6 +322,7 @@ $(document).ready(function() {
                     
                     $('#searchTableBody').html(response.html);
                     $('#displayBillNo').text(billNo);
+                    $('#addToListBillDiv').html(response.button);
                     
                     
                     // Update Footer

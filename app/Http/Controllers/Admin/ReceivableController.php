@@ -210,6 +210,8 @@ class ReceivableController extends Controller
                         <td class="text-primary">' . number_format($billPrevAmount, 2) . '</td>
                         <td>' . number_format($billCurrentQty, 2) . '</td>
                         <td class="text-success">' . number_format($billCurrentAmount, 2) . '</td>
+                        <td class="text-primary"> <input type="number" class="form-control" name="updatedQty" value="" id="updatedQty"> </td>
+                        <td class="text-primary"> <input type="number" class="form-control" name="updatedAmount" value="" id="updatedAmount"> </td>
                     </tr>';
 
             // Add to Grand Totals (if you still need them for the footer)
