@@ -113,8 +113,8 @@
 
                                     @forelse($data as $transaction)
                                         @php
-                                            $isDebit = in_array($transaction->tran_type, ['Received']);
-                                            $isCredit = in_array($transaction->tran_type, ['Payment']);
+                                            $isCredit = in_array($transaction->tran_type, ['Received']);
+                                            $isDebit = in_array($transaction->tran_type, ['Payment']);
                                             
                                             $debitAmount = $isDebit ? $transaction->at_amount : 0;
                                             $creditAmount = $isCredit ? $transaction->at_amount : 0;
@@ -177,8 +177,8 @@
                                 <tfoot>
                                     <tr class="font-weight-bold bg-light">
                                         <td colspan="6" class="text-right">Total:</td>
-                                        <td class="text-right text-info">{{ number_format($totalDrAmount, 2) }}</td>
                                         <td class="text-right text-success">{{ number_format($totalCrAmount, 2) }}</td>
+                                        <td class="text-right text-info">{{ number_format($totalDrAmount, 2) }}</td>
                                         <td class="text-right">
                                             {{ number_format(abs($totalBalance), 2) }} 
                                             <small>{{ $totalBalance >= 0 ? 'Cr' : 'Dr' }}</small>
