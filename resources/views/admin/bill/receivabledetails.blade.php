@@ -199,11 +199,10 @@
                                 <tr class="">
                                     <td class="text-center">{{ $billReceive->date }}</td>
                                     <td colspan="4" class="text-right"></td>
-                                    <td colspan="3" class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $billReceive->coa->account_name}}</td>
-                                    <td></td>
-                                    <td class="text-right">0.00</td>
-                                    <td class="text-right">{{ number_format($billReceive->net_amount , 2) }}</td>
-                                    <td class="text-right text-primary">{{ number_format($balance, 2) }}</td>
+                                    <td colspan="4" class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $billReceive->coa->account_name}}</td>
+                                    <td class="text-right font-weight-bold">0.00</td>
+                                    <td class="text-right font-weight-bold">{{ number_format($billReceive->net_amount , 2) }}</td>
+                                    <td class="text-right text-primary font-weight-bold">{{ number_format($balance, 2) }}</td>
                                 </tr>
                         </tbody>
                         <tfoot>
