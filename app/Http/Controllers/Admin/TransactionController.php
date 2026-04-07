@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdvancePayment;
 use App\Models\BillReceive;
+use App\Models\ChartOfAccount;
 use App\Models\Client;
 use App\Models\ClientRate;
 use App\Models\MotherVassel;
@@ -84,8 +85,11 @@ class TransactionController extends Controller
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
         $mvassels = MotherVassel::select('id','name')->orderby('id','DESC')->where('status',1)->get();
         
+        $accounts = ChartOfAccount::where('account_head', 'Income')->get();
+        
+        
         $data = ProgramDetail::where('generate_bill', 1)->where('bill_status', 0)->limit(10)->get();
-        return view('admin.bill.index', compact('clients','mvassels','data'));
+        return view('admin.bill.index', compact('clients','mvassels','data','accounts'));
     }
 
     public function checkBill(Request $request)
@@ -232,6 +236,8 @@ class TransactionController extends Controller
                 $bill->bill_list = implode(', ', $request->bill_numbers);
                 $bill->rcv_type = $request->rcvType;
                 $bill->qty = $request->totalqty;
+                $bill->client_id = $request->client_id;
+                $bill->chart_of_account_id = $request->chart_of_account_id;
                 $bill->total_amount = $request->totalAmount;
                 $bill->maintainance = $request->maintainance ?? 0;
                 $bill->scale_charge = $request->scaleCharge ?? 0;

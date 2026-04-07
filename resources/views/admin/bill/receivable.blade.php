@@ -121,6 +121,7 @@
                                         <tr>
                                             <th width="50">SL</th>
                                             <th width="100">Date</th>
+                                            <th width="100">Client</th>
                                             <th width="250">Bill List</th>
                                             <th width="110">Receive Type</th>
                                             <th class="text-right" width="80">Qty</th>
@@ -139,6 +140,7 @@
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>{{ date('d-m-Y', strtotime($bill->date)) }}</td>
+                                                <td class="text-center">{{ $bill->client->name ?? '' }}</td>
                                                 
                                                 <!-- FIXED BILL LIST COLUMN -->
                                                 <td>
@@ -233,7 +235,7 @@
                                     </tbody>
                                     <tfoot>
                                         <tr class="font-weight-bold bg-light">
-                                            <td colspan="4" class="text-right">Total:</td>
+                                            <td colspan="5" class="text-right">Total:</td>
                                             <td class="text-right">{{ number_format($billReceive->sum('qty'), 2) }}</td>
                                             <td class="text-right">{{ number_format($billReceive->sum('total_amount'), 2) }}</td>
                                             <td class="text-right">{{ number_format($billReceive->sum('maintainance'), 2) }}</td>

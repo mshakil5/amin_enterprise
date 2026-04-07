@@ -249,14 +249,14 @@ class ReceivableController extends Controller
     {
         $billReceive = BillReceive::with('transaction')->where('id', $id)->first();
 
+        // dd( $billReceive );
+
         $billNumbers = array_map('trim', explode(',', $billReceive->bill_list));
 
         $programDetails = ProgramDetail::whereIn('bill_no', $billNumbers)
                             ->orderBy('bill_no')
                             ->get()
                             ->groupBy('bill_no');
-
-                            // dd(  $programDetails ); 
 
         return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails'));
     }

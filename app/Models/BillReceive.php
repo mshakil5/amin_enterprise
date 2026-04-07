@@ -31,6 +31,16 @@ class BillReceive extends Model
         return $this->hasOne(Transaction::class);
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function coa()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'chart_of_account_id');
+    }
+
 
 
 }

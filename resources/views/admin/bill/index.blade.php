@@ -43,16 +43,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-5">
-                                <label>Client</label>
-                                <select id="client_id" class="form-control select2" style="width: 100%;">
-                                    <option value="">Select Client</option>
-                                    @foreach($clients as $client)
-                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-7">
+                            <div class="col-md-12">
                                 <label>Bill Number</label>
                                 <div class="input-group">
                                     <input type="text" id="bill_number" class="form-control" placeholder="Enter Bill No...">
@@ -203,6 +194,27 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Client</label>
+                                <select id="client_id" class="form-control select2" style="width: 100%;">
+                                    <option value="">Select Client</option>
+                                    @foreach($clients as $client)
+                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <label for="chart_of_account_id" >Chart of Account</label>
+                                <select class="form-control select2" id="chart_of_account_id" name="chart_of_account_id">
+                                    <option value="">Select Account</option>
+                                    @foreach($accounts as $income)
+                                        <option value="{{ $income->id }}">{{ $income->account_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Method</label>
                                 <select name="rcvType" class="form-control">
                                     <option value="Bank">Bank</option>
@@ -292,7 +304,7 @@ $(document).ready(function() {
     // Initialize Select2 if available
     $('.select2').select2();
 
-    // 1. Search Logic
+    // 1. Search Logic onnly one bill number
     $('#searchBtn').click(function() {
         const billNo = $('#bill_number').val();
         const clientId = $('#client_id').val();
@@ -367,11 +379,9 @@ $(document).ready(function() {
         
         let formData = new FormData(this);
 
-        // 1. Manually append client_id (assuming it's outside the form)
         formData.append("client_id", $('#client_id').val());
+        formData.append("chart_of_account_id", $('#chart_of_account_id').val());
 
-        // 2. Handle Multiple Bill Numbers
-        // If bill_numbers is a comma-separated string in the span, we convert to array
         let billNumbersText = $('#bill_numbers').text().trim();
         if (billNumbersText) {
             let billsArray = billNumbersText.split(',').map(s => s.trim());
@@ -379,7 +389,6 @@ $(document).ready(function() {
                 formData.append("bill_numbers[]", num);
             });
         }
-
         
         let $btn = $('#saveBtn');
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Processing...');
@@ -407,16 +416,14 @@ $(document).ready(function() {
     });
 
     $('#uploadForm').on('submit', function(e) {
-        e.preventDefault(); // Stop page refresh
+        e.preventDefault(); 
 
         const $btn = $('#uploadBtn');
         const formData = new FormData(this);
 
-        // Visual feedback
         $btn.prop('disabled', true);
         $btn.find('.spinner-border').show();
 
-        // Hide previous results
         $('#receivableBillCard').hide();
         $('#resultCard').hide();
 
@@ -470,9 +477,6 @@ $(document).ready(function() {
         const grandTotalPrev = $(this).data('grandtotalprev');
         const grandTotalCurrent = $(this).data('grandtotalcurrent');
 
-        console.log(billNumbers, currentQty, prevQty, grandTotalPrev, grandTotalCurrent);
-
-        
 
         $('#bill_numbers').text(billNumbers);
         $('#totalAmount').val(grandTotalCurrent);

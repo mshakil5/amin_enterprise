@@ -22,9 +22,16 @@ class ChartOfAccount extends Model
 
         static::deleting(function ($model) {
             if (auth()->check()) {
-                $model->deleted_by = auth()->id(); // Set the ID of the authenticated user
+                $model->deleted_by = auth()->id();
                 $model->save();
             }
         });
     }
+
+
+    public function chartOfAccount()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'chart_of_account_id');
+    }
+
 }

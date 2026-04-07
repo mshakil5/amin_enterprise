@@ -197,6 +197,15 @@
                                     </td>
                                 </tr>
                             @endforeach
+                                <tr class="">
+                                    <td class="text-center">{{ $billReceive->date }}</td>
+                                    <td colspan="4" class="text-right"></td>
+                                    <td colspan="3" class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $billReceive->coa->account_name}}</td>
+                                    <td></td>
+                                    <td class="text-right">0.00</td>
+                                    <td class="text-right">{{ number_format($billReceive->net_amount , 2) }}</td>
+                                    <td class="text-right text-primary">{{ number_format($balance, 2) }}</td>
+                                </tr>
                         </tbody>
                         <tfoot>
                             <tr class="bg-warning font-weight-bold text-center">
@@ -204,7 +213,7 @@
                                 <td class="text-right">{{ number_format($totalQty, 2) }}</td>
                                 <td></td>
                                 <td class="text-right">{{ number_format($totalDr, 2) }}</td>
-                                <td class="text-right">0.00</td>
+                                <td class="text-right">{{ number_format($billReceive->net_amount , 2) }}</td>
                                 <td class="text-right text-primary">{{ number_format($balance, 2) }}</td>
                             </tr>
                         </tfoot>
