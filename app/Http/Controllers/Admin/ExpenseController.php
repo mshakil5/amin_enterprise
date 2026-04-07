@@ -23,7 +23,7 @@ class ExpenseController extends Controller
       }
         if($request->ajax()){
             $transactions = Transaction::with('chartOfAccount')
-                ->whereIn('table_type', ['Expenses', 'Cogs']);
+                ->whereIn('table_type', ['Expenses', 'Cogs'])->whereNotNull('chart_of_account_id');
 
         if ($request->filled('start_date')) {
                 $endDate = $request->filled('end_date') ? $request->input('end_date') : now()->endOfDay();
