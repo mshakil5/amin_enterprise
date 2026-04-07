@@ -72,7 +72,7 @@
             </div>
         </div>
 
-        {{-- Secondary summary row --}}
+        {{-- Bill Summary --}}
         <div class="card card-outline card-secondary mb-4">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Bill Summary</h3>
@@ -104,124 +104,122 @@
             </div>
         </div>
 
-        {{-- Program Details Grouped by Bill No --}}
-        @foreach ($programDetails as $billNo => $details)
-        <div class="card card-primary card-outline mb-4">
+        {{-- ===== EXCEL-STYLE LEDGER TABLE ===== --}}
+        <div class="card card-primary card-outline">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="fas fa-file-alt mr-1"></i>
-                    Bill No: <strong>{{ $billNo }}</strong>
+                    <i class="fas fa-table mr-1"></i> Ledger — BSRM Steels Ltd.
                 </h3>
                 <div class="card-tools">
-                    <span class="badge badge-primary mr-2">{{ $details->count() }} records</span>
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus"></i>
                     </button>
                 </div>
             </div>
             <div class="card-body p-0">
+
+                {{-- Export Buttons --}}
+            <div class="px-3 pt-3 pb-2">
+                <button class="btn btn-sm btn-secondary" id="btn-copy">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <button class="btn btn-sm btn-success" id="btn-csv">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+                <button class="btn btn-sm btn-primary" id="btn-excel">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button class="btn btn-sm btn-danger" id="btn-pdf">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button class="btn btn-sm btn-dark" id="btn-print">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+
                 <div class="table-responsive">
-                    <table id="table-{{ $billNo }}" class="table table-striped table-bordered table-sm bill-table">
-                        <thead class="thead-dark text-center">
-                            <tr>
-                                <th>#</th>
-                                <th>Date</th>
-                                <th>Program ID</th>
-                                <th>Consignment No</th>
-                                <th>Truck Number</th>
-                                <th>Challan No</th>
-                                <th>After Date</th>
-                                <th>Dest Qty</th>
-                                <th>Old Qty</th>
-                                <th>Carrying Bill</th>
-                                <th>Old Carrying</th>
-                                <th>Scale Fee</th>
-                                <th>Line Charge</th>
-                                <th>Transport Cost</th>
-                                <th>Add. Cost</th>
-                                <th>Other Cost</th>
-                                <th>Advance</th>
-                                <th>Due</th>
-                                <th>Dest Status</th>
-                                <th>Tran Status</th>
-                                <th>Bill Status</th>
-                                <th>Note</th>
+                    <table id="ledger-table" class="table table-bordered table-striped table-sm mb-0" style="font-size:12px;">
+                        <thead>
+                            <tr class="bg-dark text-white text-center">
+                                <th style="width:70px">Date</th>
+                                <th style="width:110px">Details</th>
+                                <th style="width:130px">MV</th>
+                                <th style="width:90px">Consignment</th>
+                                <th style="width:70px">Bill No.</th>
+                                <th>Destination</th>
+                                <th style="width:45px">Trip</th>
+                                <th style="width:65px">Qty</th>
+                                <th style="width:80px">Remarks</th>
+                                <th style="width:100px">Dr</th>
+                                <th style="width:80px">Cr</th>
+                                <th style="width:100px">Balance</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($details as $index => $detail)
-                            <tr class="text-center">
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $detail->date }}</td>
-                                <td>{{ $detail->programid }}</td>
-                                <td>{{ $detail->consignmentno }}</td>
-                                <td class="text-left">{{ $detail->truck_number }}</td>
-                                <td>{{ $detail->challan_no }}</td>
-                                <td>{{ $detail->after_date }}</td>
-                                <td>{{ $detail->dest_qty }}</td>
-                                <td>{{ $detail->old_qty }}</td>
-                                <td>{{ number_format($detail->carrying_bill, 2) }}</td>
-                                <td>{{ number_format($detail->old_carrying_bill, 2) }}</td>
-                                <td>{{ number_format($detail->scale_fee, 2) }}</td>
-                                <td>{{ number_format($detail->line_charge, 2) }}</td>
-                                <td>{{ number_format($detail->transportcost, 2) }}</td>
-                                <td>{{ number_format($detail->additional_cost, 2) }}</td>
-                                <td>{{ number_format($detail->other_cost, 2) }}</td>
-                                <td>{{ number_format($detail->advance, 2) }}</td>
-                                <td class="{{ $detail->due < 0 ? 'text-danger font-weight-bold' : 'text-success font-weight-bold' }}">
-                                    {{ number_format($detail->due, 2) }}
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ $detail->dest_status ? 'success' : 'warning' }}">
-                                        {{ $detail->dest_status ? 'Done' : 'Pending' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ $detail->tran_status ? 'success' : 'secondary' }}">
-                                        {{ $detail->tran_status ? 'Done' : 'Pending' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-{{ $detail->bill_status ? 'success' : 'danger' }}">
-                                        {{ $detail->bill_status ? 'Paid' : 'Unpaid' }}
-                                    </span>
-                                </td>
-                                <td>{{ $detail->note ?? '-' }}</td>
-                            </tr>
+                            @php
+                                $balance  = 0;
+                                $totalQty = 0;
+                                $totalDr  = 0;
+                                $rowNum   = 0;
+                            @endphp
+
+                            @foreach ($programDetails as $billNo => $rows)
+                                @php
+                                    $first   = $rows->first();
+                                    $trip    = $rows->count();
+                                    $qty     = $rows->sum('dest_qty');
+                                    $dr      = $rows->sum('carrying_bill');
+                                    $balance += $dr;
+                                    $totalQty += $qty;
+                                    $totalDr  += $dr;
+                                    $rowNum++;
+
+                                    $mv   = optional($first->motherVassel)->name ?? $first->lighter_vessel_name ?? 'N/A';
+                                    $dest = optional($first->destination)->name  ?? 'N/A';
+                                    $ghat = optional($first->ghat)->name  ?? 'N/A';
+                                @endphp
+                                <tr class="text-center {{ $rowNum % 2 == 0 ? 'bg-light' : '' }}">
+                                    <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-y') }}</td>
+                                    <td class="text-left">Scrap Carrying Bill</td>
+                                    <td class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $mv }}</td>
+                                    <td>{{ $first->consignmentno }}</td>
+                                    <td><span class="badge badge-primary">{{ $billNo }}</span></td>
+                                    <td class="text-left">Scrap carrying from {{$ghat}} to {{ $dest }}</td>
+                                    <td>{{ $trip }}</td>
+                                    <td class="text-right">{{ number_format($qty, 2) }}</td>
+                                    <td></td>
+                                    <td class="text-right font-weight-bold">
+                                        {{ number_format($dr, 2) }}
+                                    </td>
+                                    <td class="text-right">-</td>
+                                    <td class="text-right font-weight-bold text-primary">
+                                        {{ number_format($balance, 2) }}
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
-                        <tfoot class="bg-warning font-weight-bold text-center">
-                            <tr>
-                                <td colspan="7" class="text-right">Subtotal:</td>
-                                <td>{{ $details->sum('dest_qty') }}</td>
-                                <td>{{ $details->sum('old_qty') }}</td>
-                                <td>{{ number_format($details->sum('carrying_bill'), 2) }}</td>
-                                <td>{{ number_format($details->sum('old_carrying_bill'), 2) }}</td>
-                                <td>{{ number_format($details->sum('scale_fee'), 2) }}</td>
-                                <td>{{ number_format($details->sum('line_charge'), 2) }}</td>
-                                <td>{{ number_format($details->sum('transportcost'), 2) }}</td>
-                                <td>{{ number_format($details->sum('additional_cost'), 2) }}</td>
-                                <td>{{ number_format($details->sum('other_cost'), 2) }}</td>
-                                <td>{{ number_format($details->sum('advance'), 2) }}</td>
-                                <td class="{{ $details->sum('due') < 0 ? 'text-danger' : 'text-success' }}">
-                                    {{ number_format($details->sum('due'), 2) }}
-                                </td>
-                                <td colspan="4"></td>
+                        <tfoot>
+                            <tr class="bg-warning font-weight-bold text-center">
+                                <td colspan="7" class="text-right">Grand Total</td>
+                                <td class="text-right">{{ number_format($totalQty, 2) }}</td>
+                                <td></td>
+                                <td class="text-right">{{ number_format($totalDr, 2) }}</td>
+                                <td class="text-right">0.00</td>
+                                <td class="text-right text-primary">{{ number_format($balance, 2) }}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
         </div>
-        @endforeach
 
-        {{-- Grand Total Card --}}
+        {{-- Grand Total Boxes --}}
+        @php $all = $programDetails->flatten(); @endphp
         <div class="card card-dark">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-calculator mr-1"></i> Grand Total</h3>
             </div>
             <div class="card-body">
-                @php $all = $programDetails->flatten(); @endphp
                 <div class="row text-center">
                     <div class="col-lg col-md-4 col-sm-6 mb-2">
                         <div class="small-box bg-info">
@@ -286,63 +284,83 @@
 @endsection
 
 @section('script')
+{{-- Required DataTables extension libraries --}}
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
 <script>
 $(document).ready(function () {
 
-    // Collect all bill table IDs from Blade
-    var billTables = @json($programDetails->keys());
-
-    // Initialize DataTable for each bill group
-    billTables.forEach(function(billNo) {
-        var tableId = '#table-' + billNo;
-
-        $(tableId).DataTable({
-            responsive: true,
-            paging: false,          // Show all rows (subtotal in tfoot)
-            searching: true,
-            ordering: true,
-            info: false,
-            autoWidth: false,
-            dom: '<"row mb-2"<"col-sm-6"B><"col-sm-6"f>>rt',
-            buttons: [
-                {
-                    extend: 'copy',
-                    className: 'btn btn-sm btn-secondary',
-                    text: '<i class="fas fa-copy"></i> Copy',
-                    title: 'Bill No: ' + billNo
-                },
-                {
-                    extend: 'csv',
-                    className: 'btn btn-sm btn-success',
-                    text: '<i class="fas fa-file-csv"></i> CSV',
-                    title: 'Bill No: ' + billNo
-                },
-                {
-                    extend: 'excel',
-                    className: 'btn btn-sm btn-primary',
-                    text: '<i class="fas fa-file-excel"></i> Excel',
-                    title: 'Bill No: ' + billNo
-                },
-                {
-                    extend: 'pdf',
-                    className: 'btn btn-sm btn-danger',
-                    text: '<i class="fas fa-file-pdf"></i> PDF',
-                    title: 'Bill No: ' + billNo,
-                    orientation: 'landscape',
-                    pageSize: 'A3'
-                },
-                {
-                    extend: 'print',
-                    className: 'btn btn-sm btn-dark',
-                    text: '<i class="fas fa-print"></i> Print',
-                    title: 'Bill No: ' + billNo
-                }
-            ],
-            language: {
-                search: "",
-                searchPlaceholder: "Search bill " + billNo + "..."
+    var table = $('#ledger-table').DataTable({
+        responsive: true,
+        paging: false,
+        searching: true,
+        ordering: true,
+        info: false,
+        autoWidth: false,
+        dom: 'Bfrt',   // B = buttons (hidden), f = search, r = processing, t = table
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: 'Copy',
+                title: 'Ledger - BSRM Steels Ltd.',
+                exportOptions: { columns: ':visible' }
+            },
+            {
+                extend: 'csvHtml5',
+                text: 'CSV',
+                title: 'ledger_{{ $billReceive->date }}',
+                exportOptions: { columns: ':visible' }
+            },
+            {
+                extend: 'excelHtml5',
+                text: 'Excel',
+                title: 'Ledger - BSRM Steels Ltd.',
+                exportOptions: { columns: ':visible' }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                title: 'Ledger - BSRM Steels Ltd.',
+                orientation: 'landscape',
+                pageSize: 'A3',
+                exportOptions: { columns: ':visible' }
+            },
+            {
+                extend: 'print',
+                text: 'Print',
+                title: 'Ledger - BSRM Steels Ltd.',
+                exportOptions: { columns: ':visible' }
             }
-        });
+        ],
+        language: {
+            search: "",
+            searchPlaceholder: "Search ledger..."
+        }
+    });
+
+    // Hide the DataTables-generated buttons bar (we use our own styled buttons above)
+    $('.dt-buttons').hide();
+
+    // Wire our custom buttons to DataTables buttons by index
+    $('#btn-copy').on('click', function () {
+        table.button(0).trigger();
+    });
+    $('#btn-csv').on('click', function () {
+        table.button(1).trigger();
+    });
+    $('#btn-excel').on('click', function () {
+        table.button(2).trigger();
+    });
+    $('#btn-pdf').on('click', function () {
+        table.button(3).trigger();
+    });
+    $('#btn-print').on('click', function () {
+        table.button(4).trigger();
     });
 
 });

@@ -256,7 +256,7 @@ class ReceivableController extends Controller
                             ->get()
                             ->groupBy('bill_no');
 
-                            // dd(  $programDetails );
+                            // dd(  $programDetails ); 
 
         return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails'));
     }

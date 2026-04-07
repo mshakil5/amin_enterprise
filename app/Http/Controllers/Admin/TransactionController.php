@@ -189,7 +189,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'status' => 200,
-            'html' => $html, // Pass the pre-rendered HTML back
+            'html' => $html, 
             'button' => $button,
             'totalscalefee' => number_format($totalscale_fee, 2, '.', ''),
             'totalprevAmount' => number_format($totalprevAmount, 2, '.', ''),
