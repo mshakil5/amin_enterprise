@@ -166,17 +166,20 @@
                             @foreach ($programDetails as $billNo => $rows)
                                 @php
                                     $first   = $rows->first();
-                                    $trip    = $rows->count();
-                                    $qty     = $rows->sum('dest_qty');
-                                    $dr      = $rows->sum('carrying_bill');
-                                    $balance += $dr;
+                                    $calc    = $billCalculations[$billNo];   // use pre-calculated values
+
+                                    $trip    = $calc['trip'];
+                                    $qty     = $calc['dest_qty'];
+                                    $dr      = $calc['carrying_bill'];       // ← rate-based calculated amount
+
+                                    $balance  += $dr;
                                     $totalQty += $qty;
                                     $totalDr  += $dr;
                                     $rowNum++;
 
-                                    $mv   = optional($first->motherVassel)->name ?? $first->lighter_vessel_name ?? 'N/A';
+                                    $mv   = optional($first->motherVassel)->name ?? 'N/A';
                                     $dest = optional($first->destination)->name  ?? 'N/A';
-                                    $ghat = optional($first->ghat)->name  ?? 'N/A';
+                                    $ghat = optional($first->ghat)->name         ?? 'N/A';
                                 @endphp
                                 <tr class="text-center {{ $rowNum % 2 == 0 ? 'bg-light' : '' }}">
                                     <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-y') }}</td>
@@ -184,17 +187,13 @@
                                     <td class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $mv }}</td>
                                     <td>{{ $first->consignmentno }}</td>
                                     <td><span class="badge badge-primary">{{ $billNo }}</span></td>
-                                    <td class="text-left">Scrap carrying from {{$ghat}} to {{ $dest }}</td>
+                                    <td class="text-left">Scrap carrying from {{ $ghat }} to {{ $dest }}</td>
                                     <td>{{ $trip }}</td>
                                     <td class="text-right">{{ number_format($qty, 2) }}</td>
                                     <td></td>
-                                    <td class="text-right font-weight-bold">
-                                        {{ number_format($dr, 2) }}
-                                    </td>
+                                    <td class="text-right font-weight-bold">{{ number_format($dr, 2) }}</td>
                                     <td class="text-right">-</td>
-                                    <td class="text-right font-weight-bold text-primary">
-                                        {{ number_format($balance, 2) }}
-                                    </td>
+                                    <td class="text-right font-weight-bold text-primary">{{ number_format($balance, 2) }}</td>
                                 </tr>
                             @endforeach
                                 <tr class="">

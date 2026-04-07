@@ -245,11 +245,9 @@ class ReceivableController extends Controller
         return view('admin.bill.receivable', compact('billReceive'));
     }
 
-    public function getReceivablesDetails($id)
+    public function getReceivablesDetails2($id)
     {
         $billReceive = BillReceive::with('transaction')->where('id', $id)->first();
-
-        // dd( $billReceive );
 
         $billNumbers = array_map('trim', explode(',', $billReceive->bill_list));
 
@@ -259,6 +257,56 @@ class ReceivableController extends Controller
                             ->groupBy('bill_no');
 
         return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails'));
+    }
+
+    public function getReceivablesDetails($id)
+    {
+        $billReceive = BillReceive::with(['transaction', 'coa'])->where('id', $id)->first();
+
+        $billNumbers = array_map('trim', explode(',', $billReceive->bill_list));
+
+        $programDetails = ProgramDetail::with(['motherVassel', 'destination', 'ghat'])
+                            ->whereIn('bill_no', $billNumbers)
+                            ->orderBy('bill_no')
+                            ->get()
+                            ->groupBy('bill_no');
+
+        // Pre-calculate carrying_bill per bill group using ClientRate logic
+        $billCalculations = [];
+
+        foreach ($programDetails as $billNo => $rows) {
+            $billCarryingBill = 0;
+            $billDestQty      = 0;
+            $billScaleFee     = 0;
+
+            foreach ($rows as $detail) {
+                $qty = (float) $detail->dest_qty;
+
+                $rate = ClientRate::where('destination_id', $detail->destination_id)
+                            ->where('ghat_id', $detail->ghat_id)
+                            ->first();
+
+                $rowAmount = 0;
+                if ($rate) {
+                    $rowAmount = ($qty > $rate->maxqty)
+                        ? ($rate->maxqty * $rate->below_rate_per_qty) + (($qty - $rate->maxqty) * $rate->above_rate_per_qty)
+                        : $qty * $rate->below_rate_per_qty;
+                }
+
+                $billCarryingBill += $rowAmount;
+                $billDestQty      += $qty;
+                $billScaleFee     += (float) $detail->scale_fee;
+            }
+
+            $billCalculations[$billNo] = [
+                'carrying_bill' => $billCarryingBill,
+                'dest_qty'      => $billDestQty,
+                'scale_fee'     => $billScaleFee,
+                'trip'          => $rows->count(),
+            ];
+        }
+
+        return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails', 'billCalculations'));
     }
 
 
