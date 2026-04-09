@@ -141,6 +141,7 @@
                     <table id="ledger-table" class="table table-bordered table-striped table-sm mb-0" style="font-size:12px;">
                         <thead>
                             <tr class="bg-dark text-white text-center">
+                                <th style="width:10px">Action</th>
                                 <th style="width:70px">Date</th>
                                 <th style="width:110px">Details</th>
                                 <th style="width:130px">MV</th>
@@ -182,6 +183,9 @@
                                     $ghat = optional($first->ghat)->name         ?? 'N/A';
                                 @endphp
                                 <tr class="text-center {{ $rowNum % 2 == 0 ? 'bg-light' : '' }}">
+                                    <td>
+                                        <input type="checkbox" class="form-check" data-billno="{{ $billNo }}" >
+                                    </td>
                                     <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-y') }}</td>
                                     <td class="text-left">Scrap Carrying Bill</td>
                                     <td class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $mv }}</td>
@@ -197,6 +201,7 @@
                                 </tr>
                             @endforeach
                                 <tr class="">
+                                    <td class="text-center"></td>
                                     <td class="text-center">{{ $billReceive->date }}</td>
                                     <td colspan="4" class="text-right"></td>
                                     <td colspan="4" class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $billReceive->coa->account_name}}</td>
@@ -207,12 +212,21 @@
                         </tbody>
                         <tfoot>
                             <tr class="bg-warning font-weight-bold text-center">
+                                <td class="text-center"></td>
                                 <td colspan="7" class="text-right">Grand Total</td>
                                 <td class="text-right">{{ number_format($totalQty, 2) }}</td>
                                 <td></td>
                                 <td class="text-right">{{ number_format($totalDr, 2) }}</td>
                                 <td class="text-right">{{ number_format($billReceive->net_amount , 2) }}</td>
                                 <td class="text-right text-primary">{{ number_format($balance, 2) }}</td>
+                            </tr>
+                            <tr class="font-weight-bold text-center">
+                                <td colspan="11" class="text-right">
+
+                                </td>
+                                <td colspan="2" class="text-center">
+                                    <button class="btn btn-danger btn-sm">Add Cheque Number</button>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
