@@ -256,6 +256,7 @@ class TransactionController extends Controller
                 $tran->description = $request->description;
                 $tran->table_type = "Income";
                 $tran->tran_type = "Receivable";
+                $tran->payment_type = "Due";
                 $tran->amount = $request->netAmount;
                 $tran->at_amount = $request->netAmount;
                 $tran->save();

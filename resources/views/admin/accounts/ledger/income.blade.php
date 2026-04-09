@@ -133,7 +133,42 @@
                                             <td class="text-center">
                                                 {{ \Carbon\Carbon::parse($transaction->date)->format('d-m-Y') }}
                                             </td>
-                                            <td>{{ $transaction->description ?? 'N/A' }}</td>
+                                            {{-- <td>{{ $transaction->description ?? 'N/A' }}</td> --}}
+
+                                            <!-- FIXED BILL LIST COLUMN -->
+                                                <td>
+                                                    @if($transaction->description)
+                                                        @php
+                                                            // Split the comma-separated string into an array
+                                                            $bills = explode(',', $transaction->description);
+                                                            $displayLimit = 3; // Only show first 3 badges
+                                                            $displayBills = array_slice($bills, 0, $displayLimit);
+                                                            $remainingCount = count($bills) - $displayLimit;
+                                                            $hiddenBills = implode(', ', array_slice($bills, $displayLimit));
+                                                        @endphp
+                                                        
+                                                        <div class="d-flex flex-wrap" style="gap: 4px;">
+                                                            @foreach($displayBills as $b)
+                                                                <span class="badge badge-secondary text-sm">{{ trim($b) }}</span>
+                                                            @endforeach
+                                                            
+                                                            @if($remainingCount > 0)
+                                                                <span class="badge badge-primary text-sm" 
+                                                                      data-toggle="tooltip" 
+                                                                      data-html="true" 
+                                                                      data-placement="top" 
+                                                                      title="{{ htmlspecialchars($hiddenBills) }}">
+                                                                    +{{ $remainingCount }} more
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                                <!-- END FIXED BILL LIST COLUMN -->
+
+
                                             <td class="text-center">{{ $transaction->payment_type ?? 'N/A' }}</td>
                                             <td class="text-center">{{ $transaction->ref ?? 'N/A' }}</td>
                                             <td class="text-center">

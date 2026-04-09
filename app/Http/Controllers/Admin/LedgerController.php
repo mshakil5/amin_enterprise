@@ -323,7 +323,7 @@ class LedgerController extends Controller
         }
 
         $query = Transaction::where('chart_of_account_id', $id)
-                    ->whereIn('tran_type', ['Current', 'Advance Adjust', 'Refund']);
+                    ->whereIn('tran_type', ['Current', 'Advance Adjust', 'Refund', 'Receivable']);
 
         // Default start date: 2025-07-20
         $startDate = $request->filled('start_date') ? $request->start_date : '2025-07-20';
@@ -333,7 +333,7 @@ class LedgerController extends Controller
 
         // Clone BEFORE get() to prevent query reset
         $totalDrAmount = (clone $query)->whereIn('tran_type', ['Refund'])->sum('at_amount');
-        $totalCrAmount = (clone $query)->whereIn('tran_type', ['Current', 'Advance Adjust'])->sum('at_amount');
+        $totalCrAmount = (clone $query)->whereIn('tran_type', ['Current', 'Advance Adjust','Receivable'])->sum('at_amount');
         
         // Income: Credit increases, Debit (Refund) decreases
         $totalBalance = $totalCrAmount - $totalDrAmount;
