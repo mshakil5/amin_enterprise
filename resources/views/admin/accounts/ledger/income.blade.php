@@ -114,7 +114,7 @@
                                     @forelse($data as $transaction)
                                         @php
                                             $isDebit = in_array($transaction->tran_type, ['Refund']);
-                                            $isCredit = in_array($transaction->tran_type, ['Current', 'Advance Adjust']);
+                                            $isCredit = in_array($transaction->tran_type, ['Current', 'Advance Adjust','Receivable']);
                                             
                                             $debitAmount = $isDebit ? $transaction->at_amount : 0;
                                             $creditAmount = $isCredit ? $transaction->at_amount : 0;
