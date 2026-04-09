@@ -248,11 +248,13 @@ class TransactionController extends Controller
                 $bill->save();
 
                 $tran = new Transaction();
+                $tran->client_id = $request->client_id;
+                $tran->chart_of_account_id = $request->chart_of_account_id;
                 $tran->date = $request->date;
                 $tran->bill_receive_id = $bill->id;
                 $tran->payment_type = $request->rcvType;
                 $tran->description = $request->description;
-                $tran->table_type = "Assets";
+                $tran->table_type = "Income";
                 $tran->tran_type = "Receivable";
                 $tran->amount = $request->netAmount;
                 $tran->at_amount = $request->netAmount;
