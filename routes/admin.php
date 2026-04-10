@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\IncomeStatementController;
 use App\Http\Controllers\Admin\FinancialStatementController;
 use App\Http\Controllers\Admin\CashSheetController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\ChequeController;
 use App\Http\Controllers\Admin\VendorLedgerController;
 use App\Http\Controllers\Admin\ExcelUploadController;
 use App\Http\Controllers\Admin\ReceivableController;
@@ -402,6 +403,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::delete('/bill-receives/{billReceive}', [ReceivableController::class, 'destroy'])->name('admin.bill-receives.destroy');
     Route::post('bill-receives/update-receive-status', [ReceivableController::class, 'updateReceiveStatus'])->name('admin.bill-receives.update-receive-status');
     Route::get('/get-receivables-details/{id}', [ReceivableController::class, 'getReceivablesDetails'])->name('admin.getReceivablesDetails');
+
+    // Routes for cheque management
+    Route::post('/cheque/check-existing', [ChequeController::class, 'checkExisting'])->name('cheque.check-existing');
+    Route::post('/cheque/store', [ChequeController::class, 'store'])->name('cheque.store');
+    Route::put('/cheque/update/{id}', [ChequeController::class, 'update'])->name('cheque.update');
+    Route::post('/cheque/view', [ChequeController::class, 'view'])->name('cheque.view');
+    Route::post('/cheque/delete', [ChequeController::class, 'delete'])->name('cheque.delete');
 
 
 });

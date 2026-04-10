@@ -104,7 +104,7 @@
             </div>
         </div>
 
-        {{-- ===== EXCEL-STYLE LEDGER TABLE ===== --}}
+        {{-- ===== LEDGER TABLE ===== --}}
         <div class="card card-primary card-outline">
             <div class="card-header">
                 <h3 class="card-title">
@@ -119,23 +119,23 @@
             <div class="card-body p-0">
 
                 {{-- Export Buttons --}}
-            <div class="px-3 pt-3 pb-2">
-                <button class="btn btn-sm btn-secondary" id="btn-copy">
-                    <i class="fas fa-copy"></i> Copy
-                </button>
-                <button class="btn btn-sm btn-success" id="btn-csv">
-                    <i class="fas fa-file-csv"></i> CSV
-                </button>
-                <button class="btn btn-sm btn-primary" id="btn-excel">
-                    <i class="fas fa-file-excel"></i> Excel
-                </button>
-                <button class="btn btn-sm btn-danger" id="btn-pdf">
-                    <i class="fas fa-file-pdf"></i> PDF
-                </button>
-                <button class="btn btn-sm btn-dark" id="btn-print">
-                    <i class="fas fa-print"></i> Print
-                </button>
-            </div>
+                <div class="px-3 pt-3 pb-2">
+                    <button class="btn btn-sm btn-secondary" id="btn-copy">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button class="btn btn-sm btn-success" id="btn-csv">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="btn btn-sm btn-primary" id="btn-excel">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="btn-pdf">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="btn btn-sm btn-dark" id="btn-print">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
 
                 <div class="table-responsive">
                     <table id="ledger-table" class="table table-bordered table-striped table-sm mb-0" style="font-size:12px;">
@@ -161,30 +161,37 @@
                                 $balance  = 0;
                                 $totalQty = 0;
                                 $totalDr  = 0;
+                                $totalCr  = 0;
                                 $rowNum   = 0;
                             @endphp
 
                             @foreach ($programDetails as $billNo => $rows)
                                 @php
                                     $first   = $rows->first();
-                                    $calc    = $billCalculations[$billNo];   // use pre-calculated values
-
+                                    $calc    = $billCalculations[$billNo];
                                     $trip    = $calc['trip'];
                                     $qty     = $calc['dest_qty'];
-                                    $dr      = $calc['carrying_bill'];       // ← rate-based calculated amount
-
-                                    $balance  += $dr;
+                                    $dr      = $calc['carrying_bill'];
+                                    $balance += $dr;
                                     $totalQty += $qty;
-                                    $totalDr  += $dr;
+                                    $totalDr += $dr;
                                     $rowNum++;
 
                                     $mv   = optional($first->motherVassel)->name ?? 'N/A';
                                     $dest = optional($first->destination)->name  ?? 'N/A';
                                     $ghat = optional($first->ghat)->name         ?? 'N/A';
+
+                                    // Check if this bill already has a cheque
+                                    $hasCheque = isset($billChequeMap[$billNo]);
+                                    $chequeInfo = $hasCheque ? $billChequeMap[$billNo] : null;
                                 @endphp
-                                <tr class="text-center {{ $rowNum % 2 == 0 ? 'bg-light' : '' }}">
+                                <tr class="text-center ledger-row {{ $rowNum % 2 == 0 ? 'bg-light' : '' }} {{ $hasCheque ? 'cheque-applied-row' : '' }}" 
+                                    data-billno="{{ $billNo }}">
                                     <td>
-                                        <input type="checkbox" class="form-check" data-billno="{{ $billNo }}" >
+                                        <input type="checkbox" 
+                                               class="form-check-input bill-checkbox" 
+                                               data-billno="{{ $billNo }}" 
+                                               {{ $hasCheque ? 'checked disabled' : '' }}>
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($first->date)->format('d-m-y') }}</td>
                                     <td class="text-left">Scrap Carrying Bill</td>
@@ -194,21 +201,71 @@
                                     <td class="text-left">Scrap carrying from {{ $ghat }} to {{ $dest }}</td>
                                     <td>{{ $trip }}</td>
                                     <td class="text-right">{{ number_format($qty, 2) }}</td>
-                                    <td></td>
+                                    <td class="cheque-display">
+                                        @if($hasCheque)
+                                            <small class="badge badge-success" style="font-size:9px;" 
+                                                   title="Cheque: {{ $chequeInfo->cheque_number }} | Bank: {{ $chequeInfo->bank_name ?? 'N/A' }}">
+                                                <i class="fas fa-money-check-alt"></i> Chq
+                                            </small>
+                                        @endif
+                                    </td>
                                     <td class="text-right font-weight-bold">{{ number_format($dr, 2) }}</td>
                                     <td class="text-right">-</td>
                                     <td class="text-right font-weight-bold text-primary">{{ number_format($balance, 2) }}</td>
                                 </tr>
                             @endforeach
-                                <tr class="">
-                                    <td class="text-center"></td>
-                                    <td class="text-center">{{ $billReceive->date }}</td>
-                                    <td colspan="4" class="text-right"></td>
-                                    <td colspan="4" class="text-left font-weight-bold" style="color:#1a7a4a;">{{ $billReceive->coa->account_name}}</td>
-                                    <td class="text-right font-weight-bold">0.00</td>
-                                    <td class="text-right font-weight-bold">{{ number_format($billReceive->net_amount , 2) }}</td>
-                                    <td class="text-right text-primary font-weight-bold">{{ number_format($balance, 2) }}</td>
-                                </tr>
+
+                            {{-- ========== CHEQUE CREDIT ROWS ========== --}}
+                            @if($chequeDetails->isNotEmpty())
+                                @foreach($chequeDetails as $cheque)
+                                    @php
+                                        $balance -= (float) $cheque->cheque_amount;
+                                        $totalCr += (float) $cheque->cheque_amount;
+                                        $chequeBillNos = json_decode($cheque->bill_nos, true) ?? [];
+                                    @endphp
+                                    <tr class="text-center cheque-credit-row" data-cheque-id="{{ $cheque->id }}" style="background-color:#e8f5e9;">
+                                        <td>
+                                            <button type="button" class="btn btn-link p-0 text-danger view-cheque-btn" 
+                                                    data-id="{{ $cheque->id }}" title="View Cheque Details" style="font-size:11px;">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                        <td>{{ \Carbon\Carbon::parse($cheque->cheque_date)->format('d-m-y') }}</td>
+                                        <td class="text-left font-weight-bold text-success">Cheque Payment</td>
+                                        <td colspan="2" class="text-left">
+                                            <small style="font-size:10px;">
+                                                Chq: <strong>{{ $cheque->cheque_number }}</strong>
+                                                @if($cheque->bank_name)
+                                                    | {{ $cheque->bank_name }}
+                                                @endif
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted" style="font-size:9px;">
+                                                {{ count($chequeBillNos) }} bill(s)
+                                            </small>
+                                        </td>
+                                        <td class="text-left" colspan="2">
+                                            <small class="text-muted" style="font-size:9px;">
+                                                {{ implode(', ', $chequeBillNos) }}
+                                            </small>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            @if($cheque->document_path)
+                                                <a href="{{ asset($cheque->document_path) }}" target="_blank" 
+                                                   class="btn btn-link p-0" style="font-size:10px;" title="View Document">
+                                                    <i class="fas fa-paperclip text-primary"></i> Doc
+                                                </a>
+                                            @endif
+                                        </td>
+                                        <td class="text-right">-</td>
+                                        <td class="text-right font-weight-bold text-danger">{{ number_format($cheque->cheque_amount, 2) }}</td>
+                                        <td class="text-right font-weight-bold text-primary">{{ number_format($balance, 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
+
                         </tbody>
                         <tfoot>
                             <tr class="bg-warning font-weight-bold text-center">
@@ -217,20 +274,164 @@
                                 <td class="text-right">{{ number_format($totalQty, 2) }}</td>
                                 <td></td>
                                 <td class="text-right">{{ number_format($totalDr, 2) }}</td>
-                                <td class="text-right">{{ number_format($billReceive->net_amount , 2) }}</td>
+                                <td class="text-right text-danger">{{ number_format($totalCr, 2) }}</td>
                                 <td class="text-right text-primary">{{ number_format($balance, 2) }}</td>
                             </tr>
                             <tr class="font-weight-bold text-center">
                                 <td colspan="11" class="text-right">
-
+                                    <span id="selected-count" class="text-muted" style="font-size:11px;"></span>
                                 </td>
                                 <td colspan="2" class="text-center">
-                                    <button class="btn btn-danger btn-sm">Add Cheque Number</button>
+                                    <button id="btn-add-cheque" class="btn btn-danger btn-sm" disabled>
+                                        <i class="fas fa-money-check-alt mr-1"></i> Add Cheque Number
+                                    </button>
                                 </td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
+
+                {{-- ========== CHEQUE MODAL (Add/Edit) ========== --}}
+                <div class="modal fade" id="chequeModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-money-check-alt mr-2"></i>Add Cheque Details
+                                </h5>
+                                <button type="button" class="close text-white" data-dismiss="modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="chequeForm" enctype="multipart/form-data">
+                                <div class="modal-body">
+                                    <input type="hidden" name="bill_receive_id" value="{{ $billReceive->id }}">
+
+                                    <div class="alert alert-info py-2" style="font-size:12px;">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        <strong>Selected Bills:</strong>
+                                        <span id="selected-bills-display"></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">
+                                                    Cheque Number <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" name="cheque_number" id="cheque_number"
+                                                       class="form-control form-control-sm" placeholder="Enter cheque number" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">
+                                                    Cheque Date <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="date" name="cheque_date" id="cheque_date"
+                                                       class="form-control form-control-sm" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">Bank Name</label>
+                                                <input type="text" name="bank_name" id="bank_name"
+                                                       class="form-control form-control-sm" placeholder="Enter bank name">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">
+                                                    Cheque Amount <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number" name="cheque_amount" id="cheque_amount"
+                                                       class="form-control form-control-sm" placeholder="0.00" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">Upload Document</label>
+                                                <div class="custom-file custom-file-sm">
+                                                    <input type="file" name="cheque_document" id="cheque_document"
+                                                           class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                                    <label class="custom-file-label" for="cheque_document" style="font-size:11px;">
+                                                        Choose file (PDF, JPG, PNG, DOC)
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted" style="font-size:10px;">Max file size: 5MB</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Document Preview --}}
+                                    <div id="document-preview" class="mt-2 d-none">
+                                        <div class="card">
+                                            <div class="card-header py-1 px-2 bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="font-weight-bold" style="font-size:11px;">
+                                                        <i class="fas fa-file mr-1"></i>Document Preview
+                                                    </small>
+                                                    <button type="button" class="btn btn-link text-danger p-0" id="remove-document" style="font-size:11px;">
+                                                        <i class="fas fa-times"></i> Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <img id="preview-image" class="img-thumbnail" style="max-height:150px; display:none;">
+                                                <div id="preview-file" class="d-none">
+                                                    <i class="fas fa-file-pdf text-danger fa-2x mr-2"></i>
+                                                    <span id="file-name" style="font-size:11px;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <input type="hidden" name="bill_nos" id="bill_nos" value="">
+                                    <div id="existing-cheque-info" class="d-none">
+                                        <input type="hidden" name="cheque_id" id="cheque_id" value="">
+                                    </div>
+                                </div>
+                                <div class="modal-footer py-2">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+                                        <i class="fas fa-times mr-1"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-sm" id="btn-save-cheque">
+                                        <i class="fas fa-save mr-1"></i>Save Cheque Details
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ========== CHEQUE VIEW MODAL (Read-only) ========== --}}
+                <div class="modal fade" id="chequeViewModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-money-check-alt mr-2"></i>Cheque Details
+                                </h5>
+                                <button type="button" class="close text-white" data-dismiss="modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="cheque-view-body" style="font-size:13px;">
+                                {{-- Filled via AJAX --}}
+                            </div>
+                            <div class="modal-footer py-2">
+                                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger btn-sm" id="btn-delete-cheque">
+                                    <i class="fas fa-trash mr-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -305,7 +506,6 @@
 @endsection
 
 @section('script')
-{{-- Required DataTables extension libraries --}}
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
@@ -314,76 +514,289 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
 <script>
-$(document).ready(function () {
+ $(document).ready(function() {
 
-    var table = $('#ledger-table').DataTable({
-        responsive: true,
-        paging: false,
-        searching: true,
-        ordering: true,
-        info: false,
-        autoWidth: false,
-        dom: 'Bfrt',   // B = buttons (hidden), f = search, r = processing, t = table
-        buttons: [
-            {
-                extend: 'copyHtml5',
-                text: 'Copy',
-                title: 'Ledger - BSRM Steels Ltd.',
-                exportOptions: { columns: ':visible' }
-            },
-            {
-                extend: 'csvHtml5',
-                text: 'CSV',
-                title: 'ledger_{{ $billReceive->date }}',
-                exportOptions: { columns: ':visible' }
-            },
-            {
-                extend: 'excelHtml5',
-                text: 'Excel',
-                title: 'Ledger - BSRM Steels Ltd.',
-                exportOptions: { columns: ':visible' }
-            },
-            {
-                extend: 'pdfHtml5',
-                text: 'PDF',
-                title: 'Ledger - BSRM Steels Ltd.',
-                orientation: 'landscape',
-                pageSize: 'A3',
-                exportOptions: { columns: ':visible' }
-            },
-            {
-                extend: 'print',
-                text: 'Print',
-                title: 'Ledger - BSRM Steels Ltd.',
-                exportOptions: { columns: ':visible' }
+    let selectedBillNos = [];
+    let currentViewChequeId = null;
+
+    // =============================================
+    // FIX: Bind to #ledger-table instead of document
+    // DataTables blocks events from bubbling to document
+    // =============================================
+
+    // Checkbox change
+    $('#ledger-table').on('change', '.bill-checkbox:not(:disabled)', function() {
+        const billNo = $(this).data('billno');
+
+        if ($(this).is(':checked')) {
+            if (!selectedBillNos.includes(billNo)) {
+                selectedBillNos.push(billNo);
             }
-        ],
-        language: {
-            search: "",
-            searchPlaceholder: "Search ledger..."
+        } else {
+            selectedBillNos = selectedBillNos.filter(b => b !== billNo);
+        }
+
+        updateSelectedCount();
+        updateButtonState();
+    });
+
+    // View cheque button — FIXED
+    $('#ledger-table').on('click', '.view-cheque-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const chequeId = $(this).data('id');
+        currentViewChequeId = chequeId;
+
+        $.ajax({
+            url: '{{ route("cheque.view") }}',
+            type: 'POST',
+            data: { 
+                cheque_id: chequeId, 
+                _token: '{{ csrf_token() }}' 
+            },
+            success: function(response) {
+                const c = response.cheque;
+                let html = '<table class="table table-sm table-bordered mb-0">';
+                html += '<tr><th style="width:35%">Cheque Number</th><td><strong>' + c.cheque_number + '</strong></td></tr>';
+                html += '<tr><th>Cheque Date</th><td>' + c.cheque_date + '</td></tr>';
+                html += '<tr><th>Bank Name</th><td>' + (c.bank_name || 'N/A') + '</td></tr>';
+                html += '<tr><th>Amount</th><td class="font-weight-bold text-danger">' + parseFloat(c.cheque_amount).toLocaleString('en-IN', {minimumFractionDigits:2}) + '</td></tr>';
+                html += '<tr><th>Bills</th><td>' + c.bill_nos.join(', ') + '</td></tr>';
+                
+                if (c.document_path) {
+                    html += '<tr><th>Document</th><td><a href="' + c.document_path + '" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-download mr-1"></i>' + (c.document_name || 'View Document') + '</a></td></tr>';
+                }
+                
+                html += '<tr><th>Created At</th><td>' + c.created_at + '</td></tr>';
+                html += '</table>';
+                
+                $('#cheque-view-body').html(html);
+                $('#chequeViewModal').modal('show');
+            },
+            error: function() {
+                showToast('Error loading cheque details', 'error');
+            }
+        });
+    });
+
+    // Add Cheque button — bind to tfoot (outside DataTables body)
+    $('tfoot').on('click', '#btn-add-cheque', function() {
+        if (selectedBillNos.length === 0) {
+            showToast('Please select at least one bill', 'warning');
+            return;
+        }
+        checkExistingCheque(selectedBillNos);
+    });
+
+    // Delete cheque — bind to modal (outside table)
+    $('#chequeViewModal').on('click', '#btn-delete-cheque', function() {
+        if (!currentViewChequeId) return;
+        if (!confirm('Are you sure you want to delete this cheque entry?')) return;
+
+        $.ajax({
+            url: '{{ route("cheque.delete") }}',
+            type: 'POST',
+            data: { 
+                cheque_id: currentViewChequeId, 
+                _token: '{{ csrf_token() }}', 
+                _method: 'DELETE' 
+            },
+            success: function(response) {
+                showToast(response.message || 'Cheque deleted successfully!', 'success');
+                $('#chequeViewModal').modal('hide');
+                setTimeout(function() { location.reload(); }, 800);
+            },
+            error: function(xhr) {
+                showToast(xhr.responseJSON?.message || 'Error deleting cheque', 'error');
+            }
+        });
+    });
+
+    function updateSelectedCount() {
+        const count = selectedBillNos.length;
+        if (count > 0) {
+            $('#selected-count').html('<span class="badge badge-info">' + count + ' bill(s) selected</span>');
+        } else {
+            $('#selected-count').html('');
+        }
+    }
+
+    function updateButtonState() {
+        const btn = $('#btn-add-cheque');
+        if (selectedBillNos.length > 0) {
+            btn.prop('disabled', false).removeClass('btn-secondary').addClass('btn-danger');
+        } else {
+            btn.prop('disabled', true).removeClass('btn-danger').addClass('btn-secondary');
+        }
+    }
+
+    function checkExistingCheque(billNos) {
+        $.ajax({
+            url: '{{ route("cheque.check-existing") }}',
+            type: 'POST',
+            data: { bill_nos: billNos, _token: '{{ csrf_token() }}' },
+            success: function(response) {
+                resetForm();
+                $('#selected-bills-display').text(billNos.join(', '));
+                $('#bill_nos').val(JSON.stringify(billNos));
+
+                if (response.exists && response.cheque) {
+                    $('#cheque_id').val(response.cheque.id);
+                    $('#cheque_number').val(response.cheque.cheque_number);
+                    $('#cheque_date').val(response.cheque.cheque_date);
+                    $('#bank_name').val(response.cheque.bank_name);
+                    $('#cheque_amount').val(response.cheque.cheque_amount);
+                    $('#existing-cheque-info').removeClass('d-none');
+                    $('#btn-save-cheque').html('<i class="fas fa-edit mr-1"></i>Update Cheque Details');
+
+                    if (response.cheque.document_path) {
+                        showExistingDocument(response.cheque.document_path, response.cheque.document_name);
+                    }
+                } else {
+                    $('#btn-save-cheque').html('<i class="fas fa-save mr-1"></i>Save Cheque Details');
+
+                    let totalAmount = 0;
+                    billNos.forEach(function(billNo) {
+                        const row = $('tr[data-billno="' + billNo + '"]');
+                        const drValue = parseFloat(row.find('td:eq(10)').text().replace(/,/g, '')) || 0;
+                        totalAmount += drValue;
+                    });
+                    $('#cheque_amount').val(totalAmount.toFixed(2));
+                }
+
+                $('#chequeModal').modal('show');
+            },
+            error: function() {
+                showToast('Error checking existing cheque data', 'error');
+            }
+        });
+    }
+
+    // Document preview
+    $('#cheque_document').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('File size must be less than 5MB', 'warning');
+                $(this).val('');
+                return;
+            }
+            $(this).next('.custom-file-label').text(file.name);
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
+                    $('#preview-image').attr('src', event.target.result).show();
+                    $('#preview-file').addClass('d-none');
+                } else {
+                    $('#preview-image').hide();
+                    $('#preview-file').removeClass('d-none');
+                    $('#file-name').text(file.name);
+                }
+                $('#document-preview').removeClass('d-none');
+            };
+            reader.readAsDataURL(file);
         }
     });
 
-    // Hide the DataTables-generated buttons bar (we use our own styled buttons above)
-    $('.dt-buttons').hide();
+    $('#remove-document').on('click', function() {
+        $('#cheque_document').val('');
+        $('.custom-file-label').text('Choose file (PDF, JPG, PNG, DOC)');
+        $('#document-preview').addClass('d-none');
+        $('#preview-image').attr('src', '').hide();
+        $('#preview-file').addClass('d-none');
+    });
 
-    // Wire our custom buttons to DataTables buttons by index
-    $('#btn-copy').on('click', function () {
-        table.button(0).trigger();
+    function showExistingDocument(path, fileName) {
+        const ext = path.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
+            $('#preview-image').attr('src', path).show();
+            $('#preview-file').addClass('d-none');
+        } else {
+            $('#preview-image').hide();
+            $('#preview-file').removeClass('d-none');
+            $('#file-name').text(fileName || path.split('/').pop());
+        }
+        $('#document-preview').removeClass('d-none');
+    }
+
+    function resetForm() {
+        $('#chequeForm')[0].reset();
+        $('#cheque_id').val('');
+        $('#existing-cheque-info').addClass('d-none');
+        $('#document-preview').addClass('d-none');
+        $('#preview-image').hide();
+        $('#preview-file').addClass('d-none');
+        $('.custom-file-label').text('Choose file (PDF, JPG, PNG, DOC)');
+    }
+
+    // Form submission
+    $('#chequeForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const billNos = JSON.parse($('#bill_nos').val());
+
+        formData.append('_token', '{{ csrf_token() }}');
+        formData.set('bill_nos', billNos.join(','));
+
+        const chequeId = $('#cheque_id').val();
+        if (chequeId) {
+            formData.append('cheque_id', chequeId);
+            formData.append('_method', 'PUT');
+        }
+
+        const btn = $('#btn-save-cheque');
+        const originalText = btn.html();
+        btn.html('<i class="fas fa-spinner fa-spin mr-1"></i>Saving...').prop('disabled', true);
+
+        $.ajax({
+            url: chequeId
+                ? '{{ route("cheque.update", ":id") }}'.replace(':id', chequeId)
+                : '{{ route("cheque.store") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                showToast(response.message || 'Cheque details saved successfully!', 'success');
+                $('#chequeModal').modal('hide');
+                setTimeout(function() { location.reload(); }, 800);
+            },
+            error: function(xhr) {
+                if (xhr.status === 419) {
+                    showToast('Session expired. Please refresh the page.', 'error');
+                    return;
+                }
+                let errors = '';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    Object.keys(xhr.responseJSON.errors).forEach(function(key) {
+                        errors += xhr.responseJSON.errors[key].join(', ') + '\n';
+                    });
+                } else {
+                    errors = xhr.responseJSON?.message || 'Error saving cheque details';
+                }
+                showToast(errors, 'error');
+            },
+            complete: function() {
+                btn.html(originalText).prop('disabled', false);
+            }
+        });
     });
-    $('#btn-csv').on('click', function () {
-        table.button(1).trigger();
-    });
-    $('#btn-excel').on('click', function () {
-        table.button(2).trigger();
-    });
-    $('#btn-pdf').on('click', function () {
-        table.button(3).trigger();
-    });
-    $('#btn-print').on('click', function () {
-        table.button(4).trigger();
-    });
+
+    function showToast(message, type) {
+        type = type || 'info';
+        const icons = { success:'fas fa-check-circle', error:'fas fa-exclamation-circle', warning:'fas fa-exclamation-triangle', info:'fas fa-info-circle' };
+        const bg = { success:'bg-success', error:'bg-danger', warning:'bg-warning', info:'bg-info' };
+        const t = '<div class="toast-container position-fixed top-0 right-0 p-3" style="z-index:9999;"><div class="toast show ' + bg[type] + ' text-white" role="alert" style="min-width:300px;"><div class="toast-header ' + bg[type] + ' text-white border-0" style="font-size:12px;"><i class="' + icons[type] + ' mr-2"></i><strong class="mr-auto">' + type.charAt(0).toUpperCase() + type.slice(1) + '</strong><button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button></div><div class="toast-body" style="font-size:12px;">' + message + '</div></div></div>';
+        $('body').append(t);
+        setTimeout(function() { $('.toast-container').remove(); }, 4000);
+    }
 
 });
 </script>
+
+
 @endsection

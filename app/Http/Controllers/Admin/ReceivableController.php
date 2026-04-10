@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BillReceive;
+use App\Models\ChequeDetail;
 use Illuminate\Http\Request;
 use App\Models\GeneratingBill;
 use App\Models\Program;
@@ -245,21 +246,8 @@ class ReceivableController extends Controller
         return view('admin.bill.receivable', compact('billReceive'));
     }
 
+
     public function getReceivablesDetails2($id)
-    {
-        $billReceive = BillReceive::with('transaction')->where('id', $id)->first();
-
-        $billNumbers = array_map('trim', explode(',', $billReceive->bill_list));
-
-        $programDetails = ProgramDetail::whereIn('bill_no', $billNumbers)
-                            ->orderBy('bill_no')
-                            ->get()
-                            ->groupBy('bill_no');
-
-        return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails'));
-    }
-
-    public function getReceivablesDetails($id)
     {
         $billReceive = BillReceive::with(['transaction', 'coa'])->where('id', $id)->first();
 
@@ -307,6 +295,72 @@ class ReceivableController extends Controller
         }
 
         return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails', 'billCalculations'));
+    }
+
+    public function getReceivablesDetails($id)
+    {
+        $billReceive = BillReceive::with(['transaction', 'coa'])->where('id', $id)->first();
+
+        $billNumbers = array_map('trim', explode(',', $billReceive->bill_list));
+
+        $programDetails = ProgramDetail::with(['motherVassel', 'destination', 'ghat'])
+                            ->whereIn('bill_no', $billNumbers)
+                            ->orderBy('bill_no')
+                            ->get()
+                            ->groupBy('bill_no');
+
+        // Pre-calculate carrying_bill per bill group
+        $billCalculations = [];
+
+        foreach ($programDetails as $billNo => $rows) {
+            $billCarryingBill = 0;
+            $billDestQty      = 0;
+            $billScaleFee     = 0;
+
+            foreach ($rows as $detail) {
+                $qty = (float) $detail->dest_qty;
+
+                $rate = ClientRate::where('destination_id', $detail->destination_id)
+                            ->where('ghat_id', $detail->ghat_id)
+                            ->first();
+
+                $rowAmount = 0;
+                if ($rate) {
+                    $rowAmount = ($qty > $rate->maxqty)
+                        ? ($rate->maxqty * $rate->below_rate_per_qty) + (($qty - $rate->maxqty) * $rate->above_rate_per_qty)
+                        : $qty * $rate->below_rate_per_qty;
+                }
+
+                $billCarryingBill += $rowAmount;
+                $billDestQty      += $qty;
+                $billScaleFee     += (float) $detail->scale_fee;
+            }
+
+            $billCalculations[$billNo] = [
+                'carrying_bill' => $billCarryingBill,
+                'dest_qty'      => $billDestQty,
+                'scale_fee'     => $billScaleFee,
+                'trip'          => $rows->count(),
+            ];
+        }
+
+        // ========== FETCH EXISTING CHEQUE DETAILS ==========
+        $chequeDetails = ChequeDetail::where('bill_receive_id', $id)
+                            ->orderBy('id')
+                            ->get();
+
+        // Build map: billNo => cheque object (for pre-checking rows)
+        $billChequeMap = [];
+        foreach ($chequeDetails as $cheque) {
+            $chequeBillNos = json_decode($cheque->bill_nos, true) ?? [];
+            foreach ($chequeBillNos as $cbn) {
+                $billChequeMap[$cbn] = $cheque;
+            }
+        }
+
+        return view('admin.bill.receivabledetails', compact(
+            'billReceive', 'programDetails', 'billCalculations', 'chequeDetails', 'billChequeMap'
+        ));
     }
 
 
