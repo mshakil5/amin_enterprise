@@ -237,39 +237,42 @@ class ReceivableController extends Controller
 
     }
 
-    public function getReceivables()
+    public function getReceivables2()
     {
-        
         $billReceive = BillReceive::with('transaction')->orderby('id','DESC')->get();
-
-        
         return view('admin.bill.receivable', compact('billReceive'));
     }
 
-
-    public function getReceivablesDetails2($id)
+    public function getReceivables()
     {
-        $billReceive = BillReceive::with(['transaction', 'coa'])->where('id', $id)->first();
+        $billReceive = BillReceive::with(['transaction', 'client'])->orderby('id', 'DESC')->get();
 
-        $billNumbers = array_map('trim', explode(',', $billReceive->bill_list));
+        // Collect all unique bill numbers across all BillReceives
+        $allBillNumbers = [];
+        foreach ($billReceive as $br) {
+            if ($br->bill_list) {
+                $nums = array_map('trim', explode(',', $br->bill_list));
+                $allBillNumbers = array_merge($allBillNumbers, $nums);
+            }
+        }
+        $allBillNumbers = array_unique(array_filter($allBillNumbers));
 
+        // Fetch all program details grouped by bill_no
         $programDetails = ProgramDetail::with(['motherVassel', 'destination', 'ghat'])
-                            ->whereIn('bill_no', $billNumbers)
+                            ->whereIn('bill_no', $allBillNumbers)
                             ->orderBy('bill_no')
                             ->get()
                             ->groupBy('bill_no');
 
-        // Pre-calculate carrying_bill per bill group using ClientRate logic
+        // Calculate per-bill amounts
         $billCalculations = [];
-
         foreach ($programDetails as $billNo => $rows) {
             $billCarryingBill = 0;
             $billDestQty      = 0;
             $billScaleFee     = 0;
 
             foreach ($rows as $detail) {
-                $qty = (float) $detail->dest_qty;
-
+                $qty  = (float) $detail->dest_qty;
                 $rate = ClientRate::where('destination_id', $detail->destination_id)
                             ->where('ghat_id', $detail->ghat_id)
                             ->first();
@@ -294,7 +297,24 @@ class ReceivableController extends Controller
             ];
         }
 
-        return view('admin.bill.receivabledetails', compact('billReceive', 'programDetails', 'billCalculations'));
+        // All cheques (not filtered by bill_receive_id since we show all)
+        $chequeDetails = ChequeDetail::orderBy('id')->get();
+
+        $billChequeMap = [];
+        foreach ($chequeDetails as $cheque) {
+            $chequeBillNos = json_decode($cheque->bill_nos, true) ?? [];
+            foreach ($chequeBillNos as $cbn) {
+                $billChequeMap[$cbn] = $cheque;
+            }
+        }
+
+        return view('admin.bill.receivable', compact(
+            'billReceive',
+            'programDetails',
+            'billCalculations',
+            'chequeDetails',
+            'billChequeMap'
+        ));
     }
 
     public function getReceivablesDetails($id)
@@ -309,7 +329,6 @@ class ReceivableController extends Controller
                             ->get()
                             ->groupBy('bill_no');
 
-        // Pre-calculate carrying_bill per bill group
         $billCalculations = [];
 
         foreach ($programDetails as $billNo => $rows) {
@@ -344,12 +363,10 @@ class ReceivableController extends Controller
             ];
         }
 
-        // ========== FETCH EXISTING CHEQUE DETAILS ==========
         $chequeDetails = ChequeDetail::where('bill_receive_id', $id)
                             ->orderBy('id')
                             ->get();
 
-        // Build map: billNo => cheque object (for pre-checking rows)
         $billChequeMap = [];
         foreach ($chequeDetails as $cheque) {
             $chequeBillNos = json_decode($cheque->bill_nos, true) ?? [];

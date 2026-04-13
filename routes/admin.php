@@ -411,6 +411,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/cheque/view', [ChequeController::class, 'view'])->name('cheque.view');
     Route::post('/cheque/delete', [ChequeController::class, 'delete'])->name('cheque.delete');
 
+    
 
 });
   

@@ -432,6 +432,150 @@
                     </div>
                 </div>
 
+
+
+                {{-- ========== ALL LEDGER: CHEQUE ADD/EDIT MODAL ========== --}}
+                <div class="modal fade" id="allChequeModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-money-check-alt mr-2"></i>Add Cheque Details
+                                </h5>
+                                <button type="button" class="close text-white" data-dismiss="modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="allChequeForm" enctype="multipart/form-data">
+                                <div class="modal-body">
+                                    <input type="hidden" name="bill_receive_id" id="all_bill_receive_id" value="">
+
+                                    <div class="alert alert-info py-2" style="font-size:12px;">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        <strong>Selected Bills:</strong>
+                                        <span id="all-selected-bills-display"></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">
+                                                    Cheque Number <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" name="cheque_number" id="all_cheque_number"
+                                                    class="form-control form-control-sm" placeholder="Enter cheque number" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">
+                                                    Cheque Date <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="date" name="cheque_date" id="all_cheque_date"
+                                                    class="form-control form-control-sm" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">Bank Name</label>
+                                                <input type="text" name="bank_name" id="all_bank_name"
+                                                    class="form-control form-control-sm" placeholder="Enter bank name">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">
+                                                    Cheque Amount <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number" name="cheque_amount" id="all_cheque_amount"
+                                                    class="form-control form-control-sm" placeholder="0.00" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold" style="font-size:12px;">Upload Document</label>
+                                                <div class="custom-file custom-file-sm">
+                                                    <input type="file" name="cheque_document" id="all_cheque_document"
+                                                        class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                                    <label class="custom-file-label" for="all_cheque_document" style="font-size:11px;">
+                                                        Choose file (PDF, JPG, PNG, DOC)
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted" style="font-size:10px;">Max file size: 5MB</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="all-document-preview" class="mt-2 d-none">
+                                        <div class="card">
+                                            <div class="card-header py-1 px-2 bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="font-weight-bold" style="font-size:11px;">
+                                                        <i class="fas fa-file mr-1"></i>Document Preview
+                                                    </small>
+                                                    <button type="button" class="btn btn-link text-danger p-0"
+                                                            id="all-remove-document" style="font-size:11px;">
+                                                        <i class="fas fa-times"></i> Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <img id="all-preview-image" class="img-thumbnail" style="max-height:150px; display:none;">
+                                                <div id="all-preview-file" class="d-none">
+                                                    <i class="fas fa-file-pdf text-danger fa-2x mr-2"></i>
+                                                    <span id="all-file-name" style="font-size:11px;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <input type="hidden" name="bill_nos" id="all_bill_nos" value="">
+                                    <div id="all-existing-cheque-info" class="d-none">
+                                        <input type="hidden" name="cheque_id" id="all_cheque_id" value="">
+                                    </div>
+                                </div>
+                                <div class="modal-footer py-2">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+                                        <i class="fas fa-times mr-1"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-sm" id="all-btn-save-cheque">
+                                        <i class="fas fa-save mr-1"></i>Save Cheque Details
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ========== ALL LEDGER: CHEQUE VIEW MODAL ========== --}}
+                <div class="modal fade" id="allChequeViewModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-money-check-alt mr-2"></i>Cheque Details
+                                </h5>
+                                <button type="button" class="close text-white" data-dismiss="modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="all-cheque-view-body" style="font-size:13px;"></div>
+                            <div class="modal-footer py-2">
+                                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger btn-sm" id="all-btn-delete-cheque">
+                                    <i class="fas fa-trash mr-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
             </div>
         </div>
 
