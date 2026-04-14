@@ -299,12 +299,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('transactions/reverse-save', [ChartOfAccountController::class, 'reverseSave'])
         ->name('admin.transactions.reverse.save');
 
-    //Income
+    // Income
     Route::get('income', [IncomeController::class, 'index'])->name('admin.income');
     Route::post('incomes', [IncomeController::class, 'index'])->name('admin.income.filter');
-    Route::post('income', [IncomeController::class, 'store']);
-    Route::get('income/{id}', [IncomeController::class, 'edit']);
-    Route::put('income/{id}', [IncomeController::class, 'update']); 
+    Route::post('income', [IncomeController::class, 'store'])->name('admin.income.store');
+    Route::get('income/{id}', [IncomeController::class, 'edit'])->name('admin.income.edit');
+    Route::put('income/{id}', [IncomeController::class, 'update'])->name('admin.income.update');
+    Route::get('income-summary', [IncomeController::class, 'getSummary'])->name('admin.income.summary');
 
     //Liability
     Route::get('liabilities', [LiabilityController::class, 'index'])->name('admin.liabilities');

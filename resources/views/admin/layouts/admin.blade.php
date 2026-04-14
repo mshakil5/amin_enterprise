@@ -28,11 +28,173 @@
   <!-- Select2 CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" rel="stylesheet" />
 
-  <style>
-    .select2-selection{
-      height: 36px !important;
+<style>
+    /* =============================================
+       SELECT2 STYLING FIXES
+       ============================================= */
+    
+    /* Base Select2 Container */
+    .select2-container {
+        width: 100% !important;
+        display: inline-block;
     }
-  </style>
+    
+    /* Single Selection Box */
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        height: 31px !important;
+        padding: 0 10px;
+        background-color: #fff;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    /* Selected Value Text */
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        padding-right: 20px;
+        line-height: 29px !important;
+        font-size: 13px;
+        color: #495057;
+    }
+    
+    /* Dropdown Arrow */
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 29px !important;
+        width: 20px;
+        right: 6px;
+        top: 1px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #495057 transparent transparent transparent;
+        border-width: 5px 4px 0 4px;
+        margin-left: -4px;
+        margin-top: -2px;
+    }
+    
+    /* Hover State */
+    .select2-container--default:hover .select2-selection--single {
+        border-color: #adb5bd;
+    }
+    
+    /* Focus State */
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        outline: none;
+    }
+    
+    /* Placeholder Text */
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+        font-size: 13px;
+    }
+    
+    /* =============================================
+       DROPDOWN STYLING
+       ============================================= */
+    
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        margin-top: 1px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        overflow-x: hidden;
+    }
+    
+    .select2-dropdown--above {
+        margin-top: -1px;
+        margin-bottom: 1px;
+        box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Search Box */
+    .select2-container--default .select2-search--dropdown {
+        padding: 8px;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 4px 10px;
+        font-size: 13px;
+        height: 31px;
+        outline: none;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    /* Dropdown Options */
+    .select2-container--default .select2-results__option {
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #495057;
+        margin: 0;
+    }
+    
+    .select2-container--default .select2-results__option:hover,
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #28a745;
+        color: #fff;
+    }
+    
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+    
+    /* Results Group */
+    .select2-container--default .select2-results__group {
+        padding: 6px 12px;
+        font-weight: 600;
+        color: #495057;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    /* =============================================
+       OTHER STYLING
+       ============================================= */
+    
+    .info-box .info-box-number {
+        font-size: 16px !important;
+    }
+    
+    #income-form-card {
+        border-left: 4px solid #28a745;
+        transition: all 0.3s ease;
+    }
+    
+    #income-form-card.edit-mode {
+        border-left-color: #ffc107;
+    }
+    
+    .form-control-sm:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .btn-action {
+        padding: 2px 8px;
+        font-size: 11px;
+        margin-right: 3px;
+    }
+    
+    /* Form group spacing */
+    #income-form .form-group {
+        margin-bottom: 10px;
+    }
+    
+    /* Label spacing */
+    #income-form label {
+        margin-bottom: 4px;
+    }
+</style>
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
