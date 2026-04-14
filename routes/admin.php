@@ -318,24 +318,27 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     //Equity
     Route::get('equity', [EquityController::class, 'index'])->name('admin.equity');
     Route::post('equities', [EquityController::class, 'index'])->name('admin.equity.filter');
-    Route::post('equity', [EquityController::class, 'store']);
-    Route::get('equity/{id}', [EquityController::class, 'edit']);
-    Route::put('equity/{id}', [EquityController::class, 'update']);
+    Route::post('equity', [EquityController::class, 'store'])->name('admin.equity.store');
+    Route::get('equity/{id}', [EquityController::class, 'edit'])->name('admin.equity.edit');
+    Route::put('equity/{id}', [EquityController::class, 'update'])->name('admin.equity.update');
+    Route::get('equity-summary', [EquityController::class, 'getSummary'])->name('admin.equity.summary');
     
     //Asset
     Route::get('asset', [AssetController::class, 'index'])->name('admin.asset');
     Route::post('assets', [AssetController::class, 'index'])->name('admin.asset.filter');
-    Route::post('asset', [AssetController::class, 'store']);
-    Route::get('asset/{id}', [AssetController::class, 'edit']);
-    Route::put('asset/{id}', [AssetController::class, 'update']); 
+    Route::post('asset', [AssetController::class, 'store'])->name('admin.asset.store');
+    Route::get('asset/{id}', [AssetController::class, 'edit'])->name('admin.asset.edit');
+    Route::put('asset/{id}', [AssetController::class, 'update'])->name('admin.asset.update');
+    Route::get('asset-summary', [AssetController::class, 'getSummary'])->name('admin.asset.summary');
 
     //Expense
     Route::get('expense', [ExpenseController::class, 'index'])->name('admin.expense');
     Route::post('expenses', [ExpenseController::class, 'index'])->name('admin.expense.filter');
-    Route::post('expense', [ExpenseController::class, 'store']);
-    Route::get('expense/{id}', [ExpenseController::class, 'edit']);
-    Route::put('expense/{id}', [ExpenseController::class, 'update']); 
+    Route::post('expense', [ExpenseController::class, 'store'])->name('admin.expense.store');
+    Route::get('expense/{id}', [ExpenseController::class, 'edit'])->name('admin.expense.edit');
+    Route::put('expense/{id}', [ExpenseController::class, 'update'])->name('admin.expense.update');
     Route::get('expense-voucher/{id}', [ExpenseController::class, 'voucher'])->name('admin.expense.voucher');
+    Route::get('expense-summary', [ExpenseController::class, 'getSummary'])->name('admin.expense.summary');
 
     // ledger
     Route::get('ledger-accounts', [LedgerController::class, 'showLedgerAccounts'])->name('admin.ledgeraccount');

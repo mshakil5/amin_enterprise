@@ -1,585 +1,781 @@
 @extends('admin.layouts.admin')
 
 @section('content')
-
-<section class="content pt-3" id="contentContainer">
+<section class="content pt-3">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div id="alert-container"></div>
 
-                <div class="card card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title">Asset</h3>
-                        <div class="card-tools">
-                            <button class="btn btn-lg btn-success" data-toggle="modal" data-target="#chartModal" data-purpose="0">+ Add New Asset</button>
-                        </div>
+        {{-- Page Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">
+                <i class="fas fa-cubes mr-2 text-dark"></i>Asset Management
+            </h3>
+            <button type="button" class="btn btn-dark btn-sm" id="btn-show-form">
+                <i class="fas fa-plus mr-1"></i> Add New Asset
+            </button>
+        </div>
+
+        {{-- Summary Info Boxes --}}
+        <div class="row mb-3">
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="info-box bg-info">
+                    <span class="info-box-icon"><i class="fas fa-shopping-cart"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Purchase</span>
+                        <span class="info-box-number" id="total-purchase">0.00</span>
                     </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <form class="form-inline" role="form" method="POST" action="{{ route('admin.asset.filter') }}">
-                                {{ csrf_field() }}
-                                
-                                <div class="form-group mx-sm-3">
-                                    <label class="sr-only">Start Date</label>
-                                    <input type="date" class="form-control" name="start_date" value="{{ request()->input('start_date') }}">
-                                </div>
-                                
-                                <div class="form-group mx-sm-3">
-                                    <label class="sr-only">End Date</label>
-                                    <input type="date" class="form-control" name="end_date" value="{{ request()->input('end_date') }}">
-                                </div>
-                                
-                                <div class="form-group mx-sm-3">
-                                    <label class="sr-only">Account</label>
-                                    <select class="form-control select2" name="account_name">
-                                        <option value="">Select Account..</option>
-                                        @foreach ($accounts as $account)
-                                            <option value="{{ $account->account_name }}" {{ request()->input('account_name') == $account->account_name ? 'selected' : '' }}>
-                                                {{ $account->account_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary">Search</button>
-                            </form>
-                        </div>
-                        @component('components.table')
-                            @slot('tableID')
-                                expenseTBL
-                            @endslot
-                            @slot('head')
-                                <th>ID</th>
-                                <th>Date</th>
-                                <th>Account</th>
-                                <th>Ref</th>
-                                <th>Description</th>
-                                <th>Transaction Type</th>
-                                <th>Payment Type</th>
-                                <th>Amount</th>
-                                <th>Action</th>
-                            @endslot
-                        @endcomponent
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="info-box bg-success">
+                    <span class="info-box-icon"><i class="fas fa-tag"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Sold</span>
+                        <span class="info-box-number" id="total-sold">0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="info-box bg-secondary">
+                    <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Depreciation</span>
+                        <span class="info-box-number" id="total-depreciation">0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="info-box bg-primary">
+                    <span class="info-box-icon"><i class="fas fa-balance-scale"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Net Asset Value</span>
+                        <span class="info-box-number" id="net-asset-value">0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="info-box bg-gradient-success">
+                    <span class="info-box-icon"><i class="fas fa-arrow-down"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Inflow</span>
+                        <span class="info-box-number" id="total-inflow">0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="info-box bg-gradient-danger">
+                    <span class="info-box-icon"><i class="fas fa-arrow-up"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Outflow</span>
+                        <span class="info-box-number" id="total-outflow">0.00</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
 
-<div class="modal fade" id="chartModal">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Asset</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span></button>
+        {{-- Asset Form Card --}}
+        <div class="card card-outline card-dark mb-4" id="asset-form-card" style="display: none;">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-edit mr-1"></i>
+                    <span id="form-title">Add New Asset</span>
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" id="btn-close-form">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
-            <form class="form-horizontal" id="customer-form">
-            
-                <div class="modal-body">
-                    {{csrf_field()}}
+            <div class="card-body">
+                <div id="form-alert-container"></div>
+                <form class="form-horizontal" id="asset-form">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="asset_id" id="asset_id" value="">
+                    <input type="hidden" name="tax_rate" id="tax_rate" value="">
+                    <input type="hidden" name="tax_amount" id="tax_amount" value="">
+                    <input type="hidden" name="vat_rate" value="">
+                    <input type="hidden" name="vat_amount" value="">
+                    <input type="hidden" name="at_amount" id="at_amount" value="">
 
-                    <div id="alert-container1"></div>
-                    
+                    {{-- Row 1: Date, Chart of Account, Reference, Transaction Type --}}
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label for="date" class="control-label">Date</label>
-                                <input type="date" name="date" class="form-control " id="date" value="{{date('Y-m-d')}}">
+                                <label class="font-weight-bold" style="font-size:13px;">
+                                    Date <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" name="date" class="form-control form-control-sm" id="date" value="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
-
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="chart_of_account_id" class="control-label">Chart of Account</label>
-                                <select class="form-control" id="chart_of_account_id" name="chart_of_account_id">
+                                <label class="font-weight-bold" style="font-size:13px;">
+                                    Chart of Account <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-control select2" id="chart_of_account_id" name="chart_of_account_id" required>
                                     <option value="">Select chart of account</option>
-                                    @php
-                                        use App\Models\ChartOfAccount;
-                                        $accounts = ChartOfAccount::where('sub_account_head', 'Account Payable')->get(['account_name', 'id']);
-                                        $recivible = ChartOfAccount::where('sub_account_head', 'Account Receivable')->get(['account_name', 'id']);
-                                        $assets = ChartOfAccount::where('account_head', 'Assets')->get();
-                                    @endphp
-                                    @foreach($assets as $asset)
-                                        <option value="{{ $asset->id }}" data-type="{{ $asset->sub_account_head }}">{{ $asset->account_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="ref" class="control-label">Reference</label>
-                                <input type="text" name="ref" class="form-control " id="ref">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="transaction_type" class="control-label">Transaction Type</label>
-                                <select class="form-control" id="transaction_type" name="transaction_type">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="amount" class="control-label">Amount</label>
-                                <input type="text" name="amount" class="form-control " id="amount">
-                            </div>
-                        </div>
-
-                        
-                        <div class="col-md-4">
-                            <div class="form-group" id="payment_type_container">
-                                <label for="payment_type" class="control-label">Payment Type</label>
-                                <select class="form-control" id="payment_type" name="payment_type">
-                                    <option value="">Select payment type</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Bank">Bank</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="account_id" class="col-form-label">Account Type</label>
-                                <select class="form-control" id="account_id" name="account_id">
-                                    <option value="">Select Account Type</option>
-                                    @foreach ($accountList as $account)
-                                        <option value="{{ $account->id }}">{{ $account->type }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 d-none">
-                            <div class="form-group">
-                                <label for="tax_rate" class="control-label">Tax %</label>
-                                <input type="text" name="tax_rate" class="form-control " id="tax_rate">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row d-none">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="tax_amount" class="control-label">Tax Amount</label>
-                                <input type="text" name="tax_amount" class="form-control " id="tax_amount">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="at_amount" class="control-label">Total Amount</label>
-                                <input type="text" name="at_amount" class="form-control " id="at_amount">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row d-none">
-
-                        <div class="col-md-6">
-                            <div class="form-group d-none" id="showpayable" >
-                                <label for="payable_holder_id" class="control-label">Payable Holder Name</label>
-                                <select class="form-control" id="payable_holder_id" name="payable_holder_id">
-                                    <option value="">Select payable holder</option>
                                     @foreach($accounts as $account)
+                                        <option value="{{ $account->id }}" data-type="{{ $account->sub_account_head }}">{{ $account->account_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Reference</label>
+                                <input type="text" name="ref" class="form-control form-control-sm" id="ref" placeholder="Enter reference">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">
+                                    Transaction Type <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-control form-control-sm" id="transaction_type" name="transaction_type" required>
+                                    <option value="">Select type</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 2: Amount, Payment Type, Account --}}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">
+                                    Amount <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="amount" class="form-control form-control-sm" id="amount" placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="payment_type_container">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">
+                                    Payment Type <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-control form-control-sm" id="payment_type" name="payment_type">
+                                    <option value="">Select type</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Account</label>
+                                <select class="form-control select2" id="account_id" name="account_id">
+                                    <option value="">Select account</option>
+                                    @foreach($accountList as $account)
+                                        <option value="{{ $account->id }}">{{ $account->type }} ({{ number_format($account->amount, 2) }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
+                                <input type="text" name="description" class="form-control form-control-sm" id="description" placeholder="Enter description">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 3: Conditional Payable/Receivable Holders --}}
+                    <div class="row" id="holderRow" style="display: none;">
+                        <div class="col-md-6" id="showpayable" style="display: none;">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">
+                                    <i class="fas fa-file-invoice-dollar mr-1 text-warning"></i>Payable Holder
+                                </label>
+                                <select class="form-control select2" id="payable_holder_id" name="payable_holder_id">
+                                    <option value="">Select payable holder</option>
+                                    @foreach($payableAccounts as $account)
                                         <option value="{{ $account->id }}">{{ $account->account_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group d-none" id="showreceivable" >
-                                <label for="recivible_holder_id" class="control-label">Receivable Holder Name</label>
-                                <select class="form-control" id="recivible_holder_id" name="recivible_holder_id">
-                                    <option value="">Select recivible holder</option>
-                                    @foreach($recivible as $recivible)
-                                        <option value="{{ $recivible->id }}">{{ $recivible->account_name }}</option>
+                        <div class="col-md-6" id="showreceivable" style="display: none;">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">
+                                    <i class="fas fa-hand-holding-usd mr-1 text-success"></i>Receivable Holder
+                                </label>
+                                <select class="form-control select2" id="recivible_holder_id" name="recivible_holder_id">
+                                    <option value="">Select receivable holder</option>
+                                    @foreach($receivableAccounts as $account)
+                                        <option value="{{ $account->id }}">{{ $account->account_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-
                     </div>
 
-                    <div class="form-group">
-                        <label for="description" class="control-label">Description</label>
-                        <textarea class="form-control" id="description" rows="3" placeholder="Description" name="description"></textarea>
+                    {{-- Form Actions --}}
+                    <div class="row">
+                        <div class="col-md-12 text-right">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-form">
+                                <i class="fas fa-times mr-1"></i>Cancel
+                            </button>
+                            <button type="submit" class="btn btn-dark btn-sm" id="btn-submit-form">
+                                <i class="fas fa-save mr-1"></i>Save Asset
+                            </button>
+                        </div>
                     </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary submit-btn save-btn"> Save</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
+
+        {{-- Filter Card --}}
+        <div class="card card-outline card-secondary mb-4">
+            <div class="card-header py-2">
+                <h3 class="card-title text-sm">
+                    <i class="fas fa-filter mr-1"></i> Filter Options
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body py-3">
+                <form class="form-inline" id="filter-form" role="form">
+                    <div class="form-group mx-sm-2">
+                        <label class="sr-only">Start Date</label>
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            </div>
+                            <input type="date" class="form-control" name="start_date" id="filter_start_date">
+                        </div>
+                    </div>
+                    <div class="form-group mx-sm-2">
+                        <label class="sr-only">End Date</label>
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            </div>
+                            <input type="date" class="form-control" name="end_date" id="filter_end_date">
+                        </div>
+                    </div>
+                    <div class="form-group mx-sm-2">
+                        <label class="sr-only">Account</label>
+                        <select class="form-control form-control-sm select2" name="account_name" id="filter_account_name" style="width: 200px;">
+                            <option value="">All Accounts</option>
+                            @foreach ($accounts as $account)
+                                <option value="{{ $account->account_name }}">{{ $account->account_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-search mr-1"></i>Search
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm" id="btn-reset-filter">
+                        <i class="fas fa-redo mr-1"></i>Reset
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {{-- Asset Table Card --}}
+        <div class="card card-dark card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-table mr-1"></i> Asset Records
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+
+                {{-- Export Buttons --}}
+                <div class="px-3 pt-3 pb-2">
+                    <button class="btn btn-sm btn-secondary" id="btn-copy">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button class="btn btn-sm btn-success" id="btn-csv">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="btn btn-sm btn-primary" id="btn-excel">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="btn-pdf">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="btn btn-sm btn-dark" id="btn-print">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="assetTBL" class="table table-bordered table-striped table-sm mb-0" style="font-size:12px;">
+                        <thead>
+                            <tr class="bg-dark text-white text-center">
+                                <th style="width:40px">#</th>
+                                <th style="width:100px">Date</th>
+                                <th style="width:180px">Account Head</th>
+                                <th style="width:100px">Reference</th>
+                                <th>Description</th>
+                                <th style="width:120px">Type</th>
+                                <th style="width:140px">Payment</th>
+                                <th style="width:120px">Amount</th>
+                                <th style="width:150px">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
-</div>
-
+</section>
 @endsection
+
+@section('style')
+<style>
     
+    /* =============================================
+       OTHER STYLING
+       ============================================= */
+    .info-box .info-box-number {
+        font-size: 16px !important;
+    }
+    
+    #asset-form-card {
+        border-left: 4px solid #343a40;
+        transition: all 0.3s ease;
+    }
+    
+    #asset-form-card.edit-mode {
+        border-left-color: #6f42c1;
+    }
+    
+    .form-control-sm:focus {
+        border-color: #343a40;
+        box-shadow: 0 0 0 0.2rem rgba(52, 58, 64, 0.25);
+    }
+    
+    .btn-action {
+        padding: 2px 8px;
+        font-size: 11px;
+        margin-right: 3px;
+    }
+    
+    #asset-form .form-group {
+        margin-bottom: 10px;
+    }
+    
+    #asset-form label {
+        margin-bottom: 4px;
+    }
+</style>
+@endsection
+
 @section('script')
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
 <script>
-    $(document).ready(function() {
-        $("#transaction_type").change(function () {
-            var transaction_type = $(this).val();
-            if (transaction_type == "Purchase") {
-                $("#payment_type_container").show();
-                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
-            } else if (transaction_type == "Receipt") {
-                $("#showpayable, #showreceivable").hide();
-                $("#payment_type_container").show();
-                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
-                clearPayableHolder();
-            } else if (transaction_type == "Payment") {
-                $("#showpayable , #showreceivable").hide();
-                $("#payment_type_container").show();
-                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
-                clearPayableHolder();
-            } else if (transaction_type == "Depreciation") {
-                $('#payment_type').val('');
-                $("#payment_type_container").hide();
-            } else if (transaction_type == "Sold") {
-                $("#showpayable , #showreceivable").hide();
-                $("#payment_type_container").show();
-                $("#payment_type").html("<option value=''>Please Select</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
-                clearPayableHolder();
-            }
-        });
+ $(document).ready(function() {
 
-        $("#payment_type").change(function(){
-            $(this).find("option:selected").each(function(){
-                var val = $(this).val();
-                if( val == "Account Payable" ){
-                    $("#showpayable").show();
-                } else if( val == "Account Receivable" ){
-                    $("#showreceivable").show();
-                } else{
-                    $("#showpayable, #showreceivable").hide();
-                    clearPayableHolder();
-                }
-            });
-        }).change();
+    // =============================================
+    // VARIABLES
+    // =============================================
+    var chartUrl = "{{ URL::to('/admin/asset') }}";
+    var summaryUrl = "{{ route('admin.asset.summary') }}";
+    var isEditMode = false;
+    var editingId = null;
 
-        function clearPayableHolder() {
-            $("#payable_holder_id, #recivible_holder_id").val('');
+    // =============================================
+    // HELPER: Build Transaction Type Options
+    // =============================================
+    function buildTransactionOptions(accountType, selectedVal) {
+        var dropdown = $('#transaction_type');
+        dropdown.empty();
+        dropdown.append('<option value="">Select type</option>');
+        
+        if (accountType === 'Fixed Asset') {
+            dropdown.append('<option value="Purchase">Purchase</option>');
+            dropdown.append('<option value="Sold">Sold</option>');
+            dropdown.append('<option value="Depreciation">Depreciation</option>');
+        } else {
+            dropdown.append('<option value="Received">Received</option>');
+            dropdown.append('<option value="Payment">Payment</option>');
         }
-
-        $('#chart_of_account_id').change(function() {
-            var accountType = $(this).find(':selected').data('type');
-            var transactionTypeDropdown = $('#transaction_type');
-
-            transactionTypeDropdown.empty();
-
-            if(accountType === 'Fixed Asset') {
-                transactionTypeDropdown.append('<option value="">Select transaction type</option>');
-                transactionTypeDropdown.append('<option value="Purchase">Purchase</option>');
-                transactionTypeDropdown.append('<option value="Sold">Sold</option>');
-                transactionTypeDropdown.append('<option value="Depreciation">Depreciation</option>');
-            } else {
-                transactionTypeDropdown.append('<option value="">Select transaction type</option>');
-                transactionTypeDropdown.append('<option value="Received">Received</option>');
-                transactionTypeDropdown.append('<option value="Payment">Payment</option>');
-            }
-        });
-    });
-</script>
-
-<!-- Amount and tax rate calculation -->
-<script>
-    function calculateTotal() {
-        var amount = parseFloat(document.getElementById('amount').value) || 0;
-        var taxRate = parseFloat(document.getElementById('tax_rate').value) || 0;
-
-        var taxAmount = amount * (taxRate / 100);
-        document.getElementById('tax_amount').value = taxAmount.toFixed(2);
-
-        var totalAmount = amount + taxAmount;
-        document.getElementById('at_amount').value = totalAmount.toFixed(2);
+        
+        if (selectedVal) {
+            dropdown.val(selectedVal);
+        }
     }
 
-    document.getElementById('amount').addEventListener('input', calculateTotal);
-    document.getElementById('tax_rate').addEventListener('input', calculateTotal);
+    // =============================================
+    // HELPER: Build Payment Type Options
+    // =============================================
+    function buildPaymentOptions(transactionType, selectedVal) {
+        var dropdown = $('#payment_type');
+        dropdown.empty();
+        dropdown.append('<option value="">Select type</option>');
+        
+        if (transactionType === 'Purchase') {
+            dropdown.append('<option value="Account Payable">Account Payable</option>');
+            dropdown.append('<option value="Cash">Cash</option>');
+            dropdown.append('<option value="Bank">Bank</option>');
+        } else if (transactionType === 'Sold') {
+            dropdown.append('<option value="Account Receivable">Account Receivable</option>');
+            dropdown.append('<option value="Cash">Cash</option>');
+            dropdown.append('<option value="Bank">Bank</option>');
+        } else {
+            dropdown.append('<option value="Cash">Cash</option>');
+            dropdown.append('<option value="Bank">Bank</option>');
+        }
+        
+        if (selectedVal) {
+            dropdown.val(selectedVal);
+        }
+    }
 
-    calculateTotal();
-</script>
+    // =============================================
+    // HELPER: Toggle Holder Fields
+    // =============================================
+    function toggleHolderFields(paymentType) {
+        $('#showpayable').hide();
+        $('#showreceivable').hide();
+        $('#holderRow').hide();
+        
+        if (paymentType === 'Account Payable') {
+            $('#holderRow').show();
+            $('#showpayable').show();
+        } else if (paymentType === 'Account Receivable') {
+            $('#holderRow').show();
+            $('#showreceivable').show();
+        }
+        
+        // Clear values when hiding
+        if (paymentType !== 'Account Payable') {
+            $('#payable_holder_id').val('').trigger('change');
+        }
+        if (paymentType !== 'Account Receivable') {
+            $('#recivible_holder_id').val('').trigger('change');
+        }
+    }
 
-<!-- Main script -->
-<script>
-    $(document).ready(function() {
-        $('.select2').select2();
+    // =============================================
+    // SELECT2 INITIALIZATION
+    // =============================================
+    function initSelect2() {
+        $('.select2').each(function() {
+            if (!$(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: $(this).find('option:first').text(),
+                    minimumResultsForSearch: 10,
+                    dropdownAutoWidth: false
+                });
+            }
+        });
+    }
+    
+    initSelect2();
+
+    // =============================================
+    // DYNAMIC DROPDOWN LOGIC
+    // =============================================
+    $('#chart_of_account_id').on('change', function() {
+        var accountType = $(this).find(':selected').data('type');
+        buildTransactionOptions(accountType, null);
+        buildPaymentOptions(null, null);
+        toggleHolderFields(null);
     });
 
-    var charturl = "{{URL::to('/admin/asset')}}";
-    var customerTBL = $('#expenseTBL').DataTable({
+    $('#transaction_type').on('change', function() {
+        var transactionType = $(this).val();
+        
+        if (transactionType === 'Depreciation') {
+            $('#payment_type_container').hide();
+            $('#payment_type').val('');
+            toggleHolderFields(null);
+        } else {
+            $('#payment_type_container').show();
+            buildPaymentOptions(transactionType, null);
+            toggleHolderFields(null);
+        }
+    });
+
+    $('#payment_type').on('change', function() {
+        toggleHolderFields($(this).val());
+    });
+
+    // =============================================
+    // LOAD SUMMARY
+    // =============================================
+    function loadSummary() {
+        var startDate = $('#filter_start_date').val();
+        var endDate = $('#filter_end_date').val();
+
+        $.ajax({
+            url: summaryUrl,
+            type: 'GET',
+            data: { start_date: startDate, end_date: endDate },
+            success: function(response) {
+                $('#total-purchase').text(response.total_purchase);
+                $('#total-sold').text(response.total_sold);
+                $('#total-depreciation').text(response.total_depreciation);
+                $('#net-asset-value').text(response.net_asset_value);
+                $('#total-inflow').text(response.total_inflow);
+                $('#total-outflow').text(response.total_outflow);
+            }
+        });
+    }
+    loadSummary();
+
+    // =============================================
+    // DATATABLE
+    // =============================================
+    var assetTBL = $('#assetTBL').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
-        url: charturl,
-        type: 'GET',
-        data: function (d) {
-            d.start_date = $('input[name="start_date"]').val();
-            d.end_date = $('input[name="end_date"]').val();
-            d.account_name = $('select[name="account_name"]').val();
-        },
-        error: function (xhr, error, thrown) {
-            console.log(xhr.responseText);
-        }
+            url: chartUrl,
+            type: 'GET',
+            data: function(d) {
+                d.start_date = $('#filter_start_date').val();
+                d.end_date = $('#filter_end_date').val();
+                d.account_name = $('#filter_account_name').val();
+            }
         },
         deferRender: true,
+        dom: 'Bfrtip',
+        buttons: [
+            { extend: 'copy', className: 'btn btn-sm btn-secondary', text: '<i class="fas fa-copy"></i> Copy' },
+            { extend: 'csv', className: 'btn btn-sm btn-success', text: '<i class="fas fa-file-csv"></i> CSV' },
+            { extend: 'excel', className: 'btn btn-sm btn-primary', text: '<i class="fas fa-file-excel"></i> Excel' },
+            { extend: 'pdf', className: 'btn btn-sm btn-danger', text: '<i class="fas fa-file-pdf"></i> PDF' },
+            { extend: 'print', className: 'btn btn-sm btn-dark', text: '<i class="fas fa-print"></i> Print' }
+        ],
         columns: [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'date', name: 'date', render: function(data) { return data ? dayjs(data).format('DD-MM-YYYY') : ''; } },
+            { data: 'chart_of_account', name: 'chart_of_account', className: 'text-left' },
+            { data: 'ref', name: 'ref', className: 'text-center' },
+            { data: 'description', name: 'description', className: 'text-left' },
+            { data: 'tran_type_badge', name: 'tran_type_badge', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'payment_badge', name: 'payment_badge', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'amount_formatted', name: 'amount', className: 'text-right' },
             {
-              data: 'tran_id',
-              name: 'tran_id',
-              orderable: false,
-              searchable: false,
-            },
-            {
-              data: 'date',
-              name: 'date',
-              render: function(data, type, row) {
-                return data ? dayjs(data).format('DD-MM-YYYY') : '';
-              }
-            },
-            {data: 'chart_of_account', name: 'chart_of_account'},
-            {data: 'ref', name: 'ref'},
-            {data: 'description', name: 'description'},
-            {data: 'tran_type', name: 'tran_type'},
-            {data: 'payment_type', name: 'payment_type'},
-            {data: 'amount', name: 'amount'},
-            {
-                data: 'action',
-                name: 'action',
-                orderable: false,
-                searchable: false,
-                render: function(data, type, row, meta) {
-                let button = `<button type="button" class="btn btn-warning btn-xs edit-btn" data-toggle="modal" data-target="#chartModal" value="${row.id}" title="Edit" data-purpose='1'><i class="fa fa-edit" aria-hidden="true"></i> Edit</button>`;
-
-                let voucherUrl = "{{ route('admin.expense.voucher', ['id' => '__id__']) }}".replace('__id__', row.id);
-                
-                button += `<a href="${voucherUrl}" target="blank" class="btn btn-info btn-xs" title="Voucher"><i class="fa fa-info-circle" aria-hidden="true"></i> Voucher</a>`;
-
-                let reverseUrl = "{{ route('admin.transactions.reverse', ['id' => '__id__']) }}".replace('__id__', row.id);
-
-                button += `<a href="${reverseUrl}" class="btn btn-success btn-xs" title="Reverse">
-                    <i class="fa fa-undo"></i> Reverse
-                </a>`;
-
-                if (row.amount < 0) {}
-                
-                return button;
+                data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center',
+                render: function(data, type, row) {
+                    let btn = '<button type="button" class="btn btn-warning btn-action edit-btn" data-id="' + row.id + '" title="Edit"><i class="fas fa-edit"></i> Edit</button>';
+                    let voucherUrl = "{{ route('admin.expense.voucher', ['id' => '__id__']) }}".replace('__id__', row.id);
+                    btn += '<a href="' + voucherUrl + '" target="_blank" class="btn btn-info btn-action" title="Voucher"><i class="fas fa-receipt"></i></a>';
+                    let reverseUrl = "{{ route('admin.transactions.reverse', ['id' => '__id__']) }}".replace('__id__', row.id);
+                    btn += '<a href="' + reverseUrl + '" class="btn btn-success btn-action" title="Reverse" onclick="return confirm(\'Are you sure to reverse?\')"><i class="fas fa-undo"></i></a>';
+                    return btn;
+                }
             }
-
-            },
-        ]
+        ],
+        order: [[1, 'desc']],
+        language: { search: "", searchPlaceholder: "Search...", emptyTable: "No asset records found", zeroRecords: "No matching records found" },
+        drawCallback: function() { loadSummary(); }
     });
 
-    $('form').on('submit', function(e) {
+    $('.dt-buttons').hide();
+    $('#btn-copy').on('click', function() { assetTBL.button(0).trigger(); });
+    $('#btn-csv').on('click', function() { assetTBL.button(1).trigger(); });
+    $('#btn-excel').on('click', function() { assetTBL.button(2).trigger(); });
+    $('#btn-pdf').on('click', function() { assetTBL.button(3).trigger(); });
+    $('#btn-print').on('click', function() { assetTBL.button(4).trigger(); });
+
+    // =============================================
+    // FILTER FORM
+    // =============================================
+    $('#filter-form').on('submit', function(e) { e.preventDefault(); assetTBL.ajax.reload(); });
+    $('#btn-reset-filter').on('click', function() {
+        $('#filter_start_date').val('');
+        $('#filter_end_date').val('');
+        $('#filter_account_name').val('').trigger('change');
+        assetTBL.ajax.reload();
+    });
+
+    // =============================================
+    // FORM SHOW/HIDE
+    // =============================================
+    $('#btn-show-form').on('click', function() {
+        resetForm();
+        isEditMode = false;
+        editingId = null;
+        $('#form-title').text('Add New Asset');
+        $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Save Asset');
+        $('#asset-form-card').removeClass('edit-mode').slideDown(300);
+        $('html, body').animate({ scrollTop: $('#asset-form-card').offset().top - 100 }, 300);
+    });
+
+    $('#btn-close-form, #btn-cancel-form').on('click', function() {
+        $('#asset-form-card').slideUp(300);
+        setTimeout(resetForm, 300);
+    });
+
+    // =============================================
+    // EDIT BUTTON
+    // =============================================
+    $('#assetTBL').on('click', '.edit-btn', function(e) {
         e.preventDefault();
-        customerTBL.ajax.reload();
-    });
+        var id = $(this).data('id');
 
-    // modal
+        $.ajax({
+            url: chartUrl + '/' + id,
+            type: 'GET',
+            beforeSend: function(request) {
+                return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
+            },
+            success: function(response) {
+                isEditMode = true;
+                editingId = id;
+                $('#form-title').text('Edit Asset - ' + (response.tran_id || 'ID: ' + response.id));
+                $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Update Asset');
+                $('#asset-form-card').addClass('edit-mode').slideDown(300);
 
-    $('#chartModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        let purpose = button.data('purpose');
-        var modal = $(this);
-        if (purpose) {
-            let id = button.val();
-            $.ajax({
-                url: charturl +'/' + id,
-                type: 'GET',
-                beforeSend: function (request) {
-                    return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
-                },
-                success: function (response) {
-                    // console.log(response);
-                    $('#date').val(response.date);
-                    $('#ref').val(response.ref);
-                    $('#transaction_type').val(response.tran_type);
-                    $('#amount').val(response.amount);
-                    $('#tax_rate').val(response.tax_rate);
-                    $('#tax_amount').val(response.tax_amount);
-                    $('#at_amount').val(response.at_amount);
-                    $('#payment_type').val(response.payment_type);
-                    $('#description').val(response.description);
+                $('#asset_id').val(response.id);
+                $('#date').val(response.date);
+                $('#ref').val(response.ref || '');
+                $('#amount').val(response.amount);
+                $('#description').val(response.description || '');
+                $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
+                $('#account_id').val(response.account_id || '').trigger('change');
 
-                    $('#chart_of_account_id').val(response.chart_of_account_id);
-                    $('#account_id').val(response.account_id);
+                // Rebuild dropdowns based on saved type
+                var accType = response.chart_of_account_type;
+                var transType = response.transaction_type;
+                var payType = response.payment_type;
 
-                    var accountType = response.chart_of_account_type;
-
-                    var transactionTypeDropdown = $('#transaction_type');
-
-                    transactionTypeDropdown.empty();
-
-                    if(accountType === 'Fixed Asset') {
-                        transactionTypeDropdown.append('<option value="">Select transaction type</option>');
-                        transactionTypeDropdown.append('<option value="Purchase">Purchase</option>');
-                        transactionTypeDropdown.append('<option value="Sold">Sold</option>');
-                        transactionTypeDropdown.append('<option value="Depreciation">Depreciation</option>');
-                        $('#transaction_type').val(response.transaction_type);
-                    } else {
-                        transactionTypeDropdown.append('<option value="">Select transaction type</option>');
-                        transactionTypeDropdown.append('<option value="Received">Received</option>');
-                        transactionTypeDropdown.append('<option value="Payment">Payment</option>');
-                        $('#transaction_type').val(response.transaction_type);
-                    }     
-
-                    if (response.transaction_type == 'Purchase') {
-
-                        if(response.payment_type == 'Account Payable') {
-                           $('#showpayable').show();
-                        }
-
-                        $('#showpayable').show();
-                        $("#payment_type").html("<option value=''>Please Select</option><option selected value='Account Payable'>Account Payable</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
-                        $('#payment_type').val(response.payment_type);
-                        $('#showreceivable').hide();
-                        
-                    } else if (response.transaction_type == 'Sold') {
-                        if(response.payment_type == 'Account Receivable') {
-                            $('#showreceivable').show();
-                        }
-                        $("#payment_type").html("<option value=''>Please Select</option><option selected value='Account Receivable'>Account Receivable</option><option value='Cash'>Cash</option><option value='Bank'>Bank</option>");
-                        $('#payment_type').val(response.payment_type);
-                        $('#showpayable').hide();
-                    } 
-                    else if (response.transaction_type == 'Depreciation') {
+                setTimeout(function() {
+                    buildTransactionOptions(accType, transType);
+                    
+                    if (transType === 'Depreciation') {
                         $('#payment_type_container').hide();
+                        $('#holderRow').hide();
+                    } else {
+                        $('#payment_type_container').show();
+                        buildPaymentOptions(transType, payType);
+                        toggleHolderFields(payType);
                     }
-                    else {
-                        $("#payment_type").html("<option value=''>Please Select</option>" + "<option value='Cash'>Cash</option>" + "<option value='Bank'>Bank</option>");
-                        $('#payment_type').val(response.payment_type);
-                        $('#showpayable, #showreceivable').hide();     
-                    }
 
-                    var payableHolderId = response.payable_holder_id;
-                    $('#payable_holder_id').val(payableHolderId);
+                    $('#payable_holder_id').val(response.payable_holder_id || '').trigger('change');
+                    $('#recivible_holder_id').val(response.recivible_holder_id || '').trigger('change');
+                }, 300);
 
-                    var receivableHolderId = response.recivible_holder_id;
-                    $('#recivible_holder_id').val(receivableHolderId);
-
-                    $('#chartModal .submit-btn').removeClass('save-btn').addClass('update-btn').text('Update').val(response.id);
-                }
-            });
-        } else {
-            $('#customer-form').trigger('reset');
-            $('#customer-form textarea').text('');
-            $('#chartModal .submit-btn').removeClass('update-btn').addClass('save-btn').text('Save').val("");
-        }
-    });
-
-    // save button event
-
-    $(document).on('click', '.save-btn', function () {
-        let formData = $('#customer-form').serialize();
-        let formDataArray = $('#customer-form').serializeArray();
-
-        // formDataArray.forEach(function(item) {
-        //     console.log(item.name + ": " + item.value);
-        // });
-
-
-        $.ajax({
-            url: charturl,
-            type: 'POST',
-            data: formData,
-            beforeSend: function (request) {
-                request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
+                $('html, body').animate({ scrollTop: $('#asset-form-card').offset().top - 100 }, 300);
             },
-            success: function (response) {
-                // console.log(response);
-                if (response.status === 200) {
-                    $('#chartModal').modal('toggle');
-                    swal({
-                        text: "Saved successfully",
-                        icon: "success",
-                        button: {
-                            text: "OK",
-                            className: "swal-button--confirm"
-                        }
-                    });
-                    customerTBL.draw();
-                } else if (response.status === 303) {
-                    let alertMessage = `<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>${response.message}</b></div>`;
-                    $('#alert-container1').html(alertMessage);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-            }
+            error: function() { showToast('Error loading asset data', 'error'); }
         });
     });
 
-    // update button event
+    // =============================================
+    // FORM SUBMISSION
+    // =============================================
+    $('#asset-form').on('submit', function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        var url = (isEditMode && editingId) ? chartUrl + '/' + editingId : chartUrl;
+        var method = (isEditMode && editingId) ? 'PUT' : 'POST';
 
-    $(document).on('click', '.update-btn', function () {
-        let formData = $('#customer-form').serialize();
-        let id = $(this).val();
-        // console.log(id);
+        var btn = $('#btn-submit-form');
+        var originalText = btn.html();
+        btn.html('<i class="fas fa-spinner fa-spin mr-1"></i>Saving...').prop('disabled', true);
+
         $.ajax({
-            url: charturl + '/' + id,
-            type: 'PUT',
+            url: url,
+            type: method,
             data: formData,
-            beforeSend: function (request) {
-                request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
+            beforeSend: function(request) {
+                return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
             },
-            success: function (response) {
+            success: function(response) {
                 if (response.status === 200) {
-                    $('#chartModal').modal('toggle');
-                    swal({
-                        text: "Updated successfully",
-                        icon: "success",
-                        button: {
-                            text: "OK",
-                            className: "swal-button--confirm"
-                        }
-                    });
-                    customerTBL.draw();
+                    showToast(response.message, 'success');
+                    $('#asset-form-card').slideUp(300);
+                    setTimeout(function() { resetForm(); assetTBL.ajax.reload(); }, 300);
                 } else if (response.status === 303) {
-                    let alertMessage = `<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>${response.message}</b></div>`;
-                    $('#alert-container1').html(alertMessage);
+                    showFormAlert(response.message, 'warning');
                 }
             },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-            }
+            error: function(xhr) {
+                if (xhr.status === 419) { showToast('Session expired. Please refresh.', 'error'); return; }
+                var message = 'Error saving asset';
+                if (xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
+                else if (xhr.responseJSON && xhr.responseJSON.errors) message = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                showFormAlert(message, 'danger');
+            },
+            complete: function() { btn.html(originalText).prop('disabled', false); }
         });
     });
 
-</script>
+    // =============================================
+    // RESET FORM
+    // =============================================
+    function resetForm() {
+        $('#asset-form')[0].reset();
+        $('#asset_id').val('');
+        $('#date').val('{{ date("Y-m-d") }}');
+        isEditMode = false;
+        editingId = null;
 
-<script>
-    $('#chartModal').on('hidden.bs.modal', function (e) {
-        $('#customer-form')[0].reset(); 
-        $('#customer-form textarea').text(''); 
-        $('#chartModal .submit-btn').removeClass('update-btn').addClass('save-btn').text('Save').val("");
+        $('#chart_of_account_id').val('').trigger('change');
+        $('#account_id').val('').trigger('change');
+        $('#payable_holder_id').val('').trigger('change');
+        $('#recivible_holder_id').val('').trigger('change');
+
+        // Reset dynamic dropdowns
+        var dropdown = $('#transaction_type');
+        dropdown.empty();
+        dropdown.append('<option value="">Select type</option>');
+
+        var payDropdown = $('#payment_type');
+        payDropdown.empty();
+        payDropdown.append('<option value="">Select type</option>');
+        payDropdown.append('<option value="Cash">Cash</option>');
+        payDropdown.append('<option value="Bank">Bank</option>');
+
         $('#payment_type_container').show();
-        $('#payment_type').html("<option value=''>Please Select</option>" + 
-                                "<option value='Cash'>Cash</option>" + 
-                                "<option value='Bank'>Bank</option>");
-        $('#showpayable, #showreceivable').hide();
-        $('#payable_holder_id').val('');
-        $('#recivible_holder_id').val('');
-        var transactionTypeDropdown = $('#transaction_type');
-        transactionTypeDropdown.empty();
-        transactionTypeDropdown.append('<option value="">Select transaction type</option>');
-        transactionTypeDropdown.append('<option value="Received">Received</option>');
-        transactionTypeDropdown.append('<option value="Payment">Payment</option>');
-        transactionTypeDropdown.append('<option value="Purchase">Purchase</option>');
-        transactionTypeDropdown.append('<option value="Sold">Sold</option>');
-        transactionTypeDropdown.append('<option value="Depreciation">Depreciation</option>');
-    });
-</script>
+        $('#holderRow, #showpayable, #showreceivable').hide();
 
+        $('#form-title').text('Add New Asset');
+        $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Save Asset');
+        $('#asset-form-card').removeClass('edit-mode');
+        $('#form-alert-container').html('');
+    }
+
+    // =============================================
+    // ALERT FUNCTIONS
+    // =============================================
+    function showFormAlert(message, type) {
+        var icons = { success:'fas fa-check-circle', warning:'fas fa-exclamation-triangle', danger:'fas fa-exclamation-circle' };
+        var html = '<div class="alert alert-' + type + ' alert-dismissible fade show py-2" role="alert">';
+        html += '<i class="' + icons[type] + ' mr-2"></i>' + message;
+        html += '<button type="button" class="close" data-dismiss="alert">&times;</button></div>';
+        $('#form-alert-container').html(html);
+        setTimeout(function() { $('#form-alert-container .alert').alert('close'); }, 5000);
+    }
+
+    function showToast(message, type) {
+        var icons = { success:'fas fa-check-circle', error:'fas fa-exclamation-circle', warning:'fas fa-exclamation-triangle', info:'fas fa-info-circle' };
+        var bg = { success:'bg-success', error:'bg-danger', warning:'bg-warning', info:'bg-info' };
+        var html = '<div class="toast-container position-fixed top-0 right-0 p-3" style="z-index:9999;">';
+        html += '<div class="toast show ' + bg[type] + ' text-white" role="alert" style="min-width:300px;">';
+        html += '<div class="toast-header ' + bg[type] + ' text-white border-0" style="font-size:12px;">';
+        html += '<i class="' + icons[type] + ' mr-2"></i><strong class="mr-auto">' + type.charAt(0).toUpperCase() + type.slice(1) + '</strong>';
+        html += '<button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button></div>';
+        html += '<div class="toast-body" style="font-size:12px;">' + message + '</div></div></div>';
+        $('body').append(html);
+        setTimeout(function() { $('.toast-container').remove(); }, 4000);
+    }
+
+});
+</script>
 @endsection
