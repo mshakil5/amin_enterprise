@@ -17,12 +17,13 @@ class LiabilityController extends Controller
     public function index(Request $request)
     {
         if (!(in_array('22', json_decode(auth()->user()->role->permission)))) {
-          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
         
         if($request->ajax()){
-            $transactions = Transaction::with('chartOfAccount')
-                ->where('table_type', 'Liabilities');
+            $transactions = Transaction::with(['chartOfAccount', 'account'])
+                ->where('table_type', 'Liabilities')
+                ->whereNotNull('chart_of_account_id');
 
             if ($request->filled('start_date')) {
                 $endDate = $request->filled('end_date') ? $request->input('end_date') : now()->endOfDay();
@@ -41,12 +42,55 @@ class LiabilityController extends Controller
             $transactions = $transactions->latest()->get();
 
             return DataTables::of($transactions)
+                ->addIndexColumn()
                 ->addColumn('chart_of_account', function ($transaction) {
-                    return $transaction->chartOfAccount ? $transaction->chartOfAccount->account_name : 'NA';
+                    if ($transaction->chartOfAccount) {
+                        return $transaction->chartOfAccount->account_name;
+                    }
+                    return '<span class="text-muted">N/A</span>';
                 })
                 ->addColumn('accountname', function ($transaction) {
-                    return $transaction->account ? $transaction->account->type : 'NA';
+                    if ($transaction->account) {
+                        return '<span class="badge badge-light">' . $transaction->account->type . '</span>';
+                    }
+                    return '<span class="text-muted">-</span>';
                 })
+                ->addColumn('amount_formatted', function ($transaction) {
+                    $amount = $transaction->amount;
+                    if ($transaction->tran_type === 'Payment') {
+                        $class = 'text-danger';
+                        $prefix = '-';
+                    } else {
+                        $class = 'text-success';
+                        $prefix = '';
+                    }
+                    return '<span class="font-weight-bold ' . $class . '">' . $prefix . number_format(abs($amount), 2) . '</span>';
+                })
+                ->addColumn('tran_type_badge', function ($transaction) {
+                    $type = $transaction->tran_type;
+                    if (!$type) return '<span class="text-muted">N/A</span>';
+                    
+                    if ($type === 'Received') {
+                        $badgeClass = 'badge-success';
+                        $icon = 'fa-arrow-down';
+                    } elseif ($type === 'Payment') {
+                        $badgeClass = 'badge-danger';
+                        $icon = 'fa-arrow-up';
+                    } else {
+                        $badgeClass = 'badge-warning';
+                        $icon = 'fa-exchange-alt';
+                    }
+                    return '<span class="badge ' . $badgeClass . '"><i class="fas ' . $icon . ' mr-1"></i>' . $type . '</span>';
+                })
+                ->addColumn('payment_badge', function ($transaction) {
+                    if (!$transaction->payment_type) return '<span class="text-muted">-</span>';
+                    
+                    $type = $transaction->payment_type;
+                    $badgeClass = $type === 'Cash' ? 'badge-info' : 'badge-primary';
+                    $icon = $type === 'Cash' ? 'fa-money-bill' : 'fa-university';
+                    return '<span class="badge ' . $badgeClass . '"><i class="fas ' . $icon . ' mr-1"></i>' . $type . '</span>';
+                })
+                ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge'])
                 ->make(true);
         }
         $accounts = ChartOfAccount::where('account_head', 'Liabilities')->get();
@@ -54,27 +98,66 @@ class LiabilityController extends Controller
         return view('admin.transactions.liabilities', compact('accounts', 'accountList'));
     }
 
+    public function getSummary(Request $request)
+    {
+        $query = Transaction::where('table_type', 'Liabilities');
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        }
+
+        $totalReceived = $query->where('tran_type', 'Received')->sum('amount');
+        
+        // Reset query for payment
+        $query2 = Transaction::where('table_type', 'Liabilities');
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query2->whereBetween('date', [$request->start_date, $request->end_date]);
+        }
+        $totalPayment = $query2->where('tran_type', 'Payment')->sum('amount');
+        
+        $netBalance = $totalReceived - $totalPayment;
+        
+        $query3 = Transaction::where('table_type', 'Liabilities');
+        $totalCount = $query3->count();
+
+        $todayReceived = Transaction::where('table_type', 'Liabilities')
+            ->where('tran_type', 'Received')
+            ->whereDate('date', today())
+            ->sum('amount');
+
+        $todayPayment = Transaction::where('table_type', 'Liabilities')
+            ->where('tran_type', 'Payment')
+            ->whereDate('date', today())
+            ->sum('amount');
+
+        return response()->json([
+            'total_received' => number_format($totalReceived, 2),
+            'total_payment' => number_format($totalPayment, 2),
+            'net_balance' => number_format($netBalance, 2),
+            'total_count' => $totalCount,
+            'today_received' => number_format($todayReceived, 2),
+            'today_payment' => number_format($todayPayment, 2),
+        ]);
+    }
+
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'date' => 'required|date',
+            'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
+            'amount' => 'required|numeric|min:0.01',
+            'transaction_type' => 'required|in:Received,Payment',
+            'payment_type' => 'required|in:Cash,Bank',
+        ], [
+            'date.required' => 'Date field is required',
+            'chart_of_account_id.required' => 'Chart of Account is required',
+            'amount.required' => 'Amount field is required',
+            'transaction_type.required' => 'Transaction Type is required',
+            'payment_type.required' => 'Payment Type is required',
+        ]);
 
-        if (empty($request->date)) {
-            return response()->json(['status' => 303, 'message' => 'Date Field Is Required..!']);
-        }
-
-        if (empty($request->chart_of_account_id)) {
-            return response()->json(['status' => 303, 'message' => 'Chart of Account ID Field Is Required..!']);
-        }
-
-        if (empty($request->amount)) {
-            return response()->json(['status' => 303, 'message' => 'Amount Field Is Required..!']);
-        }
-
-        if (empty($request->transaction_type)) {
-            return response()->json(['status' => 303, 'message' => 'Transaction Type Field Is Required..!']);
-        }
-
-        if (empty($request->payment_type)) {
-            return response()->json(['status' => 303, 'message' => 'Payment Type Field Is Required..!']);
+        if ($validator->fails()) {
+            return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
         $transaction = new Transaction();
@@ -91,9 +174,8 @@ class LiabilityController extends Controller
         $transaction->vat_amount = $request->input('vat_amount');
         $transaction->at_amount = $request->input('at_amount');
         $transaction->tran_type = $request->input('transaction_type');
-        // $transaction->liability_id = $request->input('payable_holder_id');
         $transaction->payment_type = $request->input('payment_type');
-        // $transaction->liablity_id = $request->input('chart_of_account_id');
+        $transaction->liablity_id = $request->input('chart_of_account_id');
         $transaction->created_by = Auth()->user()->id;
 
         $transaction->save();
@@ -112,8 +194,7 @@ class LiabilityController extends Controller
             }
         }
 
-        return response()->json(['status' => 200, 'message' => 'Created Successfully']);
-
+        return response()->json(['status' => 200, 'message' => 'Liability created successfully', 'id' => $transaction->id]);
     }
 
     public function edit($id)
@@ -139,32 +220,35 @@ class LiabilityController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (empty($request->date)) {
-            return response()->json(['status' => 303, 'message' => 'Date Field Is Required..!']);
-        }
+        $validator = Validator::make($request->all(), [
+            'date' => 'required|date',
+            'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
+            'amount' => 'required|numeric|min:0.01',
+            'transaction_type' => 'required|in:Received,Payment',
+            'payment_type' => 'required|in:Cash,Bank',
+        ], [
+            'date.required' => 'Date field is required',
+            'chart_of_account_id.required' => 'Chart of Account is required',
+            'amount.required' => 'Amount field is required',
+            'transaction_type.required' => 'Transaction Type is required',
+            'payment_type.required' => 'Payment Type is required',
+        ]);
 
-        if (empty($request->chart_of_account_id)) {
-            return response()->json(['status' => 303, 'message' => 'Chart of Account ID Field Is Required..!']);
-        }
-
-        if (empty($request->amount)) {
-            return response()->json(['status' => 303, 'message' => 'Amount Field Is Required..!']);
-        }
-
-        if (empty($request->transaction_type)) {
-            return response()->json(['status' => 303, 'message' => 'Transaction Type Field Is Required..!']);
-        }
-
-        if (empty($request->payment_type)) {
-            return response()->json(['status' => 303, 'message' => 'Payment Type Field Is Required..!']);
+        if ($validator->fails()) {
+            return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
         $transaction = Transaction::find($id);
+
+        if (!$transaction) {
+            return response()->json(['status' => 303, 'message' => 'Transaction not found']);
+        }
 
         $oldAccountId = $transaction->account_id;
         $oldType = $transaction->tran_type;
         $oldAmount = $transaction->amount;
 
+        // Reverse old account balance
         if ($oldAccountId) {
             $oldAccount = Account::find($oldAccountId);
             if ($oldAccount) {
@@ -194,6 +278,7 @@ class LiabilityController extends Controller
         $transaction->updated_by = auth()->user()->id;
         $transaction->save();
 
+        // Apply new account balance
         $newAccountId = $request->account_id;
         $newType = $request->transaction_type;
         $newAmount = $request->amount;
@@ -210,7 +295,6 @@ class LiabilityController extends Controller
             }
         }
 
-        return response()->json(['status' => 200, 'message' => 'Updated Successfully']);
-
+        return response()->json(['status' => 200, 'message' => 'Liability updated successfully', 'id' => $transaction->id]);
     }
 }

@@ -310,9 +310,10 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     //Liability
     Route::get('liabilities', [LiabilityController::class, 'index'])->name('admin.liabilities');
     Route::post('liability', [LiabilityController::class, 'index'])->name('admin.liability.filter');
-    Route::post('liabilities', [LiabilityController::class, 'store']);
-    Route::get('liabilities/{id}', [LiabilityController::class, 'edit']);
-    Route::put('liabilities/{id}', [LiabilityController::class, 'update']);
+    Route::post('liabilities', [LiabilityController::class, 'store'])->name('admin.liabilities.store');
+    Route::get('liabilities/{id}', [LiabilityController::class, 'edit'])->name('admin.liabilities.edit');
+    Route::put('liabilities/{id}', [LiabilityController::class, 'update'])->name('admin.liabilities.update');
+    Route::get('liability-summary', [LiabilityController::class, 'getSummary'])->name('admin.liabilities.summary');
 
     //Equity
     Route::get('equity', [EquityController::class, 'index'])->name('admin.equity');
