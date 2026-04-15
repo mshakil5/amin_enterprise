@@ -136,7 +136,7 @@
 
                     {{-- Row 2: Amount, Payment Type, Account --}}
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
                                     Amount <span class="text-danger">*</span>
@@ -144,7 +144,7 @@
                                 <input type="number" name="amount" class="form-control form-control-sm" id="amount" placeholder="0.00" step="0.01" required>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group" id="payment_type_container">
                                 <label class="font-weight-bold" style="font-size:13px;">
                                     Payment Type <span class="text-danger">*</span>
@@ -156,7 +156,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Account</label>
                                 <select class="form-control select2" id="account_id" name="account_id">
@@ -167,7 +167,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Description</label>
                                 <input type="text" name="description" class="form-control form-control-sm" id="description" placeholder="Enter description">
