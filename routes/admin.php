@@ -125,7 +125,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/vendor-list', [VendorController::class, 'vendorlist'])->name('admin.getVendors');
     Route::get('/get-vendors-list/{id}', [VendorController::class, 'getVendorListByClientId'])->name('admin.getVendorListByClientId');
     Route::get('/get-vendors-sequence-list/{id}', [VendorController::class, 'getVendorWiseProgramList'])->name('admin.vendor.sequence.show');
-    Route::post('/vendor', [VendorController::class, 'store']);
+    Route::post('/vendor', [VendorController::class, 'store'])->name('admin.vendor.store');
     Route::get('/vendor/{id}/edit', [VendorController::class, 'edit']);
     Route::post('/vendor-update', [VendorController::class, 'update']);
     Route::get('/vendor/{id}', [VendorController::class, 'delete']);
