@@ -2328,4 +2328,247 @@ class ProgramController extends Controller
     }
 
 
+    // fuel rate update in programdetails on before challan posting
+    public function fuelRateUpdateIndex()
+    {
+        if (!(in_array('14', json_decode(auth()->user()->role->permission)))) {
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
+        return view('admin.program.fuel_rate_update');
+    }
+
+    public function fuelRateUpdateSearch(Request $request)
+    {
+        $date = $request->input('search_date');
+        
+        $advancePayments = AdvancePayment::with(['programDetail', 'vendor', 'program'])
+            ->whereDate('date', $date)
+            ->where('fuelqty', '>', 0)
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        if ($advancePayments->isEmpty()) {
+            return response()->json([
+                'status' => 400,
+                'message' => '<div class="alert alert-warning">No data found for this date.</div>'
+            ]);
+        }
+
+        $html = $this->generateFuelRateTable($advancePayments);
+
+        return response()->json([
+            'status' => 200,
+            'html' => $html,
+            'count' => $advancePayments->count()
+        ]);
+    }
+
+    public function fuelRateUpdateStore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'new_fuel_rate' => 'required|numeric|min:0',
+            'search_date' => 'required|date',
+            'advance_ids' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'message' => '<div class="alert alert-warning">' . implode('<br>', $validator->errors()->all()) . '</div>'
+            ]);
+        }
+
+        $newRate = $request->input('new_fuel_rate');
+        $advanceIds = $request->input('advance_ids');
+        $updatedCount = 0;
+
+        DB::beginTransaction();
+
+        try {
+            $advancePayments = AdvancePayment::whereIn('id', $advanceIds)->get();
+
+            foreach ($advancePayments as $advance) {
+                $oldFuelAmount = $advance->fuelamount;
+                $newFuelAmount = $newRate * $advance->fuelqty;
+                $newTotalAmount = $newFuelAmount + $advance->cashamount;
+
+                // Update AdvancePayment
+                $advance->fuel_rate = $newRate;
+                $advance->fuelamount = $newFuelAmount;
+                $advance->amount = $newTotalAmount;
+                $advance->save();
+
+                // Update ProgramDetail advance
+                if ($advance->program_detail_id) {
+                    ProgramDetail::where('id', $advance->program_detail_id)
+                        ->update(['advance' => $newTotalAmount]);
+                }
+
+                // Update Transaction (Fuel type only)
+                Transaction::where('advance_payment_id', $advance->id)
+                    ->where('payment_type', 'Fuel')
+                    ->update(['amount' => $newFuelAmount]);
+
+                $updatedCount++;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 300,
+                'message' => '<div class="alert alert-success">Successfully updated fuel rate for ' . $updatedCount . ' records.</div>'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 400,
+                'message' => '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>'
+            ]);
+        }
+    }
+
+    public function fuelRateSingleUpdate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'advance_id' => 'required|exists:advance_payments,id',
+            'fuel_rate' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'message' => '<div class="alert alert-warning">' . implode('<br>', $validator->errors()->all()) . '</div>'
+            ]);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $advance = AdvancePayment::find($request->advance_id);
+            $newRate = $request->fuel_rate;
+            $newFuelAmount = $newRate * $advance->fuelqty;
+            $newTotalAmount = $newFuelAmount + $advance->cashamount;
+
+            // Update AdvancePayment
+            $advance->fuel_rate = $newRate;
+            $advance->fuelamount = $newFuelAmount;
+            $advance->amount = $newTotalAmount;
+            $advance->save();
+
+            // Update ProgramDetail advance
+            if ($advance->program_detail_id) {
+                ProgramDetail::where('id', $advance->program_detail_id)
+                    ->update(['advance' => $newTotalAmount]);
+            }
+
+            // Update Transaction (Fuel type only)
+            Transaction::where('advance_payment_id', $advance->id)
+                ->where('payment_type', 'Fuel')
+                ->update(['amount' => $newFuelAmount]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 300,
+                'message' => '<div class="alert alert-success">Fuel rate updated successfully.</div>',
+                'new_fuel_amount' => $newFuelAmount,
+                'new_total_amount' => $newTotalAmount
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 400,
+                'message' => '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>'
+            ]);
+        }
+    }
+
+    private function generateFuelRateTable($advancePayments)
+    {
+        $html = '
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="fuelRateTable">
+                <thead class="thead-dark">
+                    <tr>
+                        <th width="5%">
+                            <input type="checkbox" id="selectAll" class="form-check-input">
+                        </th>
+                        <th>Date</th>
+                        <th>Program ID</th>
+                        <th>Vendor</th>
+                        <th>Truck#</th>
+                        <th>Fuel Qty</th>
+                        <th>Old Rate</th>
+                        <th>Old Fuel Amt</th>
+                        <th>Cash Adv</th>
+                        <th>Old Total</th>
+                        <th>New Rate</th>
+                        <th>New Fuel Amt</th>
+                        <th>New Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        foreach ($advancePayments as $advance) {
+            $newFuelAmount = 0;
+            $newTotalAmount = 0;
+            
+            $html .= '
+                    <tr data-id="' . $advance->id . '">
+                        <td>
+                            <input type="checkbox" class="form-check-input advance-checkbox" value="' . $advance->id . '">
+                        </td>
+                        <td>' . date('d-m-Y', strtotime($advance->date)) . '</td>
+                        <td>' . ($advance->program ? $advance->program->programid : 'N/A') . '</td>
+                        <td>' . ($advance->vendor ? $advance->vendor->name : 'N/A') . '</td>
+                        <td>' . ($advance->programDetail ? $advance->programDetail->truck_number : 'N/A') . '</td>
+                        <td>' . $advance->fuelqty . '</td>
+                        <td class="old-rate">' . $advance->fuel_rate . '</td>
+                        <td class="old-fuel-amount">' . number_format($advance->fuelamount, 2) . '</td>
+                        <td>' . number_format($advance->cashamount, 2) . '</td>
+                        <td class="old-total">' . number_format($advance->amount, 2) . '</td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm single-rate-input" 
+                                value="' . $advance->fuel_rate . '" 
+                                data-advance-id="' . $advance->id . '"
+                                data-fuelqty="' . $advance->fuelqty . '"
+                                data-cashamount="' . $advance->cashamount . '">
+                        </td>
+                        <td class="new-fuel-amount">' . number_format($advance->fuelamount, 2) . '</td>
+                        <td class="new-total">' . number_format($advance->amount, 2) . '</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary single-update-btn" data-id="' . $advance->id . '">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </td>
+                    </tr>';
+        }
+
+        $html .= '
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="text-right"><strong>Bulk Update Rate:</strong></td>
+                        <td colspan="2">
+                            <input type="number" class="form-control" id="bulkNewRate" placeholder="Enter new rate" value="115">
+                        </td>
+                        <td colspan="4"></td>
+                        <td colspan="2">
+                            <button type="button" class="btn btn-success btn-sm" id="bulkUpdateBtn">
+                                <i class="fas fa-sync"></i> Update Selected
+                            </button>
+                        </td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>';
+
+        return $html;
+    }
+
+
 }

@@ -225,6 +225,12 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     // change fuel rate from pump unique id
     Route::post('/change-program-fuel-rate', [ProgramController::class, 'changeProgramFuelRate'])->name('change-program-fuel-rate');
 
+    // fuel rate update in programdetails on before challan posting
+    Route::get('/fuel-rate-update', [ProgramController::class, 'fuelRateUpdateIndex'])->name('admin.fuelRateUpdate.index');
+    Route::post('/fuel-rate-update/search', [ProgramController::class, 'fuelRateUpdateSearch'])->name('admin.fuelRateUpdate.search');
+    Route::post('/fuel-rate-update/update', [ProgramController::class, 'fuelRateUpdateStore'])->name('admin.fuelRateUpdate.update');
+    Route::post('/fuel-rate-update/single-update', [ProgramController::class, 'fuelRateSingleUpdate'])->name('admin.fuelRateUpdate.singleUpdate');
+
     // billing
     Route::get('/bill', [TransactionController::class,'getBill'])->name('admin.getBill');
     Route::post('/check-bill', [TransactionController::class, 'checkBill'])->name('admin.checkBill');

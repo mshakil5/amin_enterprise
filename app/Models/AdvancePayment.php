@@ -49,20 +49,20 @@ class AdvancePayment extends Model
             ->useLogName('advance_payment');
     }
 
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class);
-    }
+    // public function vendor()
+    // {
+    //     return $this->belongsTo(Vendor::class);
+    // }
 
-    public function petrolPump()
-    {
-        return $this->belongsTo(PetrolPump::class);
-    }
+    // public function petrolPump()
+    // {
+    //     return $this->belongsTo(PetrolPump::class);
+    // }
 
-    public function programDetail()
-    {
-        return $this->hasOne(ProgramDetail::class, 'id', 'program_detail_id');
-    }
+    // public function programDetail()
+    // {
+    //     return $this->hasOne(ProgramDetail::class, 'id', 'program_detail_id');
+    // }
 
     protected static function boot()
     {
@@ -75,4 +75,46 @@ class AdvancePayment extends Model
             }
         });
     }
+
+
+
+
+
+
+
+
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class, 'program_id');
+    }
+
+    public function programDetail()
+    {
+        return $this->belongsTo(ProgramDetail::class, 'program_detail_id');
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+    public function petrolPump()
+    {
+        return $this->belongsTo(PetrolPump::class, 'petrol_pump_id');
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'advance_payment_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+
+
+
 }
