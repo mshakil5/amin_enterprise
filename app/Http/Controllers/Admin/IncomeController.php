@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
 use App\Models\VendorSequenceNumber;
+use Illuminate\Support\Facades\DB;
 
 class IncomeController extends Controller
 {
@@ -54,15 +55,23 @@ class IncomeController extends Controller
                 })
                 ->addColumn('tran_type_badge', function ($transaction) {
                     $type = $transaction->tran_type;
-                    $badgeClass = $type === 'Current' ? 'badge-success' : ($type === 'Refund' ? 'badge-danger' : 'badge-warning');
-                    return '<span class="badge ' . $badgeClass . '">' . $type . '</span>';
+                    $configs = [
+                        'Current'       => ['badge-success', 'fa-arrow-down'],
+                        'Refund'        => ['badge-danger', 'fa-arrow-up'],
+                        'Advance Adjust'=> ['badge-warning', 'fa-exchange-alt'],
+                    ];
+                    $config = $configs[$type] ?? ['badge-dark', 'fa-question'];
+                    return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
                 ->addColumn('payment_badge', function ($transaction) {
-                    if (!$transaction->payment_type) return '-';
+                    if (!$transaction->payment_type) return '<span class="text-muted">-</span>';
                     $type = $transaction->payment_type;
-                    $badgeClass = $type === 'Cash' ? 'badge-info' : 'badge-primary';
-                    $icon = $type === 'Cash' ? 'fa-money-bill' : 'fa-university';
-                    return '<span class="badge ' . $badgeClass . '"><i class="fas ' . $icon . ' mr-1"></i>' . $type . '</span>';
+                    $configs = [
+                        'Cash' => ['badge-info', 'fa-money-bill'],
+                        'Bank' => ['badge-primary', 'fa-university'],
+                    ];
+                    $config = $configs[$type] ?? ['badge-secondary', 'fa-question'];
+                    return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
                 ->rawColumns(['chart_of_account', 'amount_formatted', 'tran_type_badge', 'payment_badge'])
                 ->make(true);
@@ -75,16 +84,17 @@ class IncomeController extends Controller
 
     public function getSummary(Request $request)
     {
-        $query = Transaction::where('table_type', 'Income');
+        $baseQuery = Transaction::where('table_type', 'Income');
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+            $baseQuery->whereBetween('date', [$request->start_date, $request->end_date]);
         }
 
-        $totalIncome = $query->where('tran_type', 'Current')->sum('amount');
-        $totalRefund = $query->where('tran_type', 'Refund')->sum('amount');
-        $netIncome = $totalIncome + $totalRefund; // Refund is negative
-        $totalCount = $query->count();
+        $totalIncome = (clone $baseQuery)->where('tran_type', 'Current')->sum('amount');
+        $totalRefund = (clone $baseQuery)->where('tran_type', 'Refund')->sum('amount');
+        $totalAdvanceAdjust = (clone $baseQuery)->where('tran_type', 'Advance Adjust')->sum('amount');
+        $netIncome = $totalIncome - $totalRefund;
+        $totalCount = (clone $baseQuery)->count();
 
         $todayIncome = Transaction::where('table_type', 'Income')
             ->where('tran_type', 'Current')
@@ -100,6 +110,7 @@ class IncomeController extends Controller
         return response()->json([
             'total_income' => number_format(abs($totalIncome), 2),
             'total_refund' => number_format(abs($totalRefund), 2),
+            'total_advance_adjust' => number_format($totalAdvanceAdjust, 2),
             'net_income' => number_format($netIncome, 2),
             'total_count' => $totalCount,
             'today_income' => number_format($todayIncome, 2),
@@ -114,57 +125,82 @@ class IncomeController extends Controller
             'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
             'amount' => 'required|numeric|min:0.01',
             'transaction_type' => 'required|in:Current,Refund,Advance Adjust',
-            'payment_type' => 'required_if:transaction_type,!=,Advance Adjust|nullable|in:Cash,Bank',
+            'payment_type' => 'required_unless:transaction_type,Advance Adjust|nullable|in:Cash,Bank',
+            'account_id' => 'required_unless:transaction_type,Advance Adjust|nullable|exists:accounts,id',
         ], [
             'date.required' => 'Date field is required',
             'chart_of_account_id.required' => 'Chart of Account is required',
             'amount.required' => 'Amount field is required',
             'transaction_type.required' => 'Transaction Type is required',
-            'payment_type.required_if' => 'Payment Type is required',
+            'payment_type.required_unless' => 'Payment Type is required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
-        $transaction = new Transaction();
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->table_type = 'Income';
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        $transaction->tax_rate = $request->input('tax_rate');
-        $transaction->tax_amount = $request->input('tax_amount');
-        $transaction->vat_rate = $request->input('vat_rate');
-        $transaction->vat_amount = $request->input('vat_amount');
-        $transaction->at_amount = $request->input('at_amount');
-        $transaction->tran_type = $request->input('transaction_type');
-        $transaction->payment_type = $request->input('payment_type');
-        $transaction->income_id = $request->input('chart_of_account_id');
-        $transaction->vendor_id = $request->input('vendor_id');
-        $transaction->vendor_sequence_number_id = $request->input('vendor_sequence_id');
-        $transaction->mother_vassel_id = $request->input('mother_vassel_id');
-        $transaction->created_by = Auth()->user()->id;
+        DB::beginTransaction();
 
-        $transaction->save();
-        $transaction->tran_id = 'IN' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-        $transaction->save();
+        try {
+            $transaction = new Transaction();
+            $transaction->date = $request->input('date');
+            $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->account_id = $request->transaction_type === 'Advance Adjust' ? null : ($request->input('account_id') ?? null);
+            $transaction->table_type = 'Income';
+            $transaction->ref = $request->input('ref');
+            $transaction->description = $request->input('description');
+            $transaction->amount = $request->input('amount');
+            $transaction->tax_rate = $request->input('tax_rate');
+            $transaction->tax_amount = $request->input('tax_amount');
+            $transaction->vat_rate = $request->input('vat_rate');
+            $transaction->vat_amount = $request->input('vat_amount');
+            $transaction->at_amount = $request->input('at_amount');
+            $transaction->tran_type = $request->input('transaction_type');
+            $transaction->payment_type = $request->transaction_type === 'Advance Adjust' ? null : $request->input('payment_type');
+            $transaction->income_id = $request->input('chart_of_account_id');
+            $transaction->vendor_id = $request->input('vendor_id');
+            $transaction->vendor_sequence_number_id = $request->input('vendor_sequence_id');
+            $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+            $transaction->created_by = Auth()->user()->id;
 
-        if ($request->account_id) {
-            $account = Account::find($request->account_id);
-            if ($account) {
-                if ($request->transaction_type === 'Current') {
-                    $account->amount += $request->amount;
-                } elseif ($request->transaction_type === 'Refund') {
-                    $account->amount -= $request->amount;
-                }
-                $account->save();
+            // Handle Advance Adjust specific fields
+            if ($request->input('transaction_type') === 'Advance Adjust') {
+                $transaction->tax_rate = null;
+                $transaction->tax_amount = null;
+                $transaction->vat_rate = null;
+                $transaction->vat_amount = null;
+                $transaction->at_amount = (float) $request->input('amount');
             }
-        }
 
-        return response()->json(['status' => 200, 'message' => 'Income created successfully', 'id' => $transaction->id]);
+            $transaction->save();
+            $transaction->tran_id = 'IN' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+            $transaction->save();
+
+            // Update account balance
+            if ($transaction->account_id) {
+                $account = Account::find($transaction->account_id);
+                if ($account) {
+                    $amount = (float) $request->input('amount');
+                    if ($request->transaction_type === 'Current') {
+                        $account->increment('amount', $amount);
+                    } elseif ($request->transaction_type === 'Refund') {
+                        $account->decrement('amount', $amount);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 200, 'message' => 'Income created successfully', 'id' => $transaction->id]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function edit($id)
@@ -173,6 +209,7 @@ class IncomeController extends Controller
 
         $responseData = [
             'id' => $transaction->id,
+            'tran_id' => $transaction->tran_id,
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'chart_of_account_name' => $transaction->chartOfAccount ? $transaction->chartOfAccount->account_name : '',
@@ -201,88 +238,92 @@ class IncomeController extends Controller
             'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
             'amount' => 'required|numeric|min:0.01',
             'transaction_type' => 'required|in:Current,Refund,Advance Adjust',
-            'payment_type' => 'required_if:transaction_type,!=,Advance Adjust|nullable|in:Cash,Bank',
+            'payment_type' => 'required_unless:transaction_type,Advance Adjust|nullable|in:Cash,Bank',
+            'account_id' => 'required_unless:transaction_type,Advance Adjust|nullable|exists:accounts,id',
         ], [
             'date.required' => 'Date field is required',
             'chart_of_account_id.required' => 'Chart of Account is required',
             'amount.required' => 'Amount field is required',
             'transaction_type.required' => 'Transaction Type is required',
-            'payment_type.required_if' => 'Payment Type is required',
+            'payment_type.required_unless' => 'Payment Type is required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
-        $transaction = Transaction::find($id);
+        return DB::transaction(function () use ($request, $id) {
 
-        if (!$transaction) {
-            return response()->json(['status' => 303, 'message' => 'Transaction not found']);
-        }
+            $transaction = Transaction::findOrFail($id);
 
-        $oldAccountId = $transaction->account_id;
-        $oldTranType = $transaction->tran_type;
-        $oldAtAmount = $transaction->amount;
+            $oldAccountId = $transaction->account_id;
+            $oldTranType = $transaction->tran_type;
+            // FIX: Cast to float to prevent non-numeric error
+            $oldAmount = (float) ($transaction->amount ?? 0);
 
-        // Reverse old account balance
-        if ($oldAccountId) {
-            $oldAccount = Account::find($oldAccountId);
-            if ($oldAccount) {
-                if ($oldTranType === 'Current') {
-                    $oldAccount->amount -= $oldAtAmount;
-                } elseif ($oldTranType === 'Refund') {
-                    $oldAccount->amount += $oldAtAmount;
+            // Reverse old account balance
+            if ($oldAccountId) {
+                $oldAccount = Account::find($oldAccountId);
+                if ($oldAccount) {
+                    if ($oldTranType === 'Current') {
+                        $oldAccount->decrement('amount', $oldAmount);
+                    } elseif ($oldTranType === 'Refund') {
+                        $oldAccount->increment('amount', $oldAmount);
+                    }
                 }
-                $oldAccount->save();
             }
-        }
 
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        $transaction->vat_rate = $request->input('vat_rate');
-        $transaction->vat_amount = $request->input('vat_amount');
-        $transaction->at_amount = $request->input('at_amount');
-        $transaction->tran_type = $request->input('transaction_type');
-        $transaction->income_id = $request->input('chart_of_account_id');
-        $transaction->mother_vassel_id = $request->input('mother_vassel_id');
-        $transaction->vendor_id = $request->input('vendor_id');
-        $transaction->vendor_sequence_number_id = $request->input('vendor_sequence_id');
-        $transaction->updated_by = Auth()->user()->id;
+            // FIX: Cast new amount to float
+            $newAmount = (float) ($request->input('amount') ?? 0);
+            $newTranType = $request->input('transaction_type');
 
-        if ($request->input('transaction_type') === 'Advance Adjust') {
-            $transaction->tax_rate = null;
-            $transaction->tax_amount = null;
-            $transaction->payment_type = null;
-            $transaction->at_amount = $request->input('amount');
-        } else {
-            $transaction->tax_rate = $request->input('tax_rate');
-            $transaction->tax_amount = $request->input('tax_amount');
-            $transaction->payment_type = $request->input('payment_type');
-        }
+            $transaction->date = $request->input('date');
+            $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->ref = $request->input('ref');
+            $transaction->description = $request->input('description');
+            $transaction->amount = $newAmount;
+            $transaction->vat_rate = $request->input('vat_rate');
+            $transaction->vat_amount = $request->input('vat_amount');
+            $transaction->tran_type = $newTranType;
+            $transaction->income_id = $request->input('chart_of_account_id');
+            $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+            $transaction->vendor_id = $request->input('vendor_id');
+            $transaction->vendor_sequence_number_id = $request->input('vendor_sequence_id');
+            $transaction->updated_by = Auth()->user()->id;
 
-        $transaction->save();
+            // FIX: Handle Advance Adjust properly
+            if ($newTranType === 'Advance Adjust') {
+                $transaction->tax_rate = null;
+                $transaction->tax_amount = null;
+                $transaction->vat_rate = null;
+                $transaction->vat_amount = null;
+                $transaction->payment_type = null;
+                $transaction->account_id = null;
+                $transaction->at_amount = $newAmount;
+            } else {
+                $transaction->tax_rate = $request->input('tax_rate');
+                $transaction->tax_amount = $request->input('tax_amount');
+                $transaction->payment_type = $request->input('payment_type');
+                $transaction->account_id = $request->input('account_id') ?? null;
+                $transaction->at_amount = $request->input('at_amount');
+            }
 
-        // Apply new account balance
-        $newAccountId = $request->account_id;
-        $newTranType = $request->transaction_type;
-        $newAtAmount = $request->amount;
+            $transaction->save();
 
-        if ($newAccountId) {
-            $newAccount = Account::find($newAccountId);
-            if ($newAccount) {
-                if ($newTranType === 'Current') {
-                    $newAccount->amount += $newAtAmount;
-                } elseif ($newTranType === 'Refund') {
-                    $newAccount->amount -= $newAtAmount;
+            // Apply new account balance
+            $newAccountId = $transaction->account_id;
+            if ($newAccountId && $newTranType !== 'Advance Adjust') {
+                $newAccount = Account::find($newAccountId);
+                if ($newAccount) {
+                    if ($newTranType === 'Current') {
+                        $newAccount->increment('amount', $newAmount);
+                    } elseif ($newTranType === 'Refund') {
+                        $newAccount->decrement('amount', $newAmount);
+                    }
                 }
-                $newAccount->save();
             }
-        }
 
-        return response()->json(['status' => 200, 'message' => 'Income updated successfully', 'id' => $transaction->id, 'alldata' => $request->all()]);
+            return response()->json(['status' => 200, 'message' => 'Income updated successfully', 'id' => $transaction->id]);
+        });
     }
 }

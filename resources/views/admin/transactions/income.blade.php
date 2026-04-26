@@ -35,6 +35,15 @@
                 </div>
             </div>
             <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="info-box bg-warning">
+                    <span class="info-box-icon"><i class="fas fa-exchange-alt"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Advance Adjust</span>
+                        <span class="info-box-number" id="total-advance-adjust">0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
                 <div class="info-box bg-primary">
                     <span class="info-box-icon"><i class="fas fa-balance-scale"></i></span>
                     <div class="info-box-content">
@@ -54,15 +63,6 @@
             </div>
             <div class="col-lg-2 col-md-4 col-sm-6">
                 <div class="info-box bg-secondary">
-                    <span class="info-box-icon"><i class="fas fa-calendar-alt"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">This Month</span>
-                        <span class="info-box-number" id="month-income">0.00</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <div class="info-box bg-warning">
                     <span class="info-box-icon"><i class="fas fa-list-ol"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Total Records</span>
@@ -72,7 +72,7 @@
             </div>
         </div>
 
-        {{-- Income Form Card (Collapsible) --}}
+        {{-- Income Form Card --}}
         <div class="card card-outline card-success mb-4" id="income-form-card" style="display: none;">
             <div class="card-header">
                 <h3 class="card-title">
@@ -91,7 +91,7 @@
                     {{ csrf_field() }}
                     <input type="hidden" name="income_id" id="income_id" value="">
 
-                    {{-- Row 1: Date, Chart of Account, Reference --}}
+                    {{-- Row 1: Date, Chart of Account, Reference, Transaction Type --}}
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -101,11 +101,11 @@
                                 <input type="date" name="date" class="form-control form-control-sm" id="date" value="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
                                     Chart of Account <span class="text-danger">*</span>
-                                </label> <br>
+                                </label>
                                 <select class="form-control form-control-sm select2" id="chart_of_account_id" name="chart_of_account_id" required>
                                     <option value="">Select chart of account</option>
                                     @foreach($accounts as $account)
@@ -120,7 +120,7 @@
                                 <input type="text" name="ref" class="form-control form-control-sm" id="ref" placeholder="Enter reference">
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
                                     Transaction Type <span class="text-danger">*</span>
@@ -128,14 +128,15 @@
                                 <select class="form-control form-control-sm" id="transaction_type" name="transaction_type" required>
                                     <option value="Current">New Income</option>
                                     <option value="Refund">Income Refund</option>
+                                    <option value="Advance Adjust">Advance Adjust</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Row 2: Amount, Tax, Payment --}}
+                    {{-- Row 2: Amount (ALWAYS VISIBLE) --}}
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
                                     Amount <span class="text-danger">*</span>
@@ -143,6 +144,16 @@
                                 <input type="number" name="amount" class="form-control form-control-sm" id="amount" placeholder="0.00" step="0.01" required>
                             </div>
                         </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
+                                <textarea class="form-control form-control-sm" id="description" rows="1" name="description" placeholder="Enter description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 3: Tax, Total, Payment, Account (HIDDEN for Advance Adjust) --}}
+                    <div class="row" id="payment_section">
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Tax %</label>
@@ -161,7 +172,7 @@
                                 <input type="number" name="at_amount" class="form-control form-control-sm" id="at_amount" placeholder="0.00" step="0.01" readonly>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
                                     Payment Type <span class="text-danger">*</span>
@@ -173,10 +184,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Account</label>
-                                <select class="form-control form-control-sm" id="account_id" name="account_id">
+                                <select class="form-control form-control-sm select2" id="account_id" name="account_id">
                                     <option value="">Select account</option>
                                     @foreach($accountList as $account)
                                         <option value="{{ $account->id }}">{{ $account->type }} ({{ number_format($account->amount, 2) }})</option>
@@ -186,7 +197,7 @@
                         </div>
                     </div>
 
-                    {{-- Row 3: Mother Vessel, Vendor, Sequence --}}
+                    {{-- Row 4: Mother Vessel, Vendor, Sequence --}}
                     <div class="row" id="vendorDiv" style="display: none;">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -219,16 +230,6 @@
                                         <option value="{{ $vsno->id }}">{{ $vsno->unique_id }}</option>
                                     @endforeach
                                 </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Description (when vendor div is hidden) --}}
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
-                                <textarea class="form-control form-control-sm" id="description" rows="2" name="description" placeholder="Enter description"></textarea>
                             </div>
                         </div>
                     </div>
@@ -390,6 +391,12 @@
         font-size: 11px;
         margin-right: 3px;
     }
+    #income-form .form-group {
+        margin-bottom: 10px;
+    }
+    #income-form label {
+        margin-bottom: 4px;
+    }
 </style>
 @endsection
 
@@ -411,14 +418,15 @@
     var summaryUrl = "{{ route('admin.income.summary') }}";
     var isEditMode = false;
     var editingId = null;
+    var isAdvanceAdjust = false;
 
     // =============================================
     // SELECT2 INITIALIZATION
     // =============================================
     $('.select2').select2({
         width: '100%',
-        theme: 'bootstrap4',
-        allowClear: true
+        allowClear: true,
+        minimumResultsForSearch: 10
     });
 
     // =============================================
@@ -438,9 +446,9 @@
             success: function(response) {
                 $('#total-income').text(response.total_income);
                 $('#total-refund').text(response.total_refund);
+                $('#total-advance-adjust').text(response.total_advance_adjust);
                 $('#net-income').text(response.net_income);
                 $('#today-income').text(response.today_income);
-                $('#month-income').text(response.month_income);
                 $('#total-count').text(response.total_count);
             }
         });
@@ -460,90 +468,30 @@
                 d.start_date = $('#filter_start_date').val();
                 d.end_date = $('#filter_end_date').val();
                 d.account_name = $('#filter_account_name').val();
-            },
-            error: function(xhr, error, thrown) {
-                console.log(xhr.responseText);
             }
         },
         deferRender: true,
         dom: 'Bfrtip',
         buttons: [
-            {
-                extend: 'copy',
-                className: 'btn btn-sm btn-secondary',
-                text: '<i class="fas fa-copy"></i> Copy'
-            },
-            {
-                extend: 'csv',
-                className: 'btn btn-sm btn-success',
-                text: '<i class="fas fa-file-csv"></i> CSV'
-            },
-            {
-                extend: 'excel',
-                className: 'btn btn-sm btn-primary',
-                text: '<i class="fas fa-file-excel"></i> Excel'
-            },
-            {
-                extend: 'pdf',
-                className: 'btn btn-sm btn-danger',
-                text: '<i class="fas fa-file-pdf"></i> PDF'
-            },
-            {
-                extend: 'print',
-                className: 'btn btn-sm btn-dark',
-                text: '<i class="fas fa-print"></i> Print'
-            }
+            { extend: 'copy', className: 'btn btn-sm btn-secondary', text: '<i class="fas fa-copy"></i> Copy' },
+            { extend: 'csv', className: 'btn btn-sm btn-success', text: '<i class="fas fa-file-csv"></i> CSV' },
+            { extend: 'excel', className: 'btn btn-sm btn-primary', text: '<i class="fas fa-file-excel"></i> Excel' },
+            { extend: 'pdf', className: 'btn btn-sm btn-danger', text: '<i class="fas fa-file-pdf"></i> PDF' },
+            { extend: 'print', className: 'btn btn-sm btn-dark', text: '<i class="fas fa-print"></i> Print' }
         ],
         columns: [
-            {
-                data: 'DT_RowIndex',
-                name: 'DT_RowIndex',
-                orderable: false,
-                searchable: false,
-                className: 'text-center'
-            },
-            {
-                data: 'date',
-                name: 'date',
-                render: function(data, type, row) {
-                    return data ? dayjs(data).format('DD-MM-YYYY') : '';
-                }
-            },
-            {
-                data: 'chart_of_account',
-                name: 'chart_of_account',
-                className: 'text-left'
-            },
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'date', name: 'date', render: function(data) { return data ? dayjs(data).format('DD-MM-YYYY') : ''; } },
+            { data: 'chart_of_account', name: 'chart_of_account', className: 'text-left' },
             { data: 'ref', name: 'ref', className: 'text-center' },
             { data: 'description', name: 'description', className: 'text-left' },
+            { data: 'tran_type_badge', name: 'tran_type_badge', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'payment_badge', name: 'payment_badge', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'amount_formatted', name: 'amount', className: 'text-right' },
             {
-                data: 'tran_type_badge',
-                name: 'tran_type_badge',
-                orderable: false,
-                searchable: false,
-                className: 'text-center'
-            },
-            {
-                data: 'payment_badge',
-                name: 'payment_badge',
-                orderable: false,
-                searchable: false,
-                className: 'text-center'
-            },
-            {
-                data: 'amount_formatted',
-                name: 'amount',
-                className: 'text-right'
-            },
-            {
-                data: 'action',
-                name: 'action',
-                orderable: false,
-                searchable: false,
-                className: 'text-center',
-                render: function(data, type, row, meta) {
+                data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center',
+                render: function(data, type, row) {
                     let buttons = '';
-
                     buttons += '<button type="button" class="btn btn-warning btn-action edit-btn" data-id="' + row.id + '" title="Edit">';
                     buttons += '<i class="fas fa-edit"></i> Edit</button>';
 
@@ -561,20 +509,14 @@
         ],
         order: [[1, 'desc']],
         language: {
-            search: "",
-            searchPlaceholder: "Search...",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            infoEmpty: "No entries available",
+            search: "", searchPlaceholder: "Search...",
             emptyTable: "No income records found",
             zeroRecords: "No matching records found"
         },
-        drawCallback: function() {
-            loadSummary();
-        }
+        drawCallback: function() { loadSummary(); }
     });
 
-    // Hide export buttons from top (we have custom ones)
+    // Hide default export buttons
     $('.dt-buttons').hide();
 
     // Bind custom export buttons
@@ -606,36 +548,52 @@
         resetForm();
         isEditMode = false;
         editingId = null;
+        isAdvanceAdjust = false;
         $('#form-title').text('Add New Income');
         $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Save Income');
         $('#income-form-card').removeClass('edit-mode').slideDown(300);
-        $('html, body').animate({
-            scrollTop: $('#income-form-card').offset().top - 100
-        }, 300);
+        $('html, body').animate({ scrollTop: $('#income-form-card').offset().top - 100 }, 300);
     });
 
     $('#btn-close-form, #btn-cancel-form').on('click', function() {
         $('#income-form-card').slideUp(300);
-        setTimeout(function() {
-            resetForm();
-        }, 300);
+        setTimeout(function() { resetForm(); }, 300);
     });
 
     // =============================================
-    // VENDOR DIV TOGGLE
+    // TRANSACTION TYPE CHANGE - FIX: Handle Advance Adjust
+    // =============================================
+    $('#transaction_type').on('change', function() {
+        var transType = $(this).val();
+        isAdvanceAdjust = (transType === 'Advance Adjust');
+
+        if (isAdvanceAdjust) {
+            // Hide payment section for Advance Adjust
+            $('#payment_section').hide();
+            // Clear payment fields
+            $('#payment_type').val('');
+            $('#account_id').val('').trigger('change');
+            $('#tax_rate').val('');
+            $('#tax_amount').val('');
+            $('#at_amount').val('');
+        } else {
+            // Show payment section
+            $('#payment_section').show();
+        }
+    });
+
+    // =============================================
+    // VENDOR DIV TOGGLE - FIX: Removed invalid ID references
     // =============================================
     $('#chart_of_account_id').on('change', function() {
         let selectedText = $(this).find('option:selected').text().toLowerCase();
         if (selectedText.includes("token fee") || selectedText.includes("token") || selectedText.includes("discount")) {
             $('#vendorDiv').show();
-            $('#descriptionRow').hide();
-            // Move description value
-            $('#vendorDiv #description').val($('#descriptionMain').val());
         } else {
             $('#vendorDiv').hide();
-            $('#descriptionRow').show();
-            // Move description value
-            $('#descriptionMain').val($('#vendorDiv #description').val());
+            $('#vendor_id').val('').trigger('change');
+            $('#vendor_sequence_id').val('').trigger('change').empty().append('<option value="">Select Sequence Number</option>');
+            $('#mother_vassel_id').val('').trigger('change');
         }
     });
 
@@ -661,9 +619,16 @@
     });
 
     // =============================================
-    // TAX CALCULATION
+    // TAX CALCULATION - FIX: Skip for Advance Adjust
     // =============================================
     function calculateTotal() {
+        // Don't calculate for Advance Adjust
+        if (isAdvanceAdjust) {
+            $('#tax_amount').val('');
+            $('#at_amount').val('');
+            return;
+        }
+
         var amount = parseFloat($('#amount').val()) || 0;
         var taxRate = parseFloat($('#tax_rate').val()) || 0;
         var taxAmount = amount * (taxRate / 100);
@@ -676,7 +641,7 @@
     $(document).on('input', '#amount, #tax_rate', calculateTotal);
 
     // =============================================
-    // EDIT BUTTON CLICK
+    // EDIT BUTTON CLICK - FIX: Proper field handling
     // =============================================
     $('#incomeTBL').on('click', '.edit-btn', function(e) {
         e.preventDefault();
@@ -689,9 +654,6 @@
                 return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
             },
             success: function(response) {
-
-                console.log(response);
-
                 isEditMode = true;
                 editingId = id;
 
@@ -700,24 +662,47 @@
                 $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Update Income');
                 $('#income-form-card').addClass('edit-mode').slideDown(300);
 
-                // Populate form fields
+                // Populate basic fields - FIX: Always set amount
                 $('#income_id').val(response.id);
                 $('#date').val(response.date);
                 $('#ref').val(response.ref || '');
-                $('#transaction_type').val(response.transaction_type);
-                $('#amount').val(response.amount);
-                $('#tax_rate').val(response.tax_rate || '');
-                $('#tax_amount').val(response.tax_amount || '');
-                $('#at_amount').val(response.at_amount || '');
-                $('#payment_type').val(response.payment_type || '');
-                $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
-                $('#account_id').val(response.account_id || '').trigger('change');
-                $('#mother_vassel_id').val(response.mother_vassel_id || '').trigger('change');
+                $('#amount').val(response.amount || '');
+                $('#description').val(response.description || '');
 
-                // Handle description based on vendor div visibility
+                // Set transaction type FIRST
+                var transType = response.transaction_type;
+                isAdvanceAdjust = (transType === 'Advance Adjust');
+                $('#transaction_type').val(transType);
+
+                // FIX: Handle payment section visibility based on type
+                if (isAdvanceAdjust) {
+                    $('#payment_section').hide();
+                    // Clear payment fields
+                    $('#payment_type').val('');
+                    $('#account_id').val('').trigger('change');
+                    $('#tax_rate').val('');
+                    $('#tax_amount').val('');
+                    $('#at_amount').val('');
+                } else {
+                    $('#payment_section').show();
+                    // Set payment fields
+                    $('#payment_type').val(response.payment_type || '');
+                    $('#tax_rate').val(response.tax_rate || '');
+                    $('#tax_amount').val(response.tax_amount || '');
+                    $('#at_amount').val(response.at_amount || '');
+
+                    // Set account after a small delay for select2
+                    setTimeout(function() {
+                        $('#account_id').val(response.account_id || '').trigger('change');
+                    }, 100);
+                }
+
+                // Set chart of account
+                $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
+
+                // Handle vendor div - FIX: Removed invalid ID references
                 if (response.vendor_id) {
                     $('#vendorDiv').show();
-                    $('#descriptionRow').hide();
                     $('#vendor_id').val(response.vendor_id).trigger('change');
 
                     // Load vendor sequences after vendor is set
@@ -725,20 +710,17 @@
                         $('#vendor_sequence_id').val(response.vendor_sequence_number_id || '').trigger('change');
                     }, 500);
 
-                    $('#vendorDiv #description').val(response.description || '');
+                    if (response.mother_vassel_id) {
+                        setTimeout(function() {
+                            $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
+                        }, 100);
+                    }
                 } else {
                     $('#vendorDiv').hide();
-                    $('#descriptionRow').show();
-                    $('#description').val(response.description || '');
                 }
 
-                // Recalculate totals
-                calculateTotal();
-
                 // Scroll to form
-                $('html, body').animate({
-                    scrollTop: $('#income-form-card').offset().top - 100
-                }, 300);
+                $('html, body').animate({ scrollTop: $('#income-form-card').offset().top - 100 }, 300);
             },
             error: function(xhr) {
                 showToast('Error loading income data', 'error');
@@ -747,10 +729,22 @@
     });
 
     // =============================================
-    // FORM SUBMISSION
+    // FORM SUBMISSION - FIX: Handle Advance Adjust properly
     // =============================================
     $('#income-form').on('submit', function(e) {
         e.preventDefault();
+
+        var transType = $('#transaction_type').val();
+
+        // FIX: For Advance Adjust, set at_amount = amount
+        if (transType === 'Advance Adjust') {
+            $('#at_amount').val($('#amount').val());
+            // Clear payment fields before submit
+            $('#payment_type').val('');
+        } else {
+            // Recalculate total to ensure at_amount is correct
+            calculateTotal();
+        }
 
         var formData = $(this).serialize();
         var url, method;
@@ -763,7 +757,6 @@
             method = 'POST';
         }
 
-        // Show loading state
         var btn = $('#btn-submit-form');
         var originalText = btn.html();
         btn.html('<i class="fas fa-spinner fa-spin mr-1"></i>Saving...').prop('disabled', true);
@@ -808,7 +801,7 @@
     });
 
     // =============================================
-    // RESET FORM
+    // RESET FORM - FIX: Proper reset for all states
     // =============================================
     function resetForm() {
         $('#income-form')[0].reset();
@@ -816,6 +809,7 @@
         $('#date').val('{{ date("Y-m-d") }}');
         isEditMode = false;
         editingId = null;
+        isAdvanceAdjust = false;
 
         // Reset select2
         $('#chart_of_account_id').val('').trigger('change');
@@ -827,10 +821,20 @@
         // Reset calculated fields
         $('#tax_amount').val('');
         $('#at_amount').val('');
+        $('#amount').val('');
+
+        // FIX: Show payment section by default
+        $('#payment_section').show();
+
+        // Reset payment type
+        var payDropdown = $('#payment_type');
+        payDropdown.empty();
+        payDropdown.append('<option value="">Select type</option>');
+        payDropdown.append('<option value="Cash">Cash</option>');
+        payDropdown.append('<option value="Bank">Bank</option>');
 
         // Hide vendor div
         $('#vendorDiv').hide();
-        $('#descriptionRow').show();
 
         // Reset form state
         $('#form-title').text('Add New Income');
@@ -858,7 +862,6 @@
         alertHtml += '</div>';
         $('#form-alert-container').html(alertHtml);
 
-        // Auto hide after 5 seconds
         setTimeout(function() {
             $('#form-alert-container .alert').alert('close');
         }, 5000);
