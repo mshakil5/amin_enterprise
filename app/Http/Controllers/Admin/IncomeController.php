@@ -73,7 +73,12 @@ class IncomeController extends Controller
                     $config = $configs[$type] ?? ['badge-secondary', 'fa-question'];
                     return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
-                ->rawColumns(['chart_of_account', 'amount_formatted', 'tran_type_badge', 'payment_badge'])
+                ->addColumn('ref', function ($transaction) {
+                    $tranid = $transaction->tran_id;
+                    $class = 'text-success';
+                    return '<span class="font-weight-bold ' . $class . '">' . $tranid . '</span>';
+                })
+                ->rawColumns(['chart_of_account', 'amount_formatted', 'tran_type_badge', 'payment_badge', 'ref'])
                 ->make(true);
         }
 

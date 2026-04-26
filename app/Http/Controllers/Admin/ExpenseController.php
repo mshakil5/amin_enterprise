@@ -62,6 +62,12 @@ class ExpenseController extends Controller
                     $class = 'text-danger';
                     return '<span class="font-weight-bold ' . $class . '">- ' . number_format($amount, 2) . '</span>';
                 })
+                
+                ->addColumn('ref', function ($transaction) {
+                    $tranid = $transaction->tran_id;
+                    $class = 'text-success';
+                    return '<span class="font-weight-bold ' . $class . '">' . $tranid . '</span>';
+                })
                 ->addColumn('tran_type_badge', function ($transaction) {
                     $type = $transaction->tran_type;
                     if (!$type) return '<span class="text-muted">N/A</span>';
@@ -90,7 +96,7 @@ class ExpenseController extends Controller
                     $config = $configs[$type] ?? ['badge-secondary', 'fa-question'];
                     return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
-                ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge'])
+                ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge','ref'])
                 ->make(true);
         }
 
