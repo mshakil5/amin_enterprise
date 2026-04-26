@@ -56,6 +56,11 @@ class LiabilityController extends Controller
                     }
                     return '<span class="text-muted">-</span>';
                 })
+                ->addColumn('ref', function ($transaction) {
+                    $tranid = $transaction->tran_id;
+                    $class = 'text-success';
+                    return '<span class="font-weight-bold ' . $class . '">' . $tranid . '</span>';
+                })
                 ->addColumn('amount_formatted', function ($transaction) {
                     $amount = $transaction->amount;
                     if ($transaction->tran_type === 'Payment') {
@@ -91,7 +96,7 @@ class LiabilityController extends Controller
                     $config = $configs[$type] ?? ['badge-secondary', 'fa-question'];
                     return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
-                ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge'])
+                ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge','ref'])
                 ->make(true);
         }
         
