@@ -72,7 +72,7 @@
             </div>
         </div>
 
-        {{-- Equity Form Card (Collapsible) --}}
+        {{-- Equity Form Card --}}
         <div class="card card-outline card-info mb-4" id="equity-form-card" style="display: none;">
             <div class="card-header">
                 <h3 class="card-title">
@@ -135,7 +135,7 @@
                         </div>
                     </div>
 
-                    {{-- Row 2: Amount, Payment Type, Account --}}
+                    {{-- Row 2: Amount, Description --}}
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -145,6 +145,16 @@
                                 <input type="number" name="amount" class="form-control form-control-sm" id="amount" placeholder="0.00" step="0.01" required>
                             </div>
                         </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
+                                <input type="text" name="description" class="form-control form-control-sm" id="description" placeholder="Enter description">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 3: Payment Type, Account --}}
+                    <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
@@ -157,7 +167,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Account</label>
                                 <select class="form-control select2" id="account_id" name="account_id">
@@ -166,12 +176,6 @@
                                         <option value="{{ $account->id }}">{{ $account->type }} ({{ number_format($account->amount, 2) }})</option>
                                     @endforeach
                                 </select>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
-                                <input type="text" name="description" class="form-control form-control-sm" id="description" placeholder="Enter description">
                             </div>
                         </div>
                     </div>
@@ -305,6 +309,103 @@
 @section('style')
 <style>
     /* =============================================
+       SELECT2 STYLING
+       ============================================= */
+    .select2-container {
+        width: 100% !important;
+        display: inline-block;
+    }
+    
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        height: 31px !important;
+        padding: 0 10px;
+        background-color: #fff;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        padding-right: 20px;
+        line-height: 29px !important;
+        font-size: 13px;
+        color: #495057;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 29px !important;
+        width: 20px;
+        right: 6px;
+        top: 1px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #495057 transparent transparent transparent;
+        border-width: 5px 4px 0 4px;
+        margin-left: -4px;
+        margin-top: -2px;
+    }
+    
+    .select2-container--default:hover .select2-selection--single {
+        border-color: #adb5bd;
+    }
+    
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+        outline: none;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+        font-size: 13px;
+    }
+    
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        margin-top: 1px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .select2-container--default .select2-search--dropdown {
+        padding: 8px;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 4px 10px;
+        font-size: 13px;
+        height: 31px;
+        outline: none;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    }
+    
+    .select2-container--default .select2-results__option {
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #495057;
+    }
+    
+    .select2-container--default .select2-results__option:hover,
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+    
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    /* =============================================
        OTHER STYLING
        ============================================= */
     .info-box .info-box-number {
@@ -396,17 +497,20 @@
             success: function(response) {
                 $('#total-received').text(response.total_received);
                 $('#total-payment').text(response.total_payment);
-                $('#net-balance').text(response.net_balance);
                 $('#today-received').text(response.today_received);
                 $('#today-payment').text(response.today_payment);
                 $('#total-count').text(response.total_count);
-                
-                // Color net balance
+
+                // FIX: Properly toggle net balance color classes
+                var $netEl = $('#net-balance');
+                $netEl.text(response.net_balance);
+                $netEl.removeClass('text-danger text-success');
+
                 var netVal = parseFloat(response.net_balance.replace(/,/g, ''));
                 if (netVal < 0) {
-                    $('#net-balance').addClass('text-danger').removeClass('text-success');
+                    $netEl.addClass('text-danger');
                 } else {
-                    $('#net-balance').addClass('text-success').removeClass('text-danger');
+                    $netEl.addClass('text-success');
                 }
             }
         });
@@ -426,97 +530,31 @@
                 d.start_date = $('#filter_start_date').val();
                 d.end_date = $('#filter_end_date').val();
                 d.account_name = $('#filter_account_name').val();
-            },
-            error: function(xhr, error, thrown) {
-                console.log(xhr.responseText);
             }
         },
         deferRender: true,
         dom: 'Bfrtip',
         buttons: [
-            {
-                extend: 'copy',
-                className: 'btn btn-sm btn-secondary',
-                text: '<i class="fas fa-copy"></i> Copy'
-            },
-            {
-                extend: 'csv',
-                className: 'btn btn-sm btn-success',
-                text: '<i class="fas fa-file-csv"></i> CSV'
-            },
-            {
-                extend: 'excel',
-                className: 'btn btn-sm btn-primary',
-                text: '<i class="fas fa-file-excel"></i> Excel'
-            },
-            {
-                extend: 'pdf',
-                className: 'btn btn-sm btn-danger',
-                text: '<i class="fas fa-file-pdf"></i> PDF'
-            },
-            {
-                extend: 'print',
-                className: 'btn btn-sm btn-dark',
-                text: '<i class="fas fa-print"></i> Print'
-            }
+            { extend: 'copy', className: 'btn btn-sm btn-secondary', text: '<i class="fas fa-copy"></i> Copy' },
+            { extend: 'csv', className: 'btn btn-sm btn-success', text: '<i class="fas fa-file-csv"></i> CSV' },
+            { extend: 'excel', className: 'btn btn-sm btn-primary', text: '<i class="fas fa-file-excel"></i> Excel' },
+            { extend: 'pdf', className: 'btn btn-sm btn-danger', text: '<i class="fas fa-file-pdf"></i> PDF' },
+            { extend: 'print', className: 'btn btn-sm btn-dark', text: '<i class="fas fa-print"></i> Print' }
         ],
         columns: [
-            {
-                data: 'DT_RowIndex',
-                name: 'DT_RowIndex',
-                orderable: false,
-                searchable: false,
-                className: 'text-center'
-            },
-            {
-                data: 'date',
-                name: 'date',
-                render: function(data, type, row) {
-                    return data ? dayjs(data).format('DD-MM-YYYY') : '';
-                }
-            },
-            {
-                data: 'chart_of_account',
-                name: 'chart_of_account',
-                className: 'text-left'
-            },
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'date', name: 'date', render: function(data) { return data ? dayjs(data).format('DD-MM-YYYY') : ''; } },
+            { data: 'chart_of_account', name: 'chart_of_account', className: 'text-left' },
             { data: 'ref', name: 'ref', className: 'text-center' },
             { data: 'description', name: 'description', className: 'text-left' },
+            { data: 'tran_type_badge', name: 'tran_type_badge', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'payment_badge', name: 'payment_badge', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'accountname', name: 'accountname', orderable: false, searchable: false, className: 'text-center' },
+            { data: 'amount_formatted', name: 'amount', className: 'text-right' },
             {
-                data: 'tran_type_badge',
-                name: 'tran_type_badge',
-                orderable: false,
-                searchable: false,
-                className: 'text-center'
-            },
-            {
-                data: 'payment_badge',
-                name: 'payment_badge',
-                orderable: false,
-                searchable: false,
-                className: 'text-center'
-            },
-            {
-                data: 'accountname',
-                name: 'accountname',
-                orderable: false,
-                searchable: false,
-                className: 'text-center'
-            },
-            {
-                data: 'amount_formatted',
-                name: 'amount',
-                className: 'text-right'
-            },
-            {
-                data: 'action',
-                name: 'action',
-                orderable: false,
-                searchable: false,
-                className: 'text-center',
-                render: function(data, type, row, meta) {
+                data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center',
+                render: function(data, type, row) {
                     let buttons = '';
-
                     buttons += '<button type="button" class="btn btn-warning btn-action edit-btn" data-id="' + row.id + '" title="Edit">';
                     buttons += '<i class="fas fa-edit"></i> Edit</button>';
 
@@ -532,15 +570,10 @@
         language: {
             search: "",
             searchPlaceholder: "Search...",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            infoEmpty: "No entries available",
             emptyTable: "No equity records found",
             zeroRecords: "No matching records found"
         },
-        drawCallback: function() {
-            loadSummary();
-        }
+        drawCallback: function() { loadSummary(); }
     });
 
     // Hide default export buttons
@@ -578,16 +611,12 @@
         $('#form-title').text('Add New Equity');
         $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Save Equity');
         $('#equity-form-card').removeClass('edit-mode').slideDown(300);
-        $('html, body').animate({
-            scrollTop: $('#equity-form-card').offset().top - 100
-        }, 300);
+        $('html, body').animate({ scrollTop: $('#equity-form-card').offset().top - 100 }, 300);
     });
 
     $('#btn-close-form, #btn-cancel-form').on('click', function() {
         $('#equity-form-card').slideUp(300);
-        setTimeout(function() {
-            resetForm();
-        }, 300);
+        setTimeout(function() { resetForm(); }, 300);
     });
 
     // =============================================
@@ -607,6 +636,7 @@
                 isEditMode = true;
                 editingId = id;
 
+                // FIX: tran_id now exists in response
                 $('#form-title').text('Edit Equity - ' + (response.tran_id || 'ID: ' + response.id));
                 $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Update Equity');
                 $('#equity-form-card').addClass('edit-mode').slideDown(300);
@@ -615,18 +645,20 @@
                 $('#equity_id').val(response.id);
                 $('#date').val(response.date);
                 $('#ref').val(response.ref || '');
-                $('#transaction_type').val(response.tran_type);
-                $('#amount').val(response.amount);
-                $('#at_amount').val(response.amount);
-                $('#payment_type').val(response.payment_type || '');
+                $('#amount').val(response.amount || '');
+                $('#at_amount').val(response.amount || '');
                 $('#description').val(response.description || '');
+                $('#transaction_type').val(response.tran_type);
+                $('#payment_type').val(response.payment_type || '');
                 $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
-                $('#account_id').val(response.account_id || '').trigger('change');
+
+                // FIX: Set account after select2 is ready
+                setTimeout(function() {
+                    $('#account_id').val(response.account_id || '').trigger('change');
+                }, 100);
 
                 // Scroll to form
-                $('html, body').animate({
-                    scrollTop: $('#equity-form-card').offset().top - 100
-                }, 300);
+                $('html, body').animate({ scrollTop: $('#equity-form-card').offset().top - 100 }, 300);
             },
             error: function(xhr) {
                 showToast('Error loading equity data', 'error');
@@ -717,6 +749,13 @@
         // Reset select2
         $('#chart_of_account_id').val('').trigger('change');
         $('#account_id').val('').trigger('change');
+
+        // Reset payment type
+        var payDropdown = $('#payment_type');
+        payDropdown.empty();
+        payDropdown.append('<option value="">Select type</option>');
+        payDropdown.append('<option value="Cash">Cash</option>');
+        payDropdown.append('<option value="Bank">Bank</option>');
 
         // Reset form state
         $('#form-title').text('Add New Equity');

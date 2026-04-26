@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
+use Illuminate\Support\Facades\DB;
 
 class EquityController extends Controller
 {
@@ -70,25 +71,25 @@ class EquityController extends Controller
                     $type = $transaction->tran_type;
                     if (!$type) return '<span class="text-muted">N/A</span>';
                     
-                    if ($type === 'Received') {
-                        $badgeClass = 'badge-success';
-                        $icon = 'fa-arrow-down';
-                    } elseif ($type === 'Payment') {
-                        $badgeClass = 'badge-danger';
-                        $icon = 'fa-arrow-up';
-                    } else {
-                        $badgeClass = 'badge-warning';
-                        $icon = 'fa-exchange-alt';
-                    }
-                    return '<span class="badge ' . $badgeClass . '"><i class="fas ' . $icon . ' mr-1"></i>' . $type . '</span>';
+                    $configs = [
+                        'Received' => ['badge-success', 'fa-arrow-down'],
+                        'Payment'  => ['badge-danger', 'fa-arrow-up'],
+                    ];
+                    
+                    $config = $configs[$type] ?? ['badge-warning', 'fa-exchange-alt'];
+                    return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
                 ->addColumn('payment_badge', function ($transaction) {
                     if (!$transaction->payment_type) return '<span class="text-muted">-</span>';
                     
                     $type = $transaction->payment_type;
-                    $badgeClass = $type === 'Cash' ? 'badge-info' : 'badge-primary';
-                    $icon = $type === 'Cash' ? 'fa-money-bill' : 'fa-university';
-                    return '<span class="badge ' . $badgeClass . '"><i class="fas ' . $icon . ' mr-1"></i>' . $type . '</span>';
+                    $configs = [
+                        'Cash' => ['badge-info', 'fa-money-bill'],
+                        'Bank' => ['badge-primary', 'fa-university'],
+                    ];
+                    
+                    $config = $configs[$type] ?? ['badge-secondary', 'fa-question'];
+                    return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
                 ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge'])
                 ->make(true);
@@ -101,34 +102,21 @@ class EquityController extends Controller
 
     public function getSummary(Request $request)
     {
-        $query = Transaction::where('table_type', 'Equity');
+        // FIX: Use clone instead of re-querying
+        $baseQuery = Transaction::where('table_type', 'Equity');
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+            $baseQuery->whereBetween('date', [$request->start_date, $request->end_date]);
         }
 
-        $totalReceived = $query->where('tran_type', 'Received')->sum('amount');
-        
-        $query2 = Transaction::where('table_type', 'Equity');
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query2->whereBetween('date', [$request->start_date, $request->end_date]);
-        }
-        $totalPayment = $query2->where('tran_type', 'Payment')->sum('amount');
-        
+        $totalReceived = (clone $baseQuery)->where('tran_type', 'Received')->sum('amount');
+        $totalPayment = (clone $baseQuery)->where('tran_type', 'Payment')->sum('amount');
         $netBalance = $totalReceived - $totalPayment;
-        
-        $query3 = Transaction::where('table_type', 'Equity');
-        $totalCount = $query3->count();
+        $totalCount = (clone $baseQuery)->count();
 
-        $todayReceived = Transaction::where('table_type', 'Equity')
-            ->where('tran_type', 'Received')
-            ->whereDate('date', today())
-            ->sum('amount');
-
-        $todayPayment = Transaction::where('table_type', 'Equity')
-            ->where('tran_type', 'Payment')
-            ->whereDate('date', today())
-            ->sum('amount');
+        $todayQuery = Transaction::where('table_type', 'Equity')->whereDate('date', today());
+        $todayReceived = (clone $todayQuery)->where('tran_type', 'Received')->sum('amount');
+        $todayPayment = (clone $todayQuery)->where('tran_type', 'Payment')->sum('amount');
 
         return response()->json([
             'total_received' => number_format($totalReceived, 2),
@@ -160,36 +148,53 @@ class EquityController extends Controller
             return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
-        $transaction = new Transaction();
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->table_type = 'Equity';
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        $transaction->at_amount = $request->input('amount');
-        $transaction->tran_type = $request->input('transaction_type');
-        $transaction->payment_type = $request->input('payment_type');
-        $transaction->created_by = Auth()->user()->id;
+        DB::beginTransaction();
 
-        $transaction->save();
-        $transaction->tran_id = 'EQ' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-        $transaction->save();
+        try {
+            $transaction = new Transaction();
+            $transaction->date = $request->input('date');
+            $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->account_id = $request->input('account_id') ?? null;
+            $transaction->table_type = 'Equity';
+            $transaction->ref = $request->input('ref');
+            $transaction->description = $request->input('description');
+            $transaction->amount = $request->input('amount');
+            $transaction->at_amount = $request->input('amount');
+            $transaction->tran_type = $request->input('transaction_type');
+            $transaction->payment_type = $request->input('payment_type');
+            $transaction->created_by = auth()->user()->id;
 
-        if ($request->account_id) {
-            $account = Account::find($request->account_id);
-            if ($account) {
-                if ($request->transaction_type === 'Received') {
-                    $account->amount += $request->amount;
-                } elseif ($request->transaction_type === 'Payment') {
-                    $account->amount -= $request->amount;
+            $transaction->save();
+            $transaction->tran_id = 'EQ' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+            $transaction->save();
+
+            // FIX: Cast to float, use increment/decrement
+            $amount = (float) $request->input('amount');
+            $transType = $request->input('transaction_type');
+
+            if ($transaction->account_id) {
+                $account = Account::find($transaction->account_id);
+                if ($account) {
+                    if ($transType === 'Received') {
+                        $account->increment('amount', $amount);
+                    } elseif ($transType === 'Payment') {
+                        $account->decrement('amount', $amount);
+                    }
                 }
-                $account->save();
             }
-        }
 
-        return response()->json(['status' => 200, 'message' => 'Equity created successfully', 'id' => $transaction->id]);
+            DB::commit();
+
+            return response()->json(['status' => 200, 'message' => 'Equity created successfully', 'id' => $transaction->id]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function edit($id)
@@ -198,6 +203,7 @@ class EquityController extends Controller
 
         $responseData = [
             'id' => $transaction->id,
+            'tran_id' => $transaction->tran_id,  // FIX: Added tran_id
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'ref' => $transaction->ref,
@@ -231,59 +237,57 @@ class EquityController extends Controller
             return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
-        $transaction = Transaction::find($id);
+        return DB::transaction(function () use ($request, $id) {
 
-        if (!$transaction) {
-            return response()->json(['status' => 303, 'message' => 'Transaction not found']);
-        }
+            $transaction = Transaction::findOrFail($id);
 
-        // Reverse old account balance
-        $oldAccountId = $transaction->account_id;
-        $oldType = $transaction->tran_type;
-        $oldAmount = $transaction->amount;
+            // FIX: Cast to float
+            $oldAccountId = $transaction->account_id;
+            $oldType = $transaction->tran_type;
+            $oldAmount = (float) ($transaction->amount ?? 0);
 
-        if ($oldAccountId) {
-            $oldAccount = Account::find($oldAccountId);
-            if ($oldAccount) {
-                if ($oldType === 'Received') {
-                    $oldAccount->amount -= $oldAmount;
-                } elseif ($oldType === 'Payment') {
-                    $oldAccount->amount += $oldAmount;
+            $newType = $request->input('transaction_type');
+            $newAmount = (float) ($request->input('amount') ?? 0);
+
+            // Reverse old account balance
+            if ($oldAccountId) {
+                $oldAccount = Account::find($oldAccountId);
+                if ($oldAccount) {
+                    if ($oldType === 'Received') {
+                        $oldAccount->decrement('amount', $oldAmount);
+                    } elseif ($oldType === 'Payment') {
+                        $oldAccount->increment('amount', $oldAmount);
+                    }
                 }
-                $oldAccount->save();
             }
-        }
 
-        // Update transaction
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        $transaction->at_amount = $request->input('amount');
-        $transaction->tran_type = $request->input('transaction_type');
-        $transaction->payment_type = $request->input('payment_type');
-        $transaction->updated_by = Auth()->user()->id;
-        $transaction->save();
+            // Update transaction
+            $transaction->date = $request->input('date');
+            $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->account_id = $request->input('account_id') ?? null;
+            $transaction->ref = $request->input('ref');
+            $transaction->description = $request->input('description');
+            $transaction->amount = $newAmount;
+            $transaction->at_amount = $newAmount;
+            $transaction->tran_type = $newType;
+            $transaction->payment_type = $request->input('payment_type');
+            $transaction->updated_by = auth()->user()->id;
+            $transaction->save();
 
-        // Apply new account balance
-        $newAccountId = $request->account_id;
-        $newType = $request->transaction_type;
-        $newAmount = $request->amount;
-
-        if ($newAccountId) {
-            $newAccount = Account::find($newAccountId);
-            if ($newAccount) {
-                if ($newType === 'Received') {
-                    $newAccount->amount += $newAmount;
-                } elseif ($newType === 'Payment') {
-                    $newAccount->amount -= $newAmount;
+            // Apply new account balance
+            $newAccountId = $transaction->account_id;
+            if ($newAccountId) {
+                $newAccount = Account::find($newAccountId);
+                if ($newAccount) {
+                    if ($newType === 'Received') {
+                        $newAccount->increment('amount', $newAmount);
+                    } elseif ($newType === 'Payment') {
+                        $newAccount->decrement('amount', $newAmount);
+                    }
                 }
-                $newAccount->save();
             }
-        }
 
-        return response()->json(['status' => 200, 'message' => 'Equity updated successfully', 'id' => $transaction->id]);
+            return response()->json(['status' => 200, 'message' => 'Equity updated successfully', 'id' => $transaction->id]);
+        });
     }
 }
