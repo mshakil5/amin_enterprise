@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LiabilityController extends Controller
 {
@@ -260,6 +261,8 @@ class LiabilityController extends Controller
 
             $newType = $request->input('transaction_type');
             $newAmount = (float) ($request->input('amount') ?? 0);
+            
+            $atamount     = $newAmount - ($validated['vat_amount'] ?? 0) - ($validated['tax_amount'] ?? 0);
 
             // Reverse old account balance
             if ($oldAccountId) {
@@ -284,12 +287,19 @@ class LiabilityController extends Controller
             $transaction->tax_amount = $request->input('tax_amount');
             $transaction->vat_rate = $request->input('vat_rate');
             $transaction->vat_amount = $request->input('vat_amount');
-            $transaction->at_amount = $request->input('at_amount');
+            $transaction->at_amount = $atamount;
             $transaction->tran_type = $newType;
             $transaction->payment_type = $request->input('payment_type');
             $transaction->liablity_id = $request->input('chart_of_account_id');
             $transaction->updated_by = auth()->user()->id;
             $transaction->save();
+
+            Log::info('LiabilityController@update - expense update values', [
+                'transaction_id' => $transaction->id,
+                'new_amount' => $newAmount,
+                'at_amount' => $atamount,
+                'transaction' => $transaction->toArray(),
+            ]);
 
             // Apply new account balance
             $newAccountId = $transaction->account_id;

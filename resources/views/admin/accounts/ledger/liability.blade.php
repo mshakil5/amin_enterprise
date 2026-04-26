@@ -139,7 +139,7 @@
                                             </td>
                                             <td class="text-center">{{ $transaction->payment_type ?? 'N/A' }}</td>
                                             <td class="text-center">
-                                                {{ $transaction->ref ?? 'N/A' }} <br> {{ $transaction->tran_id ?? 'N/A' }}
+                                                {{ $transaction->ref ?? '' }} {{ $transaction->tran_id ?? 'N/A' }}
 
                                             </td>
                                             <td class="text-center">
