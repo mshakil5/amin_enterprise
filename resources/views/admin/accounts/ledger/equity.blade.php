@@ -135,7 +135,7 @@
                                             </td>
                                             <td>{{ $transaction->description ?? 'N/A' }}</td>
                                             <td class="text-center">{{ $transaction->payment_type ?? 'N/A' }}</td>
-                                            <td class="text-center">{{ $transaction->ref ?? 'N/A' }}</td>
+                                            <td class="text-center">{{ $transaction->ref ?? '' }} {{ $transaction->tran_id ?? 'N/A' }}</td>
                                             <td class="text-center">
                                                 @if($isDebit)
                                                     <span class="badge badge-info">{{ $transaction->tran_type }}</span>

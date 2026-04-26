@@ -275,6 +275,7 @@ class LedgerController extends Controller
         // DESC order - closing balance at top
         $data = $query->orderBy('date', 'DESC')->orderBy('id', 'DESC')->get();
 
+
         return view('admin.accounts.ledger.expense', compact(
             'data', 
             'totalBalance', 
