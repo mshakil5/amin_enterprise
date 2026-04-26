@@ -138,8 +138,8 @@
                         </div>
                     </div>
 
-                    {{-- Row 2: Amount, Payment Type, Account --}}
-                    <div class="row" id="pre_adjust">
+                    {{-- Row 2: Amount (ALWAYS VISIBLE) --}}
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
@@ -148,7 +148,17 @@
                                 <input type="number" name="amount" class="form-control form-control-sm" id="amount" placeholder="0.00" step="0.01" required>
                             </div>
                         </div>
-                        <div class="col-md-3" id="payment_type_container">
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
+                                <textarea class="form-control form-control-sm" id="description" rows="2" name="description" placeholder="Enter description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 3: Payment Type, Account, Client (HIDDEN for Prepaid Adjust) --}}
+                    <div class="row" id="payment_section">
+                        <div class="col-md-4" id="payment_type_container">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
                                     Payment Type <span class="text-danger">*</span>
@@ -160,7 +170,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Account</label>
                                 <select class="form-control select2" id="account_id" name="account_id">
@@ -171,7 +181,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Client</label>
                                 <select class="form-control select2" id="client_id" name="client_id">
@@ -183,6 +193,7 @@
                             </div>
                         </div>
                     </div>
+
 
                     {{-- Row 3: Mother Vessel, Payable Holder --}}
                     <div class="row">
@@ -229,16 +240,6 @@
                     <input type="hidden" name="vat_rate" id="vat_rate" value="">
                     <input type="hidden" name="vat_amount" id="vat_amount" value="">
                     <input type="hidden" name="at_amount" id="at_amount" value="">
-
-                    {{-- Description --}}
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
-                                <textarea class="form-control form-control-sm" id="description" rows="2" name="description" placeholder="Enter description"></textarea>
-                            </div>
-                        </div>
-                    </div>
 
                     {{-- Form Actions --}}
                     <div class="row">
@@ -590,11 +591,15 @@
         var transactionType = $(this).val();
         
         if (transactionType === 'Prepaid Adjust') {
-            $('#pre_adjust').hide();
+            // FIX: Only hide payment section, NOT the amount
+            $('#payment_section').hide();
             $('#showpayable').hide();
             $('#payable_holder_id').val('').trigger('change');
+            $('#payment_type').val('');
+            $('#account_id').val('').trigger('change');
         } else {
-            $('#pre_adjust').show();
+            // Show payment section
+            $('#payment_section').show();
             buildPaymentOptions(transactionType, null);
             togglePayableHolder(null);
         }
@@ -737,12 +742,14 @@
                 $('#expense_id').val(response.id);
                 $('#date').val(response.date);
                 $('#ref').val(response.ref || '');
-                $('#amount').val(response.amount);
                 $('#description').val(response.description || '');
                 $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
                 $('#account_id').val(response.account_id || '').trigger('change');
                 $('#client_id').val(response.client_id || '').trigger('change');
                 $('#mother_vassel_id').val(response.mother_vassel_id || '').trigger('change');
+
+                // FIX: Always set amount
+                $('#amount').val(response.amount || '');
 
                 var transType = response.transaction_type;
                 var payType = response.payment_type;
@@ -758,19 +765,34 @@
                         $('#employeeDiv').hide();
                     }
 
-                    // Handle transaction type logic
+                    // Handle transaction type logic - FIXED
                     if (transType === 'Prepaid Adjust') {
-                        $('#pre_adjust').hide();
+                        // FIX: Only hide payment section
+                        $('#payment_section').hide();
                         $('#showpayable').hide();
+                        // FIX: Set at_amount hidden field
+                        $('#at_amount').val(response.amount || response.at_amount || '');
                     } else {
-                        $('#pre_adjust').show();
+                        // Show payment section
+                        $('#payment_section').show();
                         buildPaymentOptions(transType, payType);
                         togglePayableHolder(payType);
+                        $('#at_amount').val('');
+                        
+                        // Set account and payment type
+                        if (response.account_id) {
+                            $('#account_id').val(response.account_id).trigger('change');
+                        }
+                        if (payType) {
+                            $('#payment_type').val(payType);
+                        }
                     }
 
                     // Set payable holder
                     if (response.payable_holder_id) {
-                        $('#payable_holder_id').val(response.payable_holder_id).trigger('change');
+                        setTimeout(function() {
+                            $('#payable_holder_id').val(response.payable_holder_id).trigger('change');
+                        }, 100);
                     }
                 }, 300);
 
@@ -780,15 +802,20 @@
         });
     });
 
+
+
     // =============================================
     // FORM SUBMISSION
     // =============================================
     $('#expense-form').on('submit', function(e) {
         e.preventDefault();
 
-        // Set at_amount equal to amount for prepaid adjust
+        // FIX: Always set at_amount equal to amount for prepaid adjust
         if ($('#transaction_type').val() === 'Prepaid Adjust') {
-            $('#at_amount').val($('#amount').val());
+            var amountVal = $('#amount').val() || 0;
+            $('#at_amount').val(amountVal);
+        } else {
+            $('#at_amount').val('');
         }
 
         var formData = $(this).serialize();
@@ -832,6 +859,8 @@
         });
     });
 
+
+
     // =============================================
     // RESET FORM
     // =============================================
@@ -848,6 +877,8 @@
         $('#mother_vassel_id').val('').trigger('change');
         $('#payable_holder_id').val('').trigger('change');
         $('#employee_id').val('').trigger('change');
+        $('#amount').val('');  // FIX: Clear amount
+        $('#at_amount').val(''); // FIX: Clear at_amount
 
         // Reset payment type
         var payDropdown = $('#payment_type');
@@ -856,8 +887,8 @@
         payDropdown.append('<option value="Cash">Cash</option>');
         payDropdown.append('<option value="Bank">Bank</option>');
 
-        // Show all sections
-        $('#pre_adjust').show();
+        // FIX: Use payment_section instead of pre_adjust
+        $('#payment_section').show();
         $('#payment_type_container').show();
         $('#employeeDiv').hide();
         $('#showpayable').hide();

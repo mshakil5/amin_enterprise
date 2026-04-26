@@ -212,7 +212,7 @@ class ExpenseController extends Controller
             'tax_amount' => $transaction->tax_amount,
             'vat_rate' => $transaction->vat_rate,
             'vat_amount' => $transaction->vat_amount,
-            'at_amount' => $transaction->at_amount,
+            'at_amount' => $transaction->at_amount,  // Make sure this is included
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
             'payable_holder_id' => $transaction->liability_id,
@@ -249,8 +249,11 @@ class ExpenseController extends Controller
 
             $oldAccountId = $transaction->account_id;
             $oldTranType  = $transaction->tran_type;
-            $oldAmount    = $transaction->amount;
+            // FIX: Cast to float to prevent non-numeric error
+            $oldAmount    = (float) ($transaction->amount ?? 0);
+            $newAmount    = (float) ($validated['amount'] ?? 0);
 
+            // Reverse old account balance (only if it was a Current expense with account)
             if ($oldTranType === 'Current' && $oldAccountId) {
                 $oldAccount = Account::find($oldAccountId);
                 if ($oldAccount) {
@@ -265,7 +268,7 @@ class ExpenseController extends Controller
                 'client_id'          => $validated['client_id'] ?? null,
                 'ref'                => $validated['ref'] ?? null,
                 'description'        => $validated['description'] ?? null,
-                'amount'             => $validated['amount'],
+                'amount'             => $newAmount,
                 'employee_id'        => $validated['employee_id'] ?? null,
                 'vat_rate'           => $validated['vat_rate'] ?? null,
                 'vat_amount'         => $validated['vat_amount'] ?? null,
@@ -283,19 +286,22 @@ class ExpenseController extends Controller
                 $transaction->tax_rate   = null;
                 $transaction->tax_amount = null;
                 $transaction->payment_type = null;
-                $transaction->at_amount  = $validated['amount'];
+                $transaction->at_amount  = $newAmount; // FIX: Set at_amount equal to amount
+                $transaction->account_id = null;
             } else {
                 $transaction->tax_rate   = $validated['vat_rate'] ?? null;
                 $transaction->tax_amount = $validated['vat_amount'] ?? null;
                 $transaction->payment_type = $validated['payment_type'];
+                $transaction->at_amount  = null; // FIX: Clear at_amount for non-prepaid adjust
             }
 
             $transaction->save();
 
+            // Deduct new account balance (only if it's a Current expense with account)
             if ($validated['transaction_type'] === 'Current' && $validated['account_id']) {
                 $newAccount = Account::find($validated['account_id']);
                 if ($newAccount) {
-                    $newAccount->decrement('amount', $validated['amount']);
+                    $newAccount->decrement('amount', $newAmount);
                 }
             }
 
@@ -305,4 +311,8 @@ class ExpenseController extends Controller
             ]);
         });
     }
+
+
+
+
 }
