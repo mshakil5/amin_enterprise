@@ -258,6 +258,9 @@ class ExpenseController extends Controller
             // FIX: Cast to float to prevent non-numeric error
             $oldAmount    = (float) ($transaction->amount ?? 0);
             $newAmount    = (float) ($validated['amount'] ?? 0);
+            $atamount     = $newAmount - ($validated['vat_amount'] ?? 0) - ($validated['tax_amount'] ?? 0);
+
+
 
             // Reverse old account balance (only if it was a Current expense with account)
             if ($oldTranType === 'Current' && $oldAccountId) {
@@ -267,6 +270,8 @@ class ExpenseController extends Controller
                 }
             }
 
+            
+            
             $transaction->fill([
                 'account_id'         => $request->account_id,
                 'date'               => $validated['date'],
@@ -278,7 +283,7 @@ class ExpenseController extends Controller
                 'employee_id'        => $validated['employee_id'] ?? null,
                 'vat_rate'           => $validated['vat_rate'] ?? null,
                 'vat_amount'         => $validated['vat_amount'] ?? null,
-                'at_amount'          => $validated['at_amount'] ?? null,
+                'at_amount'          => $atamount ?? null,
                 'tran_type'          => $validated['transaction_type'],
                 'liability_id'       => $validated['transaction_type'] === 'Due'
                                         ? ($validated['payable_holder_id'] ?? null)
@@ -292,16 +297,23 @@ class ExpenseController extends Controller
                 $transaction->tax_rate   = null;
                 $transaction->tax_amount = null;
                 $transaction->payment_type = null;
-                $transaction->at_amount  = $newAmount; // FIX: Set at_amount equal to amount
+                $transaction->at_amount  = $newAmount; 
                 $transaction->account_id = null;
             } else {
                 $transaction->tax_rate   = $validated['vat_rate'] ?? null;
                 $transaction->tax_amount = $validated['vat_amount'] ?? null;
                 $transaction->payment_type = $validated['payment_type'];
-                $transaction->at_amount  = null; // FIX: Clear at_amount for non-prepaid adjust
+                $transaction->at_amount  = $atamount; 
             }
 
             $transaction->save();
+
+            Log::info('ExpenseController@update - expense update values', [
+                'transaction_id' => $transaction->id,
+                'new_amount' => $newAmount,
+                'at_amount' => $atamount,
+                'transaction' => $transaction->toArray(),
+            ]);
 
             // Deduct new account balance (only if it's a Current expense with account)
             if ($validated['transaction_type'] === 'Current' && $validated['account_id']) {
