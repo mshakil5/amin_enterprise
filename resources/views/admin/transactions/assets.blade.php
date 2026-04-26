@@ -137,7 +137,7 @@
                         </div>
                     </div>
 
-                    {{-- Row 2: Amount, Payment Type, Account --}}
+                    {{-- Row 2: Amount, Description (ALWAYS VISIBLE) --}}
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -147,6 +147,16 @@
                                 <input type="number" name="amount" class="form-control form-control-sm" id="amount" placeholder="0.00" step="0.01" required>
                             </div>
                         </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
+                                <input type="text" name="description" class="form-control form-control-sm" id="description" placeholder="Enter description">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 3: Payment Type, Account (HIDDEN for Depreciation) --}}
+                    <div class="row" id="payment_section">
                         <div class="col-md-4" id="payment_type_container">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">
@@ -159,7 +169,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Account</label>
                                 <select class="form-control select2" id="account_id" name="account_id">
@@ -170,15 +180,9 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold" style="font-size:13px;">Description</label>
-                                <input type="text" name="description" class="form-control form-control-sm" id="description" placeholder="Enter description">
-                            </div>
-                        </div>
                     </div>
 
-                    {{-- Row 3: Conditional Payable/Receivable Holders --}}
+                    {{-- Row 4: Conditional Payable/Receivable Holders --}}
                     <div class="row" id="holderRow" style="display: none;">
                         <div class="col-md-6" id="showpayable" style="display: none;">
                             <div class="form-group">
@@ -335,7 +339,103 @@
 
 @section('style')
 <style>
+    /* =============================================
+       SELECT2 STYLING
+       ============================================= */
+    .select2-container {
+        width: 100% !important;
+        display: inline-block;
+    }
     
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        height: 31px !important;
+        padding: 0 10px;
+        background-color: #fff;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+        padding-right: 20px;
+        line-height: 29px !important;
+        font-size: 13px;
+        color: #495057;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 29px !important;
+        width: 20px;
+        right: 6px;
+        top: 1px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #495057 transparent transparent transparent;
+        border-width: 5px 4px 0 4px;
+        margin-left: -4px;
+        margin-top: -2px;
+    }
+    
+    .select2-container--default:hover .select2-selection--single {
+        border-color: #adb5bd;
+    }
+    
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #343a40;
+        box-shadow: 0 0 0 0.2rem rgba(52, 58, 64, 0.25);
+        outline: none;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+        font-size: 13px;
+    }
+    
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        margin-top: 1px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .select2-container--default .select2-search--dropdown {
+        padding: 8px;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 4px 10px;
+        font-size: 13px;
+        height: 31px;
+        outline: none;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #343a40;
+        box-shadow: 0 0 0 0.2rem rgba(52, 58, 64, 0.25);
+    }
+    
+    .select2-container--default .select2-results__option {
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #495057;
+    }
+    
+    .select2-container--default .select2-results__option:hover,
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #343a40;
+        color: #fff;
+    }
+    
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
     /* =============================================
        OTHER STYLING
        ============================================= */
@@ -391,6 +491,7 @@
     var summaryUrl = "{{ route('admin.asset.summary') }}";
     var isEditMode = false;
     var editingId = null;
+    var isDepreciation = false;
 
     // =============================================
     // HELPER: Build Transaction Type Options
@@ -466,6 +567,32 @@
     }
 
     // =============================================
+    // HELPER: Handle Transaction Type Change Logic
+    // =============================================
+    function handleTransactionTypeChange(transactionType, paymentType, skipClearPayment) {
+        isDepreciation = (transactionType === 'Depreciation');
+
+        if (isDepreciation) {
+            $('#payment_section').hide();
+            $('#holderRow').hide();
+            $('#showpayable').hide();
+            $('#showreceivable').hide();
+            if (!skipClearPayment) {
+                $('#payment_type').val('');
+                $('#account_id').val('').trigger('change');
+                $('#payable_holder_id').val('').trigger('change');
+                $('#recivible_holder_id').val('').trigger('change');
+            }
+        } else {
+            $('#payment_section').show();
+            buildPaymentOptions(transactionType, paymentType || null);
+            if (!skipClearPayment) {
+                toggleHolderFields(null);
+            }
+        }
+    }
+
+    // =============================================
     // SELECT2 INITIALIZATION
     // =============================================
     function initSelect2() {
@@ -490,22 +617,13 @@
     $('#chart_of_account_id').on('change', function() {
         var accountType = $(this).find(':selected').data('type');
         buildTransactionOptions(accountType, null);
-        buildPaymentOptions(null, null);
-        toggleHolderFields(null);
+        // FIX: Use handleTransactionTypeChange for consistency
+        handleTransactionTypeChange(null, null, false);
     });
 
     $('#transaction_type').on('change', function() {
         var transactionType = $(this).val();
-        
-        if (transactionType === 'Depreciation') {
-            $('#payment_type_container').hide();
-            $('#payment_type').val('');
-            toggleHolderFields(null);
-        } else {
-            $('#payment_type_container').show();
-            buildPaymentOptions(transactionType, null);
-            toggleHolderFields(null);
-        }
+        handleTransactionTypeChange(transactionType, null, false);
     });
 
     $('#payment_type').on('change', function() {
@@ -610,6 +728,7 @@
         resetForm();
         isEditMode = false;
         editingId = null;
+        isDepreciation = false;
         $('#form-title').text('Add New Asset');
         $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Save Asset');
         $('#asset-form-card').removeClass('edit-mode').slideDown(300);
@@ -622,7 +741,7 @@
     });
 
     // =============================================
-    // EDIT BUTTON
+    // EDIT BUTTON - FIX: Proper field restoration
     // =============================================
     $('#assetTBL').on('click', '.edit-btn', function(e) {
         e.preventDefault();
@@ -637,37 +756,55 @@
             success: function(response) {
                 isEditMode = true;
                 editingId = id;
+                // FIX: Now shows tran_id properly
                 $('#form-title').text('Edit Asset - ' + (response.tran_id || 'ID: ' + response.id));
                 $('#btn-submit-form').html('<i class="fas fa-save mr-1"></i>Update Asset');
                 $('#asset-form-card').addClass('edit-mode').slideDown(300);
 
+                // Populate basic fields
                 $('#asset_id').val(response.id);
                 $('#date').val(response.date);
                 $('#ref').val(response.ref || '');
-                $('#amount').val(response.amount);
+                $('#amount').val(response.amount || '');
                 $('#description').val(response.description || '');
-                $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
-                $('#account_id').val(response.account_id || '').trigger('change');
 
-                // Rebuild dropdowns based on saved type
                 var accType = response.chart_of_account_type;
                 var transType = response.transaction_type;
                 var payType = response.payment_type;
 
-                setTimeout(function() {
-                    buildTransactionOptions(accType, transType);
-                    
-                    if (transType === 'Depreciation') {
-                        $('#payment_type_container').hide();
-                        $('#holderRow').hide();
-                    } else {
-                        $('#payment_type_container').show();
-                        buildPaymentOptions(transType, payType);
-                        toggleHolderFields(payType);
-                    }
+                // Set chart of account first
+                $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
 
-                    $('#payable_holder_id').val(response.payable_holder_id || '').trigger('change');
-                    $('#recivible_holder_id').val(response.recivible_holder_id || '').trigger('change');
+                setTimeout(function() {
+                    // Rebuild transaction type dropdown WITH selection
+                    buildTransactionOptions(accType, transType);
+
+                    // FIX: Use handleTransactionTypeChange with skipClearPayment=true
+                    // so it doesn't wipe values we're about to set
+                    handleTransactionTypeChange(transType, payType, true);
+
+                    // Set payment and account values
+                    if (!isDepreciation) {
+                        // Payment type is already set by buildPaymentOptions inside handleTransactionTypeChange
+                        if (payType) {
+                            $('#payment_type').val(payType);
+                        }
+                        // Set account
+                        setTimeout(function() {
+                            $('#account_id').val(response.account_id || '').trigger('change');
+                        }, 50);
+                        // Set holder values
+                        if (payType === 'Account Payable' && response.payable_holder_id) {
+                            setTimeout(function() {
+                                $('#payable_holder_id').val(response.payable_holder_id).trigger('change');
+                            }, 100);
+                        }
+                        if (payType === 'Account Receivable' && response.recivible_holder_id) {
+                            setTimeout(function() {
+                                $('#recivible_holder_id').val(response.recivible_holder_id).trigger('change');
+                            }, 100);
+                        }
+                    }
                 }, 300);
 
                 $('html, body').animate({ scrollTop: $('#asset-form-card').offset().top - 100 }, 300);
@@ -677,10 +814,19 @@
     });
 
     // =============================================
-    // FORM SUBMISSION
+    // FORM SUBMISSION - FIX: Clear fields for Depreciation
     // =============================================
     $('#asset-form').on('submit', function(e) {
         e.preventDefault();
+
+        // FIX: If Depreciation, clear payment fields before submit
+        if (isDepreciation) {
+            $('#payment_type').val('');
+            $('#account_id').val('');
+            $('#payable_holder_id').val('');
+            $('#recivible_holder_id').val('');
+        }
+
         var formData = $(this).serialize();
         var url = (isEditMode && editingId) ? chartUrl + '/' + editingId : chartUrl;
         var method = (isEditMode && editingId) ? 'PUT' : 'POST';
@@ -717,7 +863,7 @@
     });
 
     // =============================================
-    // RESET FORM
+    // RESET FORM - FIX: Use payment_section and isDepreciation
     // =============================================
     function resetForm() {
         $('#asset-form')[0].reset();
@@ -725,7 +871,9 @@
         $('#date').val('{{ date("Y-m-d") }}');
         isEditMode = false;
         editingId = null;
+        isDepreciation = false;
 
+        // Reset select2
         $('#chart_of_account_id').val('').trigger('change');
         $('#account_id').val('').trigger('change');
         $('#payable_holder_id').val('').trigger('change');
@@ -742,7 +890,8 @@
         payDropdown.append('<option value="Cash">Cash</option>');
         payDropdown.append('<option value="Bank">Bank</option>');
 
-        $('#payment_type_container').show();
+        // FIX: Use payment_section instead of just payment_type_container
+        $('#payment_section').show();
         $('#holderRow, #showpayable, #showreceivable').hide();
 
         $('#form-title').text('Add New Asset');

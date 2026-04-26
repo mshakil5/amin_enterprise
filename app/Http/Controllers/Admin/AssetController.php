@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
+use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
@@ -144,61 +145,87 @@ class AssetController extends Controller
             'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
             'amount' => 'required|numeric|min:0.01',
             'transaction_type' => 'required|in:Purchase,Sold,Depreciation,Received,Payment',
-            'payment_type' => 'required_if:transaction_type,!=,Depreciation|nullable|in:Cash,Bank,Account Payable,Account Receivable',
+            'payment_type' => 'required_unless:transaction_type,Depreciation|nullable|in:Cash,Bank,Account Payable,Account Receivable',
+            'account_id' => 'nullable|exists:accounts,id',
         ], [
             'date.required' => 'Date field is required',
             'chart_of_account_id.required' => 'Chart of Account is required',
             'amount.required' => 'Amount field is required',
             'transaction_type.required' => 'Transaction Type is required',
-            'payment_type.required_if' => 'Payment Type is required',
+            'payment_type.required_unless' => 'Payment Type is required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
-        $transaction = new Transaction();
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->table_type = 'Assets';
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        $transaction->tax_rate = $request->input('tax_rate');
-        $transaction->tax_amount = $request->input('tax_amount');
-        $transaction->vat_rate = $request->input('vat_rate');
-        $transaction->vat_amount = $request->input('vat_amount');
-        $transaction->at_amount = $request->input('at_amount');
-        $transaction->tran_type = $request->input('transaction_type');
-        $transaction->payment_type = $request->input('payment_type');
-        $transaction->created_by = Auth()->user()->id;
+        DB::beginTransaction();
 
-        if ($request->input('transaction_type') === 'Purchase') {
-            $transaction->liability_id = $request->input('payable_holder_id');
-        }
-        
-        if ($request->input('transaction_type') === 'Sold') {
-            $transaction->asset_id = $request->input('recivible_holder_id');
-        }
+        try {
+            $transaction = new Transaction();
+            $transaction->date = $request->input('date');
+            $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->account_id = $request->input('account_id') ?? null;
+            $transaction->table_type = 'Assets';
+            $transaction->ref = $request->input('ref');
+            $transaction->description = $request->input('description');
+            $transaction->amount = $request->input('amount');
+            $transaction->tax_rate = $request->input('tax_rate');
+            $transaction->tax_amount = $request->input('tax_amount');
+            $transaction->vat_rate = $request->input('vat_rate');
+            $transaction->vat_amount = $request->input('vat_amount');
+            $transaction->at_amount = $request->input('at_amount');
+            $transaction->tran_type = $request->input('transaction_type');
+            $transaction->created_by = Auth()->user()->id;
 
-        $transaction->save();
-        $transaction->tran_id = 'AT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-        $transaction->save();
+            $transType = $request->input('transaction_type');
 
-        if ($request->account_id) {
-            $account = Account::find($request->account_id);
-            if ($account) {
-                if ($request->transaction_type === 'Received' || $request->transaction_type === 'Sold') {
-                    $account->amount += $request->amount;
-                } elseif ($request->transaction_type === 'Payment' || $request->transaction_type === 'Purchase') {
-                    $account->amount -= $request->amount;
-                }
-                $account->save();
+            // FIX: Handle Depreciation - no payment type
+            if ($transType === 'Depreciation') {
+                $transaction->payment_type = null;
+                $transaction->account_id = null;
+            } else {
+                $transaction->payment_type = $request->input('payment_type');
             }
-        }
 
-        return response()->json(['status' => 200, 'message' => 'Asset created successfully', 'id' => $transaction->id]);
+            if ($transType === 'Purchase') {
+                $transaction->liability_id = $request->input('payable_holder_id');
+            }
+            
+            if ($transType === 'Sold') {
+                $transaction->asset_id = $request->input('recivible_holder_id');
+            }
+
+            $transaction->save();
+            $transaction->tran_id = 'AT' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+            $transaction->save();
+
+            // FIX: Cast to float, use increment/decrement for atomicity
+            $amount = (float) $request->input('amount');
+
+            if ($transaction->account_id && $transType !== 'Depreciation') {
+                $account = Account::find($transaction->account_id);
+                if ($account) {
+                    if ($transType === 'Received' || $transType === 'Sold') {
+                        $account->increment('amount', $amount);
+                    } elseif ($transType === 'Payment' || $transType === 'Purchase') {
+                        $account->decrement('amount', $amount);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 200, 'message' => 'Asset created successfully', 'id' => $transaction->id]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function edit($id)
@@ -208,6 +235,7 @@ class AssetController extends Controller
     
         $responseData = [
             'id' => $transaction->id,
+            'tran_id' => $transaction->tran_id,  // FIX: Added tran_id
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'chart_of_account_type' => $chartOfAccount ? $chartOfAccount->sub_account_head : null,
@@ -221,7 +249,7 @@ class AssetController extends Controller
             'description' => $transaction->description,
             'account_id' => $transaction->account_id,
             'payable_holder_id' => $transaction->liability_id,
-            'recivible_holder_id' => $transaction->asset_id
+            'recivible_holder_id' => $transaction->asset_id,
         ];
         return response()->json($responseData);
     }
@@ -233,89 +261,95 @@ class AssetController extends Controller
             'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
             'amount' => 'required|numeric|min:0.01',
             'transaction_type' => 'required|in:Purchase,Sold,Depreciation,Received,Payment',
-            'payment_type' => 'required_if:transaction_type,!=,Depreciation|nullable|in:Cash,Bank,Account Payable,Account Receivable',
+            'payment_type' => 'required_unless:transaction_type,Depreciation|nullable|in:Cash,Bank,Account Payable,Account Receivable',
+            'account_id' => 'nullable|exists:accounts,id',
         ], [
             'date.required' => 'Date field is required',
             'chart_of_account_id.required' => 'Chart of Account is required',
             'amount.required' => 'Amount field is required',
             'transaction_type.required' => 'Transaction Type is required',
-            'payment_type.required_if' => 'Payment Type is required',
+            'payment_type.required_unless' => 'Payment Type is required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 303, 'message' => $validator->errors()->first()]);
         }
 
-        $transaction = Transaction::find($id);
+        return DB::transaction(function () use ($request, $id) {
 
-        if (!$transaction) {
-            return response()->json(['status' => 303, 'message' => 'Transaction not found']);
-        }
+            $transaction = Transaction::findOrFail($id);
 
-        // Reverse old account balance
-        $oldAccountId = $transaction->account_id;
-        $oldType = $transaction->tran_type;
-        $oldAmount = $transaction->amount;
+            // FIX: Cast to float to prevent non-numeric error
+            $oldAccountId = $transaction->account_id;
+            $oldType = $transaction->tran_type;
+            $oldAmount = (float) ($transaction->amount ?? 0);
 
-        if ($oldAccountId) {
-            $oldAccount = Account::find($oldAccountId);
-            if ($oldAccount) {
-                if ($oldType === 'Received' || $oldType === 'Sold') {
-                    $oldAccount->amount -= $oldAmount;
-                } elseif ($oldType === 'Payment' || $oldType === 'Purchase') {
-                    $oldAccount->amount += $oldAmount;
+            $newType = $request->input('transaction_type');
+            $newAmount = (float) ($request->input('amount') ?? 0);
+
+            // Reverse old account balance (skip if old type was Depreciation)
+            if ($oldAccountId && $oldType !== 'Depreciation') {
+                $oldAccount = Account::find($oldAccountId);
+                if ($oldAccount) {
+                    if ($oldType === 'Received' || $oldType === 'Sold') {
+                        $oldAccount->decrement('amount', $oldAmount);
+                    } elseif ($oldType === 'Payment' || $oldType === 'Purchase') {
+                        $oldAccount->increment('amount', $oldAmount);
+                    }
                 }
-                $oldAccount->save();
             }
-        }
 
-        // Update transaction
-        $transaction->date = $request->input('date');
-        $transaction->chart_of_account_id = $request->input('chart_of_account_id');
-        $transaction->account_id = $request->input('account_id') ?? null;
-        $transaction->ref = $request->input('ref');
-        $transaction->description = $request->input('description');
-        $transaction->amount = $request->input('amount');
-        $transaction->tax_rate = $request->input('tax_rate');
-        $transaction->tax_amount = $request->input('tax_amount');
-        $transaction->vat_rate = $request->input('vat_rate');
-        $transaction->vat_amount = $request->input('vat_amount');
-        $transaction->at_amount = $request->input('at_amount');
-        $transaction->tran_type = $request->input('transaction_type');
-        $transaction->payment_type = $request->input('payment_type');
-        $transaction->updated_by = Auth()->user()->id;
+            // Update transaction fields
+            $transaction->date = $request->input('date');
+            $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->ref = $request->input('ref');
+            $transaction->description = $request->input('description');
+            $transaction->amount = $newAmount;
+            $transaction->tax_rate = $request->input('tax_rate');
+            $transaction->tax_amount = $request->input('tax_amount');
+            $transaction->vat_rate = $request->input('vat_rate');
+            $transaction->vat_amount = $request->input('vat_amount');
+            $transaction->at_amount = $request->input('at_amount');
+            $transaction->tran_type = $newType;
+            $transaction->updated_by = Auth()->user()->id;
 
-        // Fixed logic for payable/receivable
-        $transaction->liability_id = null;
-        $transaction->asset_id = null;
+            // FIX: Clear liability/asset IDs first
+            $transaction->liability_id = null;
+            $transaction->asset_id = null;
 
-        if ($request->input('transaction_type') === 'Purchase') {
-            $transaction->liability_id = $request->input('payable_holder_id');
-        }
+            // FIX: Handle Depreciation - clear payment and account
+            if ($newType === 'Depreciation') {
+                $transaction->payment_type = null;
+                $transaction->account_id = null;
+            } else {
+                $transaction->payment_type = $request->input('payment_type');
+                $transaction->account_id = $request->input('account_id') ?? null;
+            }
 
-        if ($request->input('transaction_type') === 'Sold') {
-            $transaction->asset_id = $request->input('recivible_holder_id');
-        }
+            if ($newType === 'Purchase') {
+                $transaction->liability_id = $request->input('payable_holder_id');
+            }
 
-        $transaction->save();
+            if ($newType === 'Sold') {
+                $transaction->asset_id = $request->input('recivible_holder_id');
+            }
 
-        // Apply new account balance
-        $newAccountId = $request->account_id;
-        $newType = $request->transaction_type;
-        $newAmount = $request->amount;
+            $transaction->save();
 
-        if ($newAccountId) {
-            $newAccount = Account::find($newAccountId);
-            if ($newAccount) {
-                if ($newType === 'Received' || $newType === 'Sold') {
-                    $newAccount->amount += $newAmount;
-                } elseif ($newType === 'Payment' || $newType === 'Purchase') {
-                    $newAccount->amount -= $newAmount;
+            // Apply new account balance (skip if new type is Depreciation)
+            $newAccountId = $transaction->account_id;
+            if ($newAccountId && $newType !== 'Depreciation') {
+                $newAccount = Account::find($newAccountId);
+                if ($newAccount) {
+                    if ($newType === 'Received' || $newType === 'Sold') {
+                        $newAccount->increment('amount', $newAmount);
+                    } elseif ($newType === 'Payment' || $newType === 'Purchase') {
+                        $newAccount->decrement('amount', $newAmount);
+                    }
                 }
-                $newAccount->save();
             }
-        }
 
-        return response()->json(['status' => 200, 'message' => 'Asset updated successfully', 'id' => $transaction->id]);
+            return response()->json(['status' => 200, 'message' => 'Asset updated successfully', 'id' => $transaction->id]);
+        });
     }
 }
