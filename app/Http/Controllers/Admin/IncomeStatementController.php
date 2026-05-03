@@ -3,227 +3,244 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ChartOfAccount;
-use App\Models\Transaction;
-use App\Models\Order;
-use App\Models\PurchaseHistory;
-use App\Models\PurchaseHistoryLog;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Transaction;
+use App\Models\ChartOfAccount;
+use Illuminate\Support\Facades\DB;
 
 class IncomeStatementController extends Controller
 {
-
-    public function incomeStatement()
+    public function index()
     {
-        return view('admin.accounts.income_statement.search');
+        // Default to current month if not specified
+        $startDate = now()->startOfMonth()->toDateString();
+        $endDate = now()->toDateString();
+
+        return view('admin.accounts.profit-loss.index', compact('startDate', 'endDate'));
     }
 
-
-    public function incomeStatementSearch(Request $request)
+    public function generate(Request $request)
     {
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
 
-        $purchaseSum = Transaction::where('table_type', 'Purchase')
-            ->where('status', 0)
-            ->where('tran_type', 'Due')
-            ->where('description', 'Purchase')
-            ->whereNull('chart_of_account_id')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('at_amount');
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
 
-        $salesSum = Transaction::where('table_type', 'Sales')
-            ->where('status', 0)
-            ->whereNull('chart_of_account_id')
-            ->where('tran_type', 'Current')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('amount');
+        // Ensure start date is not before 2025-07-20
+        if (\Carbon\Carbon::parse($startDate)->lt(\Carbon\Carbon::parse('2025-07-20'))) {
+            $startDate = '2025-07-20';
+        }
 
-        $operatingIncomes = Transaction::where('table_type', 'Income')
-            ->with('chartOfAccount')
-            ->where('status', 0)
-            ->whereNotNull('chart_of_account_id')
-            ->whereIn('tran_type', ['Current','Advance'])
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->selectRaw('chart_of_account_id, SUM(amount) as total_amount')
+        // =============================================
+        // 1. REVENUE (Income)
+        // =============================================
+        $incomeQuery = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Income')
+            ->whereIn('tran_type', ['Current', 'Received', 'Wallet'])
+            ->whereBetween('date', [$startDate, $endDate]);
+
+        $incomeByAccount = (clone $incomeQuery)
+            ->select('chart_of_account_id', DB::raw('SUM(amount) as total'))
             ->groupBy('chart_of_account_id')
+            ->with('chartOfAccount')
+            ->orderByDesc('total')
             ->get();
-        
-        $operatingIncomeSums = $operatingIncomes->sum('total_amount');
 
-        $operatingIncomeRefundSum = Transaction::where('table_type', 'Income')
-            ->where('status', 0)
-            ->whereNotNull('chart_of_account_id')
+        $totalGrossIncome = (clone $incomeQuery)->sum('amount');
+
+        // Income Refunds (deduct from revenue)
+        $totalRefunds = Transaction::where('table_type', 'Income')
             ->where('tran_type', 'Refund')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
+            ->whereBetween('date', [$startDate, $endDate])
             ->sum('amount');
-         
-         //Operating Expense   
-        $operatingExpenseId = ChartOfAccount::where('sub_account_head', 'Operating Expense')->pluck('id');
-        $operatingExpenses = Transaction::select('chart_of_account_id', DB::raw('SUM(amount) as total_amount'))
-            ->with('chartOfAccount')
-            ->whereIn('chart_of_account_id', $operatingExpenseId)
-            ->where('status', 0)
-            ->whereIn('tran_type', ['Current', 'Prepaid', 'Due'])
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->groupBy('chart_of_account_id')
-            ->get();
-        $operatingExpenseSum = $operatingExpenses->sum('total_amount');
-        // dd($operatingExpenseSum);
 
-        //Overhead expense
-        $overHeadExpenseId = ChartOfAccount::where('sub_account_head', 'Overhead Expense')->pluck('id');
-        $overHeadExpenses = Transaction::select('chart_of_account_id', DB::raw('SUM(amount) as total_amount'))
-            ->with('chartOfAccount')
-            ->whereIn('chart_of_account_id', $overHeadExpenseId)
-            ->where('status', 0)
-            ->whereIn('tran_type', ['Current', 'Prepaid', 'Due'])
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
+        $netRevenue = $totalGrossIncome - $totalRefunds;
+
+        // =============================================
+        // 2. COST OF GOODS SOLD (COGS)
+        // =============================================
+        $cogsQuery = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Cogs')
+            ->whereIn('tran_type', ['Current', 'Prepaid Adjust', 'Due'])
+            ->whereBetween('date', [$startDate, $endDate]);
+
+        $cogsByAccount = (clone $cogsQuery)
+            ->select('chart_of_account_id', DB::raw('SUM(amount) as total'))
             ->groupBy('chart_of_account_id')
+            ->with('chartOfAccount')
+            ->orderByDesc('total')
             ->get();
 
-        $overHeadExpenseSum = $overHeadExpenses->sum('total_amount');
+        $totalCogs = (clone $cogsQuery)->sum('amount');
 
-        //Administrative Expense
-        $administrativeExpenseId = ChartOfAccount::where('sub_account_head', 'Administrative Expense')->pluck('id');
-        $administrativeExpenses = Transaction::select('chart_of_account_id', DB::raw('SUM(amount) as total_amount'))
-            ->with('chartOfAccount')
-            ->whereIn('chart_of_account_id', $administrativeExpenseId)
-            ->where('status', 0)
-            ->whereIn('tran_type', ['Current', 'Prepaid', 'Due'])
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
+        $grossProfit = $netRevenue - $totalCogs;
+
+        // =============================================
+        // 3. OPERATING EXPENSES
+        // =============================================
+        $expenseQuery = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Expenses')
+            ->whereIn('tran_type', ['Current', 'Prepaid Adjust', 'Due'])
+            ->whereBetween('date', [$startDate, $endDate]);
+
+        $expensesByAccount = (clone $expenseQuery)
+            ->select('chart_of_account_id', DB::raw('SUM(amount) as total'))
             ->groupBy('chart_of_account_id')
+            ->with('chartOfAccount')
+            ->orderByDesc('total')
             ->get();
-        $administrativeExpenseSum = $administrativeExpenses->sum('total_amount');
 
-        //Fixed Asset Depreciation Expense
-        $fixedAssetId = ChartOfAccount::where('sub_account_head', 'Fixed Asset')->where('account_head', 'Assets')->pluck('id');
+        $totalOperatingExpenses = (clone $expenseQuery)->sum('amount');
 
-        $fixedAssetDepriciation = Transaction::whereIn('chart_of_account_id', $fixedAssetId)
-            ->where('status', 0)
+        $netOperatingProfit = $grossProfit - $totalOperatingExpenses;
+
+        // =============================================
+        // 4. OTHER INCOME/EXPENSES (Non-Operating)
+        // =============================================
+        
+        // Depreciation from Assets
+        $depreciationByAccount = Transaction::with('chartOfAccount')
             ->where('table_type', 'Assets')
-            ->whereIn('tran_type', ['Depreciation'])
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
+            ->where('tran_type', 'Depreciation')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->select('chart_of_account_id', DB::raw('SUM(amount) as total'))
+            ->groupBy('chart_of_account_id')
+            ->with('chartOfAccount')
+            ->orderByDesc('total')
+            ->get();
+
+        $totalDepreciation = Transaction::where('table_type', 'Assets')
+            ->where('tran_type', 'Depreciation')
+            ->whereBetween('date', [$startDate, $endDate])
             ->sum('amount');
 
-        $salesReturn = Transaction::where('table_type', 'Income')
-            ->where('status', 0)
-            ->where('tran_type', 'Return')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
+        // Asset Sales (Other Income)
+        $assetSalesByAccount = Transaction::with('chartOfAccount')
+            ->where('table_type', 'Assets')
+            ->where('tran_type', 'Sold')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->select('chart_of_account_id', DB::raw('SUM(amount) as total'))
+            ->groupBy('chart_of_account_id')
+            ->with('chartOfAccount')
+            ->orderByDesc('total')
+            ->get();
+
+        $totalAssetSales = Transaction::where('table_type', 'Assets')
+            ->where('tran_type', 'Sold')
+            ->whereBetween('date', [$startDate, $endDate])
             ->sum('amount');
 
-        $purchaseReturn = Transaction::where('table_type', 'Cogs')
-            ->where('status', 0)
-            ->where('tran_type', 'Return')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
+        $totalOtherIncome = $totalAssetSales;
+        $totalOtherExpenses = $totalDepreciation;
+        $netOtherIncome = $totalOtherIncome - $totalOtherExpenses;
+
+        // =============================================
+        // 5. NET PROFIT
+        // =============================================
+        $netProfit = $netOperatingProfit + $netOtherIncome;
+
+        // =============================================
+        // 6. COMPARISON DATA (Previous Period)
+        // =============================================
+        $periodDays = \Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1;
+        $prevStartDate = \Carbon\Carbon::parse($startDate)->subDays($periodDays)->toDateString();
+        $prevEndDate = \Carbon\Carbon::parse($startDate)->subDay()->toDateString();
+
+        // Ensure previous period doesn't go before 2025-07-20
+        if (\Carbon\Carbon::parse($prevStartDate)->lt(\Carbon\Carbon::parse('2025-07-20'))) {
+            $prevStartDate = '2025-07-20';
+        }
+
+        $prevNetProfit = $this->calculateNetProfit($prevStartDate, $prevEndDate);
+        $profitChange = $prevNetProfit > 0 ? (($netProfit - $prevNetProfit) / $prevNetProfit) * 100 : 0;
+
+        // =============================================
+        // 7. SUMMARY STATS
+        // =============================================
+        $grossProfitMargin = $netRevenue > 0 ? ($grossProfit / $netRevenue) * 100 : 0;
+        $netProfitMargin = $netRevenue > 0 ? ($netProfit / $netRevenue) * 100 : 0;
+        $operatingExpenseRatio = $netRevenue > 0 ? ($totalOperatingExpenses / $netRevenue) * 100 : 0;
+
+        return view('admin.accounts.profit-loss.index', compact(
+            'startDate',
+            'endDate',
+            'incomeByAccount',
+            'totalGrossIncome',
+            'totalRefunds',
+            'netRevenue',
+            'cogsByAccount',
+            'totalCogs',
+            'grossProfit',
+            'expensesByAccount',
+            'totalOperatingExpenses',
+            'netOperatingProfit',
+            'depreciationByAccount',
+            'totalDepreciation',
+            'assetSalesByAccount',
+            'totalAssetSales',
+            'totalOtherIncome',
+            'totalOtherExpenses',
+            'netOtherIncome',
+            'netProfit',
+            'prevNetProfit',
+            'profitChange',
+            'grossProfitMargin',
+            'netProfitMargin',
+            'operatingExpenseRatio',
+            'periodDays'
+        ));
+    }
+
+    private function calculateNetProfit($startDate, $endDate)
+    {
+        $income = Transaction::where('table_type', 'Income')
+            ->whereIn('tran_type', ['Current', 'Received', 'Wallet'])
+            ->whereBetween('date', [$startDate, $endDate])
             ->sum('amount');
 
-        $salesDiscount = Order::when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('created_at', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('discount_amount');
+        $refunds = Transaction::where('table_type', 'Income')
+            ->where('tran_type', 'Refund')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->sum('amount');
 
-        $updatedStartDate = Carbon::parse($startDate)->format('Y-m-d');
-        $updatedEndDate = Carbon::parse($endDate)->subDay()->format('Y-m-d');
+        $cogs = Transaction::where('table_type', 'Cogs')
+            ->whereIn('tran_type', ['Current', 'Prepaid Adjust', 'Due'])
+            ->whereBetween('date', [$startDate, $endDate])
+            ->sum('amount');
 
-        $totalOpeningStock = PurchaseHistoryLog::when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-            $query->whereBetween('log_date', [$request->input('start_date'), $request->input('end_date')]);
-        })
-        ->sum('total_amount');
+        $expenses = Transaction::where('table_type', 'Expenses')
+            ->whereIn('tran_type', ['Current', 'Prepaid Adjust', 'Due'])
+            ->whereBetween('date', [$startDate, $endDate])
+            ->sum('amount');
 
-        $closingBalances = PurchaseHistory::where('available_stock', '>', 0)
-        ->get()
-        ->groupBy('product_id')
-        ->map(function ($purchaseHistories) {
-            return $purchaseHistories->sum(function ($purchaseHistory) {
-                return $purchaseHistory->available_stock * $purchaseHistory->purchase_price;
-            });
-        });
+        $depreciation = Transaction::where('table_type', 'Assets')
+            ->where('tran_type', 'Depreciation')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->sum('amount');
 
-        $totalClosingStock = $closingBalances->sum();
+        $assetSales = Transaction::where('table_type', 'Assets')
+            ->where('tran_type', 'Sold')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->sum('amount');
 
-        $purchaseVatSum = Transaction::where('table_type', 'Cogs')
-            ->where('status', 0)
-            ->where('description', 'Purchase')
-            ->whereNull('chart_of_account_id')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('vat_amount');
+        return ($income - $refunds) - $cogs - $expenses - $depreciation + $assetSales;
+    }
 
-        $salesVatSum = Transaction::where('table_type', 'Sales')
-            ->where('status', 0)
-            ->whereNull('chart_of_account_id')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('vat_amount');
+    public function downloadPdf(Request $request)
+    {
+        $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
+        $endDate = $request->end_date ?? now()->toDateString();
 
-        $operatingIncomeVatSum = Transaction::where('table_type', 'Income')
-            ->where('status', 0)
-            ->whereNotNull('chart_of_account_id')
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('vat_amount');
-
-        $operatingExpenseVatSum = Transaction::whereIn('chart_of_account_id', $operatingExpenseId)
-            ->where('status', 0)
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('vat_amount');
-
-        $administrativeExpenseVatSum = Transaction::whereIn('chart_of_account_id', $administrativeExpenseId)
-            ->where('status', 0)
-            ->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-                $query->whereBetween('date', [$request->input('start_date'), $request->input('end_date')]);
-            })
-            ->sum('vat_amount');
-
-        $taxAndVat =  $purchaseVatSum + $operatingExpenseVatSum + $administrativeExpenseVatSum - $salesVatSum - $operatingIncomeVatSum;
-
-        return view('admin.accounts.income_statement.index', compact(
-            'purchaseSum', 
-            'salesSum', 
-            'operatingExpenses', 
-            'administrativeExpenses', 
-            'salesReturn', 
-            'salesDiscount', 
-            'operatingExpenseSum', 
-            'administrativeExpenseSum', 
-            'totalOpeningStock', 
-            'totalClosingStock', 
-            'taxAndVat',
-            'operatingIncomes',
-            'operatingIncomeSums',
-            'operatingIncomeRefundSum',
-            'purchaseReturn',
-            'overHeadExpenses',
-            'overHeadExpenseSum',
-            'fixedAssetDepriciation'
-        ))->with('start_date', $startDate)->with('end_date', $endDate);
+        // Generate the same data as generate()
+        // ... (same logic as generate method)
+        
+        // For now, redirect to the view with print option
+        return redirect()->route('admin.profit-loss.generate', [
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
     }
 }

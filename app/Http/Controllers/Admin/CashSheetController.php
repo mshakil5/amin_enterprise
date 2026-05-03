@@ -154,7 +154,7 @@ class CashSheetController extends Controller
 
     public function cashSheetPreviousBalance($expectedDate)
     {
-        $startDate = '2025-07-20'; // Example start date
+        $startDate = '2025-07-20'; 
         // Use today's date dynamically
         $date = $expectedDate; // Date before yesterday
 

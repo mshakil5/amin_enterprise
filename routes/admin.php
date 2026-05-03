@@ -375,8 +375,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('balance-sheet', [FinancialStatementController::class, 'balanceSheetReport'])->name('admin.balancesheet.report');
 
     // income statement
-    Route::get('income-statement', [IncomeStatementController::class, 'incomeStatement'])->name('admin.incomestatement');
-    Route::post('income-statement', [IncomeStatementController::class, 'incomeStatementSearch'])->name('admin.incomestatement.report');
+    Route::get('profit-loss', [IncomeStatementController::class, 'index'])->name('admin.profit-loss');
+    Route::post('profit-loss', [IncomeStatementController::class, 'generate'])->name('admin.profit-loss.generate');
+    Route::get('profit-loss/pdf', [IncomeStatementController::class, 'downloadPdf'])->name('admin.profit-loss.pdf');
 
 
     Route::get('program-detail-logs', [ProgramController::class, 'programDetailLogs'])->name('program.detail.logs');
