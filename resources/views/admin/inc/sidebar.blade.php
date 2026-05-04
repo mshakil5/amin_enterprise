@@ -398,7 +398,7 @@
 
       @if(in_array('25', json_decode(auth()->user()->role->permission)))
       <li class="nav-item">
-        <a href="{{ route('admin.profitAndLossStatement') }}" class="nav-link {{ (request()->is('admin/profit-statement')) ? 'active' : '' }}">
+        <a href="{{ route('admin.profit-loss') }}" class="nav-link {{ (request()->is('admin/profit-loss')) ? 'active' : '' }}">
           <i class="nav-icon fas fa-th"></i>
           <p>
             P/L Statement
