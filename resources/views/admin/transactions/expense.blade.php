@@ -133,6 +133,8 @@
                                     <option value="Current">New Expense</option>
                                     <option value="Prepaid">Prepaid</option>
                                     <option value="Prepaid Adjust">Prepaid Adjust</option>
+                                    <option value="Due">Due (Payable)</option>
+                                    <option value="Due Adjust">Due Adjust (Payable Adjust)</option>
                                 </select>
                             </div>
                         </div>
@@ -170,7 +172,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4" id="account_container">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Account</label>
                                 <select class="form-control select2" id="account_id" name="account_id">
@@ -591,17 +593,22 @@
         var transactionType = $(this).val();
         
         if (transactionType === 'Prepaid Adjust') {
-            // FIX: Only hide payment section, NOT the amount
             $('#payment_section').hide();
             $('#showpayable').hide();
             $('#payable_holder_id').val('').trigger('change');
             $('#payment_type').val('');
             $('#account_id').val('').trigger('change');
         } else {
-            // Show payment section
             $('#payment_section').show();
             buildPaymentOptions(transactionType, null);
             togglePayableHolder(null);
+            
+            if (transactionType === 'Due') {
+                $('#account_container').hide();
+                $('#account_id').val('').trigger('change');
+            } else {
+                $('#account_container').show();
+            }
         }
     });
 
@@ -633,7 +640,7 @@
     loadSummary();
 
     // =============================================
-    // DATATABLE
+    // DATATABLE (FIX: ADDED BACK MISSING INITIALIZATION)
     // =============================================
     var expenseTBL = $('#expenseTBL').DataTable({
         processing: true,
@@ -720,7 +727,7 @@
     });
 
     // =============================================
-    // EDIT BUTTON
+    // EDIT BUTTON (FIX: REMOVED DUPLICATE HANDLER)
     // =============================================
     $('#expenseTBL').on('click', '.edit-btn', function(e) {
         e.preventDefault();
@@ -748,7 +755,6 @@
                 $('#client_id').val(response.client_id || '').trigger('change');
                 $('#mother_vassel_id').val(response.mother_vassel_id || '').trigger('change');
 
-                // FIX: Always set amount
                 $('#amount').val(response.amount || '');
 
                 var transType = response.transaction_type;
@@ -757,7 +763,6 @@
                 setTimeout(function() {
                     $('#transaction_type').val(transType);
                     
-                    // Handle employee div
                     if (response.employee_id) {
                         $('#employeeDiv').show();
                         $('#employee_id').val(response.employee_id).trigger('change');
@@ -765,30 +770,31 @@
                         $('#employeeDiv').hide();
                     }
 
-                    // Handle transaction type logic - FIXED
                     if (transType === 'Prepaid Adjust') {
-                        // FIX: Only hide payment section
                         $('#payment_section').hide();
                         $('#showpayable').hide();
-                        // FIX: Set at_amount hidden field
+                        $('#account_container').hide();
                         $('#at_amount').val(response.amount || response.at_amount || '');
                     } else {
-                        // Show payment section
                         $('#payment_section').show();
                         buildPaymentOptions(transType, payType);
                         togglePayableHolder(payType);
                         $('#at_amount').val('');
                         
-                        // Set account and payment type
-                        if (response.account_id) {
-                            $('#account_id').val(response.account_id).trigger('change');
+                        if (transType === 'Due') {
+                            $('#account_container').hide();
+                        } else {
+                            $('#account_container').show();
+                            if (response.account_id) {
+                                $('#account_id').val(response.account_id).trigger('change');
+                            }
                         }
+                        
                         if (payType) {
                             $('#payment_type').val(payType);
                         }
                     }
 
-                    // Set payable holder
                     if (response.payable_holder_id) {
                         setTimeout(function() {
                             $('#payable_holder_id').val(response.payable_holder_id).trigger('change');
@@ -802,15 +808,12 @@
         });
     });
 
-
-
     // =============================================
     // FORM SUBMISSION
     // =============================================
     $('#expense-form').on('submit', function(e) {
         e.preventDefault();
 
-        // FIX: Always set at_amount equal to amount for prepaid adjust
         if ($('#transaction_type').val() === 'Prepaid Adjust') {
             var amountVal = $('#amount').val() || 0;
             $('#at_amount').val(amountVal);
@@ -859,8 +862,6 @@
         });
     });
 
-
-
     // =============================================
     // RESET FORM
     // =============================================
@@ -877,19 +878,18 @@
         $('#mother_vassel_id').val('').trigger('change');
         $('#payable_holder_id').val('').trigger('change');
         $('#employee_id').val('').trigger('change');
-        $('#amount').val('');  // FIX: Clear amount
-        $('#at_amount').val(''); // FIX: Clear at_amount
+        $('#amount').val('');
+        $('#at_amount').val('');
 
-        // Reset payment type
         var payDropdown = $('#payment_type');
         payDropdown.empty();
         payDropdown.append('<option value="">Select type</option>');
         payDropdown.append('<option value="Cash">Cash</option>');
         payDropdown.append('<option value="Bank">Bank</option>');
 
-        // FIX: Use payment_section instead of pre_adjust
         $('#payment_section').show();
         $('#payment_type_container').show();
+        $('#account_container').show();
         $('#employeeDiv').hide();
         $('#showpayable').hide();
 
