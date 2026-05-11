@@ -137,6 +137,8 @@ class ExpenseController extends Controller
         ]);
     }
 
+
+    // this is voucher
     public function voucher(Request $request, $id)
     {
         $data = Transaction::with(['chartOfAccount', 'client'])->where('id', $id)->first();
