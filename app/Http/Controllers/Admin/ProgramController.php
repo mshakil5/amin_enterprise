@@ -146,8 +146,6 @@ class ProgramController extends Controller
                     ->orderBy('date', 'DESC')
                     ->get();
 
-        // truc number count
-
         $truckSummary = ProgramDetail::select(
             'program_details.truck_number',
             DB::raw('SUM(advance_payments.fuelqty) as total_fuelqty'),
@@ -1503,6 +1501,7 @@ class ProgramController extends Controller
             $program = Program::where('id', $chkprgmid->program_id)->first();
             $vendors = Vendor::select('id', 'name')->orderby('id', 'DESC')->get();
             $prop = '';
+            $prate = '';
             $ghatID = $chkprgmid->ghat_id;
             
         
@@ -1523,13 +1522,10 @@ class ProgramController extends Controller
                         </tr>';
                     }
 
-
-
                 } else {
                     $prate = '';
                 }
                 
-
                 $prop.= '<tr>
                             <td>
                                 <span class="btn btn-sm btn-success w-100 addrateThis" id="prgmDtlArrowKey_'.$prgmdtl->id.'" tabindex="2" data-pdtlid="'.$prgmdtl->id.'" data-adv="'.$prgmdtl->advancePayment->amount.'" data-headerid="'.$prgmdtl->headerid.'" data-destqty="'.$prgmdtl->dest_qty.'" data-linecharge="'.$prgmdtl->line_charge.'" data-scale_fee="'.$prgmdtl->scale_fee.'" data-other_cost="'.$prgmdtl->other_cost.'" data-destination_id="'.$prgmdtl->destination_id.'" data-advid="'.$prgmdtl->advancePayment->id.'" data-due="'.$prgmdtl->due.'" data-additional_cost="'.$prgmdtl->additional_cost.'" data-carrying_bill="'.$prgmdtl->carrying_bill.'" data-vendor_sequence_number_id="'.$prgmdtl->vendor_sequence_number_id.'" data-before_date="'.$prgmdtl->date.'"><i class="fas fa-arrow-right"></i></span>

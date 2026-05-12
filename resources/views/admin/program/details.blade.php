@@ -377,7 +377,7 @@
                             </td>
                             <td style="text-align: center">{{$data->bill_no}}</td>
                             <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                            <td style="text-align: center">{{$data->vendor->name}}</td>
+                            <td style="text-align: center" title="Create: {{ $data->createdBy->name  ?? '' }} | Update: {{ $data->updatedBy->name ?? '' }}">{{$data->vendor->name}} </td>
                             <td style="text-align: center">{{$data->headerid}}</td>
                             <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
                             <td style="text-align: center">{{$data->challan_no}}</td>
