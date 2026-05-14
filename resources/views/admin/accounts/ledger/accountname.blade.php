@@ -40,6 +40,9 @@
                         'Income' => 'success',
                         'Expenses' => 'warning',
                     ];
+
+                    // Get unique account heads for dropdown
+                    $uniqueHeads = $chartOfAccounts->unique('account_head')->pluck('account_head')->sort()->values();
                 @endphp
 
                 <!-- Summary Cards -->
@@ -108,7 +111,17 @@
                                     <tr>
                                         <th class="text-center" width="5%">SL</th>
                                         <th width="40%">Account Name</th>
-                                        <th class="text-center" width="25%">Account Head</th>
+                                        <th class="text-center" width="25%">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span>Account Head</span>
+                                                <select id="accountHeadFilter" class="form-control form-control-sm mt-1 text-center" style="width: auto; min-width: 150px;">
+                                                    <option value="">-- All Heads --</option>
+                                                    @foreach($uniqueHeads as $head)
+                                                        <option value="{{ $head }}">{{ $head }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </th>
                                         <th class="text-center" width="30%">Action</th>
                                     </tr>
                                 </thead>
@@ -158,7 +171,7 @@
 @section('script')
 <script>
  $(document).ready(function () {
-    $('#chartOfAccountsTable').DataTable({
+    var table = $('#chartOfAccountsTable').DataTable({
         responsive: true,
         lengthChange: true,
         autoWidth: false,
@@ -195,6 +208,31 @@
         language: {
             search: "",
             searchPlaceholder: "Search accounts..."
+        },
+        initComplete: function () {
+            // Move the dropdown outside of the header to prevent duplication during export/print
+            $('#accountHeadFilter').detach().appendTo('#filterContainer');
+        }
+    });
+
+    // Account Head Dropdown Filter
+    $('#accountHeadFilter').on('change', function () {
+        var selectedValue = $(this).val();
+        
+        if (selectedValue === '') {
+            // Clear the column search
+            table.column(2).search('').draw();
+        } else {
+            // Apply exact match search on column 2 (Account Head)
+            table.column(2).search('^' + selectedValue + '$', true, false).draw();
+        }
+    });
+
+    // Reset dropdown when global search is cleared
+    $('#chartOfAccountsTable_filter input').on('input', function () {
+        if ($(this).val() === '') {
+            $('#accountHeadFilter').val('');
+            table.column(2).search('').draw();
         }
     });
 });

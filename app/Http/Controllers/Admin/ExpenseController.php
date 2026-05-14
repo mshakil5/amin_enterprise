@@ -177,6 +177,7 @@ class ExpenseController extends Controller
             $transaction->expense_id = $validated['chart_of_account_id'];
             $transaction->account_id = $request->account_id ?? null;
             $transaction->tran_type = $request->transaction_type ?? null;
+            $transaction->at_amount = $validated['amount'] - ($validated['vat_amount'] ?? 0) - ($validated['tax_amount'] ?? 0);
             $transaction->save();
 
             $transaction->tran_id = 'EX' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
