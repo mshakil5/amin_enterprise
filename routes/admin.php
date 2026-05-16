@@ -54,10 +54,10 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     //profile end
 
     Route::get('/new-admin', [AdminController::class, 'getAdmin'])->name('alladmin');
-    Route::post('/new-admin', [AdminController::class, 'adminStore']);
-    Route::get('/new-admin/{id}/edit', [AdminController::class, 'adminEdit']);
-    Route::post('/new-admin-update', [AdminController::class, 'adminUpdate']);
-    Route::get('/new-admin/{id}', [AdminController::class, 'adminDelete']);
+    Route::post('/new-admin', [AdminController::class, 'adminStore'])->name('admin.store');
+    Route::get('/new-admin/{id}/edit', [AdminController::class, 'adminEdit'])->name('admin.edit');
+    Route::put('/new-admin/{id}', [AdminController::class, 'adminUpdate'])->name('admin.update');
+    Route::delete('/new-admin/{id}', [AdminController::class, 'adminDelete'])->name('admin.delete');
     
     Route::get('/agent', [AgentController::class, 'index'])->name('admin.agent');
     Route::post('/agent', [AgentController::class, 'store']);
