@@ -183,6 +183,16 @@ class ProgramController extends Controller
         return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','mid', 'vid', 'duePaymentTransaction', 'missingHeaderIds'));
     }
 
+    public function getTruckListByVendor($id)
+    {
+        $programId = $id;
+        $data = ProgramDetail::where('program_id', $id)
+            ->with(['vendor', 'client', 'ghat', 'motherVassel'])
+            ->get();
+        
+        return view('admin.program.trucklist', compact('programId', 'data'));
+    }
+
     
     // getVendorAdvanceByDate
     public function getVendorAdvanceByDate(Request $request)

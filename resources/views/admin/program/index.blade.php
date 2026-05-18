@@ -178,6 +178,12 @@
                           </div>
                         </div>
                       </div>
+
+                      @if(in_array('13', json_decode(auth()->user()->role->permission)))
+                      <a href="{{route('admin.getTruckListByVendor', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Truck List</a>
+                      @endif
+
+
                     </td>
 
 
