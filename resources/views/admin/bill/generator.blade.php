@@ -74,7 +74,7 @@
 </section>
 
 <!-- Modal Trigger Button -->
-<div class="container-fluid mb-3">
+<div class="container-fluid mb-3 d-none">
     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#updateOldQtyModal">
         Update Old Qty for Test
     </button>

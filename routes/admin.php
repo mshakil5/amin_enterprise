@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\ChequeController;
 use App\Http\Controllers\Admin\VendorLedgerController;
 use App\Http\Controllers\Admin\ExcelUploadController;
 use App\Http\Controllers\Admin\ReceivableController;
+use App\Http\Controllers\Admin\VendorDocumentController;
 
 /*------------------------------------------
 --------------------------------------------
@@ -207,9 +208,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/check-slab-rate', [ProgramController::class, 'checkSlabRate'])->name('admin.checkSlabRate');
     Route::get('/program-delete/{id}', [ProgramController::class, 'prgmDelete']);
     Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
-    
     Route::get('/check-truck-list/{id}', [ProgramController::class, 'getTruckListByVendor'])->name('admin.getTruckListByVendor');
-
     Route::post('/add-more-challan', [ProgramController::class, 'addMoreChallan'])->name('addMoreChallan');
     
     Route::post('/update-program', [ProgramController::class, 'programUpdate'])->name('programUpdate');
@@ -217,8 +216,15 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/get-truc-list-by-vendor', [ProgramController::class, 'getProgramDetailsByVendor'])->name('getProgramDetailsByVendor');
     Route::post('/change-quantity', [ProgramController::class, 'changeQuantity'])->name('changeQuantity');
     Route::post('/undo-change-quantity', [ProgramController::class, 'undoChangeQuantity'])->name('undoChangeQuantity');
-
     Route::post('program/update-single-row', [ProgramController::class, 'updateSingleRow'])->name('admin.program.update-single-row');
+
+
+    // Program Vendor Documents
+    Route::get('/program-vendor-documents/{id}', [VendorDocumentController::class, 'index'])->name('admin.programVendorDocuments');
+    Route::post('/program-vendor-documents-store', [VendorDocumentController::class, 'store'])->name('admin.programVendorDocuments.store');
+    Route::get('/program-vendor-documents/{id}/edit', [VendorDocumentController::class, 'edit'])->name('admin.programVendorDocuments.edit');
+    Route::post('/program-vendor-documents-update', [VendorDocumentController::class, 'update'])->name('admin.programVendorDocuments.update');
+    Route::get('/program-vendor-documents-delete/{id}', [VendorDocumentController::class, 'delete'])->name('admin.programVendorDocuments.delete');
 
     // program after challan store
     Route::post('/program-after-challan-store', [ProgramController::class, 'afterPostProgramStore'])->name('after-challan-store');

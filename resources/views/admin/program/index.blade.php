@@ -37,7 +37,6 @@
                   <th>Client</th>
                   <th>Program ID</th>
                   <th>Mother Vassel</th>
-                  <th>Lighter Vassel</th>
                   <th>Ghat</th>
                   <th>Consignment No.</th>    
                   <th>Log</th>
@@ -63,10 +62,8 @@
                       @if (isset($data->mother_vassel_id))
                         {{$data->motherVassel->name ?? ""}}
                       @endif
-                    </td>
-                    <td style="text-align: center">
                       @if ($data->lighter_vassel_id)
-                        {{$data->lighterVassel->name ?? ""}}
+                       LV: {{$data->lighterVassel->name ?? ""}}
                       @endif
                     </td>
                     <td style="text-align: center">
@@ -211,6 +208,9 @@
                     </td>
                     <td style="text-align: center">
                       <a href="{{route('admin.programVendorList', $data->id)}}" type="button" class="btn btn-block btn-info btn-xs">Vendor</a>
+
+                      <a href="{{route('admin.programVendorDocuments', $data->id)}}" type="button" class="btn btn-block btn-secondary btn-xs">Document</a>
+
                     </td>
                     <td style="text-align: center">
                       
