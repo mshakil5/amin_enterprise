@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\ChartOfAccount;
-use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\PurchaseHistoryLog;
 use Illuminate\Support\Carbon;
@@ -1134,10 +1133,7 @@ class FinancialStatementController extends Controller
             ->sum('amount');
 
         // Sales Discount
-        $salesDiscount = Order::when($request->has('startDate'), function ($query) use ($request, $today) {
-                $query->whereBetween('created_at', [$request->input('startDate'), $today]);
-            })
-            ->sum('discount_amount');
+
 
         // Purchase sum (Cost of Goods Sold) Today
         $purchaseSumToday = Transaction::where('table_type', 'Purchase')
@@ -1277,9 +1273,7 @@ class FinancialStatementController extends Controller
             ->whereDate('date', '<=', $yest)
             ->sum('amount');
 
-        //Sales Discount
-        $salesDiscount = Order::whereDate('created_at', '<=', $yest)
-            ->sum('discount_amount');
+
 
         //Purchase sum (Cost of Goods Sold)
         $purchaseSum = Transaction::where('table_type', 'Purchase')

@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\ProgramDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Str;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class VendorDocumentController extends Controller
 {
@@ -32,8 +34,36 @@ class VendorDocumentController extends Controller
 
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $filename = Str::random(15) . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/program_documents'), $filename);
+            $extension = strtolower($file->getClientOriginalExtension());
+            $filename = Str::random(15) . '_' . time() . '.' . $extension;
+            $destinationPath = public_path('uploads/program_documents');
+            
+            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+            if (in_array($extension, $imageExtensions)) {
+                // 1. Create the Image Manager instance manually
+                $manager = new ImageManager(new Driver());
+                
+                // 2. Read the image
+                $image = $manager->read($file);
+                
+                // 3. Scale down width if larger than 1200px
+                $image->scaleDown(width: 1200);
+                
+                // 4. Encode and save with 70% quality
+                if ($extension === 'png') {
+                    $encoded = $image->toPng();
+                } else {
+                    $encoded = $image->toJpeg(quality: 70);
+                }
+                
+                $encoded->save($destinationPath . '/' . $filename);
+
+            } else {
+                // It's a PDF/Doc, just move it
+                $file->move($destinationPath, $filename);
+            }
+
             $data['document'] = 'uploads/program_documents/' . $filename;
         }
 
@@ -65,9 +95,40 @@ class VendorDocumentController extends Controller
             if (file_exists(public_path($document->document))) {
                 unlink(public_path($document->document));
             }
+        }
+
+        if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $filename = Str::random(15) . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/program_documents'), $filename);
+            $extension = strtolower($file->getClientOriginalExtension());
+            $filename = Str::random(15) . '_' . time() . '.' . $extension;
+            $destinationPath = public_path('uploads/program_documents');
+            
+            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+            if (in_array($extension, $imageExtensions)) {
+                // 1. Create the Image Manager instance manually
+                $manager = new ImageManager(new Driver());
+                
+                // 2. Read the image
+                $image = $manager->read($file);
+                
+                // 3. Scale down width if larger than 1200px
+                $image->scaleDown(width: 1200);
+                
+                // 4. Encode and save with 70% quality
+                if ($extension === 'png') {
+                    $encoded = $image->toPng();
+                } else {
+                    $encoded = $image->toJpeg(quality: 70);
+                }
+                
+                $encoded->save($destinationPath . '/' . $filename);
+
+            } else {
+                // It's a PDF/Doc, just move it
+                $file->move($destinationPath, $filename);
+            }
+
             $data['document'] = 'uploads/program_documents/' . $filename;
         }
 
