@@ -37,9 +37,12 @@
             Vendors Advance
           </button>
 
-          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quantitymodal">
-            Change Quantity 
-          </button>
+            @if (Auth::user()->role->name == "All Access")
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quantitymodal">
+                    Change Quantity 
+                </button>
+            @endif
+          
 
           <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-truckSummary">
             Truck Summary
@@ -645,7 +648,8 @@
 </div>
 <!-- /.modal -->
 
-<!-- /. qty change modal -->
+@if (Auth::user()->role->name == "All Access")
+    <!-- /. qty change modal -->
 <div class="modal fade" id="quantitymodal">
     <div class="modal-dialog modal-xs">
       <div class="modal-content">
@@ -681,6 +685,8 @@
     <!-- /.modal-dialog -->
 </div>
 <!-- /.qty change modal -->
+@endif
+
 
 @endsection
 @section('script')
