@@ -62,25 +62,25 @@
                 <div class="col">Voucher No: <strong>{{$data->tran_id}}</strong></div>
                 <div class="col text-end">Date: <strong>{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y') }}</strong></div>
             </div>
-            <div class="mb-2"><strong>{{ $data->client?->name }}:</strong> {{$data->chartOfAccount?->account_name}} </div>
+            <div class="mb-2">Client: <strong>{{ $data->client?->name }}</strong></div>
 
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>SL</th>
-                        <th>Particulars</th>
-                        <th>Amount</th>
+                        <th class="text-center">SL</th>
+                        <th class="text-center">Particulars</th>
+                        <th class="text-center">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>1</td>
-                        <td>{{$data->note ?? ''}} <br> {{$data->description ?? ''}} </td>
+                        <td class="text-center">1</td>
+                        <td> {{$data->chartOfAccount?->account_name}}  {{$data->note ?? ''}} <br> {{$data->description ?? ''}} </td>
                         <td class="text-end"> {{$data->at_amount}}/-</td>
                     </tr>
                     @if($reverse)
                     <tr>
-                        <td>2</td>
+                        <td class="text-center">2</td>
                         <td> {{$reverse->note ?? $reverse->note ?? 'Reversed'}} </td>
                         <td class="text-end"> -{{$data->at_amount}}/-</td>
                     </tr>
@@ -90,20 +90,6 @@
             </table>
 
 
-            @php
-              use Rmunate\Utilities\SpellNumber;
-              
-              $rawAmount = SpellNumber::value($data->at_amount)
-                  ->locale('en')
-                  ->toLetters();
-
-              $textAmont = str_ireplace(' and zero', '', $rawAmount);
-              
-              $inWords = ucwords($textAmont) . ' (Taka Only)';
-            @endphp
-
-
-            <hr>
             <div class="amount-box">
                 Total: <strong>{{ $data->reverseTransaction ? 0 : $data->at_amount }}/-</strong>
             </div>
@@ -122,3 +108,6 @@
     </div>
 </body>
 </html>
+
+
+
