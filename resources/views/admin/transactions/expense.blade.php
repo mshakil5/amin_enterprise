@@ -681,6 +681,8 @@
                     btn += '<a href="' + voucherUrl + '" target="_blank" class="btn btn-info btn-action" title="Voucher"><i class="fas fa-receipt"></i></a>';
                     let reverseUrl = "{{ route('admin.transactions.reverse', ['id' => '__id__']) }}".replace('__id__', row.id);
                     btn += '<a href="' + reverseUrl + '" class="btn btn-success btn-action" title="Reverse" onclick="return confirm(\'Are you sure to reverse?\')"><i class="fas fa-undo"></i></a>';
+                    let journalUrl = "{{ route('admin.journal.voucher', ['id' => '__id__']) }}".replace('__id__', row.id);
+                    btn += '<a href="' + journalUrl + '" target="_blank" class="btn btn-info btn-action" title="Voucher"><i class="fas fa-receipt"></i></a>';
                     return btn;
                 }
             }

@@ -142,7 +142,6 @@ class ExpenseController extends Controller
     public function voucher(Request $request, $id)
     {
         $data = Transaction::with(['chartOfAccount', 'client'])->where('id', $id)->first();
-        // dd($data);
         return view('admin.transactions.expVoucher', compact('data'));
     }
 
@@ -335,6 +334,12 @@ class ExpenseController extends Controller
     }
 
 
+
+    public function journalVoucher(Request $request, $id)
+    {
+        $data = Transaction::with(['chartOfAccount', 'client', 'account'])->where('id', $id)->first();
+        return view('admin.transactions.journalVoucher', compact('data'));
+    }
 
 
 }

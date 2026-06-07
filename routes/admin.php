@@ -354,6 +354,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('expense-voucher/{id}', [ExpenseController::class, 'voucher'])->name('admin.expense.voucher');
     Route::get('expense-summary', [ExpenseController::class, 'getSummary'])->name('admin.expense.summary');
 
+    // voucher
+    Route::get('journal-voucher/{id}', [ExpenseController::class, 'journalVoucher'])->name('admin.journal.voucher');
+
     // ledger
     Route::get('ledger-accounts', [LedgerController::class, 'showLedgerAccounts'])->name('admin.ledgeraccount');
     Route::get('ledger/asset-details/{id}', [LedgerController::class, 'asset']);
