@@ -169,7 +169,7 @@ class LiabilityController extends Controller
             $transaction->tax_amount = $request->input('tax_amount');
             $transaction->vat_rate = $request->input('vat_rate');
             $transaction->vat_amount = $request->input('vat_amount');
-            $transaction->at_amount = $request->input('at_amount');
+            $transaction->at_amount = $transaction->amount - $request->input('tax_amount') - $request->input('vat_amount');
             $transaction->tran_type = $request->input('transaction_type');
             $transaction->payment_type = $request->input('payment_type');
             $transaction->liablity_id = $request->input('chart_of_account_id');
