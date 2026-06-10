@@ -163,6 +163,8 @@ class LiabilityController extends Controller
             $transaction->account_id = $request->input('account_id') ?? null;
             $transaction->table_type = 'Liabilities';
             $transaction->ref = $request->input('ref');
+            $transaction->client_id = $request->input('client_id');
+            $transaction->mother_vassel_id = $request->input('mother_vassel_id');
             $transaction->description = $request->input('description');
             $transaction->amount = $request->input('amount');
             $transaction->tax_rate = $request->input('tax_rate');
@@ -218,6 +220,8 @@ class LiabilityController extends Controller
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'ref' => $transaction->ref,
+            'client_id' => $transaction->client_id,
+            'mother_vassel_id' => $transaction->mother_vassel_id,
             'tran_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
             'tax_rate' => $transaction->tax_rate,
@@ -281,6 +285,8 @@ class LiabilityController extends Controller
             $transaction->chart_of_account_id = $request->input('chart_of_account_id');
             $transaction->account_id = $request->input('account_id') ?? null;
             $transaction->ref = $request->input('ref');
+            $transaction->client_id = $request->input('client_id');
+            $transaction->mother_vassel_id = $request->input('mother_vassel_id');
             $transaction->description = $request->input('description');
             $transaction->amount = $newAmount;
             $transaction->tax_rate = $request->input('tax_rate');

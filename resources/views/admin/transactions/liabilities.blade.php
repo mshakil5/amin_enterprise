@@ -169,13 +169,39 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label class="font-weight-bold" style="font-size:13px;">Account</label>
                                 <select class="form-control select2" id="account_id" name="account_id">
                                     <option value="">Select account</option>
                                     @foreach($accountList as $account)
                                         <option value="{{ $account->id }}">{{ $account->type }} ({{ number_format($account->amount, 2) }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Client</label>
+                                <select class="form-control select2" id="client_id" name="client_id">
+                                    <option value="">Select client</option>
+                                    @foreach (\App\Models\Client::where('status', 1)->select('id', 'name')->get() as $client)
+                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Mother Vessel</label>
+                                <select class="form-control select2" id="mother_vassel_id" name="mother_vassel_id">
+                                    <option value="">Select Mother Vessel</option>
+                                    @foreach (\App\Models\MotherVassel::where('status', 1)->select('id', 'name')->get() as $mv)
+                                        <option value="{{ $mv->id }}">{{ $mv->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -655,6 +681,8 @@
                 $('#description').val(response.description || '');
                 $('#transaction_type').val(response.tran_type);
                 $('#payment_type').val(response.payment_type || '');
+                $('#client_id').val(response.client_id).trigger('change');
+                $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
                 $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
 
                 // FIX: Set account after select2 is ready
