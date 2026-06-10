@@ -165,6 +165,7 @@ class AssetController extends Controller
             $transaction = new Transaction();
             $transaction->date = $request->input('date');
             $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->client_id = $request->input('client_id');
             $transaction->account_id = $request->input('account_id') ?? null;
             $transaction->table_type = 'Assets';
             $transaction->ref = $request->input('ref');
@@ -237,6 +238,7 @@ class AssetController extends Controller
             'id' => $transaction->id,
             'tran_id' => $transaction->tran_id,  // FIX: Added tran_id
             'date' => $transaction->date,
+            'client_id' => $transaction->client_id,
             'chart_of_account_id' => $transaction->chart_of_account_id,
             'chart_of_account_type' => $chartOfAccount ? $chartOfAccount->sub_account_head : null,
             'ref' => $transaction->ref,
@@ -301,6 +303,7 @@ class AssetController extends Controller
 
             // Update transaction fields
             $transaction->date = $request->input('date');
+            $transaction->client_id = $request->input('client_id');
             $transaction->chart_of_account_id = $request->input('chart_of_account_id');
             $transaction->ref = $request->input('ref');
             $transaction->description = $request->input('description');

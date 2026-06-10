@@ -154,6 +154,7 @@ class EquityController extends Controller
             $transaction = new Transaction();
             $transaction->date = $request->input('date');
             $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->client_id = $request->input('client_id');
             $transaction->account_id = $request->input('account_id') ?? null;
             $transaction->table_type = 'Equity';
             $transaction->ref = $request->input('ref');
@@ -206,6 +207,7 @@ class EquityController extends Controller
             'tran_id' => $transaction->tran_id,  // FIX: Added tran_id
             'date' => $transaction->date,
             'chart_of_account_id' => $transaction->chart_of_account_id,
+            'client_id' => $transaction->client_id,
             'ref' => $transaction->ref,
             'tran_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
@@ -264,6 +266,7 @@ class EquityController extends Controller
             // Update transaction
             $transaction->date = $request->input('date');
             $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->client_id = $request->input('client_id');
             $transaction->account_id = $request->input('account_id') ?? null;
             $transaction->ref = $request->input('ref');
             $transaction->description = $request->input('description');

@@ -163,6 +163,7 @@ class IncomeController extends Controller
             $transaction->tran_type = $request->input('transaction_type');
             $transaction->payment_type = $request->transaction_type === 'Advance Adjust' ? null : $request->input('payment_type');
             $transaction->income_id = $request->input('chart_of_account_id');
+            $transaction->client_id = $request->input('client_id');
             $transaction->vendor_id = $request->input('vendor_id');
             $transaction->vendor_sequence_number_id = $request->input('vendor_sequence_id');
             $transaction->mother_vassel_id = $request->input('mother_vassel_id');
@@ -228,6 +229,7 @@ class IncomeController extends Controller
             'at_amount' => $transaction->at_amount,
             'payment_type' => $transaction->payment_type,
             'description' => $transaction->description,
+            'client_id' => $transaction->client_id,
             'mother_vassel_id' => $transaction->mother_vassel_id,
             'vendor_sequence_number_id' => $transaction->vendor_sequence_number_id,
             'vendor_id' => $transaction->vendor_id,
@@ -284,6 +286,7 @@ class IncomeController extends Controller
 
             $transaction->date = $request->input('date');
             $transaction->chart_of_account_id = $request->input('chart_of_account_id');
+            $transaction->client_id = $request->input('client_id');
             $transaction->ref = $request->input('ref');
             $transaction->description = $request->input('description');
             $transaction->amount = $newAmount;

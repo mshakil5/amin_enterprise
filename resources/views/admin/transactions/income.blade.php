@@ -234,6 +234,21 @@
                         </div>
                     </div>
 
+                    {{-- Row 5: client --}}
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Client</label>
+                                <select class="form-control select2" id="client_id" name="client_id">
+                                    <option value="">Select client</option>
+                                    @foreach (\App\Models\Client::where('status', 1)->select('id', 'name')->get() as $client)
+                                        <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Form Actions --}}
                     <div class="row">
                         <div class="col-md-12 text-right">
@@ -699,6 +714,7 @@
 
                 // Set chart of account
                 $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
+                $('#client_id').val(response.client_id).trigger('change');
 
                 // Handle vendor div - FIX: Removed invalid ID references
                 if (response.vendor_id) {
