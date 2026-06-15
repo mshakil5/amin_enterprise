@@ -1830,34 +1830,30 @@ class ProgramController extends Controller
     {
         $totalAmount = 0;
         $prop = '';
-        $tierIndex = 1;
+        $matchedTier = null;
 
-        // Loop through the tiers (they are already sorted by tier_min_qty ascending)
+        // Find the specific tier that the total challanqty falls into
         foreach ($rates as $rate) {
-            // If the challanqty doesn't even reach this tier's starting point, break
-            if ($challanqty <= $rate->tier_min_qty) {
-                break;
+            $minOk = ($challanqty >= $rate->tier_min_qty);
+            $maxOk = is_null($rate->tier_max_qty) || ($challanqty <= $rate->tier_max_qty);
+
+            if ($minOk && $maxOk) {
+                $matchedTier = $rate;
+                break; // Found the matching tier, no need to check further
             }
+        }
 
-            // Calculate the upper bound of this tier
-            $upperBound = $rate->tier_max_qty ?? $challanqty;
-            
-            // How much quantity falls into THIS specific tier?
-            // It's the minimum of (total challanqty, tier upper bound) minus the tier's starting point
-            $applicableQty = min($challanqty, $upperBound) - $rate->tier_min_qty;
+        // If a matching tier is found, calculate the flat rate
+        if ($matchedTier) {
+            $appliedRate = $matchedTier->tier_rate;
+            $totalAmount = $challanqty * $appliedRate;
 
-            if ($applicableQty > 0) {
-                $amount = $applicableQty * $rate->tier_rate;
-                $totalAmount += $amount;
-
-                $prop .= '<tr>
-                    <td><input type="number" class="form-control qty" id="slabqty'.$tierIndex.'" name="qty[]" value="'.number_format($applicableQty, 2).'" ></td>
-                    <td><input type="number" class="form-control rate" id="slabrate'.$tierIndex.'" name="rate[]" value="'.$rate->tier_rate.'" ></td>
-                    <td><input type="number" class="form-control rateunittotal" id="slabamnt'.$tierIndex.'" name="amnt[]" value="'.number_format($amount, 2).'" readonly></td>
-                </tr>';
-
-                $tierIndex++;
-            }
+            // Since quantity is NOT broken, we only return ONE row
+            $prop .= '<tr>
+                <td><input type="number" class="form-control qty" id="slabqty1" name="qty[]" value="'.$challanqty.'" ></td>
+                <td><input type="number" class="form-control rate" id="slabrate1" name="rate[]" value="'.$appliedRate.'" ></td>
+                <td><input type="number" class="form-control rateunittotal" id="slabamnt1" name="amnt[]" value="'.$totalAmount.'" readonly></td>
+            </tr>';
         }
 
         return ['totalAmount' => $totalAmount, 'html' => $prop];
@@ -2142,6 +2138,123 @@ class ProgramController extends Controller
     }
 
     public function challanRateUpdate($cQty, $dstnID, $ghatID, $programDetail)
+    {
+        // 1. Determine the correct rate source based on the program date
+        $date = $programDetail->date;
+        $clientId = $programDetail->program->client_id ?? 3;
+        $rates = collect();
+
+        if ($date >= '2026-02-02') {
+            // Try TransportRate first
+            $rates = TransportRate::where('destination_id', $dstnID)
+                                    ->where('ghat_id', $ghatID)
+                                    ->where('program_id', $programDetail->program_id)
+                                    ->where('client_id', $clientId)
+                                    ->orderBy('tier_min_qty', 'asc')
+                                    ->get();
+            
+            // Fallback to DestinationSlabRate if TransportRate is empty
+            if ($rates->isEmpty()) {
+                $rates = DestinationSlabRate::where('destination_id', $dstnID)
+                                        ->where('ghat_id', $ghatID)
+                                        ->where('client_id', $clientId)
+                                        ->orderBy('tier_min_qty', 'asc')
+                                        ->get();
+            }
+        } elseif ($date > '2025-12-03' && $date < '2026-02-02') {
+            $rates = DestinationSlabRate::where('destination_id', $dstnID)
+                                    ->where('ghat_id', $ghatID)
+                                    ->where('client_id', $clientId)
+                                    ->orderBy('tier_min_qty', 'asc')
+                                    ->get();
+        } else {
+            $rates = PreviousSlabRate::where('destination_id', $dstnID)
+                                    ->where('ghat_id', $ghatID)
+                                    ->get();
+        }
+
+        // Safety check: ensure a rate was actually found
+        if ($rates->isEmpty()) {
+            return false; 
+        }
+
+        // 2. Try to find a New Format Multi-Tier match (Flat Rate Logic)
+        $matchedTier = null;
+        foreach ($rates as $rate) {
+            // Check if the record uses the new tier format
+            $tierRate = $rate->tier_rate ?? null;
+            if (!is_null($tierRate) && $tierRate > 0) {
+                $minOk = ($cQty >= ($rate->tier_min_qty ?? 0));
+                $maxOk = is_null($rate->tier_max_qty) || ($cQty <= $rate->tier_max_qty);
+
+                if ($minOk && $maxOk) {
+                    $matchedTier = $rate;
+                    break; // Found the matching tier, stop looking
+                }
+            }
+        }
+
+        // 3. If a new multi-tier match is found, save 1 row (FLAT RATE)
+        if ($matchedTier) {
+            $appliedRate = $matchedTier->tier_rate;
+            $totalAmount = $cQty * $appliedRate;
+
+            ChallanRate::create([
+                'program_detail_id' => $programDetail->id,
+                'challan_no'        => $programDetail->challan_no,
+                'qty'               => $cQty,
+                'rate_per_unit'     => $appliedRate,
+                'total'             => $totalAmount,
+                'created_by'        => Auth::id(),
+            ]);
+
+            return true;
+        }
+
+        // 4. Fallback: Old BSRM Logic (Below/Above Split)
+        // This will ONLY trigger if the rates found do not have tier_rate populated 
+        // (e.g., very old PreviousSlabRate records before the new system)
+        $oldRate = $rates->first();
+        if ($oldRate && isset($oldRate->maxqty) && $oldRate->maxqty > 0) {
+            
+            if ($cQty > $oldRate->maxqty) {
+                $aboveqty = $cQty - $oldRate->maxqty;
+                
+                ChallanRate::create([
+                    'program_detail_id' => $programDetail->id,
+                    'challan_no'        => $programDetail->challan_no,
+                    'qty'               => $oldRate->maxqty,
+                    'rate_per_unit'     => $oldRate->below_rate_per_qty,
+                    'total'             => $oldRate->below_rate_per_qty * $oldRate->maxqty,
+                    'created_by'        => Auth::id(),
+                ]);
+
+                ChallanRate::create([
+                    'program_detail_id' => $programDetail->id,
+                    'challan_no'        => $programDetail->challan_no,
+                    'qty'               => $aboveqty,
+                    'rate_per_unit'     => $oldRate->above_rate_per_qty,
+                    'total'             => $oldRate->above_rate_per_qty * $aboveqty,
+                    'created_by'        => Auth::id(),
+                ]);
+            } else {
+                ChallanRate::create([
+                    'program_detail_id' => $programDetail->id,
+                    'challan_no'        => $programDetail->challan_no,
+                    'qty'               => $cQty,
+                    'rate_per_unit'     => $oldRate->below_rate_per_qty,
+                    'total'             => $oldRate->below_rate_per_qty * $cQty,
+                    'created_by'        => Auth::id(),
+                ]);
+            }
+            
+            return true;
+        }
+
+        return false;
+    }
+
+    public function challanRateUpdate2($cQty, $dstnID, $ghatID, $programDetail)
     {
         // 1. Determine the correct rate source based on the program date
         $date = $programDetail->date;
