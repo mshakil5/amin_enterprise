@@ -1757,12 +1757,25 @@ class ProgramController extends Controller
     private function getRateData($date, $destId, $ghatId, $programId, $clientId)
     {
         if ($date >= '2026-02-02') {
-            return TransportRate::where('destination_id', $destId)
+            // 1. Try to get from TransportRate (New logic)
+            $transportRates = TransportRate::where('destination_id', $destId)
                                 ->where('ghat_id', $ghatId)
                                 ->where('program_id', $programId)
                                 ->where('client_id', $clientId)
                                 ->orderBy('tier_min_qty', 'asc')
                                 ->get();
+
+            // 2. Fallback: If not found in TransportRate, get from DestinationSlabRate
+            if ($transportRates->isNotEmpty()) {
+                return $transportRates;
+            } else {
+                return DestinationSlabRate::where('destination_id', $destId)
+                                        ->where('ghat_id', $ghatId)
+                                        ->where('client_id', $clientId)
+                                        ->orderBy('tier_min_qty', 'asc')
+                                        ->get();
+            }
+            
         } elseif ($date > '2025-12-03' && $date < '2026-02-02') {
             return DestinationSlabRate::where('destination_id', $destId)
                                     ->where('ghat_id', $ghatId)
