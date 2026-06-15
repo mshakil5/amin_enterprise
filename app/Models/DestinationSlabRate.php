@@ -11,6 +11,21 @@ class DestinationSlabRate extends Model
     use HasFactory;
     use SoftDeletes;
 
+
+    protected $fillable = [
+        'client_id', 'vendor_id', // New
+        'destination_id', 'ghat_id', 
+        'tier_min_qty', 'tier_max_qty', 'tier_rate', // New
+        'maxqty', 'below_rate_per_qty', 'above_rate_per_qty', // Old (keep for safety)
+        'title', 'date', 'created_by', 'updated_by'
+    ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+
     public function destination()
     {
         return $this->belongsTo(Destination::class);

@@ -10,16 +10,25 @@ class TransportRate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'program_id',
-        'destination_id',
-        'ghat_id',
-        'date', // <--- Add this
-        'minqty',
-        'maxqty',
-        'below_rate_per_qty',
-        'above_rate_per_qty',
+        'client_id', 'vendor_id',          // New
+        'program_id', 'date', 'title', 
+        'destination_id', 'ghat_id', 
+        'tier_min_qty', 'tier_max_qty', 'tier_rate', // New
+        'minqty', 'maxqty', 'below_rate_per_qty', 'above_rate_per_qty', // Old
         'status',
-        'created_by',
-        'updated_by',
+        'updated_by', 'created_by'
     ];
+
+    // Add relationships if you haven't already
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class); // Make sure Vendor model exists
+    }
+
+
 }

@@ -626,7 +626,10 @@ class ProgramController extends Controller
         $program->created_by = auth()->user()->id;
         $program->save();
 
-        $slabRates = DestinationSlabRate::where('ghat_id', $program->ghat_id)->get();
+        // Make sure to filter by client_id so BSRM programs don't get New Client slabs
+        $slabRates = DestinationSlabRate::where('ghat_id', $program->ghat_id)
+            ->where('client_id', $program->client_id) 
+            ->get();
 
         foreach ($slabRates as $slab) {
             $transportRate = new \App\Models\TransportRate();
@@ -635,12 +638,22 @@ class ProgramController extends Controller
             $transportRate->title = $slab->title;
             $transportRate->destination_id = $slab->destination_id;
             $transportRate->ghat_id = $slab->ghat_id;
-            $transportRate->minqty = 0; 
+            $transportRate->client_id = $slab->client_id; // Save Client ID
+            $transportRate->vendor_id = $slab->vendor_id; // Save Vendor ID
+            $transportRate->status = 1; 
+            $transportRate->created_by = Auth::user()->id;
+
+            // Save NEW multi-tier format data
+            $transportRate->tier_min_qty = $slab->tier_min_qty;
+            $transportRate->tier_max_qty = $slab->tier_max_qty;
+            $transportRate->tier_rate = $slab->tier_rate;
+
+            // Save OLD BSRM format data (This will be 0 or NULL for new clients, which is fine)
+            $transportRate->minqty = $slab->client_id == 3 ? 0 : $slab->tier_min_qty; 
             $transportRate->maxqty = $slab->maxqty;
             $transportRate->below_rate_per_qty = $slab->below_rate_per_qty;
             $transportRate->above_rate_per_qty = $slab->above_rate_per_qty;
-            $transportRate->status = 1; 
-            $transportRate->created_by = Auth::user()->id;
+
             $transportRate->save();
         }
 
@@ -1598,7 +1611,7 @@ class ProgramController extends Controller
 
 
 
-    public function checkSlabRate(Request $request)
+    public function checkSlabRate2(Request $request)
     {
         $vsno = VendorSequenceNumber::where('status', 1)->where('vendor_id', $request->vendor)->get();
         $challanqty = $request->challanqty;
@@ -1676,6 +1689,168 @@ class ProgramController extends Controller
         }
         
     }
+
+
+    public function checkSlabRate(Request $request)
+    {
+        $vsno = VendorSequenceNumber::where('status', 1)->where('vendor_id', $request->vendor)->get();
+        $challanqty = $request->challanqty;
+        $allData = $request->all();
+
+        $prgmDtl = ProgramDetail::where('id', $request->prgmdtlid)->first();
+        $date = $prgmDtl->date;
+        $clientId = $prgmDtl->client_id ?? 3; // Get client_id from program details, default 3
+
+        // Fetch rates based on date
+        $chkrate = $this->getRateData($date, $request->destid, $request->ghat, $prgmDtl->program_id, $clientId);
+
+        // Vendor Dropdown Logic
+        if ($vsno) {
+            $vdata = '<option value="">Select</option>';
+            foreach ($vsno as $key => $vsvalue) {
+                $programCount = ProgramDetail::where('vendor_sequence_number_id', $vsvalue->id)->count();
+                $vdata.= '<option value="'.$vsvalue->id.'">'.$vsvalue->unique_id.' ('.$vsvalue->date.') '.$vsvalue->qty.'/'.$programCount.' </option>';
+            }
+        } else {
+            $vdata = '<option value="">Select</option>';
+        }
+
+        if ($chkrate->isNotEmpty()) {
+            
+            // Decide which calculation logic to use based on Client ID
+            if ($clientId == 3) {
+                $rateData = $this->calculateBsrmRate($chkrate->first(), $challanqty);
+            } else {
+                $rateData = $this->calculateMultiTierRate($chkrate, $challanqty);
+            }
+
+            $prop = $rateData['html'];
+            $totalAmount = $rateData['totalAmount'];
+
+            $message ="<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate found</b></div>";
+
+            return response()->json([
+                'status'=> 300,
+                'message'=>$message, 
+                'data'=>$chkrate->first(), // Return first for compatibility
+                'rate'=>$prop, 
+                'totalAmount' => $totalAmount, 
+                'alldata' => $prgmDtl, 
+                'vdata' => $vdata
+            ]);
+
+        } else {
+            $message ="<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Slab rate not found</b></div>";
+            $totalAmount = 0;
+            return response()->json(['status'=> 200,'message'=>$message, 'data'=>null, 'alldata' => $allData]);
+        }
+    }
+
+
+    /* ========================================
+    PRIVATE HELPER FUNCTIONS 
+    ======================================== */
+
+    /**
+     * Fetch Rate Data based on Date ranges
+     */
+    private function getRateData($date, $destId, $ghatId, $programId, $clientId)
+    {
+        if ($date >= '2026-02-02') {
+            return TransportRate::where('destination_id', $destId)
+                                ->where('ghat_id', $ghatId)
+                                ->where('program_id', $programId)
+                                ->where('client_id', $clientId)
+                                ->orderBy('tier_min_qty', 'asc')
+                                ->get();
+        } elseif ($date > '2025-12-03' && $date < '2026-02-02') {
+            return DestinationSlabRate::where('destination_id', $destId)
+                                    ->where('ghat_id', $ghatId)
+                                    ->where('client_id', $clientId)
+                                    ->orderBy('tier_min_qty', 'asc')
+                                    ->get();
+        } else {
+            return PreviousSlabRate::where('destination_id', $destId)
+                                    ->where('ghat_id', $ghatId)
+                                    ->get();
+        }
+    }
+
+    /**
+     * Calculate rates for BSRM (Old Logic - Below/Above maxqty)
+     */
+    private function calculateBsrmRate($chkrate, $challanqty)
+    {
+        $prop = '';
+        $totalAmount = 0;
+
+        if ($challanqty > $chkrate->maxqty) {
+            $aboveqty = $challanqty - $chkrate->maxqty;
+            $totalAmount = ($chkrate->above_rate_per_qty * $aboveqty) + ($chkrate->below_rate_per_qty * $chkrate->maxqty);
+            
+            $prop.= '<tr>
+                        <td><input type="number" class="form-control qty" id="slabqty1" name="qty[]" value="'.$chkrate->maxqty.'" ></td>
+                        <td><input type="number" class="form-control rate" id="slabrate1" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                        <td><input type="number" class="form-control rateunittotal" id="slabamnt1" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $chkrate->maxqty.'" readonly></td>
+                    </tr>
+                    <tr>
+                        <td><input type="number" class="form-control qty" id="slabqty2" name="qty[]" value="'.$aboveqty.'" ></td>
+                        <td><input type="number" class="form-control rate" id="slabrate2" name="rate[]" value="'.$chkrate->above_rate_per_qty.'" ></td>
+                        <td><input type="number" class="form-control rateunittotal" id="slabamnt2" name="amnt[]" value="'.$chkrate->above_rate_per_qty * $aboveqty.'" readonly ></td>
+                    </tr>';
+        } else {
+            $totalAmount = $chkrate->below_rate_per_qty * $challanqty;
+            $prop.= '<tr>
+                        <td><input type="number" class="form-control qty" id="slabqty1" name="qty[]" value="'.$challanqty.'" ></td>
+                        <td><input type="number" class="form-control rate" id="slabrate1" name="rate[]" value="'.$chkrate->below_rate_per_qty.'" ></td>
+                        <td><input type="number" class="form-control rateunittotal" id="slabamnt1" name="amnt[]" value="'.$chkrate->below_rate_per_qty * $challanqty.'" readonly></td>
+                    </tr>';
+        }
+
+        return ['totalAmount' => $totalAmount, 'html' => $prop];
+    }
+
+    /**
+     * Calculate rates for New Clients (Dynamic Multi-Tier Logic)
+     */
+    private function calculateMultiTierRate($rates, $challanqty)
+    {
+        $totalAmount = 0;
+        $prop = '';
+        $tierIndex = 1;
+
+        // Loop through the tiers (they are already sorted by tier_min_qty ascending)
+        foreach ($rates as $rate) {
+            // If the challanqty doesn't even reach this tier's starting point, break
+            if ($challanqty <= $rate->tier_min_qty) {
+                break;
+            }
+
+            // Calculate the upper bound of this tier
+            $upperBound = $rate->tier_max_qty ?? $challanqty;
+            
+            // How much quantity falls into THIS specific tier?
+            // It's the minimum of (total challanqty, tier upper bound) minus the tier's starting point
+            $applicableQty = min($challanqty, $upperBound) - $rate->tier_min_qty;
+
+            if ($applicableQty > 0) {
+                $amount = $applicableQty * $rate->tier_rate;
+                $totalAmount += $amount;
+
+                $prop .= '<tr>
+                    <td><input type="number" class="form-control qty" id="slabqty'.$tierIndex.'" name="qty[]" value="'.number_format($applicableQty, 2).'" ></td>
+                    <td><input type="number" class="form-control rate" id="slabrate'.$tierIndex.'" name="rate[]" value="'.$rate->tier_rate.'" ></td>
+                    <td><input type="number" class="form-control rateunittotal" id="slabamnt'.$tierIndex.'" name="amnt[]" value="'.number_format($amount, 2).'" readonly></td>
+                </tr>';
+
+                $tierIndex++;
+            }
+        }
+
+        return ['totalAmount' => $totalAmount, 'html' => $prop];
+    }
+
+
 
 
     public function afterPostProgramStore_old(Request $request)

@@ -12,84 +12,113 @@
       </div>
     </div>
 </section>
-  <!-- /.content -->
-
-
 
     <!-- Main content -->
     <section class="content" id="addThisFormContainer">
       <div class="container-fluid">
         <div class="row justify-content-md-center">
-          <!-- right column -->
-          <div class="col-md-8">
-            <!-- general form elements disabled -->
+          <div class="col-md-10">
             <div class="card card-secondary">
               <div class="card-header">
-                <h3 class="card-title">Add new destination slab rate</h3>
+                <h3 class="card-title">Add/Edit destination slab rate</h3>
               </div>
-              <!-- /.card-header -->
               <div class="card-body">
                 <div class="ermsg"></div>
                 <form id="createThisForm">
                   @csrf
                   <input type="hidden" class="form-control" id="codeid" name="codeid">
-                  <div class="dermsg"></div>
-                      <div class="form-row">
-                          <div class="form-group col-md-2">
-                              <label for="ghat_id">Ghat </label>
-                              <select name="ghat_id" id="ghat_id" class="form-control">
-                                <option value="">Select</option>
-                                @foreach (\App\Models\Ghat::where('status', 1)->get() as $ghat)
-                                <option value="{{$ghat->id}}">{{$ghat->name}}</option>
-                                @endforeach
-                              </select>
-                          </div>
-                          <div class="form-group col-md-2">
-                              <label for="destination_id">Destination </label>
-                              <select name="destination_id" id="destination_id" class="form-control">
-                                <option value="">Select</option>
-                                @foreach (\App\Models\Destination::where('status', 1)->get() as $dest)
-                                <option value="{{$dest->id}}">{{$dest->name}}</option>
-                                @endforeach
-                              </select>
-                          </div>
-                          <div class="form-group col-md-2">
-                              <label for="title">Title</label>
-                              <input type="text" class="form-control" id="title" name="title" >
-                          </div>
-                          <div class="form-group col-md-2">
-                              <label for="qty">Qty</label>
-                              <input type="number" class="form-control" id="qty" name="qty" value="12" >
-                          </div>
-                          <div class="form-group col-md-2">
-                              <label for="below_rate_per_qty">Below Rate</label>
-                              <input type="number" class="form-control" id="below_rate_per_qty" name="below_rate_per_qty" >
-                          </div>
-                          <div class="form-group col-md-2">
-                              <label for="above_rate_per_qty">Above Rate</label>
-                              <input type="number" class="form-control" id="above_rate_per_qty" name="above_rate_per_qty" >
-                          </div>
-                          
+                  
+                  <!-- Basic Info Row -->
+                  <div class="form-row">
+                      <div class="form-group col-md-3">
+                          <label>Client <span class="text-danger">*</span></label>
+                          <select name="client_id" id="client_id" class="form-control" required>
+                            <option value="">Select Client</option>
+                            @foreach ($clients as $client)
+                            <option value="{{$client->id}}">{{$client->name}}</option>
+                            @endforeach
+                          </select>
                       </div>
+                      <div class="form-group col-md-3">
+                          <label>Ghat <span class="text-danger">*</span></label>
+                          <select name="ghat_id" id="ghat_id" class="form-control" required>
+                            <option value="">Select Ghat</option>
+                            @foreach ($ghats as $ghat)
+                            <option value="{{$ghat->id}}">{{$ghat->name}}</option>
+                            @endforeach
+                          </select>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Destination <span class="text-danger">*</span></label>
+                          <select name="destination_id" id="destination_id" class="form-control" required>
+                            <option value="">Select Destination</option>
+                            @foreach ($destinations as $dest)
+                            <option value="{{$dest->id}}">{{$dest->name}}</option>
+                            @endforeach
+                          </select>
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label>Title</label>
+                          <input type="text" class="form-control" id="title" name="title">
+                      </div>
+                  </div>
+
+                  <hr>
+
+                  <!-- BSRM FIELDS (Shown only if Client ID is 3) -->
+                  <div id="bsrmFields" style="display: none;">
+                      <h5>BSRM Slab Rate</h5>
+                      <div class="form-row">
+                          <div class="form-group col-md-3">
+                              <label>Qty (Max)</label>
+                              <input type="number" class="form-control" id="qty" name="qty" value="12">
+                          </div>
+                          <div class="form-group col-md-3">
+                              <label>Below Rate</label>
+                              <input type="number" class="form-control" id="below_rate_per_qty" name="below_rate_per_qty">
+                          </div>
+                          <div class="form-group col-md-3">
+                              <label>Above Rate</label>
+                              <input type="number" class="form-control" id="above_rate_per_qty" name="above_rate_per_qty">
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- NEW TIERS FIELDS (Shown only if Client ID is NOT 3) -->
+                  <div id="newTierFields" style="display: none;">
+                      <h5>Multi-Tier Slab Rates</h5>
+                      <table class="table table-bordered table-sm" id="tierTable">
+                          <thead class="bg-light">
+                              <tr>
+                                  <th style="width:25%">Min Qty</th>
+                                  <th style="width:30%">Max Qty (Leave blank for "and up")</th>
+                                  <th style="width:30%">Rate</th>
+                                  <th style="width:15%">Action</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr>
+                                  <td><input type="number" step="0.01" name="tiers[0][min_qty]" class="form-control" value="0" required></td>
+                                  <td><input type="number" step="0.01" name="tiers[0][max_qty]" class="form-control" placeholder="e.g. 11.99 or blank"></td>
+                                  <td><input type="number" step="0.01" name="tiers[0][rate]" class="form-control" required></td>
+                                  <td><button type="button" class="btn btn-sm btn-danger removeTier">X</button></td>
+                              </tr>
+                          </tbody>
+                      </table>
+                      <button type="button" class="btn btn-sm btn-secondary" id="addTierBtn">+ Add Tier</button>
+                  </div>
+
                 </form>
               </div>
-
-              
-              <!-- /.card-body -->
               <div class="card-footer">
-                <button type="submit" id="addBtn" class="btn btn-secondary" value="Create">Create</button>
-                <button type="submit" id="FormCloseBtn" class="btn btn-default">Cancel</button>
+                <button type="button" id="addBtn" class="btn btn-secondary" value="Create">Create</button>
+                <button type="button" id="FormCloseBtn" class="btn btn-default">Cancel</button>
               </div>
-              <!-- /.card-footer -->
-              <!-- /.card-body -->
             </div>
           </div>
-          <!--/.col (right) -->
         </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
+      </div>
     </section>
-    <!-- /.content -->
 
 
 <!-- Main content -->
@@ -97,186 +126,174 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-12">
-          <!-- /.card -->
-
           <div class="card card-secondary">
             <div class="card-header">
-              <h3 class="card-title">All Data</h3>
+              <h3 class="card-title">All Slab Rates</h3>
             </div>
-            <!-- /.card-header -->
             <div class="card-body">
-              
               <table id="example1" class="table table-bordered table-striped">
                 <thead class="bg-secondary">
                     <tr>
-                        <th style="text-align: center">Ghat</th>
-                        <th style="text-align: center">Destination</th>
-                        <th style="text-align: center">Qty</th>
-                        <th style="text-align: center">Below rate</th>
-                        <th style="text-align: center">Above rate</th>
+                        <th>Client</th>
+                        <th>Ghat</th>
+                        <th>Destination</th>
+                        <th>Quantity Range</th>
+                        <th>Rate</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (\App\Models\DestinationSlabRate::get() as $key => $data)
+                    @foreach ($data as $key => $item)
                     <tr>
-                        <td style="text-align: center">{{$data->ghat->name ?? ""}} ({{$data->ghat_id ?? ""}})</td>
-                        <td style="text-align: center">{{$data->destination->name ?? ""}} ({{$data->destination_id ?? ""}})</td>
-                        <td style="text-align: center">{{$data->maxqty ?? ""}}</td>
-                        <td style="text-align: center">{{$data->below_rate_per_qty ?? ""}}</td>
-                        <td style="text-align: center">{{$data->above_rate_per_qty ?? ""}}</td>
+                        <td>{{ $item->client->name ?? 'N/A' }}</td>
+                        <td>{{ $item->ghat->name ?? '' }}</td>
+                        <td>{{ $item->destination->name ?? '' }}</td>
+                        <td>
+                            @if($item->client_id == 3)
+                                &le; {{ $item->maxqty }} <br> > {{ $item->maxqty }}
+                            @else
+                                {{ $item->tier_min_qty }} - {{ $item->tier_max_qty ?? 'Up' }}
+                            @endif
+                        </td>
+                        <td>
+                            @if($item->client_id == 3)
+                                Below: {{ $item->below_rate_per_qty }} <br> Above: {{ $item->above_rate_per_qty }}
+                            @else
+                                {{ $item->tier_rate }}
+                            @endif
+                        </td>
                         <td style="text-align: center">
-                          <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
-                          <a id="deleteBtn" rid="{{$data->id}}"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
+                          <a id="EditBtn" rid="{{$item->id}}" style="cursor:pointer;"><i class="fa fa-edit" style="color: #2196f3;font-size:16px;"></i></a>
+                          <a id="deleteBtn" rid="{{$item->id}}" style="cursor:pointer;"><i class="fa fa-trash-o" style="color: red;font-size:16px;"></i></a>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
-
             </div>
-            <!-- /.card-body -->
           </div>
-          <!-- /.card -->
         </div>
-        <!-- /.col -->
       </div>
-      <!-- /.row -->
     </div>
-    <!-- /.container-fluid -->
 </section>
-<!-- /.content -->
-
 
 @endsection
+
 @section('script')
 <script>
     $(function () {
       $("#example1").DataTable({
           "responsive": true,
-          "lengthChange": true, // Must be true to show length menu
+          "lengthChange": true,
           "autoWidth": false,
           "buttons": ["copy", "csv", "excel", "pdf", "print"],
-          "pageLength": 50, // Sets the initial number of items per page to 50
-          "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ] // Defines the options in the 'Show X entries' dropdown
+          "pageLength": 50,
+          "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-      
     });
-  </script>
+</script>
 
 <script>
   $(document).ready(function () {
       $("#addThisFormContainer").hide();
+      
+      // Toggle UI based on Client Selection
+      $('#client_id').on('change', function() {
+          let clientId = $(this).val();
+          if (clientId == '3') {
+              $('#bsrmFields').show();
+              $('#newTierFields').hide();
+          } else if (clientId != '') {
+              $('#bsrmFields').hide();
+              $('#newTierFields').show();
+          } else {
+              $('#bsrmFields').hide();
+              $('#newTierFields').hide();
+          }
+      });
+
+      // Show/Hide Form
       $("#newBtn").click(function(){
           clearform();
           $("#newBtn").hide(100);
           $("#addThisFormContainer").show(300);
-
       });
+      
       $("#FormCloseBtn").click(function(){
           $("#addThisFormContainer").hide(200);
           $("#newBtn").show(100);
           clearform();
       });
-      //header for csrf-token is must in laravel
+
+      // CSRF Setup
       $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
-      //
+      
       var url = "{{URL::to('/admin/slab-rate')}}";
       var upurl = "{{URL::to('/admin/slab-rate-update')}}";
-      // console.log(url);
-      $("#addBtn").click(function(){
-      //   alert("#addBtn");
 
-    
-
-          if($(this).val() == 'Create') {
-              var form_data = new FormData();
-              form_data.append("destination_id", $("#destination_id").val());
-              form_data.append("ghat_id", $("#ghat_id").val());
-              form_data.append("qty", $("#qty").val());
-              form_data.append("below_rate_per_qty", $("#below_rate_per_qty").val());
-              form_data.append("above_rate_per_qty", $("#above_rate_per_qty").val());
-              form_data.append("title", $("#title").val());
-              $.ajax({
-                url: url,
-                method: "POST",
-                contentType: false,
-                processData: false,
-                data:form_data,
-                success: function (d) {
-                    if (d.status == 303) {
-                        $(".ermsg").html(d.message);
-                    }else if(d.status == 300){
-
-                      $(".ermsg").html(d.message);
-                      window.setTimeout(function(){location.reload()},2000)
-                    }
-                },
-                error: function (d) {
-                    console.log(d);
-                }
-            });
-          }
-          //create  end
-          //Update
-          if($(this).val() == 'Update'){
-              var form_data = new FormData();
-              form_data.append("destination_id", $("#destination_id").val());
-              form_data.append("ghat_id", $("#ghat_id").val());
-              form_data.append("qty", $("#qty").val());
-              form_data.append("below_rate_per_qty", $("#below_rate_per_qty").val());
-              form_data.append("above_rate_per_qty", $("#above_rate_per_qty").val());
-              form_data.append("title", $("#title").val());
-              form_data.append("codeid", $("#codeid").val());
-              
-              $.ajax({
-                  url:upurl,
-                  type: "POST",
-                  dataType: 'json',
-                  contentType: false,
-                  processData: false,
-                  data:form_data,
-                  success: function(d){
-                      console.log(d);
-                      if (d.status == 303) {
-                          $(".ermsg").html(d.message);
-                          pagetop();
-                      }else if(d.status == 300){
-                        $(".ermsg").html(d.message);
-                          window.setTimeout(function(){location.reload()},2000)
-                      }
-                  },
-                  error:function(d){
-                      console.log(d);
-                  }
-              });
-          }
-          //Update
+      // Add Tier Button Logic
+      var tierIndex = 1;
+      $("#addTierBtn").click(function(){
+          var newRow = `<tr>
+              <td><input type="number" step="0.01" name="tiers[${tierIndex}][min_qty]" class="form-control" required></td>
+              <td><input type="number" step="0.01" name="tiers[${tierIndex}][max_qty]" class="form-control" placeholder="Blank for unlimited"></td>
+              <td><input type="number" step="0.01" name="tiers[${tierIndex}][rate]" class="form-control" required></td>
+              <td><button type="button" class="btn btn-sm btn-danger removeTier">X</button></td>
+          </tr>`;
+          $("#tierTable tbody").append(newRow);
+          tierIndex++;
       });
-      //Edit
-      $("#contentContainer").on('click','#EditBtn', function(){
-          //alert("btn work");
-          codeid = $(this).attr('rid');
-          //console.log($codeid);
-          info_url = url + '/'+codeid+'/edit';
-          //console.log($info_url);
-          $.get(info_url,{},function(d){
-              populateForm(d);
-              pagetop();
+
+      // Remove Tier Row Logic
+      $(document).on('click', '.removeTier', function(){
+          $(this).closest('tr').remove();
+      });
+
+      // UNIFIED CREATE & UPDATE AJAX
+      $("#addBtn").click(function(){
+          var btnValue = $(this).val();
+          var requestUrl = (btnValue == 'Create') ? url : upurl;
+          
+          var form_data = $('#createThisForm').serialize();
+
+          $.ajax({
+              url: requestUrl,
+              method: "POST",
+              data: form_data,
+              success: function (d) {
+                  if (d.status == 303 || d.status == 400) {
+                      $(".ermsg").html(d.message);
+                  } else if(d.status == 300){
+                      $(".ermsg").html(d.message);
+                      window.setTimeout(function(){ location.reload(); }, 1500);
+                  }
+              },
+              error: function (d) {
+                  console.log(d);
+              }
           });
       });
-      //Edit  end
-      //Delete 
+
+      // Edit Button
+      $("#contentContainer").on('click','#EditBtn', function(){
+          codeid = $(this).attr('rid');
+          info_url = url + '/'+codeid+'/edit';
+          
+          $.get(info_url, {}, function(d){
+              populateForm(d);
+              $("html, body").animate({ scrollTop: 0 }, "slow");
+          });
+      });
+
+      // Delete Button
       $("#contentContainer").on('click','#deleteBtn', function(){
-            if(!confirm('Sure?')) return;
+            if(!confirm('Are you sure you want to delete this?')) return;
             codeid = $(this).attr('rid');
             info_url = url + '/'+codeid;
             $.ajax({
-                url:info_url,
+                url: info_url,
                 method: "GET",
-                type: "DELETE",
-                data:{
-                },
+                data: {_method: 'DELETE'}, 
                 success: function(d){
                     if(d.success) {
                         alert(d.message);
@@ -287,25 +304,67 @@
                     console.log(d);
                 }
             });
-        });
-      //Delete  
+      });
 
+      // Populate Form for Edit
       function populateForm(data){
-          $("#destination_id").val(data.destination_id);
+          clearform(); 
+          
+          $("#client_id").val(data.client_id).trigger('change'); // Trigger change to show/hide correct fields
           $("#ghat_id").val(data.ghat_id);
-          $("#maxqty").val(data.qty);
-          $("#below_rate_per_qty").val(data.below_rate_per_qty);
-          $("#above_rate_per_qty").val(data.above_rate_per_qty);
+          $("#destination_id").val(data.destination_id);
           $("#title").val(data.title);
           $("#codeid").val(data.id);
+          
+          if (data.client_id == 3) {
+              // Fill old BSRM fields
+              $("#qty").val(data.maxqty);
+              $("#below_rate_per_qty").val(data.below_rate_per_qty);
+              $("#above_rate_per_qty").val(data.above_rate_per_qty);
+          } else {
+              // Fill new Tier table
+              var maxQtyVal = data.tier_max_qty ? data.tier_max_qty : '';
+              var minQtyVal = data.tier_min_qty ? data.tier_min_qty : 0;
+              var rateVal = data.tier_rate ? data.tier_rate : 0;
+
+              var editRow = `<tr>
+                  <td><input type="number" step="0.01" name="tiers[0][min_qty]" class="form-control" value="${minQtyVal}" required></td>
+                  <td><input type="number" step="0.01" name="tiers[0][max_qty]" class="form-control" value="${maxQtyVal}" placeholder="Blank for unlimited"></td>
+                  <td><input type="number" step="0.01" name="tiers[0][rate]" class="form-control" value="${rateVal}" required></td>
+                  <td><button type="button" class="btn btn-sm btn-danger removeTier">X</button></td>
+              </tr>`;
+              
+              $("#tierTable tbody").html(editRow); 
+          }
+
           $("#addBtn").val('Update');
           $("#addBtn").html('Update');
           $("#addThisFormContainer").show(300);
           $("#newBtn").hide(100);
       }
+
       function clearform(){
           $('#createThisForm')[0].reset();
+          $("#codeid").val('');
+          
+          // Reset BSRM fields
+          $("#qty").val('12');
+          
+          // Reset dynamic tier table to 1 empty row
+          var defaultRow = `<tr>
+              <td><input type="number" step="0.01" name="tiers[0][min_qty]" class="form-control" value="0" required></td>
+              <td><input type="number" step="0.01" name="tiers[0][max_qty]" class="form-control" placeholder="e.g. 11.99 or blank"></td>
+              <td><input type="number" step="0.01" name="tiers[0][rate]" class="form-control" required></td>
+              <td><button type="button" class="btn btn-sm btn-danger removeTier">X</button></td>
+          </tr>`;
+          $("#tierTable tbody").html(defaultRow);
+          
+          // Hide custom sections until client is selected
+          $('#bsrmFields').hide();
+          $('#newTierFields').hide();
+          
           $("#addBtn").val('Create');
+          $("#addBtn").html('Create');
       }
   });
 </script>
