@@ -39,6 +39,11 @@ class VendorSequenceNumber extends Model
         return $this->belongsTo(Vendor::class);
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     
 
     public function transaction()

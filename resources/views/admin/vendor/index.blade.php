@@ -240,6 +240,16 @@
                   </div>
 
                   
+                  <div class="form-group">
+                      <label for="client_id">Client <span style="color: red;">*</span></label>
+                      <select name="client_id" id="client_id" class="form-control select2">
+                          <option value="">Select Client</option>
+                          @foreach (\App\Models\Client::latest()->get() as $item)
+                          <option value="{{$item->id}}">{{$item->name}}</option>
+                          @endforeach
+                      </select>
+                  </div>
+                  
                   {{-- <div class="form-group">
                     <label for="sequence">Sequence<span style="color: red;">*</span></label>
                     <input type="number" class="form-control" id="sequence" name="sequence" >
@@ -282,6 +292,7 @@
                           <th>Challan Store</th>
                           <th>Sequence</th>
                           <th>Due/Advance</th>
+                          <th>Client</th>
                           <th>Unique ID</th>
                           <th>Action</th>
                           <th>Checked By</th>
@@ -600,9 +611,21 @@
                     return;
                 }
 
+                var clientId = $("#client_id").val();
+                if ( !clientId ) {
+                    $msgContainer.html("<div class='alert alert-danger'>Please select a client.</div>");
+                    return;
+                }
+
+
+
+
+
+
                 var form_data = new FormData();
                 form_data.append("vendorId", id);
                 form_data.append("challanqty", qty);
+                form_data.append("client_id", clientId);
                 form_data.append("_token", "{{ csrf_token() }}"); 
 
                 $.ajax({

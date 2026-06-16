@@ -149,6 +149,7 @@ class VendorController extends Controller
         // 1. Better Validation
         $validated = $request->validate([
             'vendorId'   => 'required|exists:vendors,id',
+            'client_id'   => 'required|exists:clients,id',
             'challanqty' => 'required|integer|min:1',
         ]);
 
@@ -167,6 +168,7 @@ class VendorController extends Controller
                 'vendor_id'  => $vendor->id,
                 'qty'        => $validated['challanqty'],
                 'notmarkqty' => $validated['challanqty'],
+                'client_id' => $validated['client_id'],
                 'sequence'   => $nextSequence,
                 'unique_id'  => "{$uniqueCode}_{$nextSequence}_" . date('Y'),
                 'date'       => now()->format('Y-m-d'),
@@ -241,6 +243,9 @@ class VendorController extends Controller
                             </td>
                             <td>
                                 '.$balance.'
+                            </td>
+                            <td>
+                                '.$tran->client->name.'
                             </td>
                             <td>';
                                     if($programCount > 0){
