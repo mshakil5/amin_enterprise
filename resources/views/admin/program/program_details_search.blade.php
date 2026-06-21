@@ -154,7 +154,7 @@
                     challanTable = $('#challanRateTable').DataTable({
                         responsive: true,
                         lengthChange: true,
-                        pageLength: 10,
+                        pageLength: 200,
                         autoWidth: false,
                         order: [[0, 'asc']],
                         dom: '<"row mb-2"<"col-md-6"B><"col-md-6 text-right"f>>rtip',
