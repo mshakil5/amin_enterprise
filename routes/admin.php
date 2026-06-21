@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\IncomeStatementController;
 use App\Http\Controllers\Admin\FinancialStatementController;
 use App\Http\Controllers\Admin\CashSheetController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\AfterChallanPostingController;
 use App\Http\Controllers\Admin\ChequeController;
 use App\Http\Controllers\Admin\VendorLedgerController;
 use App\Http\Controllers\Admin\ExcelUploadController;
@@ -234,10 +235,14 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/change-program-fuel-rate', [ProgramController::class, 'changeProgramFuelRate'])->name('change-program-fuel-rate');
 
     // fuel rate update in programdetails on before challan posting
+    // this route is only for developer team.
     Route::get('/fuel-rate-update', [ProgramController::class, 'fuelRateUpdateIndex'])->name('admin.fuelRateUpdate.index');
     Route::post('/fuel-rate-update/search', [ProgramController::class, 'fuelRateUpdateSearch'])->name('admin.fuelRateUpdate.search');
     Route::post('/fuel-rate-update/update', [ProgramController::class, 'fuelRateUpdateStore'])->name('admin.fuelRateUpdate.update');
     Route::post('/fuel-rate-update/single-update', [ProgramController::class, 'fuelRateSingleUpdate'])->name('admin.fuelRateUpdate.singleUpdate');
+    Route::get('/get-challanlist-by-date-search', [AfterChallanPostingController::class, 'search'])->name('admin.afterChallanSearchByDate');
+    Route::post('/check-challanlist-by-date-search', [AfterChallanPostingController::class, 'checkChallanBydate'])->name('admin.afterChallanSearchByDateResult');
+
 
     // billing
     Route::get('/bill', [TransactionController::class,'getBill'])->name('admin.getBill');
