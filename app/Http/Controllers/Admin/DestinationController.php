@@ -127,8 +127,8 @@ class DestinationController extends Controller
         
         $data = DestinationSlabRate::orderby('client_id')->orderby('destination_id')->orderby('tier_min_qty')->get();
         $clients = Client::orderby('id','DESC')->where('status', 1)->get();
-        $ghats = Ghat::where('status', 1)->get();
-        $destinations = Destination::where('status', 1)->get();
+        $ghats = Ghat::all();
+        $destinations = Destination::all();
         
         return view('admin.destination.slabrate', compact('data','clients', 'ghats', 'destinations'));
     }
