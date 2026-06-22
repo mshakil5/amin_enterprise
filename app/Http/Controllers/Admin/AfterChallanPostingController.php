@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChallanRate;
 use App\Models\Client;
 use App\Models\DestinationSlabRate;
 use App\Models\ProgramDetail;
@@ -19,7 +20,7 @@ class AfterChallanPostingController extends Controller
             return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
 
-        $clients = Client::where('status', 1)->get();
+        $clients = Client::where('id', 3)->get();
         
         // Retrieve cached search filters from session
         $filters = session()->get('challan_search_filters', []);
@@ -205,6 +206,147 @@ class AfterChallanPostingController extends Controller
     }
 
 
+    public function bulkUpdateChallanRates(Request $request)
+    {
+        // Increase execution time for large datasets (10k+ records)
+        set_time_limit(300); 
+
+        $fromdate = $request->input('fromdate');
+        $todate   = $request->input('todate');
+        $clientId = $request->input('client_id');
+
+        if (!$fromdate || !$todate) {
+            return response()->json(['status' => 400, 'message' => 'Date range is required.']);
+        }
+
+        $updatedCount = 0;
+
+        // Process in server-side chunks of 500 to prevent memory exhaustion
+        ProgramDetail::with('challanRate', 'program')
+            ->whereBetween('date', [$fromdate, $todate])
+            ->whereNotNull('headerid')
+            ->where('client_id', $clientId)
+            ->chunk(500, function($programDetails) use (&$updatedCount) {
+                
+                foreach ($programDetails as $detail) {
+                    $cQty = $detail->challanRate->sum('qty');
+                    if ($cQty <= 0) continue;
+
+                    $programClientId = $detail->program->client_id ?? 3;
+                    
+                    $rates = DestinationSlabRate::where('destination_id', $detail->destination_id)
+                                            ->where('ghat_id', $detail->ghat_id)
+                                            ->where('client_id', $programClientId)
+                                            ->orderBy('tier_min_qty', 'asc')
+                                            ->get();
+
+                    if ($rates->isEmpty()) continue;
+
+                    $newTotalAmount = 0;
+                    $rowsToInsert = [];
+
+                    // 1. Try to find a New Format Multi-Tier match
+                    $matchedTier = null;
+                    foreach ($rates as $rate) {
+                        $tierRate = $rate->tier_rate ?? null;
+                        if (!is_null($tierRate) && $tierRate > 0) {
+                            $minOk = ($cQty >= ($rate->tier_min_qty ?? 0));
+                            $maxOk = is_null($rate->tier_max_qty) || ($cQty <= $rate->tier_max_qty);
+                            if ($minOk && $maxOk) {
+                                $matchedTier = $rate;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($matchedTier) {
+                        $newTotalAmount = $cQty * $matchedTier->tier_rate;
+                        $rowsToInsert[] = [
+                            'program_detail_id' => $detail->id,
+                            'challan_no'        => $detail->challan_no,
+                            'qty'               => $cQty,
+                            'rate_per_unit'     => $matchedTier->tier_rate,
+                            'total'             => $newTotalAmount,
+                            'created_by'        => auth()->id(),
+                            'created_at'        => now(),
+                            'updated_at'        => now(),
+                        ];
+                    } else {
+                        // 2. Fallback: Old BSRM Logic (Below/Above Split based on maxqty e.g., 12)
+                        $oldRate = $rates->first();
+                        if ($oldRate && isset($oldRate->maxqty) && $oldRate->maxqty > 0) {
+                            
+                            if ($cQty > $oldRate->maxqty) {
+                                $aboveqty = $cQty - $oldRate->maxqty;
+                                $belowTotal = $oldRate->below_rate_per_qty * $oldRate->maxqty;
+                                $aboveTotal = $oldRate->above_rate_per_qty * $aboveqty;
+                                $newTotalAmount = $belowTotal + $aboveTotal;
+
+                                $rowsToInsert[] = [
+                                    'program_detail_id' => $detail->id, 'challan_no' => $detail->challan_no,
+                                    'qty' => $oldRate->maxqty, 'rate_per_unit' => $oldRate->below_rate_per_qty,
+                                    'total' => $belowTotal, 'created_by' => auth()->id(), 'created_at' => now(), 'updated_at' => now(),
+                                ];
+                                $rowsToInsert[] = [
+                                    'program_detail_id' => $detail->id, 'challan_no' => $detail->challan_no,
+                                    'qty' => $aboveqty, 'rate_per_unit' => $oldRate->above_rate_per_qty,
+                                    'total' => $aboveTotal, 'created_by' => auth()->id(), 'created_at' => now(), 'updated_at' => now(),
+                                ];
+                            } else {
+                                $newTotalAmount = $oldRate->below_rate_per_qty * $cQty;
+                                $rowsToInsert[] = [
+                                    'program_detail_id' => $detail->id, 'challan_no' => $detail->challan_no,
+                                    'qty' => $cQty, 'rate_per_unit' => $oldRate->below_rate_per_qty,
+                                    'total' => $newTotalAmount, 'created_by' => auth()->id(), 'created_at' => now(), 'updated_at' => now(),
+                                ];
+                            }
+                        }
+                    }
+
+                    if (!empty($rowsToInsert)) {
+                        
+                        // --- LOG THE OLD DATA INTO YOUR EXISTING TABLE ---
+                        foreach ($detail->challanRate as $oldRate) {
+                            \App\Models\ChallanRateLog::create([
+                                'program_id'        => $detail->program_id,
+                                'program_detail_id' => $detail->id,
+                                'challan_no'        => $detail->challan_no,
+                                'qty'               => $oldRate->qty,
+                                'rate_per_unit'     => $oldRate->rate_per_unit,
+                                'total'             => $oldRate->total,
+                                'status'            => 0, // 0 = cancelled/superseded by new rate
+                                'updated_by'        => auth()->id(),
+                                'created_by'        => $oldRate->created_by, // Keep original creator
+                            ]);
+                        }
+
+                        // 1. Delete old rates
+                        ChallanRate::where('challan_no', $detail->challan_no)
+                                    ->where('program_detail_id', $detail->id)
+                                    ->delete();
+
+                        // 2. Insert new rates
+                        ChallanRate::insert($rowsToInsert);
+
+                        // 3. Update Program Detail
+                        $detail->transportcost = $newTotalAmount;
+                        $detail->carrying_bill = $newTotalAmount;
+                        $detail->due = ($newTotalAmount + $detail->additional_cost) - $detail->advance;
+                        $detail->rate_status = 0;
+                        $detail->updated_by = auth()->id();
+                        $detail->save();
+
+                        $updatedCount++;
+                    }
+                }
+            });
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Successfully updated ' . $updatedCount . ' records.',
+            'updated_count' => $updatedCount
+        ]);
+    }
 
 
 }

@@ -242,6 +242,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/fuel-rate-update/single-update', [ProgramController::class, 'fuelRateSingleUpdate'])->name('admin.fuelRateUpdate.singleUpdate');
     Route::get('/get-challanlist-by-date-search', [AfterChallanPostingController::class, 'search'])->name('admin.afterChallanSearchByDate');
     Route::post('/check-challanlist-by-date-search', [AfterChallanPostingController::class, 'checkChallanBydate'])->name('admin.afterChallanSearchByDateResult');
+    Route::post('admin/bulk-update-challan-rates',  [AfterChallanPostingController::class, 'bulkUpdateChallanRates'])->name('admin.bulkUpdateChallanRates');
 
 
     // billing

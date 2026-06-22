@@ -179,6 +179,7 @@
     });
 
     function bindTableEvents() {
+        // Keep row selection for visual purposes if needed
         $('#selectAllTop').off('click').on('click', function() {
             let checked = this.checked;
             $('#challanRateTable tbody tr').each(function() {
@@ -189,33 +190,92 @@
 
         $('#challanRateTable tbody tr').off('click').on('click', function(e) {
             if($(e.target).is('button, a, input')) return;
-            
             let isSelected = $(this).data('selected') || false;
             $(this).data('selected', !isSelected);
             $(this).toggleClass('table-active', !isSelected);
         });
 
+        // PREVIEW BUTTON
         $('#previewChangesBtn').off('click').on('click', function() {
-            let selected = getSelectedIds();
-            if (selected.length === 0) {
-                showMessage('Please select at least one record by clicking a row.', 400);
-                return;
-            }
-            showMessage('Previewing ' + selected.length + ' records.', 200);
-            console.log('Preview IDs:', selected);
-        });
-
-        $('#confirmBulkUpdate').off('click').on('click', function() {
-            let selected = getSelectedIds();
-            if (selected.length === 0) {
-                showMessage('Please select at least one record by clicking a row.', 400);
+            let fromdate = $('#startDate').val();
+            let todate = $('#endDate').val();
+            
+            if (!fromdate || !todate) {
+                showMessage('Please select a date range first.', 400);
                 return;
             }
             
-            showMessage('Submitting ' + selected.length + ' records for update.', 200);
-            console.log('Submit IDs:', selected);
+            // Show Summary
+            let summaryHtml = `
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Bulk Update Summary</h5>
+                    <p>This action will update <strong>ALL</strong> records matching the current search filters (From: ${fromdate} To: ${todate}).</p>
+                    <hr>
+                    <p class="mb-0"><b>What will happen:</b></p>
+                    <ul class="mb-0">
+                        <li>Old Challan Rates will be logged into <b>challan_rate_logs</b> for future audit.</li>
+                        <li>Old rates will be deleted, new rates inserted from <b>DestinationSlabRate</b>.</li>
+                        <li>If Qty > 12, two rows will be inserted (Below Max & Above Max).</li>
+                        <li><b>Carrying Bill</b> and <b>Due</b> will be recalculated.</li>
+                    </ul>
+                </div>
+            `;
+            $('.ermsg').html(summaryHtml);
+        });
+
+        // SUBMIT BUTTON (Sends filters to backend, bypassing pagination)
+        $('#confirmBulkUpdate').off('click').on('click', function() {
+            let fromdate = $('#startDate').val();
+            let todate = $('#endDate').val();
+            let clientId = $('#clientId').val();
+
+            if (!fromdate || !todate) {
+                showMessage('Please select a date range first.', 400);
+                return;
+            }
+
+            if (!confirm('WARNING: This will permanently update ALL records matching the date range and client. The old rates will be logged. Do you want to proceed?')) {
+                return;
+            }
+
+            let btn = $(this);
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Updating All...');
+            
+            // Add full-screen overlay to prevent user clicking around during large update
+            $('body').append('<div class="loading-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.7);z-index:9999;text-align:center;padding-top:20%;"><i class="fas fa-spinner fa-spin fa-3x text-primary"></i><br><h4 class="mt-3 text-primary">Processing bulk update... Please wait.</h4></div>');
+
+            $.ajax({
+                url: '{{ route("admin.bulkUpdateChallanRates") }}',
+                method: 'POST',
+                data: {
+                    fromdate: fromdate,
+                    todate: todate,
+                    client_id: clientId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(res) {
+                    $('.loading-overlay').remove();
+                    btn.prop('disabled', false).html('<i class="fas fa-check"></i> Submit');
+                    
+                    if(res.status === 200) {
+                        showMessage(res.message, 200);
+                        // Reload the table data after successful update
+                        setTimeout(() => {
+                            $('#searchBtn').click();
+                        }, 1500);
+                    } else {
+                        showMessage('Error occurred during update.', 400);
+                    }
+                },
+                error: function() {
+                    $('.loading-overlay').remove();
+                    btn.prop('disabled', false).html('<i class="fas fa-check"></i> Submit');
+                    showMessage('Server error occurred. Try reducing the date range.', 400);
+                }
+            });
         });
     }
+
 
     function getSelectedIds() {
         let selected = [];
