@@ -741,135 +741,236 @@ class ProgramController extends Controller
     }
 
 
+
     public function addMoreChallan(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'vendor_id.*' => 'required',
+            'vendor_id.*'    => 'required',
             'truck_number.*' => 'required',
-            'challan_no.*' => 'required',
+            'challan_no.*'   => 'required',
         ]);
 
         if ($validator->fails()) {
-            $errorMessage = "<div class='alert alert-warning'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>" . implode("<br>", $validator->errors()->all()) . "</b></div>";
-            return response()->json(['status' => 400, 'message' => $errorMessage]);
+            $errorMessage = "<div class='alert alert-warning'>
+                                <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+                                <b>" . implode("<br>", $validator->errors()->all()) . "</b>
+                            </div>";
+
+            Log::warning('Add More Challan Validation Failed', [
+                'errors' => $validator->errors()->all(),
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'status'  => 400,
+                'message' => $errorMessage
+            ]);
         }
 
-        $vendorIds = $request->input('vendor_id');
-        $truckNumbers = $request->input('truck_number');
-        $challanNos = $request->input('challan_no');
-        $fuelqtys = $request->input('fuelqty');
-        $cashamounts = $request->input('cashamount');
-        $fuel_rates = $request->input('fuel_rate');
-        $fueltokens = $request->input('fueltoken');
-        $petrol_pump_ids = $request->input('petrol_pump_id');
+        DB::beginTransaction();
 
-        $program = Program::where('id', $request->program_id)->first();
+        try {
 
-        // Make sure to filter by client_id so BSRM programs don't get New Client slabs
-        $slabRates = DestinationSlabRate::where('ghat_id', $program->ghat_id)
-            ->where('client_id', $program->client_id)
-            ->get();
+            Log::info('Add More Challan Started', [
+                'program_id' => $request->program_id,
+                'user_id'    => Auth::id()
+            ]);
 
-        foreach ($slabRates as $slab) {
-            $transportRate = new \App\Models\TransportRate();
-            $transportRate->program_id     = $program->id;
-            $transportRate->date           = $program->date;
-            $transportRate->title          = $slab->title;
-            $transportRate->destination_id = $slab->destination_id;
-            $transportRate->ghat_id        = $slab->ghat_id;
-            $transportRate->client_id      = $slab->client_id; // Save Client ID
-            $transportRate->vendor_id      = $slab->vendor_id; // Save Vendor ID
-            $transportRate->status         = 1;
-            $transportRate->created_by     = Auth::user()->id;
-            $transportRate->updated_by     = Auth::user()->id;
+            $vendorIds      = $request->input('vendor_id');
+            $truckNumbers   = $request->input('truck_number');
+            $challanNos     = $request->input('challan_no');
+            $fuelqtys       = $request->input('fuelqty');
+            $cashamounts    = $request->input('cashamount');
+            $fuel_rates     = $request->input('fuel_rate');
+            $fueltokens     = $request->input('fueltoken');
+            $petrol_pump_ids = $request->input('petrol_pump_id');
 
-            // Save NEW multi-tier format data (used by clients other than BSRM)
-            $transportRate->tier_min_qty = $slab->tier_min_qty;
-            $transportRate->tier_max_qty = $slab->tier_max_qty;
-            $transportRate->tier_rate    = $slab->tier_rate;
+            $program = Program::findOrFail($request->program_id);
 
-            // Save OLD BSRM format data
-            // BSRM (client_id = 3) uses below_rate / above_rate logic.
-            // Other clients use tier format; we still store min/max for compatibility.
-            $transportRate->minqty              = $slab->client_id == 3 ? 0 : $slab->tier_min_qty;
-            $transportRate->maxqty              = $slab->maxqty;
-            $transportRate->below_rate_per_qty  = $slab->below_rate_per_qty;
-            $transportRate->above_rate_per_qty  = $slab->above_rate_per_qty;
+            Log::info('Program Loaded', [
+                'program_id' => $program->id,
+                'client_id'  => $program->client_id,
+                'ghat_id'    => $program->ghat_id
+            ]);
 
-            $transportRate->save();
-        }
+            $slabRates = DestinationSlabRate::where('ghat_id', $program->ghat_id)
+                ->where('client_id', $program->client_id)
+                ->get();
 
-        foreach ($vendorIds as $key => $value) {
-            $invdtl = new ProgramDetail();
-            $invdtl->date = $request->input('newDate');
-            $invdtl->program_id = $program->id;
-            $invdtl->programid = $program->programid;
-            $invdtl->consignmentno = $program->consignmentno;
-            $invdtl->mother_vassel_id = $program->mother_vassel_id;
-            $invdtl->lighter_vassel_id = $program->lighter_vassel_id;
-            $invdtl->client_id = $program->client_id;
-            $invdtl->ghat_id = $program->ghat_id;
-            $invdtl->vendor_id = $vendorIds[$key];
-            $invdtl->truck_number = $truckNumbers[$key];
-            $invdtl->challan_no = $challanNos[$key];
-            $invdtl->created_by = Auth::user()->id;
-            $invdtl->save();
+            Log::info('Destination Slab Rates Found', [
+                'count' => $slabRates->count()
+            ]);
 
-            $fuelAmnt = $fuel_rates[$key] * $fuelqtys[$key];
-            $data = new AdvancePayment();
-            $data->program_id = $program->id;
-            $data->program_detail_id  = $invdtl->id;
-            $data->vendor_id = $vendorIds[$key];
-            $data->cashamount = $cashamounts[$key];
-            $data->petrol_pump_id = $petrol_pump_ids[$key];
-            $data->fuel_rate = $fuel_rates[$key];
-            $data->fuelqty = $fuelqtys[$key];
-            $data->fueltoken = $fueltokens[$key];
-            $data->fuelamount = $fuel_rates[$key] * $fuelqtys[$key];
-            $data->amount = $fuelAmnt + $cashamounts[$key];
-            $data->date = $request->input('newDate');
-            $data->save();
+            foreach ($slabRates as $slab) {
 
-            if ($cashamounts[$key] > 0) {
-                $transaction = new Transaction();
-                $transaction->client_id = $program->client_id;
-                $transaction->mother_vassel_id = $program->mother_vassel_id;
-                $transaction->program_id = $program->id;
-                $transaction->program_detail_id = $invdtl->id;
-                $transaction->vendor_id = $vendorIds[$key];
-                $transaction->challan_no = $challanNos[$key];
-                $transaction->amount = $cashamounts[$key];
-                $transaction->tran_type = "Advance";
-                $transaction->payment_type = "Cash";
-                $transaction->description = "Cash Advance to Vendor";
-                $transaction->date = $request->input('newDate');
-                $transaction->save();
-                $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-                $transaction->save();
+                $transportRate = new TransportRate();
+                $transportRate->program_id     = $program->id;
+                $transportRate->date           = $program->date;
+                $transportRate->title          = $slab->title;
+                $transportRate->destination_id = $slab->destination_id;
+                $transportRate->ghat_id        = $slab->ghat_id;
+                $transportRate->client_id      = $slab->client_id;
+                $transportRate->vendor_id      = $slab->vendor_id;
+                $transportRate->status         = 1;
+                $transportRate->created_by     = Auth::id();
+                $transportRate->updated_by     = Auth::id();
+
+                $transportRate->tier_min_qty = $slab->tier_min_qty;
+                $transportRate->tier_max_qty = $slab->tier_max_qty;
+                $transportRate->tier_rate    = $slab->tier_rate;
+
+                $transportRate->minqty             = $slab->client_id == 3 ? 0 : $slab->tier_min_qty;
+                $transportRate->maxqty             = $slab->maxqty;
+                $transportRate->below_rate_per_qty = $slab->below_rate_per_qty;
+                $transportRate->above_rate_per_qty = $slab->above_rate_per_qty;
+
+                $transportRate->save();
+
+                Log::info('Transport Rate Created', [
+                    'transport_rate_id' => $transportRate->id,
+                    'destination_id'    => $transportRate->destination_id,
+                    'vendor_id'         => $transportRate->vendor_id
+                ]);
             }
 
-            if ($fuelAmnt > 0) {
-                $transaction = new Transaction();
-                $transaction->client_id = $program->client_id;
-                $transaction->mother_vassel_id = $program->mother_vassel_id;
-                $transaction->program_id = $program->id;
-                $transaction->program_detail_id = $invdtl->id;
-                $transaction->vendor_id = $vendorIds[$key];
-                $transaction->challan_no = $challanNos[$key];
-                $transaction->amount = $fuelAmnt;
-                $transaction->tran_type = "Advance";
-                $transaction->description = "Fuel Advance to Vendor";
-                $transaction->payment_type = "Fuel";
-                $transaction->date = $request->input('newDate');
-                $transaction->save();
-                $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
-                $transaction->save();
+            foreach ($vendorIds as $key => $vendorId) {
+
+                Log::info('Processing Challan', [
+                    'index'      => $key,
+                    'vendor_id'  => $vendorId,
+                    'challan_no' => $challanNos[$key]
+                ]);
+
+                $invdtl = new ProgramDetail();
+                $invdtl->date = $request->newDate;
+                $invdtl->program_id = $program->id;
+                $invdtl->programid = $program->programid;
+                $invdtl->consignmentno = $program->consignmentno;
+                $invdtl->mother_vassel_id = $program->mother_vassel_id;
+                $invdtl->lighter_vassel_id = $program->lighter_vassel_id;
+                $invdtl->client_id = $program->client_id;
+                $invdtl->ghat_id = $program->ghat_id;
+                $invdtl->vendor_id = $vendorId;
+                $invdtl->truck_number = $truckNumbers[$key];
+                $invdtl->challan_no = $challanNos[$key];
+                $invdtl->created_by = Auth::id();
+                $invdtl->save();
+
+                Log::info('Program Detail Created', [
+                    'program_detail_id' => $invdtl->id,
+                    'challan_no'        => $invdtl->challan_no
+                ]);
+
+                $fuelAmnt = ($fuel_rates[$key] ?? 0) * ($fuelqtys[$key] ?? 0);
+
+                $data = new AdvancePayment();
+                $data->program_id = $program->id;
+                $data->program_detail_id = $invdtl->id;
+                $data->vendor_id = $vendorId;
+                $data->cashamount = $cashamounts[$key] ?? 0;
+                $data->petrol_pump_id = $petrol_pump_ids[$key] ?? null;
+                $data->fuel_rate = $fuel_rates[$key] ?? 0;
+                $data->fuelqty = $fuelqtys[$key] ?? 0;
+                $data->fueltoken = $fueltokens[$key] ?? null;
+                $data->fuelamount = $fuelAmnt;
+                $data->amount = $fuelAmnt + ($cashamounts[$key] ?? 0);
+                $data->date = $request->newDate;
+                $data->save();
+
+                Log::info('Advance Payment Created', [
+                    'advance_payment_id' => $data->id,
+                    'amount'             => $data->amount
+                ]);
+
+                if (($cashamounts[$key] ?? 0) > 0) {
+
+                    $transaction = new Transaction();
+                    $transaction->client_id = $program->client_id;
+                    $transaction->mother_vassel_id = $program->mother_vassel_id;
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $invdtl->id;
+                    $transaction->vendor_id = $vendorId;
+                    $transaction->challan_no = $challanNos[$key];
+                    $transaction->amount = $cashamounts[$key];
+                    $transaction->tran_type = "Advance";
+                    $transaction->payment_type = "Cash";
+                    $transaction->description = "Cash Advance to Vendor";
+                    $transaction->date = $request->newDate;
+                    $transaction->save();
+
+                    $transaction->tran_id = 'CA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+
+                    Log::info('Cash Transaction Created', [
+                        'transaction_id' => $transaction->id,
+                        'tran_id'        => $transaction->tran_id,
+                        'amount'         => $transaction->amount
+                    ]);
+                }
+
+                if ($fuelAmnt > 0) {
+
+                    $transaction = new Transaction();
+                    $transaction->client_id = $program->client_id;
+                    $transaction->mother_vassel_id = $program->mother_vassel_id;
+                    $transaction->program_id = $program->id;
+                    $transaction->program_detail_id = $invdtl->id;
+                    $transaction->vendor_id = $vendorId;
+                    $transaction->challan_no = $challanNos[$key];
+                    $transaction->amount = $fuelAmnt;
+                    $transaction->tran_type = "Advance";
+                    $transaction->description = "Fuel Advance to Vendor";
+                    $transaction->payment_type = "Fuel";
+                    $transaction->date = $request->newDate;
+                    $transaction->save();
+
+                    $transaction->tran_id = 'FA' . date('ymd') . str_pad($transaction->id, 4, '0', STR_PAD_LEFT);
+                    $transaction->save();
+
+                    Log::info('Fuel Transaction Created', [
+                        'transaction_id' => $transaction->id,
+                        'tran_id'        => $transaction->tran_id,
+                        'amount'         => $transaction->amount
+                    ]);
+                }
             }
+
+            DB::commit();
+
+            Log::info('Add More Challan Completed Successfully', [
+                'program_id' => $program->id,
+                'user_id'    => Auth::id()
+            ]);
+
+            $message = "<div class='alert alert-success'>
+                            <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+                            <b>Data Created Successfully.</b>
+                        </div>";
+
+            return response()->json([
+                'status'  => 300,
+                'message' => $message,
+                'program' => $program
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            Log::error('Add More Challan Failed', [
+                'program_id' => $request->program_id,
+                'user_id'    => Auth::id(),
+                'message'    => $e->getMessage(),
+                'line'       => $e->getLine(),
+                'file'       => $e->getFile(),
+                'trace'      => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'status'  => 500,
+                'message' => $e->getMessage()
+            ]);
         }
-
-        $message = "<div class='alert alert-success'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Data Created Successfully.</b></div>";
-
-        return response()->json(['status' => 300, 'message' => $message, 'program' => $program]);
     }
 
 

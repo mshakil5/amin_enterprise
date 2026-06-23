@@ -1289,8 +1289,23 @@ $(document).ready(function () {
                   }
               },
               error: function(xhr, status, error) {
-                  console.log(xhr.responseJSON.message);
-              },
+                    console.log("Error Status:", xhr.status);
+                    
+                    let errorMessage = "An unknown error occurred.";
+                    
+                    if (xhr.status === 419) {
+                        errorMessage = "Session expired! Please reload the page and try again.";
+                    } else if (xhr.status === 403) {
+                        errorMessage = "You do not have permission to perform this action.";
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else {
+                        errorMessage = "Server returned an error. Check network tab.";
+                    }
+
+                    $(".ermsg").html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                    console.log(errorMessage);
+                },
               complete: function() {
                   $('#loader').hide();
                   $('#addBtn').attr('disabled', false);
