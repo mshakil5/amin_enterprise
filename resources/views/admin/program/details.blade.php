@@ -65,62 +65,49 @@
                       <h3 class="card-title" id="cardTitle">Create new challan number</h3>
                   </div>
                   <div class="card-body">
-                      <div class="ermsg">
-                          
-                      </div>
+                      <div class="ermsg"></div>
                       
                       <form id="createThisForm">
                           @csrf
 
                           <div class="row">
                               <div class="col-sm-6">
-                                  
                                   <div class="form-row">
                                       <div class="form-group col-md-4">
-                                          <label for="client_id">Client </label>
-                                          <p><b>{{$data->client->name }}</b></p>
+                                          <label>Client</label>
+                                          <p><b>{{$data->client->name ?? ''}}</b></p>
                                           <input type="hidden" name="program_id" id="program_id" value="{{$data->id}}">
                                       </div>
                                       <div class="form-group col-md-4">
                                           <label for="date">Date <span style="color: red;">*</span></label>
-                                          <input type="date" class="form-control" id="date" name="date" value="{{$data->date}}" readonly>
-                                          <span id="productCodeError" class="text-danger"></span>
+                                          <input type="date" class="form-control" id="date" name="date" value="{{$data->date ?? ''}}" readonly>
                                       </div>
                                       <div class="form-group col-md-4">
                                           <label for="consignmentno">Consignment Number</label>
-                                          <input type="text" class="form-control" value="{{$data->consignmentno}}" readonly>
+                                          <input type="text" class="form-control" id="consignmentno" name="consignmentno" value="{{$data->consignmentno ?? ''}}" readonly>
                                       </div>
-                                      
-      
-                                      
                                   </div>
                               </div>
 
-          
                               <div class="col-sm-6">
-                                  
                                   <div class="form-row">
-
-                                      
-      
                                       <div class="form-group col-md-4">
-                                          <label for="mother_vassel_id">Mother Vassel </label>
-                                          <p><b>{{$data->motherVassel->name }}</b></p>
+                                          <label>Mother Vessel</label>
+                                          <p><b>{{$data->motherVessel->name ?? ''}}</b></p>
                                       </div>
 
                                       <div class="form-group col-md-4">
-                                          <label>Ghat </label>
-
-                                          
-                                          <p><b>  @if (isset($data->ghat_id))
-                                              {{\App\Models\Ghat::where('id', $data->ghat_id)->first()->name ?? ""}}
-                                          @endif </b></p>
-                                          
+                                          <label>Ghat</label>
+                                          <p><b>  
+                                              @if (isset($data->ghat_id))
+                                                  {{\App\Models\Ghat::where('id', $data->ghat_id)->first()->name ?? ""}}
+                                              @endif 
+                                          </b></p>
                                       </div>
 
                                       <div class="form-group col-md-4">
-                                          <label>New Date <span class="text-danger">*</span></label>
-                                          <input type="date" name="newDate" class="form-control" value="{{ date('Y-m-d') }}" id="newDate" required>
+                                          <label for="newDate">New Date <span class="text-danger">*</span></label>
+                                          <input type="date" name="newDate" id="newDate" class="form-control" value="{{ date('Y-m-d') }}" required>
                                       </div>
                                   </div>
                               </div>
@@ -143,118 +130,75 @@
                                   </tr>
                               </thead>
                               <tbody>
+                                  <!-- Row 1 -->
                                   <tr>
                                       <td>
-                                          <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                          <select class="form-control" name="vendor_id[]">
                                               <option value="">Select Vendor</option>
                                               @foreach ($vendors as $vendor)
-                                              <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                                  <option value="{{$vendor->id}}">{{$vendor->name}}</option>
                                               @endforeach
                                           </select>
                                       </td>
+                                      <td><input type="text" class="form-control" name="truck_number[]"></td>
+                                      <td><input type="number" class="form-control" name="challan_no[]"></td>
+                                      <td><input type="number" class="form-control cashamount" name="cashamount[]"></td>
+                                      <td><input type="number" class="form-control fuelqty" name="fuelqty[]"></td>
+                                      <td><input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="115"></td>
+                                      <td><input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly></td>
+                                      <td><input type="number" class="form-control" name="fueltoken[]"></td>
                                       <td>
-                                          <input type="text" class="form-control" name="truck_number[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control" name="challan_no[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control cashamount" name="cashamount[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control fuelqty" name="fuelqty[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="115">
-                                      </td>
-                                      <td> 
-                                          <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control" name="fueltoken[]" >
-                                      </td>
-                                      <td>
-                                          <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                          <select name="petrol_pump_id[]" class="form-control">
                                               <option value="">Select</option>
                                               @foreach ($pumps as $pump)
                                                   <option value="{{$pump->id}}">{{$pump->name}}</option>
                                               @endforeach
-                                              </select>
+                                          </select>
                                       </td>
-                                      <td>
-                                          <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
-                                      </td>
-                                      <td>
-                                          <button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button>
-                                      </td>
+                                      <td><input type="number" class="form-control totalamount" name="amount[]" readonly></td>
+                                      <td><button type="button" class="btn btn-success add-row"><i class="fas fa-plus"></i></button></td>
                                   </tr>
 
+                                  <!-- Row 2 -->
                                   <tr>
                                       <td>
-                                          <select class="form-control" name="vendor_id[]" id="vendor_id">
+                                          <select class="form-control" name="vendor_id[]">
                                               <option value="">Select Vendor</option>
                                               @foreach ($vendors as $vendor)
-                                              <option value="{{$vendor->id}}">{{$vendor->name}}</option>
+                                                  <option value="{{$vendor->id}}">{{$vendor->name}}</option>
                                               @endforeach
                                           </select>
                                       </td>
+                                      <td><input type="text" class="form-control" name="truck_number[]"></td>
+                                      <td><input type="number" class="form-control" name="challan_no[]"></td>
+                                      <td><input type="number" class="form-control cashamount" name="cashamount[]"></td>
+                                      <td><input type="number" class="form-control fuelqty" name="fuelqty[]"></td>
+                                      <td><input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="115"></td>
+                                      <td><input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly></td>
+                                      <td><input type="number" class="form-control" name="fueltoken[]"></td>
                                       <td>
-                                          <input type="text" class="form-control" name="truck_number[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control" name="challan_no[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control cashamount" name="cashamount[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control fuelqty" name="fuelqty[]" >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control fuel_rate" name="fuel_rate[]" value="115">
-                                      </td>
-                                      <td> 
-                                          <input type="number" class="form-control fuel_amount" name="fuel_amount[]" readonly >
-                                      </td>
-                                      <td>
-                                          <input type="number" class="form-control" name="fueltoken[]" >
-                                      </td>
-                                      <td>
-                                          <select name="petrol_pump_id[]" id="petrol_pump_id[]" class="form-control" >
+                                          <select name="petrol_pump_id[]" class="form-control">
                                               <option value="">Select</option>
                                               @foreach ($pumps as $pump)
                                                   <option value="{{$pump->id}}">{{$pump->name}}</option>
                                               @endforeach
-                                              </select>
+                                          </select>
                                       </td>
-                                      <td>
-                                          <input type="number" class="form-control totalamount" name="amount[]" value="" readonly>
-                                      </td>
-                                      <td>
-                                          <button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button>
-                                      </td>
+                                      <td><input type="number" class="form-control totalamount" name="amount[]" readonly></td>
+                                      <td><button type="button" class="btn btn-danger remove-row"><i class="fas fa-minus"></i></button></td>
                                   </tr>
-
-
                               </tbody>
                           </table>
-                          
-
                       </form>
                   </div>
                   <div class="card-footer">
-                    <button type="submit" form="createThisForm" id="addBtn"  class="btn btn-secondary">Add more challan </button>
-                        <div id="loader" style="display: none;">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Loading...
-                        </div>
-                        
-                    <button type="submit" id="FormCloseBtn" class="btn btn-default">Cancel</button>
+                      <button type="submit" form="createThisForm" id="addBtn" class="btn btn-secondary">Add more challan</button>
+                      <div id="loader" style="display: none;">
+                          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          Loading...
+                      </div>
+                      <button type="submit" id="FormCloseBtn" class="btn btn-default">Cancel</button>
                   </div>
-
-
-
-                  
               </div>
           </div>
       </div>

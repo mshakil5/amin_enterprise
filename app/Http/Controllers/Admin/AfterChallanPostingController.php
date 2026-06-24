@@ -155,6 +155,7 @@ class AfterChallanPostingController extends Controller
                     <tr>
                         <th>Date</th>
                         <th>Challan No</th>
+                        <th>Header Id</th>
                         <th>Vendor</th>
                         <th>Mother Vessel</th>
                         <th>Ghat</th>
@@ -189,6 +190,7 @@ class AfterChallanPostingController extends Controller
             $html .= '<tr data-id="'.$detail->id.'" style="cursor: pointer;">';
             $html .= '<td>'.($detail->date ?? '-').'</td>';
             $html .= '<td><span class="badge badge-info">'.($detail->challan_no ?? '-').'</span></td>';
+            $html .= '<td><span class="badge badge-info">'.($detail->headerid ?? '-').'</span></td>';
             $html .= '<td>'.($detail->vendor->name ?? '-').'</td>';
             $html .= '<td>'.($detail->motherVassel->name ?? '-').'</td>';
             $html .= '<td>'.($detail->ghat->name ?? '-').'</td>';
