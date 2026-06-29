@@ -34,6 +34,7 @@ class CashSheetController extends Controller
         // dd($expectedDate);
         // opening balance
         $previousBalance = $this->cashSheetPreviousBalance($expectedDate);
+        app(\App\Services\CashSheetBalanceService::class)->syncToAccounts();
         if ($request->searchDate == '2025-07-20') {
             $cashInHandOpening = 347224.00;
             $cashInFieldOpening = 321130.00;
@@ -371,6 +372,7 @@ class CashSheetController extends Controller
             }
 
             $previousBalance = $this->cashSheetPreviousBalance($expectedDate);
+            app(\App\Services\CashSheetBalanceService::class)->syncToAccounts();
             $cashInHandOpening = floatval($previousBalance['previousCashInOfficeClosing'] ?? 0);
             $cashInFieldOpening = floatval($previousBalance['previousCashInFieldClosing'] ?? 0);
             $suspenseAccount = 94599.00;

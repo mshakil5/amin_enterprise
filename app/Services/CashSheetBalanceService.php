@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Transaction;
+use App\Models\Account;
 use Carbon\Carbon;
 
 class CashSheetBalanceService
@@ -10,11 +11,16 @@ class CashSheetBalanceService
     private const START_DATE = '2025-07-20';
     private const CASH_IN_HAND_INITIAL = 347224.00;
     private const CASH_IN_FIELD_INITIAL = 321130.00;
+    private const OFFICE_CASH_ACCOUNT_ID = 1;
+    private const FIELD_CASH_ACCOUNT_ID = 2;
 
     /**
      * Get all 4 balances for any given date
+     *
+     * @param string|null $date
+     * @param bool $sync  Pass true to auto-update accounts table
      */
-    public function getBalances($date = null)
+    public function getBalances($date = null, bool $sync = false)
     {
         $date = $date
             ? Carbon::parse($date)->toDateString()
@@ -39,17 +45,48 @@ class CashSheetBalanceService
         // Closing balances
         $closing = $this->calculateClosing($date, $date, $cashInHandOpening, $cashInFieldOpening);
 
-        return [
+        $result = [
             'date'               => $date,
             'cashInHandOpening'  => round($cashInHandOpening, 2),
             'cashInFieldOpening' => round($cashInFieldOpening, 2),
             'cashInHandClosing'  => round($closing['office'], 2),
             'cashInFieldClosing' => round($closing['field'], 2),
         ];
+
+        // Auto-sync if requested
+        if ($sync) {
+            $this->syncToAccounts($result);
+        }
+
+        return $result;
     }
 
     /**
-     * Core balance calculation — mirrors the view's $updateBalances / $deductBalances logic
+     * Update accounts table with closing balances
+     *
+     * @param array|null $balances  Pass null to auto-calculate for yesterday
+     * @return array The balances that were synced
+     */
+    public function syncToAccounts(?array $balances = null): array
+    {
+        // If no balances provided, calculate for yesterday
+        if ($balances === null) {
+            $balances = $this->getBalances();
+        }
+
+        Account::where('id', self::OFFICE_CASH_ACCOUNT_ID)->update([
+            'amount' => $balances['cashInHandClosing'],
+        ]);
+
+        Account::where('id', self::FIELD_CASH_ACCOUNT_ID)->update([
+            'amount' => $balances['cashInFieldClosing'],
+        ]);
+
+        return $balances;
+    }
+
+    /**
+     * Core balance calculation
      */
     private function calculateClosing($startDate, $endDate, $openingOffice = null, $openingField = null)
     {
@@ -74,7 +111,6 @@ class CashSheetBalanceService
         $creditOffice = Transaction::where('account_id', 1)->whereBetween('date', [$startDate, $endDate])->where($creditFilter)->sum('amount');
         $creditField  = Transaction::where('account_id', 2)->whereBetween('date', [$startDate, $endDate])->where($creditFilter)->sum('amount');
 
-        // Vendor advances — always deducted from field cash
         $vendorAdvances = Transaction::where('tran_type', 'Advance')
             ->where('payment_type', 'Cash')
             ->whereHas('programDetail', fn($q) => $q->whereBetween('date', [$startDate, $endDate]))

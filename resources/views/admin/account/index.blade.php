@@ -2,6 +2,48 @@
 
 @section('content')
 
+<style>
+    /* ===== Cash Position Cards ===== */
+    .cash-card {
+        border-left: 4px solid;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 8px;
+    }
+    .cash-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+    .cash-card.border-hand-open  { border-left-color: #28a745; }
+    .cash-card.border-field-open { border-left-color: #007bff; }
+    .cash-card.border-hand-close { border-left-color: #17a2b8; }
+    .cash-card.border-field-close{ border-left-color: #fd7e14; }
+
+    .cash-icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    /* ===== Section Titles ===== */
+    .section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding-bottom: 0.6rem;
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 1rem;
+    }
+
+</style>
+
+
 <!-- Main content -->
 @if ($data->count() < 2)
 <section class="content" id="newBtnSection">
@@ -16,10 +58,144 @@
 @endif
 <!-- /.content -->
 
+
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- ============================================ -->
+        <!-- ROW 2: CASH POSITION                         -->
+        <!-- ============================================ -->
+
+        
+        @php
+            $b = cash_balances();
+            $handChange  = $b['cashInHandClosing'] - $b['cashInHandOpening'];
+            $fieldChange = $b['cashInFieldClosing'] - $b['cashInFieldOpening'];
+            $totalOpening = $b['cashInHandOpening'] + $b['cashInFieldOpening'];
+            $totalClosing = $b['cashInHandClosing'] + $b['cashInFieldClosing'];
+            $netChange = $totalClosing - $totalOpening;
+        @endphp
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <h5 class="section-title">
+                    <i class="fas fa-wallet mr-2 text-primary"></i>Cash Position
+                    <span class="text-muted font-weight-normal" style="text-transform: none; letter-spacing: 0;">
+                        — {{ \Carbon\Carbon::parse($b['date'])->format('d F, Y') }}
+                    </span>
+                </h5>
+            </div>
+
+            <!-- Cash In Hand Opening -->
+            <div class="col-lg-3 col-md-6 col-12 mb-3">
+                <div class="card cash-card border-hand-open shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="cash-icon-box bg-success text-white mr-3">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    Cash In Hand
+                                </div>
+                                <div class="text-xs text-muted">Opening</div>
+                                <div class="h5 font-weight-bold text-dark mb-0 mt-1">
+                                    {{ number_format($b['cashInHandOpening'], 2) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash In Field Opening -->
+            <div class="col-lg-3 col-md-6 col-12 mb-3">
+                <div class="card cash-card border-field-open shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="cash-icon-box bg-primary text-white mr-3">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    Cash In Field
+                                </div>
+                                <div class="text-xs text-muted">Opening</div>
+                                <div class="h5 font-weight-bold text-dark mb-0 mt-1">
+                                    {{ number_format($b['cashInFieldOpening'], 2) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash In Hand Closing -->
+            <div class="col-lg-3 col-md-6 col-12 mb-3">
+                <div class="card cash-card border-hand-close shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="cash-icon-box bg-info text-white mr-3">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    Cash In Hand
+                                </div>
+                                <div class="text-xs text-muted">
+                                    Closing
+                                    <span class="{{ $handChange >= 0 ? 'text-success' : 'text-danger' }}" style="font-size:0.7rem;">
+                                        {{ $handChange >= 0 ? '+' : '' }}{{ number_format($handChange, 2) }}
+                                    </span>
+                                </div>
+                                <div class="h5 font-weight-bold text-dark mb-0 mt-1">
+                                    {{ number_format($b['cashInHandClosing'], 2) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash In Field Closing -->
+            <div class="col-lg-3 col-md-6 col-12 mb-3">
+                <div class="card cash-card border-field-close shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="cash-icon-box bg-warning text-white mr-3">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    Cash In Field
+                                </div>
+                                <div class="text-xs text-muted">
+                                    Closing
+                                    <span class="{{ $fieldChange >= 0 ? 'text-success' : 'text-danger' }}" style="font-size:0.7rem;">
+                                        {{ $fieldChange >= 0 ? '+' : '' }}{{ number_format($fieldChange, 2) }}
+                                    </span>
+                                </div>
+                                <div class="h5 font-weight-bold text-dark mb-0 mt-1">
+                                    {{ number_format($b['cashInFieldClosing'], 2) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
 <!-- Main content -->
 <section class="content pt-3" id="addThisFormContainer">
   <div class="container-fluid">
     <div class="row justify-content-md-center">
+
+
+
+
       <!-- right column -->
       <div class="col-md-6">
         <!-- general form elements disabled -->
@@ -88,8 +264,6 @@
                 <tr>
                   <th>Sl</th>
                   <th>Type</th>
-                  <th>Amount</th>
-                  <th>Balance</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -103,8 +277,6 @@
                   <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{$data->type}}</td>
-                    <td>{{ number_format($data->amount, 2) }}</td>
-                    <td>{{ number_format($balance, 2) }}</td>
                     <td>
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit mr-2" style="color: #2196f3;font-size:20px;"></i></a>
                       @if($data->amount > 0)
