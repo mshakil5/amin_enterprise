@@ -345,6 +345,8 @@
                                 };
                             @endphp
 
+
+
                             {{-- 1. Vendor Advances --}}
                             @foreach ($vendorAdvances as $motherVasselId => $transactions)
                                 @php
@@ -405,6 +407,39 @@
                                     </td>
                                 </tr>
                                 @php $deductBalances($expense); @endphp
+                            @endforeach
+
+                                                        
+                            @foreach ($crIncomes as $crincome)
+                                <tr>
+                                    <td class="text-center">{{ \Carbon\Carbon::parse($crincome->date)->format('d-m-Y') }}</td>
+                                    <td>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <span class="text-danger font-weight-bold">Income Refund:</span> {{ $crincome->chartOfAccount->account_name ?? '' }} {{ $crincome->vendor ? '- '.$crincome->vendor->name : '' }}
+                                                <div class="small text-muted">{{ $crincome->note }} {{ $crincome->description ? '- '.$crincome->description : '' }}</div>
+                                            </div>
+                                            <span class="badge px-2 py-1" style="background-color: #f8f9fa; color: #333; border: 1px solid #ddd;">
+                                                {{ $crincome->account->type ?? '' }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center small">{{ $crincome->tran_id }}</td>
+                                    <td colspan="3"></td>
+                                    <td class="text-right font-weight-bold">
+                                        @if($crincome->payment_type === 'Cash')
+                                            @php $totalCashCredits += $crincome->amount; @endphp
+                                            {{ number_format($crincome->amount, 2) }}
+                                        @endif
+                                    </td>
+                                    <td class="text-right font-weight-bold">
+                                        @if($crincome->payment_type === 'Bank')
+                                            @php $totalBankCredits += $crincome->amount; @endphp
+                                            {{ number_format($crincome->amount, 2) }}
+                                        @endif
+                                    </td>
+                                </tr>
+                                @php $deductBalances($crincome); @endphp
                             @endforeach
 
                             {{-- 3. Liabilities & Equity Payments --}}

@@ -140,6 +140,12 @@ class CashSheetController extends Controller
             ->whereDate('date', $date)
             ->whereIn('tran_type', ['Current', 'Received', 'Wallet'])->get();
 
+            
+
+        $crIncomes = Transaction::where('table_type', 'Income')
+            ->whereDate('date', $date)
+            ->whereIn('tran_type', ['Refund'])->get();
+
         $assetsPurchase = Transaction::where('table_type','Assets')
             ->whereDate('date', $date)
             ->whereIn('tran_type', ['Purchase'])->get();
@@ -148,7 +154,7 @@ class CashSheetController extends Controller
 
 
         return view('admin.accounts.cash_sheet.index', compact(
-            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer','incomes','equityInBankReceived','equityInCashReceived','equityPaymentInBank', 'equityPaymentInCash','assetsPurchase'
+            'cashInHandOpening','cashInFieldOpening','pettyCash','liabilitiesInCash','liabilitiesInBank','totalReceipts','expenses','totalExpenses','vendorAdvances','date','liabilitiesPaymentInCash','liabilitiesPaymentInBank','suspenseAccount','debitTransfer', 'creditTransfer','incomes','equityInBankReceived','equityInCashReceived','equityPaymentInBank', 'equityPaymentInCash','assetsPurchase','crIncomes'
         ));
     }
 
@@ -295,6 +301,19 @@ class CashSheetController extends Controller
             ->where('account_id', 2)
             ->sum('amount');
 
+
+        $crIncomesInOfficeCash = Transaction::where('table_type', 'Income')
+            ->whereIn('tran_type', ['Refund'])
+            ->where('account_id', 1)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
+        $crIncomesInFieldCash = Transaction::where('table_type', 'Income')
+            ->whereIn('tran_type', ['Refund'])
+            ->where('account_id', 2)
+            ->whereBetween('date', [$startDate, $date])
+            ->sum('amount');
+
         
 
         $vendorAdvances = Transaction::with(['motherVassel', 'programDetail'])
@@ -323,11 +342,13 @@ class CashSheetController extends Controller
 
         $totalCreditOfficeCash = $pmtLiabilitiesInOfficeCash 
                                     + $expensesInOfficeCash 
+                                    + $crIncomesInOfficeCash 
                                     + $creditTransferOutOfficeCash 
                                     + $assetsPurchaseOfficeCash 
                                     + $pmtEquityInOfficeCash;
         $totalCreditFieldCash = $pmtLiabilitiesInFieldCash 
                                     + $expensesInFieldCash 
+                                    + $crIncomesInFieldCash 
                                     + $creditTransferOutFieldCash 
                                     + $vendorAdvances 
                                     + $assetsPurchaseFieldCash 
