@@ -364,16 +364,16 @@ class TrialBalanceController extends Controller
                         break;
 
                     case 'Liabilities':
-                        $debit = $transactions->whereIn('tran_type', ['Received', 'Payment'])
+                        $debit = $transactions->whereIn('tran_type', ['Received'])
                             ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         $credit = $transactions->whereIn('tran_type', ['Payment', 'Advance'])
                             ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         break;
 
                     case 'Equity':
-                        $debit = $transactions->whereIn('tran_type', ['Payment'])
+                        $debit = $transactions->whereIn('tran_type', ['Received'])
                             ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        $credit = $transactions->whereIn('tran_type', ['Received'])
+                        $credit = $transactions->whereIn('tran_type', ['Payment'])
                             ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         break;
                 }
@@ -437,8 +437,8 @@ class TrialBalanceController extends Controller
             $netBalance = $cashDebit - $cashCredit;
 
             if (abs($netBalance) > 0.009) {
-                $displayDebit  = $netBalance > 0 ? $netBalance : 0;
-                $displayCredit = $netBalance < 0 ? abs($netBalance) : 0;
+                $displayDebit  = $cashAccount->amount;
+                $displayCredit = 0;
 
                 $cashAccountList[] = [
                     'id'           => 'cash_' . $cashAccount->id,
