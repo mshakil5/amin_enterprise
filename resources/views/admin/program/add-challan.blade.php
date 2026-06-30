@@ -67,7 +67,8 @@
             <div class="card-body">
                 <div id="form-alert-container"></div>
                 
-                <form id="createThisForm" action="{{ route('admin.program.storeChallan', $data->id) }}" method="POST">
+                {{-- Added autocomplete="off" to fix Chrome's duplicate node/autofill warnings --}}
+                <form id="createThisForm" action="{{ route('admin.program.storeChallan', $data->id) }}" method="POST" autocomplete="off">
                     @csrf
                     <input type="hidden" name="program_id" id="program_id" value="{{ $data->id }}">
                     
@@ -142,9 +143,102 @@
 @section('script')
 <script>
  $(document).ready(function() {
+    // Unique key for this specific program
+    const STORAGE_KEY = 'challan_form_{{ $data->id }}';
+
+    // Initialize Select2
     $('.select2').select2({ allowClear: true, minimumResultsForSearch: 10 });
 
-    // Calculation Logic
+    // ==========================================
+    // 1. LOCAL STORAGE: SAVE FUNCTION
+    // ==========================================
+    function saveToLocalStorage() {
+        let rows = [];
+        $('#programTable tbody tr').each(function() {
+            rows.push({
+                vendor_id: $(this).find('select[name="vendor_id[]"]').val() || '',
+                truck_number: $(this).find('input[name="truck_number[]"]').val() || '',
+                challan_no: $(this).find('input[name="challan_no[]"]').val() || '',
+                cashamount: $(this).find('input[name="cashamount[]"]').val() || '',
+                fuelqty: $(this).find('input[name="fuelqty[]"]').val() || '',
+                fuel_rate: $(this).find('input[name="fuel_rate[]"]').val() || '',
+                fuel_amount: $(this).find('input[name="fuel_amount[]"]').val() || '',
+                fueltoken: $(this).find('input[name="fueltoken[]"]').val() || '',
+                petrol_pump_id: $(this).find('select[name="petrol_pump_id[]"]').val() || '',
+                amount: $(this).find('input[name="amount[]"]').val() || ''
+            });
+        });
+        
+        let formData = { newDate: $('#newDate').val(), rows: rows };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    }
+
+    // ==========================================
+    // 2. LOCAL STORAGE: RESTORE FUNCTION
+    // ==========================================
+    function restoreFromLocalStorage() {
+        let savedData = localStorage.getItem(STORAGE_KEY);
+        if (!savedData) return;
+
+        try {
+            let formData = JSON.parse(savedData);
+            
+            if (formData.newDate) {
+                $('#newDate').val(formData.newDate);
+            }
+            
+            if (formData.rows && formData.rows.length > 0) {
+                $('#programTable tbody').empty(); // Remove default empty row
+                
+                formData.rows.forEach((row, index) => {
+                    // Last row gets a "+" button, others get a "-" button
+                    let isLast = (index === formData.rows.length - 1);
+                    let actionBtn = isLast 
+                        ? '<button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button>'
+                        : '<button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button>';
+
+                    // NOTE: No id="" attributes on inputs to prevent duplicate ID warnings
+                    let newRow = `
+                    <tr>
+                        <td><select class="form-control form-control-sm select2 vendor-select" name="vendor_id[]"><option value="">Select</option>@foreach ($vendors as $vendor)<option value="{{ $vendor->id }}">{{ $vendor->name }}</option>@endforeach</select></td>
+                        <td><input type="text" class="form-control form-control-sm" name="truck_number[]" value="${row.truck_number}"></td>
+                        <td><input type="number" class="form-control form-control-sm" name="challan_no[]" value="${row.challan_no}"></td>
+                        <td><input type="number" class="form-control form-control-sm cashamount" name="cashamount[]" value="${row.cashamount}"></td>
+                        <td><input type="number" class="form-control form-control-sm fuelqty" name="fuelqty[]" value="${row.fuelqty}"></td>
+                        <td><input type="number" class="form-control form-control-sm fuel_rate" name="fuel_rate[]" value="${row.fuel_rate || 115}"></td>
+                        <td><input type="number" class="form-control form-control-sm fuel_amount" name="fuel_amount[]" value="${row.fuel_amount}" readonly></td>
+                        <td><input type="number" class="form-control form-control-sm" name="fueltoken[]" value="${row.fueltoken}"></td>
+                        <td><select name="petrol_pump_id[]" class="form-control form-control-sm select2 pump-select"><option value="">Select</option>@foreach ($pumps as $pump)<option value="{{ $pump->id }}">{{ $pump->name }}</option>@endforeach</select></td>
+                        <td><input type="number" class="form-control form-control-sm totalamount" name="amount[]" value="${row.amount}" readonly></td>
+                        <td class="text-center align-middle">${actionBtn}</td>
+                    </tr>`;
+                    
+                    $('#programTable tbody').append(newRow);
+                    
+                    // Set Select2 values AFTER appending to DOM
+                    let $currentRow = $('#programTable tbody tr:last');
+                    $currentRow.find('select[name="vendor_id[]"]').val(row.vendor_id).trigger('change');
+                    $currentRow.find('select[name="petrol_pump_id[]"]').val(row.petrol_pump_id).trigger('change');
+                });
+
+                // Re-initialize select2 for newly added elements
+                $('.select2').select2({ allowClear: true, minimumResultsForSearch: 10 });
+                
+                // Notify user
+                showFormAlert('<i class="fas fa-recycle mr-1"></i> Previous unsaved data has been automatically restored.', 'info');
+            }
+        } catch (e) {
+            console.error("Error restoring from localStorage", e);
+            localStorage.removeItem(STORAGE_KEY); // Clear corrupt data
+        }
+    }
+
+    // Trigger restore on page load
+    restoreFromLocalStorage();
+
+    // ==========================================
+    // 3. CALCULATION LOGIC
+    // ==========================================
     function updateSummary() {
         $('#programTable tbody tr').each(function() {
             let fuelqty = parseFloat($(this).find('input.fuelqty').val()) || 0;
@@ -157,10 +251,16 @@
             $(this).find('input.fuel_amount').val(fuelTotal);
             $(this).find('input.totalamount').val(grandTotal);
         });
+        saveToLocalStorage(); // Save when math happens
     }
 
-    // Add Row
+    // ==========================================
+    // 4. ADD / REMOVE ROWS
+    // ==========================================
     $(document).on('click', '.add-row', function() {
+        // Change current last row's "+" to a "-"
+        $('#programTable tbody tr:last .add-row').replaceWith('<button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button>');
+
         let newRow = `
         <tr>
             <td><select class="form-control form-control-sm select2 vendor-select" name="vendor_id[]"><option value="">Select</option>@foreach ($vendors as $vendor)<option value="{{ $vendor->id }}">{{ $vendor->name }}</option>@endforeach</select></td>
@@ -173,26 +273,45 @@
             <td><input type="number" class="form-control form-control-sm" name="fueltoken[]"></td>
             <td><select name="petrol_pump_id[]" class="form-control form-control-sm select2 pump-select"><option value="">Select</option>@foreach ($pumps as $pump)<option value="{{ $pump->id }}">{{ $pump->name }}</option>@endforeach</select></td>
             <td><input type="number" class="form-control form-control-sm totalamount" name="amount[]" readonly></td>
-            <td class="text-center align-middle"><button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button></td>
+            <td class="text-center align-middle"><button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button></td>
         </tr>`;
+        
         $('#programTable tbody').append(newRow);
-        $('.select2').select2({ allowClear: true, minimumResultsForSearch: 10 }); // Re-init select2
+        $('.select2').select2({ allowClear: true, minimumResultsForSearch: 10 }); 
+        saveToLocalStorage(); // Save when row added
     });
 
-    // Remove Row
     $(document).on('click', '.remove-row', function() {
         if($('#programTable tbody tr').length > 1) {
             $(this).closest('tr').remove();
+            
+            // Make sure the new last row always has a "+" button
+            $('#programTable tbody tr:last .remove-row').replaceWith('<button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button>');
+            
             updateSummary();
         } else {
             alert("You must have at least one row.");
         }
     });
 
+    // ==========================================
+    // 5. AUTO-SAVE ON ANY TYPING/DROPDOWN CHANGE
+    // ==========================================
+    $(document).on('input change', '#newDate, #programTable input, #programTable select', function(e) {
+        // Prevent double-firing on select2, but ensures standard inputs save instantly
+        if (!$(e.target).hasClass('select2-search__field')) {
+            saveToLocalStorage();
+        }
+    });
+
+    
     // Auto-calculate on input
     $(document).on('input', '#programTable input.fuelqty, #programTable input.fuel_rate, #programTable input.cashamount', updateSummary);
 
-    // Form Submit
+
+    // ==========================================
+    // 6. FORM SUBMIT
+    // ==========================================
     $('#createThisForm').on('submit', function(e) {
         e.preventDefault();
         var btn = $('#addBtn');
@@ -206,6 +325,9 @@
             data: $(this).serialize(),
             success: function(response) {
                 if(response.status == 200) {
+                    // CLEAR LOCAL STORAGE ON SUCCESS
+                    localStorage.removeItem(STORAGE_KEY);
+                    
                     showToast(response.message || 'Challans added successfully!', 'success');
                     setTimeout(() => { window.location.href = "{{ route('admin.programDetail', $data->id) }}"; }, 1500);
                 } else {
@@ -213,8 +335,21 @@
                 }
             },
             error: function(xhr) {
-                var errors = Object.values(xhr.responseJSON.errors).flat().join('<br>');
-                showFormAlert(errors, 'danger');
+                // SAFELY HANDLE ERRORS (Fixes "Cannot read properties of undefined" bug)
+                let errorMsg = 'An unknown error occurred.';
+                
+                if (xhr.responseJSON) {
+                    if (xhr.responseJSON.errors) {
+                        errorMsg = Object.values(xhr.responseJSON.errors).flat().join('<br>');
+                    } else if (xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                } else {
+                    // If it's a 403 Forbidden or generic HTML error page
+                    errorMsg = `Server Error (${xhr.status}): Please check your permissions or refresh the page.`;
+                }
+                
+                showFormAlert(errorMsg, 'danger');
             },
             complete: function() {
                 btn.html(originalText).prop('disabled', false);
@@ -223,11 +358,14 @@
         });
     });
 
-    // Alert Helpers (matching Income module)
+    // ==========================================
+    // ALERT HELPERS
+    // ==========================================
     function showFormAlert(message, type) {
-        $('#form-alert-container').html(`<div class="alert alert-${type} alert-dismissible fade show py-2" role="alert"><i class="fas fa-exclamation-circle mr-2"></i>${message}<button type="button" class="close" data-dismiss="alert">&times;</button></div>`);
-        setTimeout(() => { $('#form-alert-container .alert').alert('close'); }, 5000);
+        $('#form-alert-container').html(`<div class="alert alert-${type} alert-dismissible fade show py-2" role="alert">${message}<button type="button" class="close" data-dismiss="alert">&times;</button></div>`);
+        setTimeout(() => { $('#form-alert-container .alert').alert('close'); }, 7000);
     }
+    
     function showToast(message, type) {
         var bg = type === 'success' ? 'bg-success' : 'bg-danger';
         $('body').append(`<div class="toast-container position-fixed top-0 right-0 p-3" style="z-index:9999;"><div class="toast show ${bg} text-white" role="alert"><div class="toast-header ${bg} text-white border-0"><strong class="mr-auto">Success</strong><button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button></div><div class="toast-body">${message}</div></div></div>`);
