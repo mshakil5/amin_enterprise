@@ -33,49 +33,58 @@ use Spatie\Activitylog\Models\Activity;
 class ProgramController extends Controller
 {
 
-    public function allPrograms()
+    public function allPrograms(Request $request)
     {
-      if (!(in_array('14', json_decode(auth()->user()->role->permission)))) {
-        return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
-      }
-        $data = Program::
-        withCount([
-            'programDetail as unique_challan_count' => function ($query) {
-                $query->select(DB::raw('COUNT(DISTINCT challan_no)'));
-            },
-            'programDetail as generate_bill_count' => function ($query) {
-                $query->where('generate_bill', 1);
-            },
-            'programDetail as not_generate_bill_count' => function ($query) {
-                $query->where('generate_bill', 0);
-            },
-            'programDetail as deleted_count' => function ($query) {
-                $query->onlyTrashed();
-            },
-            'programDetail as pump_count' => function ($query) {
-                $query->whereHas('advancePayment', function ($q) {
-                    $q->whereNotNull('petrol_pump_id');
-                });
-            },
-            'programDetail as after_challan_posting_count' => function ($query) {
-                $query->whereNotNull('headerid');
-            },
-            'programDetail as before_challan_count' => function ($query) {
-                $query->whereNull('headerid');
-            },
-            'programDetail as not_twelve_mt' => function ($query) {
-                $query->where('dest_qty', '!=', 12);
-            },
-            
-        ])
-        ->withMin('programDetail', 'date') // Adds program_detail_min_date
-        ->withMax('programDetail', 'date')
-        ->where('status', 1)
-        ->orderby('id','DESC')
-        ->get();
+        if (!(in_array('14', json_decode(auth()->user()->role->permission)))) {
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
 
+        $query = Program::with(['client', 'motherVassel', 'lighterVassel', 'ghat'])
+            ->withCount([
+                'programDetail as unique_challan_count' => fn($q) => $q->select(DB::raw('COUNT(DISTINCT challan_no)')),
+                'programDetail as generate_bill_count' => fn($q) => $q->where('generate_bill', 1),
+                'programDetail as not_generate_bill_count' => fn($q) => $q->where('generate_bill', 0),
+                'programDetail as deleted_count' => fn($q) => $q->onlyTrashed(),
+                'programDetail as pump_count' => fn($q) => $q->whereHas('advancePayment', fn($q2) => $q2->whereNotNull('petrol_pump_id')),
+                'programDetail as after_challan_posting_count' => fn($q) => $q->whereNotNull('headerid'),
+                'programDetail as before_challan_count' => fn($q) => $q->whereNull('headerid'),
+                'programDetail as not_twelve_mt' => fn($q) => $q->where('dest_qty', '!=', 12),
+            ])
+            ->withMin('programDetail', 'date')
+            ->withMax('programDetail', 'date')
+            ->where('status', 1);
 
-        return view('admin.program.index', compact('data'));
+        // --- Filters ---
+        if ($request->filled('start_date')) {
+            $query->whereDate('date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('date', '<=', $request->end_date);
+        }
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
+        if ($request->filled('mother_vassel_id')) {
+            $query->where('mother_vassel_id', $request->mother_vassel_id);
+        }
+
+        $data = $query->orderBy('id', 'DESC')->get();
+
+        // --- Summaries ---
+        $summaries = [
+            'total_programs'     => $data->count(),
+            'total_challans'     => $data->sum('unique_challan_count'),
+            'bills_generated'    => $data->sum('generate_bill_count'),
+            'bills_pending'      => $data->sum('not_generate_bill_count'),
+            'after_posting'      => $data->sum('after_challan_posting_count'),
+            'deleted_records'    => $data->sum('deleted_count'),
+        ];
+
+        // --- Filter Dropdowns ---
+        $clients = \App\Models\Client::where('status', 1)->pluck('name', 'id');
+        $vessels = \App\Models\MotherVassel::where('status', 1)->pluck('name', 'id');
+
+        return view('admin.program.index', compact('data', 'summaries', 'clients', 'vessels'));
     }
 
     public function programDetail($id, $type = null)
