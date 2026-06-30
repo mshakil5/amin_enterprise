@@ -172,6 +172,20 @@ class ProgramController extends Controller
         return view('admin.program.details', compact('data','pumps','vendors','vlist','dates','motherVesselName','truckSummary','type'));
     }
 
+
+    public function showAddChallanForm($id)
+    {
+        
+        $data = Program::with(['client', 'motherVassel', 'ghat'])->where('id', $id)->firstOrFail();
+        
+        $pumps = PetrolPump::select('id', 'name')->where('status', 1)->get();
+        $vendors = Vendor::select('id','name')->orderby('id','DESC')->where('status',1)->get();
+
+        return view('admin.program.add-challan', compact('data', 'pumps', 'vendors'));
+    }
+
+
+
     public function vendorWiseProgramDetails(Request $request)
     {
         $vid = $request->vendor_id;
@@ -751,7 +765,7 @@ class ProgramController extends Controller
 
 
 
-    public function addMoreChallan(Request $request)
+    public function storeChallan(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'vendor_id.*'    => 'required',
@@ -760,20 +774,10 @@ class ProgramController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $errorMessage = "<div class='alert alert-warning'>
-                                <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-                                <b>" . implode("<br>", $validator->errors()->all()) . "</b>
-                            </div>";
-
-            Log::warning('Add More Challan Validation Failed', [
-                'errors' => $validator->errors()->all(),
-                'user_id' => Auth::id()
-            ]);
-
+            // Changed to return 422 status and standard errors array to match new JS error block
             return response()->json([
-                'status'  => 400,
-                'message' => $errorMessage
-            ]);
+                'errors' => $validator->errors()->all()
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -781,7 +785,7 @@ class ProgramController extends Controller
         try {
 
             Log::info('Add More Challan Started', [
-                'program_id' => $request->program_id,
+                'program_id' => $id, // Changed from $request->program_id
                 'user_id'    => Auth::id()
             ]);
 
@@ -794,7 +798,8 @@ class ProgramController extends Controller
             $fueltokens     = $request->input('fueltoken');
             $petrol_pump_ids = $request->input('petrol_pump_id');
 
-            $program = Program::findOrFail($request->program_id);
+            // Changed to use injected $id
+            $program = Program::findOrFail($id);
 
             Log::info('Program Loaded', [
                 'program_id' => $program->id,
@@ -951,15 +956,12 @@ class ProgramController extends Controller
                 'user_id'    => Auth::id()
             ]);
 
-            $message = "<div class='alert alert-success'>
-                            <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-                            <b>Data Created Successfully.</b>
-                        </div>";
-
+            // ==========================================
+            // UPDATED RESPONSE FORMAT FOR NEW FRONTEND
+            // ==========================================
             return response()->json([
-                'status'  => 300,
-                'message' => $message,
-                'program' => $program
+                'status'  => 200, // Changed from 300 to 200
+                'message' => 'Challans added successfully!' // Plain text for the new Toast notification
             ]);
 
         } catch (\Exception $e) {
@@ -967,7 +969,7 @@ class ProgramController extends Controller
             DB::rollBack();
 
             Log::error('Add More Challan Failed', [
-                'program_id' => $request->program_id,
+                'program_id' => $id, // Changed from $request->program_id
                 'user_id'    => Auth::id(),
                 'message'    => $e->getMessage(),
                 'line'       => $e->getLine(),
@@ -975,10 +977,10 @@ class ProgramController extends Controller
                 'trace'      => $e->getTraceAsString()
             ]);
 
+            // Return standard error format to trigger frontend error handler
             return response()->json([
-                'status'  => 500,
                 'message' => $e->getMessage()
-            ]);
+            ], 500);
         }
     }
 

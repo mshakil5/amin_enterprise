@@ -198,7 +198,13 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/deleted-program-details/{id}', [ProgramController::class, 'deletedProgramDetail'])
     ->name('admin.deletedProgramDetail');
 
-    Route::get('/program/{id}/{type?}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
+Route::get('/program/{id}/{type?}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
+
+// New Add Challan Routes
+Route::get('/programs/add-more-challan/{id}', [ProgramController::class, 'showAddChallanForm'])->name('admin.program.showAddChallan');
+Route::post('/programs/add-more-challan/{id}', [ProgramController::class, 'storeChallan'])->name('admin.program.storeChallan');
+
+
     Route::get('/programdetails', [ProgramController::class, 'vendorWiseProgramDetails'])->name('admin.program.details');
     Route::get('/program-vendor/{id}', [ProgramController::class, 'programVendor'])->name('admin.programVendorList');
     Route::get('/program-edit/{id}', [ProgramController::class, 'programEdit'])->name('admin.programEdit');
@@ -210,7 +216,6 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/program-delete/{id}', [ProgramController::class, 'prgmDelete']);
     Route::post('/add-program', [ProgramController::class, 'store'])->name('programStore');
     Route::get('/check-truck-list/{id}', [ProgramController::class, 'getTruckListByVendor'])->name('admin.getTruckListByVendor');
-    Route::post('/add-more-challan', [ProgramController::class, 'addMoreChallan'])->name('addMoreChallan');
     
     Route::post('/update-program', [ProgramController::class, 'programUpdate'])->name('programUpdate');
     Route::post('/get-vendor-advance-by-date', [ProgramController::class, 'getVendorAdvanceByDate'])->name('getAdvancePayments');
