@@ -325,11 +325,8 @@
             data: $(this).serialize(),
             success: function(response) {
                 if(response.status == 200) {
-                    // CLEAR LOCAL STORAGE ON SUCCESS
                     localStorage.removeItem(STORAGE_KEY);
-                    
                     showToast(response.message || 'Challans added successfully!', 'success');
-                    setTimeout(() => { window.location.href = "{{ route('admin.programDetail', $data->id) }}"; }, 1500);
                 } else {
                     showFormAlert(response.message || 'Error occurred.', 'danger');
                 }
