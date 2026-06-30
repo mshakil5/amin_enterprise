@@ -16,7 +16,7 @@
 
         {{-- Program Summary Info --}}
         <div class="row mb-3">
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-2 col-md-6">
                 <div class="info-box bg-info">
                     <span class="info-box-icon"><i class="fas fa-building"></i></span>
                     <div class="info-box-content">
@@ -25,7 +25,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
                 <div class="info-box bg-primary">
                     <span class="info-box-icon"><i class="fas fa-ship"></i></span>
                     <div class="info-box-content">

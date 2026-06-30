@@ -198,11 +198,11 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/deleted-program-details/{id}', [ProgramController::class, 'deletedProgramDetail'])
     ->name('admin.deletedProgramDetail');
 
-Route::get('/program/{id}/{type?}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
+    Route::get('/program/{id}/{type?}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
 
-// New Add Challan Routes
-Route::get('/programs/add-more-challan/{id}', [ProgramController::class, 'showAddChallanForm'])->name('admin.program.showAddChallan');
-Route::post('/programs/add-more-challan/{id}', [ProgramController::class, 'storeChallan'])->name('admin.program.storeChallan');
+    // New Add Challan Routes
+    Route::get('/programs/add-more-challan/{id}', [ProgramController::class, 'showAddChallanForm'])->name('admin.program.showAddChallan');
+    Route::post('/programs/add-more-challan/{id}', [ProgramController::class, 'storeChallan'])->name('admin.program.storeChallan');
 
 
     Route::get('/programdetails', [ProgramController::class, 'vendorWiseProgramDetails'])->name('admin.program.details');
