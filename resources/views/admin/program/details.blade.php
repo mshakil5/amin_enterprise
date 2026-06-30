@@ -450,27 +450,141 @@
     // VENDOR ADVANCE MODAL SEARCH (AJAX)
     // =============================================
     $('#dateBtn').click(function() {
-        var selectedDate = $('#searchdate').val();
+        var selectedDate = $('#searchdate').val(); // Can be empty string for "All Dates"
         var program_id = $('#program_id').val();
-        if (selectedDate) {
-            $.ajax({
-                url: '{{ route("getAdvancePayments") }}', method: 'POST',
-                data: { date: selectedDate, program_id: program_id },
-                success: function(response) {
-                    if ($.fn.DataTable.isDataTable('#example3')) { $('#example3').DataTable().destroy(); }
-                    var tbody = $('#example3 tbody'); tbody.empty();
-                    var tfoot = $('#example3 tfoot'); tfoot.empty();
-                    
-                    $.each(response.data, function(i, p) {
-                        tbody.append(`<tr class="text-center"><td>${i+1}</td><td class="text-left">${p.vendor?.name ?? ''}</td><td>${p.vendor_count}</td><td class="text-right">${p.total_cashamount}</td><td class="text-right">${p.total_fuelqty}</td><td class="text-right">${p.total_fuelamount}</td><td class="text-right font-weight-bold">${p.total_amount}</td></tr>`);
-                    });
-                    tfoot.append(`<tr class="text-center text-dark bg-light font-weight-bold"><td colspan="2">TOTAL</td><td>${response.data.reduce((s,p)=>s+p.vendor_count,0)}</td><td class="text-right">${response.data.reduce((s,p)=>s+p.total_cashamount,0)}</td><td class="text-right">${response.data.reduce((s,p)=>s+p.total_fuelqty,0)}</td><td class="text-right">${response.data.reduce((s,p)=>s+p.total_fuelamount,0)}</td><td class="text-right">${response.data.reduce((s,p)=>s+p.total_amount,0)}</td></tr>`);
-                    
-                    $('#example3').DataTable({ responsive: true, lengthChange: false, autoWidth: false, dom: 'Bfrtip', order: [], retrieve: true, lengthMenu: [[100, "All"], [100, "All"]], buttons: ["copy","csv","excel","print"] }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
-                    $('.dt-buttons').hide();
+        
+        console.log(selectedDate, program_id);
+
+        $.ajax({
+            url: '{{ route("getAdvancePayments") }}', 
+            method: 'POST',
+            data: { 
+                _token: '{{ csrf_token() }}',
+                date: selectedDate, 
+                program_id: program_id 
+            },
+            beforeSend: function() {
+                $('#dateBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
+            },
+            success: function(response) {
+                if ($.fn.DataTable.isDataTable('#example3')) { 
+                    $('#example3').DataTable().destroy(); 
                 }
-            });
-        }
+                
+                var tbody = $('#example3 tbody'); 
+                tbody.empty();
+                var tfoot = $('#example3 tfoot'); 
+                tfoot.empty();
+                
+                // Handle empty data gracefully
+                if(response.data.length === 0) {
+                    tbody.append('<tr><td colspan="7" class="text-center text-muted py-3">No data found for this date.</td></tr>');
+                } else {
+                    $.each(response.data, function(i, p) {
+                        tbody.append(`<tr class="text-center">
+                            <td>${i+1}</td>
+                            <td class="text-left">${p.vendor?.name ?? ''}</td>
+                            <td>${p.vendor_count}</td>
+                            <td class="text-right">${p.total_cashamount || 0}</td>
+                            <td class="text-right">${p.total_fuelqty || 0}</td>
+                            <td class="text-right">${p.total_fuelamount || 0}</td>
+                            <td class="text-right font-weight-bold">${p.total_amount || 0}</td>
+                        </tr>`);
+                    });
+
+                    tfoot.append(`<tr class="text-center text-dark bg-light font-weight-bold">
+                        <td colspan="2">TOTAL</td>
+                        <td>${response.data.reduce((s,p) => s + (p.vendor_count || 0), 0)}</td>
+                        <td class="text-right">${response.data.reduce((s,p) => s + (p.total_cashamount || 0), 0)}</td>
+                        <td class="text-right">${response.data.reduce((s,p) => s + (p.total_fuelqty || 0), 0)}</td>
+                        <td class="text-right">${response.data.reduce((s,p) => s + (p.total_fuelamount || 0), 0)}</td>
+                        <td class="text-right">${response.data.reduce((s,p) => s + (p.total_amount || 0), 0)}</td>
+                    </tr>`);
+                }
+                
+                $('#example3').DataTable({ 
+                    responsive: true, lengthChange: false, autoWidth: false, 
+                    dom: 'Bfrtip', order: [], retrieve: true, 
+                    lengthMenu: [[100, "All"], [100, "All"]], 
+                    buttons: ["copy","csv","excel","print"] 
+                }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
+                
+                $('.dt-buttons').hide(); // Hide default buttons
+            },
+            error: function(xhr) {
+                console.log("Vendor Advance Error:", xhr.responseJSON); // Added this
+                alert("Error loading vendor advance data.");
+            },
+            complete: function() {
+                $('#dateBtn').html('<i class="fas fa-search mr-1"></i>Filter').prop('disabled', false);
+            }
+        });
+    });
+
+
+    // =============================================
+    // TRUCK SUMMARY MODAL SEARCH (AJAX)
+    // =============================================
+    $('#vtrucBtn').click(function() {
+        var selectedVendor = $('#vendors_truc').val();
+        var selectedDate = $('#trucksearchdate').val();
+        var program_id = $('#program_id').val();
+        
+        // Assuming you have a route named 'getTruckSummary' setup in web.php
+        // If your route name is different, change it below
+        $.ajax({
+            url: '{{ route("getProgramDetailsByVendor") }}', 
+            method: 'POST',
+            data: { 
+                _token: '{{ csrf_token() }}',
+                vendor_id: selectedVendor, 
+                date: selectedDate, 
+                program_id: program_id 
+            },
+            beforeSend: function() {
+                $('#vtrucBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
+            },
+            success: function(response) {
+                if ($.fn.DataTable.isDataTable('#example4')) { 
+                    $('#example4').DataTable().destroy(); 
+                }
+                
+                var tbody = $('#example4 tbody'); 
+                tbody.empty();
+                
+                if(response.data.length === 0) {
+                    tbody.append('<tr><td colspan="7" class="text-center text-muted py-3">No data found.</td></tr>');
+                } else {
+                    $.each(response.data, function(i, t) {
+                        tbody.append(`<tr class="text-center">
+                            <td>${i+1}</td>
+                            <td class="text-left font-weight-bold">${t.truck_number || ''}</td>
+                            <td>${t.vehicle_count || 0}</td>
+                            <td class="text-right">${t.total_cashamount || 0}</td>
+                            <td class="text-right">${t.total_fuelqty || 0}</td>
+                            <td class="text-right">${t.total_fuelamount || 0}</td>
+                            <td class="text-right font-weight-bold">${t.total_amount || 0}</td>
+                        </tr>`);
+                    });
+                }
+                
+                $('#example4').DataTable({ 
+                    responsive: true, lengthChange: false, autoWidth: false, 
+                    dom: 'Bfrtip', order: [], retrieve: true, 
+                    lengthMenu: [[100, "All"], [100, "All"]], 
+                    buttons: ["copy","csv","excel","print"] 
+                }).buttons().container().appendTo('#example4_wrapper .col-md-6:eq(0)');
+                
+                $('.dt-buttons').hide();
+            },
+            error: function(xhr) {
+                alert("Error loading truck summary data. Make sure the route exists.");
+                console.log(xhr.responseText);
+            },
+            complete: function() {
+                $('#vtrucBtn').html('<i class="fas fa-search mr-1"></i>Filter').prop('disabled', false);
+            }
+        });
     });
 
     // =============================================
