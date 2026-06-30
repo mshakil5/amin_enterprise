@@ -598,12 +598,45 @@
 
         $.ajax({
             url: '{{ route("changeQuantity") }}', method: 'POST',
-            data: { newQty: newQty, program_id: program_id, type: type },
+            data: { 
+                _token: '{{ csrf_token() }}',
+                newQty: newQty, 
+                program_id: program_id, 
+                type: type 
+            },
             success: function(response) { if(response.status == 200) { location.reload(); } }
         });
     });
 
+
+    $('#undoBtn').click(function() {
+            $(this).attr('disabled', true);
+            $('#loader').show();
+        var program_id = $('#program_id').val();
+
+        $.ajax({
+            url: '{{ route("undoChangeQuantity") }}',
+            method: 'POST',
+            data: {program_id: program_id},
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                console.log(response);
+                if (response.status == 200) {
+                    alert(response.message);
+                    location.reload();
+                } else {
+                    alert('Failed to update quantity');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log(xhr.responseJSON.message);
+            }
+        });
+    });
     // (Add your #vtrucBtn and #undoBtn logic here exactly as it was in your original file, just ensuring it uses the new clean selectors)
+
 });
 </script>
 @endsection
