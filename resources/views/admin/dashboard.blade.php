@@ -174,7 +174,7 @@
                 <div class="small-box bg-danger">
                     <div class="inner">
                         <h3>{{ number_format($todayTotal, 0) }}</h3>
-                        <p>Today's Transactions <small>({{ $todayCount }})</small></p>
+                        <p>Today's Transactions ({{ $todayCount }})</p>
                     </div>
                     <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
                 </div>
