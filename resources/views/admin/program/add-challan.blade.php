@@ -319,11 +319,15 @@
         btn.html('<i class="fas fa-spinner fa-spin mr-1"></i>Saving...').prop('disabled', true);
         $('#loader').show();
 
+        console.log('Submitting form via AJAX:', $(this).serialize()); // Debugging line
+        console.log('LocalStorage data for key', STORAGE_KEY, localStorage.getItem(STORAGE_KEY));
+
         $.ajax({
             url: $(this).attr('action'),
             method: 'POST',
             data: $(this).serialize(),
             success: function(response) {
+                console.log('AJAX Success:', response); // Debugging line
                 if(response.status == 200) {
                     localStorage.removeItem(STORAGE_KEY);
                     showToast(response.message || 'Challans added successfully!', 'success');
