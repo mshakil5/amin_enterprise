@@ -63,6 +63,7 @@
                         <i class="fas fa-minus"></i>
                     </button>
                 </div>
+                <div id="showAllMessage" class="success"></div>
             </div>
             <div class="card-body">
                 <div id="form-alert-container"></div>
@@ -331,6 +332,13 @@
                 if(response.status == 200) {
                     localStorage.removeItem(STORAGE_KEY);
                     showToast(response.message || 'Challans added successfully!', 'success');
+                    $('#showAllMessage').html('<div class="alert alert-success">' + (response.message || 'Challans added successfully!') + '</div>');
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+
+                
                 } else {
                     showFormAlert(response.message || 'Error occurred.', 'danger');
                 }
