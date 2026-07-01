@@ -49,12 +49,13 @@
         @endif
 
         {{-- ============================================= --}}
-        {{-- SUMMARY INFO BOXES (Calculated cleanly) --}}
-        {{-- ============================================= }}
+        {{-- SUMMARY INFO BOXES --}}
+        {{-- ============================================= --}}
+
+
         @php
             $totalfuelqty = 0; $totalcarrying_bill = 0; $totaladvance = 0; $totalother_cost = 0;
             $totalscale_fee = 0; $totalline_charge = 0; $totaldest_qty = 0;
-            // Pre-calculate sums before rendering the table
             foreach ($data->programDetail as $detail) {
                 $totalfuelqty += $detail->advancePayment->fuelqty ?? 0;
                 $totalcarrying_bill += $detail->carrying_bill ?? 0;
@@ -65,7 +66,7 @@
                 $totaldest_qty += $detail->dest_qty ?? 0;
             }
         @endphp
-
+        
         <div class="row mb-3">
             <div class="col-lg-2 col-md-4 col-sm-6">
                 <div class="info-box bg-info"><span class="info-box-icon"><i class="fas fa-boxes"></i></span><div class="info-box-content"><span class="info-box-text">Total Qty</span><span class="info-box-number">{{ number_format($totaldest_qty) }}</span></div></div>
@@ -86,10 +87,14 @@
                 <div class="info-box bg-secondary"><span class="info-box-icon"><i class="fas fa-coins"></i></span><div class="info-box-content"><span class="info-box-text">Other Cost</span><span class="info-box-number">{{ number_format($totalother_cost) }}</span></div></div>
             </div>
         </div>
+        
 
         {{-- ============================================= --}}
         {{-- MAIN TABLE CARD --}}
         {{-- ============================================= --}}
+
+
+
         <div class="card card-primary card-outline">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-table mr-1"></i> Challan Records</h3>
@@ -242,7 +247,12 @@
                 </div>
                 <div class="table-responsive">
                     <table id="example3" class="table table-bordered table-striped table-sm" style="font-size: 12px;">
-                        <thead class="bg-secondary text-white">
+                        <thead class="text-bold">
+                            <tr class="text-center">
+                                <th colspan="7"><h3> {{ $data->motherVassel->name }} </h3>
+                                <h4 class="text-muted" id="vendorAdvanceSearchDate">Date: All Dates</h4>
+                                </th>
+                            </tr>
                             <tr class="text-center">
                                 <th>#</th><th>Vendor Name</th><th>Count</th><th>Cash Adv</th><th>Fuel Qty</th><th>Fuel Adv</th><th>Total Adv</th>
                             </tr>
@@ -309,7 +319,13 @@
                 </div>
                 <div class="table-responsive">
                     <table id="example4" class="table table-bordered table-striped table-sm vendorsummery" style="font-size: 12px;">
-                        <thead class="bg-secondary text-white">
+                        <thead class="text-bold">
+                            
+                            <tr class="text-center">
+                                <th colspan="7"><h3> {{ $data->motherVassel->name }} </h3>
+                                <h4 class="text-muted" id="truckSummarySearchDate">Date: All Dates</h4>
+                                </th>
+                            </tr>
                             <tr class="text-center"><th>#</th><th>Truck Number</th><th>Count</th><th>Cash Adv</th><th>Fuel Qty</th><th>Fuel Adv</th><th>Total Adv</th></tr>
                         </thead>
                         <tbody>
@@ -453,7 +469,6 @@
         var selectedDate = $('#searchdate').val(); // Can be empty string for "All Dates"
         var program_id = $('#program_id').val();
         
-        console.log(selectedDate, program_id);
 
         $.ajax({
             url: '{{ route("getAdvancePayments") }}', 
@@ -475,6 +490,8 @@
                 tbody.empty();
                 var tfoot = $('#example3 tfoot'); 
                 tfoot.empty();
+
+                $('#vendorAdvanceSearchDate').text(selectedDate ? `Date: ${selectedDate}` : 'All Dates');
                 
                 // Handle empty data gracefully
                 if(response.data.length === 0) {
@@ -552,6 +569,8 @@
                 var tbody = $('#example4 tbody'); 
                 tbody.empty();
                 
+                $('#truckSummarySearchDate').text(selectedDate ? `Date: ${selectedDate}` : 'All Dates');
+
                 if(response.data.length === 0) {
                     tbody.append('<tr><td colspan="7" class="text-center text-muted py-3">No data found.</td></tr>');
                 } else {
