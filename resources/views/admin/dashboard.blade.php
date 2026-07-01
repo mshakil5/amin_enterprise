@@ -161,7 +161,7 @@
                     <div class="icon"><i class="fas fa-clipboard-check"></i></div>
                 </div>
             </div>
-            <div class="col-lg-3 col-6">
+            <div class="col-lg-2 col-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
                         <h3>{{ $vendor }}</h3>
@@ -170,7 +170,7 @@
                     <div class="icon"><i class="fas fa-users"></i></div>
                 </div>
             </div>
-            <div class="col-lg-3 col-6">
+            <div class="col-lg-4 col-6">
                 <div class="small-box bg-danger">
                     <div class="inner">
                         <h3>{{ number_format($todayTotal, 0) }}</h3>
