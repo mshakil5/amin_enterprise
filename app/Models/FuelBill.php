@@ -27,4 +27,10 @@ class FuelBill extends Model
             }
         });
     }
+
+    public function programDetails()
+    {
+        return $this->hasMany(ProgramDetail::class, 'fuel_bill_id', 'id');
+    }
+
 }

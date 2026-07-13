@@ -150,7 +150,7 @@ class PumpController extends Controller
         return response()->json(['status'=> 300,'message'=>$message]);
     }
 
-    public function getFuelBillNumber(Request $request)
+    public function getFuelBillNumber2(Request $request)
     {
         $pump = PetrolPump::where('id', $request->pumpId)->first();
         $data = FuelBill::where('petrol_pump_id', $request->pumpId)->orderby('id', 'DESC')->get();
@@ -191,6 +191,62 @@ class PumpController extends Controller
                         <td>
                             ' . $formattedBalance . '
                         </td>
+                        <td>
+                            <a class="btn btn-success btn-xs" href="' . route('admin.pump.sequence.show', $tran->id) . '">' . $tran->unique_id . '</a>
+                        </td>
+                        <td>
+                            <button class="btn btn-info btn-xs editFullBtn" 
+                                    data-id="' . $tran->id . '" 
+                                    data-date="' . $tran->date . '"
+                                    data-bill_number="' . $tran->bill_number . '"
+                                    data-qty="' . $tran->qty . '" 
+                                    data-vehicle_count="' . $tran->vehicle_count . '" 
+                                    data-toggle="modal" 
+                                    data-target="#editFullModal">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>';
+        }
+
+        return response()->json(['status' => 300, 'data' => $prop, 'pump' => $pump]);
+    }
+
+    public function getFuelBillNumber(Request $request)
+    {
+        $pump = PetrolPump::where('id', $request->pumpId)->first();
+        
+        // Eager load all relationships to prevent N+1 queries
+        $data = FuelBill::where('petrol_pump_id', $request->pumpId)
+            ->orderby('id', 'DESC')
+            ->with(['programDetails.advancePayment'])
+            ->get();
+        
+        $prop = '';
+        
+        foreach ($data as $tran) {
+            // Now using eager loaded data - no extra queries
+            $pdtls = $tran->programDetails;
+            
+            $totalCarryingBill = $pdtls->sum('carrying_bill');
+            $totalScaleFee = $pdtls->sum('scale_fee');
+            $totalCashAmount = $pdtls->sum(function($item) {
+                return $item->advancePayment ? $item->advancePayment->cashamount : 0;
+            });
+            $totalFuelAmount = $pdtls->sum(function($item) {
+                return $item->advancePayment ? $item->advancePayment->fuelamount : 0;
+            });
+            
+            $balance = $totalCarryingBill + $totalScaleFee - $totalCashAmount - $totalFuelAmount;
+            $formattedBalance = number_format($balance, 2);
+            $tripCount = $pdtls->count();
+
+            $prop .= '<tr>
+                        <td>' . $tran->date . '</td>
+                        <td>' . $tran->bill_number . '</td>
+                        <td>' . $tran->qty . '</td>
+                        <td>' . $tripCount . '</td>
+                        <td>' . $formattedBalance . '</td>
                         <td>
                             <a class="btn btn-success btn-xs" href="' . route('admin.pump.sequence.show', $tran->id) . '">' . $tran->unique_id . '</a>
                         </td>

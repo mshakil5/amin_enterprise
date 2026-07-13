@@ -508,29 +508,89 @@
       });
 
 
-      $("#contentContainer").on('click', '.view-btn', function () {
-          var id = $(this).data('id');
-          $('#tranModal').modal('show');
-              // console.log(id);
-              var form_data = new FormData();
-              form_data.append("pumpId", id);
+      // Add this variable at the top of your script
+      var viewRequestCounter = 0;
+      var isViewLoading = false;
 
-              $.ajax({
-                  url: '{{ URL::to('/admin/get-petrol-pump-bill') }}',
-                  method: 'POST',
-                  data:form_data,
-                  contentType: false,
-                  processData: false,
-                  // dataType: 'json',
-                  success: function (response) {
-                    // console.log(response);
-                      $('#trantable tbody').html(response.data);
-                  },
-                  error: function (xhr) {
-                      console.log(xhr.responseText);
+      $("#contentContainer").on('click', '.view-btn', function () {
+          // Prevent multiple clicks while loading
+          if (isViewLoading) {
+              return;
+          }
+          
+          var id = $(this).data('id');
+          var currentRequestId = ++viewRequestCounter;
+          
+          // Clear previous data and show loading indicator immediately
+          $('#trantable tbody').html(`
+              <tr>
+                  <td colspan="7" class="text-center py-4">
+                      <div class="spinner-border text-primary" role="status">
+                          <span class="sr-only">Loading...</span>
+                      </div>
+                      <p class="mt-2 mb-0 text-muted">Loading data...</p>
+                  </td>
+              </tr>
+          `);
+          
+          // Show modal
+          $('#tranModal').modal('show');
+          isViewLoading = true;
+          
+          // Disable all view buttons temporarily
+          $('.view-btn').addClass('disabled').css('pointer-events', 'none');
+          
+          var form_data = new FormData();
+          form_data.append("pumpId", id);
+
+          $.ajax({
+              url: '{{ URL::to("/admin/get-petrol-pump-bill") }}',
+              method: 'POST',
+              data: form_data,
+              contentType: false,
+              processData: false,
+              success: function (response) {
+                  // Only update if this response matches the most recent request
+                  if (currentRequestId === viewRequestCounter) {
+                      if (response.status == 300) {
+                          $('#trantable tbody').html(response.data);
+                      } else {
+                          $('#trantable tbody').html(`
+                              <tr>
+                                  <td colspan="7" class="text-center text-danger py-3">Error loading data</td>
+                              </tr>
+                          `);
+                      }
                   }
-              });
+                  // Re-enable buttons
+                  isViewLoading = false;
+                  $('.view-btn').removeClass('disabled').css('pointer-events', 'auto');
+              },
+              error: function (xhr) {
+                  // Only update if this response matches the most recent request
+                  if (currentRequestId === viewRequestCounter) {
+                      $('#trantable tbody').html(`
+                          <tr>
+                              <td colspan="7" class="text-center text-danger py-3">
+                                  <i class="fas fa-exclamation-triangle"></i> Failed to load data. Please try again.
+                              </td>
+                          </tr>
+                      `);
+                  }
+                  // Re-enable buttons
+                  isViewLoading = false;
+                  $('.view-btn').removeClass('disabled').css('pointer-events', 'auto');
+                  console.log(xhr.responseText);
+              }
+          });
       });
+
+      // Clear table when modal is closed
+      $('#tranModal').on('hidden.bs.modal', function () {
+          $('#trantable tbody').empty();
+      });
+
+
   });
 </script>
 @endsection
