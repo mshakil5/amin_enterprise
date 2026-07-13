@@ -150,6 +150,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/without-trip-fuel-bill-store', [VendorController::class, 'storeWithoutTripFuelBill'])->name('admin.withouttrip.fuelbill.store');
     Route::post('/without-trip-fuel-bill-update', [VendorController::class, 'updateWithoutTripFuelBill'])->name('admin.withouttrip.fuelbill.update');
 
+    // get only before challan posting trip record
+    Route::get('/get-before-challan-trip-record/{id}', [VendorController::class, 'getBeforeChallanTripRecord'])->name('admin.getBeforeChallanTripRecord');
+
 
 
     // approved and checked sequence 

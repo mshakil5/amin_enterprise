@@ -857,5 +857,20 @@ class VendorController extends Controller
     }
 
 
+public function getBeforeChallanTripRecord($id)
+{
+    $data = ProgramDetail::with('motherVassel')
+        ->where('vendor_id', $id)
+        ->whereNull('dest_qty')
+        ->orderBy('id', 'desc') // Orders the trips (Programs) Descending
+        ->get()
+        ->groupBy('mother_vassel_id')
+        ->sortKeysDesc(); // Orders the Mother Vessel groups Descending by ID
+
+    $vendor = Vendor::find($id); 
+
+    return view('admin.vendor.before_challan_trip_record', compact('data', 'vendor'));
+}
+
 
 }
