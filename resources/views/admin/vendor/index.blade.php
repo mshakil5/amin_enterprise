@@ -173,7 +173,7 @@
 
                     </td>
                     <td style="text-align: center">
-                        <a class="btn btn-warning btn-xs" style="cursor: pointer;" target="blank" href="{{ route('admin.withouttrip.fuelbill', $data->id)}}">Trip Record</a>
+                        <a class="btn btn-warning btn-xs" style="cursor: pointer;" target="blank" href="{{ route('admin.getBeforeChallanTripRecord', $data->id)}}">Trip Record</a>
                     </td>
                     <td style="text-align: center">
                         <a class="btn btn-info btn-xs" style="cursor: pointer;" target="blank" href="{{ route('admin.withouttrip.fuelbill', $data->id)}}">Check</a>
