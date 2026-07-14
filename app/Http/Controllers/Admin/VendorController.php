@@ -862,6 +862,7 @@ public function getBeforeChallanTripRecord($id)
     $data = ProgramDetail::with('motherVassel')
         ->where('vendor_id', $id)
         ->whereNull('dest_qty')
+        ->where('date', '>=', '2026-01-01') // Filter data from January 2026
         ->orderBy('id', 'desc') // Orders the trips (Programs) Descending
         ->get()
         ->groupBy('mother_vassel_id')
