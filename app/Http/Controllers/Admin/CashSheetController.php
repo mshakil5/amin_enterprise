@@ -44,7 +44,7 @@ class CashSheetController extends Controller
         }
         
         $suspenseAccount = 94599;
-        $pettyCash = 5000.00;
+        $pettyCash = 0.00;
 
         $liabilitiesInCash = Transaction::with('chartOfAccount')
             ->where('table_type', 'Liabilities')
@@ -171,7 +171,7 @@ class CashSheetController extends Controller
         $cashInFieldOpening = 321130.00; 
         // $cashInFieldOpening = 281130.00;
         $suspenseAccount = 94599;
-        $pettyCash = 5000.00;
+        $pettyCash = 0.00;
 
 
         /** Transfer transactions */
@@ -397,7 +397,7 @@ class CashSheetController extends Controller
             $cashInHandOpening = floatval($previousBalance['previousCashInOfficeClosing'] ?? 0);
             $cashInFieldOpening = floatval($previousBalance['previousCashInFieldClosing'] ?? 0);
             $suspenseAccount = 94599.00;
-            $pettyCash = 5000.00;
+            $pettyCash = 0.00;
 
             $liabilitiesInCash = Transaction::with('chartOfAccount')
                 ->where('table_type', 'Liabilities')
