@@ -99,7 +99,7 @@ class AccountController extends Controller
         } 
     }
 
-    public function transfer(Request $request)
+    public function transfer2(Request $request)
     {
         $request->validate([
             'from_account_id' => 'required|exists:accounts,id',
@@ -168,6 +168,76 @@ class AccountController extends Controller
             ]);
         }
     }
+
+    public function transfer(Request $request)
+{
+    $request->validate([
+        'from_account_id' => 'required|exists:accounts,id',
+        'to_account_id' => 'required|exists:accounts,id|different:from_account_id',
+        'amount' => 'required|numeric|min:0.01',
+    ]);
+
+    DB::beginTransaction();
+    try {
+        $fromAccount = Account::findOrFail($request->from_account_id);
+        $toAccount = Account::findOrFail($request->to_account_id);
+        
+        // Use calculated balance
+        $currentBalance = Transaction::getAccountBalance($fromAccount->id);
+        
+        if ($currentBalance < $request->amount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient balance for transfer. Current balance: ' . number_format($currentBalance, 2)
+            ]);
+        }
+
+        // FROM account - money going out (decreases balance)
+        $fromTransaction = new Transaction();
+        $fromTransaction->date = $request->transferDate;
+        $fromTransaction->description = "Transfer to {$toAccount->type}";
+        $fromTransaction->amount = $request->amount;
+        $fromTransaction->at_amount = $request->amount;
+        $fromTransaction->tran_type = 'TransferOut';  // Keep as is
+        $fromTransaction->payment_type = 'Cash';
+        $fromTransaction->table_type = null;           // Must be null
+        $fromTransaction->account_id = $fromAccount->id;
+        $fromTransaction->created_by = Auth::id();
+        $fromTransaction->save();
+        $fromTransaction->tran_id = 'TR' . date('ymd') . 'O' . str_pad($fromTransaction->id, 4, '0', STR_PAD_LEFT);
+        $fromTransaction->save();
+
+        // TO account - money coming in (increases balance)
+        $toTransaction = new Transaction();
+        $toTransaction->date = $request->transferDate;
+        $toTransaction->description = "Transfer from {$fromAccount->type}";
+        $toTransaction->amount = $request->amount;
+        $toTransaction->at_amount = $request->amount;
+        $toTransaction->tran_type = 'TransferIn';   // Keep as is
+        $toTransaction->payment_type = 'Cash';
+        $toTransaction->table_type = null;           // Must be null
+        $toTransaction->account_id = $toAccount->id;
+        $toTransaction->created_by = Auth::id();
+        $toTransaction->save();
+        $toTransaction->tran_id = 'TR' . date('ymd') . 'I' . str_pad($toTransaction->id, 4, '0', STR_PAD_LEFT);
+        $toTransaction->save();
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transfer completed successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Transfer failed: ' . $e->getMessage()
+        ]);
+    }
+}
+
 
     public function transferUpdate(Request $request, $id)
     {

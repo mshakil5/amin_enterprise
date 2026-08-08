@@ -115,7 +115,7 @@ class Transaction extends Model
         });
     }
 
-    public static function getAccountBalance($accountId)
+    public static function getAccountBalance_old($accountId)
     {
         $increase = self::where('account_id', $accountId)
             ->where(function ($q) {
@@ -157,7 +157,56 @@ class Transaction extends Model
 
         return $increase - $decrease;
     }
-    
+
+    public static function getAccountBalance($accountId)
+    {
+        $increase = self::where('account_id', $accountId)
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('table_type', 'Income')->where('tran_type', 'Current');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Assets')->whereIn('tran_type', ['Received', 'Sold']);
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Liabilities')->where('tran_type', 'Received');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Equity')->where('tran_type', 'Received');
+                })->orWhere(function ($q) {
+                    // Updated: Support both 'Transfer' and 'TransferIn'
+                    $q->whereNull('table_type')
+                    ->whereIn('tran_type', ['Transfer', 'TransferIn'])
+                    ->where('description', 'like', 'Transfer from%');
+                });
+            })
+            ->sum('amount');
+
+        $decrease = self::where('account_id', $accountId)
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('table_type', 'Income')->where('tran_type', 'Refund');
+                })->orWhere(function ($q) {
+                    $q->whereIn('table_type', ['Expenses', 'Cogs'])->where('tran_type', 'Current');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Assets')->whereIn('tran_type', ['Payment', 'Purchase']);
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Liabilities')->where('tran_type', 'Payment');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Equity')->where('tran_type', 'Payment');
+                })->orWhere(function ($q) {
+                    // Updated: Support both 'Transfer' and 'TransferOut'
+                    $q->whereNull('table_type')
+                    ->whereIn('tran_type', ['Transfer', 'TransferOut'])
+                    ->where('description', 'like', 'Transfer to%');
+                })->orWhere(function ($q) {
+                    $q->where('table_type', 'Asset')->where('tran_type', 'Petty Cash In');
+                })->orWhere(function ($q) {
+                    $q->whereIn('table_type', ['Expenses', 'Expense'])->where('tran_type', 'Wallet');
+                });
+            })
+            ->sum('amount');
+
+        return $increase - $decrease;
+    }
+        
 
     public function vendorSequenceNumber()
     {

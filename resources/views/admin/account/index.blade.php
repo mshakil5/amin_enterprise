@@ -264,6 +264,7 @@
                 <tr>
                   <th>Sl</th>
                   <th>Type</th>
+                  <th>Balance</th>
                   <th>Action</th>
                 </tr>
                 </thead>
@@ -277,11 +278,12 @@
                   <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{$data->type}}</td>
+                    <td>{{$balance}}</td>
                     <td>
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit mr-2" style="color: #2196f3;font-size:20px;"></i></a>
-                      @if($data->amount > 0)
-                      <button class="btn btn-sm btn-info transferBtn" data-id="{{$data->id}}" data-type="{{$data->type}}" data-amount="{{$data->amount}}">Transfer</button>
-                      @endif
+                      
+                      <button class="btn btn-sm btn-info transferBtn" data-id="{{$data->id}}" data-type="{{$data->type}}" data-amount="{{$balance}}">Transfer</button>
+                      
                     </td>
                   </tr>
                   @endforeach
