@@ -218,20 +218,31 @@ class ProgramController extends Controller
 
     
     // getVendorAdvanceByDate
-    // getVendorAdvanceByDate
     public function getVendorAdvanceByDate(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'program_id' => 'required|integer',
-            'date' => 'nullable|date', // CHANGED: 'required' to 'nullable'
+            'date' => 'nullable|date', 
         ]);
 
         if ($validator->fails()) {
+            // ADDED: Log validation failure
+            Log::warning('getVendorAdvanceByDate Validation Failed', [
+                'errors' => $validator->errors()->toArray(),
+                'input' => $request->all()
+            ]);
+            
             return response()->json(['status' => 400, 'errors' => $validator->errors()]);
         }
 
         $programId = $request->input('program_id');
         $date = $request->input('date');
+
+        // ADDED: Log the incoming request parameters
+        Log::info('getVendorAdvanceByDate API called', [
+            'program_id' => $programId,
+            'date' => $date
+        ]);
 
         $program = Program::with('motherVassel:id,name')->where('id', $programId)->first();
 
@@ -245,13 +256,19 @@ class ProgramController extends Controller
             )
             ->with('vendor:id,name')
             ->where('program_id', $programId)
-            ->when($date, function ($query, $date) { // CHANGED: Only apply date filter if date is provided
+            ->when($date, function ($query, $date) { 
                 return $query->whereDate('date', $date);
             })
             ->groupBy('vendor_id')
             ->get();
 
-        $totalCount = $vendorAdvances->count(); // Simplified, no need to run the exact same query twice
+        $totalCount = $vendorAdvances->count(); 
+
+        // ADDED: Log the successful completion of the query
+        Log::info('getVendorAdvanceByDate data fetched successfully', [
+            'program_id' => $programId,
+            'total_records_found' => $totalCount
+        ]);
 
         return response()->json([
             'status' => 200, 
@@ -262,7 +279,6 @@ class ProgramController extends Controller
             'programId' => $programId
         ]);
     }
-
 
     // get truck list group by vendor
     public function getProgramDetailsByVendor(Request $request)
