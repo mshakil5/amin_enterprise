@@ -407,10 +407,10 @@ class VendorController extends Controller
 
         $account = Account::find($request->account_id);
         
-        if (!$account || $account->amount < $request->walletamount) {
-            $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Office..!</b></div>";
-            return response()->json(['status' => 303, 'message' => $message]);
-        }
+        // if (!$account || $account->amount < $request->walletamount) {
+        //     $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Insufficient Balance in Office..!</b></div>";
+        //     return response()->json(['status' => 303, 'message' => $message]);
+        // }
 
         $account->amount -= $request->walletamount;
         $account->save();
