@@ -135,6 +135,11 @@ class ProgramDetail extends Model
         });
     } 
 
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
+
     public function deleteLogs() 
     {
         return $this->morphMany(Activity::class, 'subject');

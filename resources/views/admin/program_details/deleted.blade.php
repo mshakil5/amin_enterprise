@@ -37,7 +37,7 @@
             <tr>
               <td>{{ $key + 1 }}</td>
               <td>{{ \Carbon\Carbon::parse($detail->date)->format('d/m/Y') }}</td>
-              <td>{{ $detail->deleteLogs->first()?->causer?->name ?? 'Unknown' }}</td>
+              <td>{{ $detail->deletedBy?->name ?? 'Unknown' }}</td>
               <td>{{ $detail->consignmentno }}</td>
               <td>{{ $detail->truck_number }}</td>
               <td>{{ $detail->challan_no }}</td>

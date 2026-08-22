@@ -264,6 +264,11 @@
                                                 <input class="form-check-input" type="checkbox" id="p26" name="permission[]" value="26">
                                                 <label class="form-check-label" for="p26">Role Permission</label>
                                             </div> 
+
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="p30" name="permission[]" value="30">
+                                                <label class="form-check-label" for="p30">Challan Delete</label>
+                                            </div>
                                             
 
                                         </div>

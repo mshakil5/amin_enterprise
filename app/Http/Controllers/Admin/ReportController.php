@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
 use App\Models\ReportNote;
 use Illuminate\Support\Facades\Auth;
+    use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
 {
@@ -186,6 +187,7 @@ class ReportController extends Controller
         return view('admin.report.dailyposting', compact('data','motherVesselName','id'));
     }
 
+
     public function deleteProgramDetails($id)
     {
         DB::beginTransaction();
@@ -193,34 +195,73 @@ class ReportController extends Controller
         try {
             $data = ProgramDetail::findOrFail($id);
             
-            // Get the authenticated user's name
-            $deletedBy = auth()->user()->name;
+            // 1. Get the authenticated user once
+            $currentUser = auth()->user();
+            
+            // 2. Log who is logged in right now
+            if ($currentUser) {
+                $deletedBy = $currentUser->name;
+                Log::info("=== Delete Process Started ===");
+                Log::info("Target ProgramDetail ID: {$id}");
+                Log::info("Authenticated User ID: {$currentUser->id}");
+                Log::info("Authenticated User Name (deleted_by): {$deletedBy}");
+            } else {
+                $deletedBy = 'Guest/Unknown';
+                Log::warning("Delete Process: No authenticated user found!");
+            }
 
             $transaction = Transaction::where('program_detail_id', $id)->first();
             $advance_payment = AdvancePayment::where('program_detail_id', $id)->first();
             
+            // 3. Log and update Transaction
             if ($transaction) {
+                Log::info("Found Transaction ID: {$transaction->id}. Preparing to set deleted_by.");
                 $transaction->deleted_by = $deletedBy;
+                
+                // Save and check if it actually applied
                 $transaction->save();
+                Log::info("Transaction saved. Value of deleted_by in memory: {$transaction->deleted_by}");
+                
                 $transaction->delete();
+                Log::info("Transaction soft deleted.");
+            } else {
+                Log::info("No Transaction found for ProgramDetail ID: {$id}");
             }
 
+            // 4. Log and update AdvancePayment
             if ($advance_payment) {
+                Log::info("Found AdvancePayment ID: {$advance_payment->id}. Preparing to set deleted_by.");
                 $advance_payment->deleted_by = $deletedBy;
+                
                 $advance_payment->save();
+                Log::info("AdvancePayment saved. Value of deleted_by in memory: {$advance_payment->deleted_by}");
+                
                 $advance_payment->delete();
+                Log::info("AdvancePayment soft deleted.");
+            } else {
+                Log::info("No AdvancePayment found for ProgramDetail ID: {$id}");
             }
 
+            // 5. Log and update ProgramDetail
+            Log::info("Preparing to set deleted_by on main ProgramDetail ID: {$id}");
             $data->deleted_by = $deletedBy;
+            
             $data->save();
+            Log::info("ProgramDetail saved. Value of deleted_by in memory: {$data->deleted_by}");
+            
             $data->delete();
+            Log::info("ProgramDetail soft deleted.");
 
             DB::commit();
+            Log::info("=== Delete Process Committed Successfully ===");
 
             return redirect()->back()->with('success', 'Record deleted successfully!');
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error("!!! Delete Process Failed for ID: {$id} !!!");
+            Log::error("Error Message: " . $e->getMessage());
+            Log::error("Stack Trace: " . $e->getTraceAsString());
             
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }

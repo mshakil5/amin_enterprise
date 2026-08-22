@@ -263,7 +263,14 @@
                                               <input class="form-check-input" type="checkbox" id="p26" name="permission[]" value="26"
                                               @foreach (json_decode($data->permission) as $permission) @if ($permission == 26) checked @endif @endforeach>
                                               <label class="form-check-label" for="p26">Role Permission</label>
-                                          </div>                      
+                                          </div>  
+                                          
+                                          
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="p30" name="permission[]" value="30"  @foreach (json_decode($data->permission) as $permission) @if ($permission == 30) checked @endif @endforeach>
+                                                <label class="form-check-label" for="p30">Challan Delete</label>
+                                            </div>
+                                          
                                       </div>
                                   </div>
                                 </div>
