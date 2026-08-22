@@ -2,383 +2,354 @@
 
 @section('content')
 
+@php
+    // Safely get permissions whether they are a JSON string or already an array
+    $permissions = auth()->user()->role->permission ?? [];
+    if (is_string($permissions)) {
+        $permissions = json_decode($permissions, true) ?? [];
+    }
+@endphp
+
 <style>
-  .form-checkbox {
-      font-family: system-ui, sans-serif;
-      font-size: 2rem;
-      font-weight: bold;
-      line-height: 1.1;
-      display: grid;
-      grid-template-columns: 1em auto;
-      gap: 0.5em;
+    .summary-card .small-box {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        transition: transform 0.2s ease;
     }
-
-    .custom-checkbox {
-      height: 30px;
+    .summary-card .small-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
     }
+    .table td, .table th {
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    .table-actions form { display: inline; }
 </style>
-<!-- Main content -->
-<section class="content mt-3" id="newBtnSection">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-6">
-          <a href="{{route('challanPostingVendorReport')}}" class="btn btn-secondary my-3">Back</a>
 
-          
-      </div>
-    </div>
-  </div>
-</section>
-<!-- /.content -->
-
-
-<!-- Main content -->
-<section class="content" id="contentContainer">
+<!-- Back Button -->
+<section class="content mt-3">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <!-- /.card -->
-
-          <div class="card card-secondary">
-            <div class="card-header">
-              <h3 class="card-title">Mother Vassel: {{$motherVesselName}}</h3>
+        <div class="row">
+            <div class="col-6">
+                <a href="{{ route('challanPostingVendorReport') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>&nbsp;Back
+                </a>
             </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-
-                <h3 class="text-center">{{$motherVesselName}}</h3>
-                <h4 class="text-center">{{$vendor->name}}</h4>
-
-                @if(session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-warning">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                @php
-                    $totalcarrying_bill = $data->sum('carrying_bill');
-                    $totaladvance = $data->sum('advance');  
-                    $totalDue = $totalcarrying_bill - $totaladvance - $duePaymentTransaction;    
-                @endphp
-
-              <table id="example1" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                  <th>Sl</th>
-                  <th>Date</th>
-                  <th>Vendor</th>
-                  <th>Header ID</th>
-                  <th>Truck Number</th>
-                  <th>Challan no</th>
-                  <th>Ghat</th>
-                  <th>Destination</th>
-                  <th>Qty</th>
-                  <th>Carring Bill</th>
-                  <th>Line Charge</th>
-                  <th>Scale fee</th>
-                  <th>Other Cost</th>
-                  <th>Advance</th>
-                  <th>Adv. Fuel</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $totalfuelqty = 0;
-                        $totalcarrying_bill = 0;
-                        $totaladvance = 0;
-                        $totalother_cost = 0;
-                        $totalscale_fee = 0;
-                        $totalline_charge = 0;
-                        $totaldest_qty = 0;
-                    @endphp
-                  @foreach ($data as $key => $data)
-                  <tr>
-                    <td style="text-align: center">{{ $key + 1 }}</td>
-                    <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                    <td style="text-align: center">{{$data->vendor->name}}</td>
-                    <td style="text-align: center">{{$data->headerid}}</td>
-                    <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
-                    <td style="text-align: center">{{$data->challan_no}}</td>
-                    <td style="text-align: center">{{$data->ghat->name ?? ' '}}</td>
-                    <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                    <td style="text-align: center">{{$data->dest_qty}}</td>
-                    <td style="text-align: center">{{$data->carrying_bill}}</td>
-                    <td style="text-align: center">{{$data->line_charge}}</td>
-                    <td style="text-align: center">{{$data->scale_fee}}</td>
-                    <td style="text-align: center">{{$data->other_cost}}</td>
-                    <td style="text-align: center">{{$data->advance}}</td>
-                    <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
-                    <td style="text-align: center">
-                      <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
-                        <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
-                        </form>
-                    </td>
-
-                    @php
-                        $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
-                        $totalcarrying_bill += $data->carrying_bill;
-                        $totaladvance += $data->advance;
-                        $totalother_cost += $data->other_cost;
-                        $totalscale_fee += $data->scale_fee;
-                        $totalline_charge += $data->line_charge;
-                        $totaldest_qty += $data->dest_qty;
-                    @endphp
-
-                  </tr>
-                  @endforeach
-                
-                </tbody>
-
-                <tfoot>
-                    <tr>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <th style="text-align: center">Total:</th>
-                        <th style="text-align: center">{{$totaldest_qty}}</th>
-                        <th style="text-align: center">{{$totalcarrying_bill}}</th>
-                        <th style="text-align: center">{{$totalline_charge}}</th>
-                        <th style="text-align: center">{{$totalscale_fee}}</th>
-                        <th style="text-align: center">{{$totalother_cost}}</th>
-                        <th style="text-align: center">{{$totaladvance}}</th>
-                        <th style="text-align: center">{{$totalfuelqty}}</th>
-                        <td style="text-align: center"></td>
-                    </tr>
-                </tfoot>
-              </table>
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
         </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
     </div>
-    <!-- /.container-fluid -->
 </section>
-<!-- /.content -->
 
-
-
-<!-- Main content -->
-@if (isset($missingHeaderIds) && $missingHeaderIds->count() > 0)  
-<section class="content" id="contentContainer">
+<!-- Summary Cards -->
+<section class="content">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <!-- /.card -->
-
-          <div class="card card-danger">
-            <div class="card-header">
-              <h3 class="card-title">Without Header Ids</h3>
+        <div class="row summary-card">
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h4>{{ $motherVesselName }}</h4>
+                        <p>{{ $vendor->name }}</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-ship"></i></div>
+                    <a href="#" class="small-box-footer">Vendor Balance: ৳{{ number_format($summary['vendor_balance'], 2) }}</a>
+                </div>
             </div>
-            <!-- /.card-header -->
-            <div class="card-body">
 
-                <h3 class="text-center">{{$motherVesselName}}</h3>
-                <h4 class="text-center">{{$vendor->name}}</h4>
-
-
-              <table id="example4" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                  <th>Sl</th>
-                        <th>Date</th>
-                        <th>Vendor</th>
-                        <th>Header ID</th>
-                        <th>Truck Number</th>
-                        <th>Challan no</th>
-                        <th>Destination</th>
-                        <th>Previous Qty</th>
-                        <th>Qty</th>
-                        <th>Carring Bill</th>
-                        <th>Advance</th>
-                        <th>Fuel qty</th>
-                        <th>Fuel token</th>
-                        <th>Fuel Amount</th>
-                        <th>Pump name</th>
-                        <th>Line Charge</th>
-                        <th>Scale fee</th>
-                        <th>Other Cost</th>
-                  <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                    @php
-                            $totalfuelqty = 0;
-                            $totalcarrying_bill = 0;
-                            $totaladvance = 0;
-                            $totalother_cost = 0;
-                            $totalscale_fee = 0;
-                            $totalline_charge = 0;
-                            $totaldest_qty = 0;
-                    @endphp
-                  @foreach ($missingHeaderIds as $key => $data)
-                  <tr>
-                    <td style="text-align: center">{{ $key + 1 }}</td>
-                            <td style="text-align: center">{{ \Carbon\Carbon::parse($data->date)->format('d/m/Y')}}</td>
-                            <td style="text-align: center">{{$data->vendor->name}}</td>
-                            <td style="text-align: center">{{$data->headerid}}</td>
-                            <td style="text-align: center">{{strtoupper($data->truck_number)}}</td>
-                            <td style="text-align: center">{{$data->challan_no}}</td>
-                            <td style="text-align: center">{{$data->destination->name ?? ' '}}</td>
-                            <td style="text-align: center">{{$data->old_qty}}</td>
-                            <td style="text-align: center">{{$data->dest_qty}}</td>
-                            <td style="text-align: center">{{$data->carrying_bill}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->cashamount ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fuelqty ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fueltoken ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->fuelamount ?? ""}}</td>
-                            <td style="text-align: center">{{$data->advancePayment->petrolPump->name ?? ""}}</td>
-                            <td style="text-align: center">{{$data->line_charge}}</td>
-                            <td style="text-align: center">{{$data->scale_fee}}</td>
-                            <td style="text-align: center">{{$data->other_cost}}</td>
-
-                    <td style="text-align: center">
-                      <a href="{{route('admin.programDetailsEdit', $data->id)}}" class="btn btn-info btn-xs view-btn">Edit</a>
-                      <form action="{{ route('programDetails.delete', $data->id) }}" method="POST" style="display: inline;">
-                          @csrf
-                          @method('DELETE')
-                          <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure you want to delete this record?')">Delete</button>
-                      </form>
-                    </td>
-                    @php
-                        $totalfuelqty += $data->advancePayment->fuelqty ?? 0;
-                        $totalcarrying_bill += $data->carrying_bill ?? 0;
-                        $totaladvance += $data->advance ?? 0;
-                        $totalother_cost += $data->other_cost ?? 0;
-                        $totalscale_fee += $data->scale_fee ?? 0;
-                        $totalline_charge += $data->line_charge ?? 0;
-                        $totaldest_qty += $data->dest_qty ?? 0;
-                    @endphp
-
-                  </tr>
-                  @endforeach
-                
-                </tbody>
-
-                <tfoot>
-                    <tr>
-                        
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center" colspan="2"><small>Total qty: </small>{{$totaldest_qty}}</td>
-                            <td style="text-align: center" colspan="2"><small>Carring Bill: </small>{{$totalcarrying_bill}}</td>
-                            <td style="text-align: center" colspan="2"><small>Total Advance:</small>{{$totaladvance}}</td>
-                            <td style="text-align: center"><small>Fuel qty: </small>{{$totalfuelqty}}</td>
-                            <td style="text-align: center"><small>Line Charge: </small>{{$totalline_charge}}</td>
-                            <td style="text-align: center"><small>Scale fee: </small>{{$totalscale_fee}}</td>
-                            <td style="text-align: center"><small>Other Cost: </small>{{$totalother_cost}}</td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                            <td style="text-align: center"></td>
-                    </tr>
-                </tfoot>
-              </table>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>৳{{ number_format($summary['total_carrying_bill'], 2) }}</h3>
+                        <p>Total Carrying Bill</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="small-box-footer">Records: {{ $summary['record_count'] }}</div>
+                </div>
             </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
+
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>৳{{ number_format($summary['total_advance'], 2) }}</h3>
+                        <p>Total Advance</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div class="small-box-footer">Fuel Qty: {{ $summary['total_fuel_qty'] }} L</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-{{ $summary['total_due'] >= 0 ? 'danger' : 'primary' }}">
+                    <div class="inner">
+                        <h3>৳{{ number_format(abs($summary['total_due']), 2) }}</h3>
+                        <p>{{ $summary['total_due'] >= 0 ? 'Total Due' : 'Advance Excess' }}</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="small-box-footer">Paid: ৳{{ number_format($summary['due_payment'], 2) }}</div>
+                </div>
+            </div>
         </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
+
+        <!-- Additional Summary Row -->
+        <div class="row summary-card">
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-secondary">
+                    <div class="inner">
+                        <h4>{{ $summary['total_qty'] }}</h4>
+                        <p>Total Quantity</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-cubes"></i></div>
+                    <div class="small-box-footer">&nbsp;</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-secondary">
+                    <div class="inner">
+                        <h4>৳{{ number_format($summary['total_line_charge'], 2) }}</h4>
+                        <p>Line Charge</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-road"></i></div>
+                    <div class="small-box-footer">&nbsp;</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-secondary">
+                    <div class="inner">
+                        <h4>৳{{ number_format($summary['total_scale_fee'], 2) }}</h4>
+                        <p>Scale Fee</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-weight"></i></div>
+                    <div class="small-box-footer">&nbsp;</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="small-box bg-secondary">
+                    <div class="inner">
+                        <h4>৳{{ number_format($summary['total_other_cost'], 2) }}</h4>
+                        <p>Other Cost</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-receipt"></i></div>
+                    <div class="small-box-footer">&nbsp;</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- /.container-fluid -->
 </section>
-@endif  
-<!-- /.content -->
+
+<!-- Main Data Table -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-secondary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-table"></i>&nbsp;Challan Posting Report
+                        </h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (session('success'))
+                            <div class="alert alert-success m-2">{{ session('success') }}</div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-warning m-2">{{ session('error') }}</div>
+                        @endif
+
+                        <table id="postedTable" class="table table-bordered table-striped table-sm">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Sl</th>
+                                    <th>Date</th>
+                                    <th>Vendor</th>
+                                    <th>Header ID</th>
+                                    <th>Truck Number</th>
+                                    <th>Challan No</th>
+                                    <th>Ghat</th>
+                                    <th>Destination</th>
+                                    <th>Qty</th>
+                                    <th>Carrying Bill</th>
+                                    <th>Line Charge</th>
+                                    <th>Scale Fee</th>
+                                    <th>Other Cost</th>
+                                    <th>Advance</th>
+                                    <th>Adv. Fuel</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($data as $key => $item)
+                                <tr>
+                                    <td class="text-center">{{ $key + 1 }}</td>
+                                    <td class="text-center">{{ \Carbon\Carbon::parse($item->date)->format('d/m/Y') }}</td>
+                                    <td>{{ $item->vendor->name }}</td>
+                                    <td class="text-center">{{ $item->headerid }}</td>
+                                    <td class="text-center">{{ strtoupper($item->truck_number) }}</td>
+                                    <td class="text-center">{{ $item->challan_no }}</td>
+                                    <td class="text-center">{{ $item->ghat->name ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->destination->name ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->dest_qty }}</td>
+                                    <td class="text-right">{{ number_format($item->carrying_bill, 2) }}</td>
+                                    <td class="text-right">{{ number_format($item->line_charge, 2) }}</td>
+                                    <td class="text-right">{{ number_format($item->scale_fee, 2) }}</td>
+                                    <td class="text-right">{{ number_format($item->other_cost, 2) }}</td>
+                                    <td class="text-right">{{ number_format($item->advance, 2) }}</td>
+                                    <td class="text-center">{{ $item->advancePayment->fuelqty ?? '-' }}</td>
+                                    <td class="text-center table-actions">
+                                      <a href="{{ route('admin.programDetailsEdit', $item->id) }}" class="btn btn-info btn-xs">
+                                          <i class="fas fa-edit"></i>
+                                      </a>
+                                      
+                                      @if(in_array('30', $permissions) || in_array(30, $permissions))
+                                          <form action="{{ route('programDetails.delete', $item->id) }}" method="POST" style="display: inline;">
+                                              @csrf
+                                              @method('DELETE')
+                                              <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure?')">
+                                                  <i class="fas fa-trash"></i>
+                                              </button>
+                                          </form>
+                                      @endif
+                                  </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="bg-light font-weight-bold">
+                                <tr>
+                                    <td colspan="8" class="text-right">TOTAL</td>
+                                    <td class="text-center">{{ $summary['total_qty'] }}</td>
+                                    <td class="text-right">{{ number_format($summary['total_carrying_bill'], 2) }}</td>
+                                    <td class="text-right">{{ number_format($summary['total_line_charge'], 2) }}</td>
+                                    <td class="text-right">{{ number_format($summary['total_scale_fee'], 2) }}</td>
+                                    <td class="text-right">{{ number_format($summary['total_other_cost'], 2) }}</td>
+                                    <td class="text-right">{{ number_format($summary['total_advance'], 2) }}</td>
+                                    <td class="text-center">{{ $summary['total_fuel_qty'] }}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Missing Header IDs Table -->
+@if (isset($missingHeaderIds) && $missingHeaderIds->count() > 0)
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-danger">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-exclamation-triangle"></i>&nbsp;Without Header IDs
+                            <span class="badge badge-light ml-2">{{ $summary['missing_count'] }}</span>
+                        </h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <table id="missingTable" class="table table-bordered table-striped table-sm">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Sl</th>
+                                    <th>Date</th>
+                                    <th>Vendor</th>
+                                    <th>Header ID</th>
+                                    <th>Truck Number</th>
+                                    <th>Challan No</th>
+                                    <th>Destination</th>
+                                    <th>Previous Qty</th>
+                                    <th>Qty</th>
+                                    <th>Carrying Bill</th>
+                                    <th>Advance Cash</th>
+                                    <th>Fuel Qty</th>
+                                    <th>Fuel Token</th>
+                                    <th>Fuel Amount</th>
+                                    <th>Pump Name</th>
+                                    <th>Line Charge</th>
+                                    <th>Scale Fee</th>
+                                    <th>Other Cost</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($missingHeaderIds as $key => $item)
+                                <tr>
+                                    <td class="text-center">{{ $key + 1 }}</td>
+                                    <td class="text-center">{{ \Carbon\Carbon::parse($item->date)->format('d/m/Y') }}</td>
+                                    <td>{{ $item->vendor->name }}</td>
+                                    <td class="text-center">{{ $item->headerid ?? '-' }}</td>
+                                    <td class="text-center">{{ strtoupper($item->truck_number) }}</td>
+                                    <td class="text-center">{{ $item->challan_no }}</td>
+                                    <td class="text-center">{{ $item->destination->name ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->old_qty ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->dest_qty }}</td>
+                                    <td class="text-right">{{ number_format($item->carrying_bill, 2) }}</td>
+                                    <td class="text-right">{{ $item->advancePayment->cashamount ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->advancePayment->fuelqty ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->advancePayment->fueltoken ?? '-' }}</td>
+                                    <td class="text-right">{{ $item->advancePayment->fuelamount ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->advancePayment->petrolPump->name ?? '-' }}</td>
+                                    <td class="text-right">{{ number_format($item->line_charge, 2) }}</td>
+                                    <td class="text-right">{{ number_format($item->scale_fee, 2) }}</td>
+                                    <td class="text-right">{{ number_format($item->other_cost, 2) }}</td>
+                                    <td class="text-center table-actions">
+                                        <a href="{{ route('admin.programDetailsEdit', $item->id) }}" class="btn btn-info btn-xs">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        
+                                        @if(in_array('30', $permissions) || in_array(30, $permissions))
+                                            <form action="{{ route('programDetails.delete', $item->id) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Are you sure?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endif
 
 @endsection
 
-
 @section('script')
-
 <script>
-    $(function () {
-      $("#example1").DataTable({
-        "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
-        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
-      }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+ $(function () {
+    // Defer DataTables initialization for faster initial render
+    setTimeout(function () {
+        const dtConfig = {
+            responsive: true,
+            lengthChange: false,
+            autoWidth: false,
+            dom: 'Bfrtip',
+            buttons: ["copy", "csv", "excel", "pdf", "print"],
+            lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
+            pageLength: 25,
+            order: [[1, 'desc']],
+            footerCallback: function (row, data, start, end, display) {
+                // Keep footer intact - don't let DataTables sum it
+            }
+        };
 
-      $("#example4").DataTable({
-        "responsive": true, "lengthChange": false, "autoWidth": false,
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
-        "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
-      }).buttons().container().appendTo('#example4_wrapper .col-md-6:eq(0)');
-      
-    $("#example3").DataTable({
-      "responsive": true, "lengthChange": false, "autoWidth": false,
-      "buttons": [
-        {
-        extend: 'copy',
-        title: 'Vendor Advance Summary'
-        },
-        {
-        extend: 'csv',
-        title: 'Vendor Advance Summary'
-        },
-        {
-        extend: 'excel',
-        title: 'Vendor Advance Summary'
-        },
-        {
-        extend: 'pdf',
-        title: 'Mother Vessel: {{$motherVesselName}}',
-        customize: function (doc) {
-          doc.content.splice(0, 0, {
-            text: 'Vendor Advance Summary',
-            style: 'header',
-            alignment: 'center'
-          });
-        }
-        },
-        {
-        extend: 'print',
-        title: 'Mother Vessel: {{$motherVesselName}}',
-        customize: function (win) {
-          $(win.document.body).prepend(
-            '<h1 style="text-align:center;">Vendor Advance Summary</h1>'
-          );
-        }
-        }
-      ],
-      "lengthMenu": [[100, "All", 50, 25], [100, "All", 50, 25]]
-    }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
+        $('#postedTable').DataTable(dtConfig).buttons().container()
+            .appendTo('#postedTable_wrapper .col-md-6:eq(0)');
 
-      
-      $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
-    });
+        $('#missingTable').DataTable(dtConfig).buttons().container()
+            .appendTo('#missingTable_wrapper .col-md-6:eq(0)');
+    }, 100);
+});
 </script>
-
-
-
 @endsection

@@ -92,23 +92,75 @@ class ReportController extends Controller
 
     public function challanPostingReport($vid, $mid)
     {
-        // $data = Program::with('programDetail','programDetail.programDestination','programDetail.programDestination.destinationSlabRate')->first();
+        // Define common relationships to eager load (prevents N+1 queries)
+        $relationships = [
+            'vendor:id,name',
+            'ghat:id,name',
+            'destination:id,name',
+            'advancePayment.petrolPump:id,name',
+            'programDestination.destinationSlabRate',
+        ];
 
-        $data = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('vendor_id', $vid)->where('mother_vassel_id', $mid)->whereNotNull('headerid')->get();
+        // Single query for posted records
+        $data = ProgramDetail::with($relationships)
+            ->where('vendor_id', $vid)
+            ->where('mother_vassel_id', $mid)
+            ->whereNotNull('headerid')
+            ->orderByDesc('date')
+            ->get();
 
-        $missingHeaderIds = ProgramDetail::with('programDestination','programDestination.destinationSlabRate')->where('vendor_id', $vid)->where('mother_vassel_id', $mid)->whereNull('headerid')->get();
-        
-        $vendor = Vendor::select('id','name','balance')->where('id',$vid)->first();
-        $motherVesselName = MotherVassel::where('id', $mid)->first()->name;
+        // Single query for missing header records
+        $missingHeaderIds = ProgramDetail::with($relationships)
+            ->where('vendor_id', $vid)
+            ->where('mother_vassel_id', $mid)
+            ->whereNull('headerid')
+            ->orderByDesc('date')
+            ->get();
 
+        // Fetch vendor & vessel (use select for performance)
+        $vendor       = Vendor::select('id', 'name', 'balance')->findOrFail($vid);
+        $motherVesselName = MotherVassel::select('id', 'name')->findOrFail($mid)->name;
+
+        // Sum due payment transactions
         $duePaymentTransaction = Transaction::where('vendor_id', $vid)
-                                  ->where('mother_vassel_id', $mid)
-                                  ->where('description', 'Carrying Bill')
-                                  ->where('tran_type', 'Due Payment')
-                                  ->select('amount')
-                                  ->sum('amount');
+            ->where('mother_vassel_id', $mid)
+            ->where('description', 'Carrying Bill')
+            ->where('tran_type', 'Due Payment')
+            ->sum('amount');
 
-        return view('admin.report.challanPostingReport', compact('data','vendor','motherVesselName','missingHeaderIds', 'mid', 'vid', 'duePaymentTransaction'));
+        // Pre-calculate summary (do it once, not in blade)
+        $totalCarryingBill = $data->sum('carrying_bill');
+        $totalAdvance      = $data->sum('advance');
+        $totalLineCharge   = $data->sum('line_charge');
+        $totalScaleFee     = $data->sum('scale_fee');
+        $totalOtherCost    = $data->sum('other_cost');
+        $totalDestQty      = $data->sum('dest_qty');
+        $totalFuelQty      = $data->sum(fn($item) => $item->advancePayment->fuelqty ?? 0);
+
+        $summary = [
+            'total_qty'           => $totalDestQty,
+            'total_carrying_bill' => $totalCarryingBill,
+            'total_advance'       => $totalAdvance,
+            'total_line_charge'   => $totalLineCharge,
+            'total_scale_fee'     => $totalScaleFee,
+            'total_other_cost'    => $totalOtherCost,
+            'total_fuel_qty'      => $totalFuelQty,
+            'due_payment'         => $duePaymentTransaction,
+            'total_due'           => $totalCarryingBill - $totalAdvance - $duePaymentTransaction,
+            'vendor_balance'      => $vendor->balance,
+            'record_count'        => $data->count(),
+            'missing_count'       => $missingHeaderIds->count(),
+        ];
+
+        return view('admin.report.challanPostingReport', compact(
+            'data',
+            'vendor',
+            'motherVesselName',
+            'missingHeaderIds',
+            'mid',
+            'vid',
+            'summary'
+        ));
     }
 
     public function challanPostingDateReport($id)
@@ -137,25 +189,41 @@ class ReportController extends Controller
     public function deleteProgramDetails($id)
     {
         DB::beginTransaction();
-    
-        $data = ProgramDetail::findOrFail($id);
-        
-        $transaction = Transaction::where('program_detail_id', $id)->first();
-        $advance_payment = AdvancePayment::where('program_detail_id', $id)->first();
-        
-        if ($transaction) {
-            $transaction->delete();
-        }
-    
-        if ($advance_payment) {
-            $advance_payment->delete();
-        }
-    
-        $data->delete();
 
-        DB::commit();
-    
-        return redirect()->back()->with('success', 'Record deleted successfully!');
+        try {
+            $data = ProgramDetail::findOrFail($id);
+            
+            // Get the authenticated user's name
+            $deletedBy = auth()->user()->name;
+
+            $transaction = Transaction::where('program_detail_id', $id)->first();
+            $advance_payment = AdvancePayment::where('program_detail_id', $id)->first();
+            
+            if ($transaction) {
+                $transaction->deleted_by = $deletedBy;
+                $transaction->save();
+                $transaction->delete();
+            }
+
+            if ($advance_payment) {
+                $advance_payment->deleted_by = $deletedBy;
+                $advance_payment->save();
+                $advance_payment->delete();
+            }
+
+            $data->deleted_by = $deletedBy;
+            $data->save();
+            $data->delete();
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Record deleted successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
     }
 
     public function storeDuePayment2(Request $request)
