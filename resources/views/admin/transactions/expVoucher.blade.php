@@ -97,12 +97,46 @@
                 <strong>Taka (In Words):</strong> 
                 {{ \Rmunate\Utilities\SpellNumber::value($data->reverseTransaction ? 0 : $data->at_amount)->locale('en')->toLetters() }}
             </div>
-            <div class="row mt-4">
-                <div class="col">Checked by: <br> ________</div>
-                <div class="col">Received by: <br> ________</div>
-                <div class="col">Prepared by: <br> ________</div>
-                <div class="col">Approved by: <br> ________</div>
-                <div class="col">Proprietor:  <br>________</div>
+            {{-- Update the style to support signature styling --}}
+            <style>
+                .signature-name {
+                    font-weight: bold;
+                    text-decoration: underline;
+                    margin-bottom: 15px;
+                    display: inline-block;
+                }
+                .signature-label {
+                    font-size: 14px;
+                }
+                @media print {
+                    .print-btn {
+                        display: none;
+                    }
+                }
+            </style>
+
+            <div class="row mt-5 text-center">
+                <div class="col">
+                    <span class="signature-label">Checked by:</span><br>
+                    <span class="signature-name">{{ $data->checked_by ?? ' ' }}</span>
+                </div>
+                <div class="col">
+                    <span class="signature-label">Received by:</span><br>
+                    <span class="signature-name">{{ $data->received_by ?? ' ' }}</span>
+                </div>
+                <div class="col">
+                    <span class="signature-label">Prepared by:</span><br>
+                    {{-- Show the fetched preparedByName --}}
+                    <span class="signature-name">{{ $preparedByName ?? ' ' }}</span>
+                </div>
+                <div class="col">
+                    <span class="signature-label">Approved by:</span><br>
+                    <span class="signature-name">{{ $data->approved_by ?? ' ' }}</span>
+                </div>
+                <div class="col">
+                    <span class="signature-label">Proprietor:</span><br>
+                    <span class="signature-name">{{ $data->proprietor ?? ' ' }}</span>
+                </div>
             </div>
         </div>
     </div>

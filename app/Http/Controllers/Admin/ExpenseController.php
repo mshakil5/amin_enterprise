@@ -142,9 +142,15 @@ class ExpenseController extends Controller
     public function voucher(Request $request, $id)
     {
         $data = Transaction::with(['chartOfAccount', 'client'])->where('id', $id)->first();
-        return view('admin.transactions.expVoucher', compact('data'));
+        
+        // Fetch the user who created this transaction
+        $preparedByUser = \App\Models\User::find($data->created_by);
+        $preparedByName = $preparedByUser ? $preparedByUser->name : 'N/A';
+
+        return view('admin.transactions.expVoucher', compact('data', 'preparedByName'));
     }
 
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
