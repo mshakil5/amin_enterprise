@@ -370,6 +370,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
 
     // voucher
     Route::get('journal-voucher/{id}', [ExpenseController::class, 'journalVoucher'])->name('admin.journal.voucher');
+    Route::post('transactions/update-signatory', [TransactionController::class, 'updateSignatory'])->name('admin.transactions.updateSignatory');
 
     // ledger
     Route::get('ledger-accounts', [LedgerController::class, 'showLedgerAccounts'])->name('admin.ledgeraccount');

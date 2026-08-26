@@ -346,12 +346,33 @@
                     <button class="btn btn-sm btn-dark" id="btn-print">
                         <i class="fas fa-print"></i> Print
                     </button>
+                    <span class="mr-2 text-muted" style="font-size:13px;">
+                        <b><span id="selected-count">0</span></b> selected
+                    </span>
+                    <button class="btn btn-sm btn-warning ml-2" id="btn-mark-checked">
+                        <i class="fas fa-check-circle"></i> Mark Checked
+                    </button>
+                </div>
+
+                {{-- Bulk Action Buttons --}}
+                <div class="px-3 pb-2 d-flex align-items-center" id="bulk-actions" style="display: none;">
+                    
+                    <button class="btn btn-sm btn-outline-warning ml-2" id="btn-undo-checked" style="display: none;">
+                        <i class="fas fa-times-circle"></i> Undo Checked
+                    </button>
+                    <button class="btn btn-sm btn-success ml-2" id="btn-mark-approved" style="display: none;">
+                        <i class="fas fa-thumbs-up"></i> Mark Approved
+                    </button>
+                    <button class="btn btn-sm btn-outline-success ml-2" id="btn-undo-approved" style="display: none;">
+                        <i class="fas fa-times-circle"></i> Undo Approved
+                    </button>
                 </div>
 
                 <div class="table-responsive">
                     <table id="incomeTBL" class="table table-bordered table-striped table-sm mb-0" style="font-size:12px;">
                         <thead>
                             <tr class="bg-dark text-white text-center">
+                                <th style="width:40px"><input type="checkbox" id="select_all"></th> {{-- NEW --}}
                                 <th style="width:40px">#</th>
                                 <th style="width:100px">Date</th>
                                 <th style="width:150px">Chart of Account</th>
@@ -486,6 +507,7 @@
             }
         },
         deferRender: true,
+        pageLength: 100,
         dom: 'Bfrtip',
         buttons: [
             { extend: 'copy', className: 'btn btn-sm btn-secondary', text: '<i class="fas fa-copy"></i> Copy' },
@@ -495,6 +517,25 @@
             { extend: 'print', className: 'btn btn-sm btn-dark', text: '<i class="fas fa-print"></i> Print' }
         ],
         columns: [
+            { 
+                data: null, orderable: false, searchable: false, className: 'text-center',
+                render: function(data, type, row) {
+                    // If checked_by exists, mark checkbox as checked
+                    let isChecked = row.checked_by ? 'checked' : '';
+                    
+                    // If checked_by exists, show the undo button, otherwise show nothing
+                    let undoBtn = row.checked_by 
+                        ? '<button type="button" class="btn btn-xs btn-link p-0 ml-1 undo-single-btn" data-id="'+row.id+'" data-type="checked_by" title="Undo Checked"><i class="fas fa-undo text-warning" style="font-size:11px;"></i></button>' 
+                        : '';
+                        
+                    // Show the name under the checkbox if it exists
+                    let nameDiv = row.checked_by 
+                        ? '<div class="text-muted mt-1" style="font-size: 10px; line-height: 1.2;">'+row.checked_by+'</div>' 
+                        : '';
+                    
+                    return '<div class="d-flex justify-content-center align-items-center"><input type="checkbox" class="row-select" data-id="'+row.id+'" '+isChecked+'>'+undoBtn+'</div>'+nameDiv;
+                }
+            },
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
             { data: 'date', name: 'date', render: function(data) { return data ? dayjs(data).format('DD-MM-YYYY') : ''; } },
             { data: 'chart_of_account', name: 'chart_of_account', className: 'text-left' },
@@ -530,6 +571,142 @@
         },
         drawCallback: function() { loadSummary(); }
     });
+
+    // =============================================
+    // BULK CHECKBOX & SIGNATORY LOGIC (REUSABLE)
+    // =============================================
+    var selectedIds = [];
+    var bulkUpdateUrl = "{{ route('admin.transactions.updateSignatory') }}";
+
+    // Select All Checkboxes
+    $('#select_all').on('click', function() {
+        var rows = incomeTBL.rows({ 'search': 'applied' }).nodes();
+        $('input.row-select', rows).prop('checked', this.checked);
+        updateSelectedIds();
+    });
+
+    // Single Checkbox Click
+    $(document).on('change', '.row-select', function() {
+        updateSelectedIds();
+    });
+
+    // Function to track selected IDs and show/hide buttons
+    function updateSelectedIds() {
+        selectedIds = [];
+        $('.row-select:checked').each(function() {
+            selectedIds.push($(this).data('id'));
+        });
+
+        if (selectedIds.length > 0) {
+            $('#bulk-actions').show();
+            $('#selected-count').text(selectedIds.length);
+        } else {
+            $('#bulk-actions').hide();
+        }
+    }
+
+    // Handle Mark as Checked
+    $('#btn-mark-checked').on('click', function() {
+        processBulkSignatory('checked_by', 'set');
+    });
+
+    // Handle Undo Checked
+    $('#btn-undo-checked').on('click', function() {
+        processBulkSignatory('checked_by', 'undo');
+    });
+
+    // Handle Mark as Approved
+    $('#btn-mark-approved').on('click', function() {
+        processBulkSignatory('approved_by', 'set');
+    });
+
+    // Handle Undo Approved
+    $('#btn-undo-approved').on('click', function() {
+        processBulkSignatory('approved_by', 'undo');
+    });
+
+    // Generic AJAX function for signatory updates
+    function processBulkSignatory(type, action) {
+        if (selectedIds.length === 0) return;
+
+        var btnId = action === 'set' 
+            ? (type === 'checked_by' ? '#btn-mark-checked' : '#btn-mark-approved')
+            : (type === 'checked_by' ? '#btn-undo-checked' : '#btn-undo-approved');
+        
+        var btn = $(btnId);
+        var originalHtml = btn.html();
+        var btnText = action === 'set' ? 'Processing...' : 'Undoing...';
+        btn.html('<i class="fas fa-spinner fa-spin"></i> ' + btnText).prop('disabled', true);
+
+        $.ajax({
+            url: bulkUpdateUrl,
+            type: 'POST',
+            data: {
+                ids: selectedIds,
+                type: type,
+                action: action,
+                _token: $('meta[name="csrf-token"]').attr('content') // Explicitly send token
+            },
+            success: function(response) {
+                if(response.status === 200) {
+                    showToast(response.message, 'success');
+                    selectedIds = [];
+                    $('#bulk-actions').hide();
+                    $('#select_all').prop('checked', false);
+                    incomeTBL.ajax.reload(null, false); // Reload table without resetting page
+                } else {
+                    showToast('Unexpected response from server.', 'error');
+                }
+            },
+            error: function(xhr) {
+                var errorMsg = 'Error updating records.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                showToast(errorMsg, 'error');
+            },
+            complete: function() {
+                btn.html(originalHtml).prop('disabled', false);
+            }
+        });
+    }
+
+    // Handle Single Row Undo Button
+    $('#incomeTBL').on('click', '.undo-single-btn', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var type = $(this).data('type');
+
+        // Optional: Confirmation dialog
+        if(!confirm('Are you sure you want to undo this action?')) return;
+
+        $.ajax({
+            url: bulkUpdateUrl,
+            type: 'POST',
+            data: {
+                ids: [id], // Send as an array with a single ID
+                type: type,
+                action: 'undo',
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if(response.status === 200) {
+                    showToast(response.message, 'success');
+                    incomeTBL.ajax.reload(null, false); // Reload table without resetting page
+                }
+            },
+            error: function(xhr) {
+                showToast('Error undoing record', 'error');
+            }
+        });
+    });
+
+
+
+
+
+
+
 
     // Hide default export buttons
     $('.dt-buttons').hide();

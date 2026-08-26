@@ -273,6 +273,34 @@ class TransactionController extends Controller
     }
 
 
+    public function updateSignatory(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:transactions,id',
+            'type' => 'required|in:checked_by,approved_by,received_by,proprietor',
+            'action' => 'required|in:set,undo'
+        ]);
+
+        $column = $request->type;
+        
+        if ($request->action === 'set') {
+            $value = auth()->user()->name;
+            $message = 'Records successfully ' . str_replace('_by', '', $column) . ' by ' . $value;
+        } else {
+            $value = null;
+            $message = 'Records successfully un-' . str_replace('_by', '', $column);
+        }
+
+        \App\Models\Transaction::whereIn('id', $request->ids)->update([
+            $column => $value
+        ]);
+
+        return response()->json([
+            'status' => 200, 
+            'message' => $message
+        ]);
+    }
 
 
 
