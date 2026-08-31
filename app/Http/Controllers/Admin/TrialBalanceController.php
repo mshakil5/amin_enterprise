@@ -7,9 +7,15 @@ use App\Models\ChartOfAccount;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
+use App\Models\Vendor;
+use App\Models\VendorSequenceNumber;
+use Carbon\Carbon;
+use App\Services\TrialBalanceService;
 
 class TrialBalanceController extends Controller
 {
+    protected $trialBalanceService;
+
     public function trialBalance2(Request $request)
     {
         $startDate = '2025-07-20';
@@ -295,253 +301,25 @@ class TrialBalanceController extends Controller
         ));
     }
 
+    // Inject the service class
+    public function __construct(TrialBalanceService $trialBalanceService)
+    {
+        $this->trialBalanceService = $trialBalanceService;
+    }
 
     public function trialBalance(Request $request)
     {
         $startDate = '2025-07-20';
         $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
 
-        $headOrder = ['Assets', 'Liabilities', 'Equity', 'Income', 'Expenses'];
-        $trialBalanceData = [];
-        $totalDebit = 0;
-        $totalCredit = 0;
+        // Get all processed data from the service
+        $data = $this->trialBalanceService->generateTrialBalanceData($startDate, $endDate);
 
-        // ============================================================
-        // PART 1: Original chart_of_accounts based transactions
-        // ============================================================
-        $accountStructure = ChartOfAccount::select('account_head', 'sub_account_head')
-            ->distinct()
-            ->orderBy('account_head')
-            ->orderBy('sub_account_head')
-            ->get();
+        // Add dates to the array for the view
+        $data['startDate'] = $startDate;
+        $data['endDate'] = $endDate;
 
-        foreach ($accountStructure as $structure) {
-            $accounts = ChartOfAccount::where('account_head', $structure->account_head)
-                ->where('sub_account_head', $structure->sub_account_head)
-                ->orderBy('serial')
-                ->get();
-
-            $accountList = [];
-            $sectionDebit = 0;
-            $sectionCredit = 0;
-
-            foreach ($accounts as $account) {
-                $transactions = Transaction::where('chart_of_account_id', $account->id)
-                    ->whereBetween('date', [$startDate, $endDate])
-                    ->get();
-
-                if ($transactions->isEmpty()) continue;
-
-                $debit = 0;
-                $credit = 0;
-
-                switch ($structure->account_head) {
-                    case 'Assets':
-                        if ($structure->sub_account_head === 'Fixed Asset') {
-                            $debit = $transactions->whereIn('tran_type', ['Purchase', 'Payment'])
-                                ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                            $credit = $transactions->whereIn('tran_type', ['Sold', 'Deprication'])
-                                ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        } else {
-                            $debit = $transactions->whereIn('tran_type', ['Received', 'Purchase'])
-                                ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                            $credit = $transactions->whereIn('tran_type', ['Payment', 'Sold'])
-                                ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        }
-                        break;
-
-                    case 'Expenses':
-                        $debit = $transactions->whereIn('tran_type', ['Current', 'Prepaid', 'Due Adjust', 'Prepaid Adjust'])
-                            ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        $credit = 0;
-                        break;
-
-                    case 'Income':
-                        $debit = $transactions->whereIn('tran_type', ['Refund'])
-                            ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        $credit = $transactions->whereIn('tran_type', ['Current', 'Advance Adjust', 'Receivable'])
-                            ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        break;
-
-                    case 'Liabilities':
-                        $debit = $transactions->whereIn('tran_type', ['Received'])
-                            ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        $credit = $transactions->whereIn('tran_type', ['Payment', 'Advance'])
-                            ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        break;
-
-                    case 'Equity':
-                        $debit = $transactions->whereIn('tran_type', ['Received'])
-                            ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        $credit = $transactions->whereIn('tran_type', ['Payment'])
-                            ->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        break;
-                }
-
-                $netBalance = $debit - $credit;
-
-                if (abs($netBalance) > 0.009) {
-                    $displayDebit  = $netBalance > 0 ? $netBalance : 0;
-                    $displayCredit = $netBalance < 0 ? abs($netBalance) : 0;
-
-                    $accountList[] = [
-                        'id'           => $account->id,
-                        'serial'       => $account->serial,
-                        'account_name' => $account->account_name,
-                        'debit'        => $displayDebit,
-                        'credit'       => $displayCredit,
-                    ];
-
-                    $sectionDebit  += $displayDebit;
-                    $sectionCredit += $displayCredit;
-                }
-            }
-
-            if (!empty($accountList)) {
-                if (!isset($trialBalanceData[$structure->account_head])) {
-                    $trialBalanceData[$structure->account_head] = [];
-                }
-                $trialBalanceData[$structure->account_head][$structure->sub_account_head] = [
-                    'accounts'        => $accountList,
-                    'subtotal_debit'  => $sectionDebit,
-                    'subtotal_credit' => $sectionCredit,
-                ];
-                $totalDebit  += $sectionDebit;
-                $totalCredit += $sectionCredit;
-            }
-        }
-
-        // ============================================================
-        // PART 2: Cash Accounts (Office Cash, Field Cash) 
-        // via TransferIn / TransferOut / Wallet / Advance
-        // These are ASSETS (Current Asset: Cash)
-        // TransferIn = Cash received into account (Debit)
-        // TransferOut = Cash paid out of account (Credit)
-        // ============================================================
-        $cashAccounts = DB::table('accounts')->whereNull('deleted_at')->get();
-        $cashAccountList = [];
-        $cashSectionDebit = 0;
-        $cashSectionCredit = 0;
-
-        foreach ($cashAccounts as $cashAccount) {
-            $cashDebit = Transaction::where('account_id', $cashAccount->id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereIn('tran_type', ['TransferIn', 'Wallet'])
-                ->sum('amount');
-
-            $cashCredit = Transaction::where('account_id', $cashAccount->id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereIn('tran_type', ['TransferOut'])
-                ->sum('amount');
-
-            $netBalance = $cashDebit - $cashCredit;
-
-            if (abs($netBalance) > 0.009) {
-                $displayDebit  = $cashAccount->amount;
-                $displayCredit = 0;
-
-                $cashAccountList[] = [
-                    'id'           => 'cash_' . $cashAccount->id,
-                    'serial'       => '-',
-                    'account_name' => $cashAccount->type,
-                    'debit'        => $displayDebit,
-                    'credit'       => $displayCredit,
-                ];
-
-                $cashSectionDebit  += $displayDebit;
-                $cashSectionCredit += $displayCredit;
-            }
-        }
-
-        if (!empty($cashAccountList)) {
-            if (!isset($trialBalanceData['Assets'])) {
-                $trialBalanceData['Assets'] = [];
-            }
-            $trialBalanceData['Assets']['Cash Accounts'] = [
-                'accounts'        => $cashAccountList,
-                'subtotal_debit'  => $cashSectionDebit,
-                'subtotal_credit' => $cashSectionCredit,
-            ];
-            $totalDebit  += $cashSectionDebit;
-            $totalCredit += $cashSectionCredit;
-        }
-
-        // ============================================================
-        // PART 3: Vendor Advances
-        // Advance paid to vendor = Asset (Debit increases, Credit decreases)
-        // tran_type 'Advance' = cash given to vendor (Debit: Vendor Advance Asset)
-        // When vendor delivers/settles = Credit side
-        // ============================================================
-        $vendors = DB::table('vendors')->whereNull('deleted_at')->get();
-        $vendorAccountList = [];
-        $vendorSectionDebit = 0;
-        $vendorSectionCredit = 0;
-
-        foreach ($vendors as $vendor) {
-            $vendorDebit = Transaction::where('vendor_id', $vendor->id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereIn('tran_type', ['Advance', 'Wallet'])
-                ->sum('amount');
-
-            // Add credit side if you have vendor payment settlements
-            $vendorCredit = Transaction::where('vendor_id', $vendor->id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereIn('tran_type', ['Received']) // adjust if vendors repay/settle differently
-                ->sum('amount');
-
-            $netBalance = $vendorDebit - $vendorCredit;
-
-            if (abs($netBalance) > 0.009) {
-                $displayDebit  = $netBalance > 0 ? $netBalance : 0;
-                $displayCredit = $netBalance < 0 ? abs($netBalance) : 0;
-
-                $vendorAccountList[] = [
-                    'id'           => 'vendor_' . $vendor->id,
-                    'serial'       => '-',
-                    'account_name' => $vendor->name,
-                    'debit'        => $displayDebit,
-                    'credit'       => $displayCredit,
-                ];
-
-                $vendorSectionDebit  += $displayDebit;
-                $vendorSectionCredit += $displayCredit;
-            }
-        }
-
-        if (!empty($vendorAccountList)) {
-            if (!isset($trialBalanceData['Assets'])) {
-                $trialBalanceData['Assets'] = [];
-            }
-            $trialBalanceData['Assets']['Vendor Advances'] = [
-                'accounts'        => $vendorAccountList,
-                'subtotal_debit'  => $vendorSectionDebit,
-                'subtotal_credit' => $vendorSectionCredit,
-            ];
-            $totalDebit  += $vendorSectionDebit;
-            $totalCredit += $vendorSectionCredit;
-        }
-
-        // ============================================================
-        // Reorder and return
-        // ============================================================
-        $orderedData = [];
-        foreach ($headOrder as $head) {
-            if (isset($trialBalanceData[$head])) {
-                $orderedData[$head] = $trialBalanceData[$head];
-            }
-        }
-        foreach ($trialBalanceData as $head => $subHeads) {
-            if (!isset($orderedData[$head])) {
-                $orderedData[$head] = $subHeads;
-            }
-        }
-
-        $difference = $totalDebit - $totalCredit;
-
-        return view('admin.accounts.trial_balance.index', compact(
-            'orderedData', 'totalDebit', 'totalCredit', 'difference', 'startDate', 'endDate'
-        ));
+        return view('admin.accounts.trial_balance.index', $data);
     }
-
     
 }

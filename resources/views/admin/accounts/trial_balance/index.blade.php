@@ -30,6 +30,10 @@
           </div>
       </div>
 
+      <div class="row">
+         <p>Note: Positive balance Payable, Negative Balance Receivable.</p>
+      </div>
+
       {{-- Date Filter --}}
       <div class="row mb-3 no-print">
           <div class="col-md-4">

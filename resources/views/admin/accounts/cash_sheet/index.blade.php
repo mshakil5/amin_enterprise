@@ -539,6 +539,9 @@
                             </tr>
 
                             @php
+                                $pettyCash = \Carbon\Carbon::parse($date)->lt(
+                                                \Carbon\Carbon::create(2026, 7, 5)
+                                            ) ? 5000.00 : 0.00;
                                 $netCashCredit = $closingCashInOffice + $closingCashInField + $pettyCash + $suspenseAccount + $totalCashCredits;
                                 $netBankCredit = $totalBankCredits; 
                             @endphp
