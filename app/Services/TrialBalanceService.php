@@ -171,6 +171,8 @@ class TrialBalanceService
                         'account_name' => $account->account_name,
                         'debit'        => $displayDebit,
                         'credit'       => $displayCredit,
+                        'link_type'    => $structure->account_head, 
+                        'link_id'      => $account->id,            
                     ];
 
                     // Add to totals (mathematically, negative numbers balance perfectly)
@@ -335,6 +337,8 @@ class TrialBalanceService
                     'account_name' => $vendor->name,
                     'debit'        => $displayDebit,
                     'credit'       => $displayCredit,
+                    'link_type'    => 'Vendor',
+                    'link_id'      => $vendor->id,
                 ];
 
                 $vendorSectionDebit  += $displayDebit;

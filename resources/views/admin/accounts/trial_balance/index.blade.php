@@ -113,7 +113,39 @@
                                             @foreach($sectionData['accounts'] as $account)
                                             <tr>
                                                 <td class="text-center">{{ $account['serial'] ?? '' }}</td>
-                                                <td class="pl-4">{{ $account['account_name'] }}</td>
+                                                
+                                                {{-- Account Name with Link Logic --}}
+                                                <td class="pl-4">
+                                                    @php
+                                                        // Determine the URL based on link_type
+                                                        $ledgerUrl = '#';
+                                                        if (isset($account['link_type']) && isset($account['link_id'])) {
+                                                            if ($account['link_type'] === 'Vendor') {
+                                                                $ledgerUrl = route('admin.vendorledger', $account['link_id']);
+                                                            } else {
+                                                                $headRoutes = [
+                                                                    'Assets'      => '/admin/ledger/asset-details/',
+                                                                    'Expenses'    => '/admin/ledger/expense-details/',
+                                                                    'Income'      => '/admin/ledger/income-details/',
+                                                                    'Liabilities' => '/admin/ledger/liability-details/',
+                                                                    'Equity'      => '/admin/ledger/equity-details/',
+                                                                ];
+                                                                
+                                                                if (isset($headRoutes[$account['link_type']])) {
+                                                                    $ledgerUrl = url($headRoutes[$account['link_type']] . $account['link_id']);
+                                                                }
+                                                            }
+                                                        }
+                                                    @endphp
+
+                                                    @if($ledgerUrl != '#')
+                                                        <a href="{{ $ledgerUrl }}" target="_blank" style="text-decoration: none; color: inherit;" title="View Ledger">
+                                                            {{ $account['account_name'] }}
+                                                        </a>
+                                                    @else
+                                                        {{ $account['account_name'] }}
+                                                    @endif
+                                                </td>
                                                 
                                                 {{-- Debit Column --}}
                                                 <td class="text-right {{ $account['debit'] < 0 ? 'text-danger font-weight-bold' : '' }}">
