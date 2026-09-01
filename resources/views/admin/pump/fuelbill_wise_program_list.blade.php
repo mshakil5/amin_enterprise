@@ -456,14 +456,6 @@
                             <div class="col-6 text-left">Total Fuel Advance</div>
                             <div class="col-6 text-right">- {{ number_format($totals['total_fuel_amount'], 2) }}</div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-6 text-left">Bill Paid</div>
-                            <div class="col-6 text-right">- {{ number_format($totals['total_paid'], 2) }}</div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-6 text-left">Advance Adjust</div>
-                            <div class="col-6 text-right">{{ number_format($totals['total_received'], 2) }}</div>
-                        </div>
                         <hr>
                         <div class="row">
                             <div class="col-6 text-left font-weight-bold">Total {{ $totals['label'] }}</div>
@@ -473,7 +465,7 @@
                             <strong>Calculation:</strong><br>
                             (Carrying Bill + Scale Fee) - (Cash Amount + Fuel Advance) + (Bill Paid - Advance Adjust) <br>
                             ({{ number_format($totals['total_carrying_bill'], 2) }} + {{ number_format($totals['total_scale_fee'], 2) }})
-                            - ({{ number_format($totals['total_cash_amount'], 2) }} + {{ number_format($totals['total_fuel_amount'], 2) }}) + ({{ number_format($totals['total_paid'], 2) }} - {{ number_format($totals['total_received'], 2) }})
+                            - ({{ number_format($totals['total_cash_amount'], 2) }} + {{ number_format($totals['total_fuel_amount'], 2) }})
                             = {{ number_format($totals['total_due'], 2) }}
                         </div>
                     </div>

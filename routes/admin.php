@@ -111,6 +111,8 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/ghat-update', [GhatController::class, 'update']);
     Route::get('/ghat/{id}', [GhatController::class, 'delete']);
 
+
+
     Route::get('/pump', [PumpController::class, 'index'])->name('admin.pump');
     Route::post('/pump', [PumpController::class, 'store']);
     Route::get('/pump/{id}/edit', [PumpController::class, 'edit']);
@@ -119,9 +121,11 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::post('/add-fuel-bill-number', [PumpController::class, 'addFuelBillNumber'])->name('admin.addFuelBillNumber');
     Route::post('/get-petrol-pump-bill', [PumpController::class, 'getFuelBillNumber']);
     Route::get('/get-pump-sequence-list/{id}', [PumpController::class, 'getPumpWiseProgramList'])->name('admin.pump.sequence.show');
-    Route::post('/pump/update', [PumpController::class, 'pumpUpdate'])->name('admin.pump.update');
-
+    Route::post('/pump/update', [PumpController::class, 'fuelBillUpdate'])->name('admin.pump.update');
     Route::post('/petrol-pump/submit', [PumpController::class, 'updateMarkQty'])->name('petrol.pump.mark.qty');
+
+
+
     
     Route::get('/vendor', [VendorController::class, 'index'])->name('admin.vendor');
     Route::get('/vendor-list', [VendorController::class, 'vendorlist'])->name('admin.getVendors');

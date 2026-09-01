@@ -17,10 +17,77 @@ class PumpController extends Controller
     public function index()
     {
         if (!(in_array('7', json_decode(auth()->user()->role->permission)))) {
-          return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
         }
-        $data = PetrolPump::orderby('id','DESC')->get();
-        return view('admin.pump.index', compact('data'));
+
+        $pumps = PetrolPump::orderby('id', 'DESC')->get();
+        $pumpIds = $pumps->pluck('id');
+
+        // Get all fuel bills for these pumps (eager load programDetails)
+        $fuelBills = FuelBill::whereIn('petrol_pump_id', $pumpIds)
+            ->with(['programDetails.advancePayment'])
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        // Build summary stats
+        $totalPumps       = $pumps->count();
+        $totalFuelBills   = $fuelBills->count();
+        $totalInvoiceQty  = $fuelBills->sum('qty');
+        $totalMarkQty     = $fuelBills->sum('markqty');
+        $totalNotMarkQty  = $fuelBills->sum('notmarkqty');
+
+        // Total due calculation across all pumps
+        $totalCarrying = 0;
+        $totalScale    = 0;
+        $totalCash     = 0;
+        $totalFuelAmt  = 0;
+
+        foreach ($fuelBills as $bill) {
+            foreach ($bill->programDetails as $pd) {
+                $totalCarrying += $pd->carrying_bill ?? 0;
+                $totalScale    += $pd->scale_fee ?? 0;
+                $totalCash     += $pd->advancePayment->cashamount ?? 0;
+                $totalFuelAmt  += $pd->advancePayment->fuelamount ?? 0;
+            }
+        }
+
+        $grandDue = $totalCarrying + $totalScale - $totalCash - $totalFuelAmt;
+
+        // Per-pump stats map (used in table)
+        $pumpStats = [];
+        foreach ($pumps as $p) {
+            $bills = $fuelBills->where('petrol_pump_id', $p->id);
+
+            $carrying = 0; $scale = 0; $cash = 0; $fuelAmt = 0;
+            foreach ($bills as $bill) {
+                foreach ($bill->programDetails as $pd) {
+                    $carrying += $pd->carrying_bill ?? 0;
+                    $scale    += $pd->scale_fee ?? 0;
+                    $cash     += $pd->advancePayment->cashamount ?? 0;
+                    $fuelAmt  += $pd->advancePayment->fuelamount ?? 0;
+                }
+            }
+            $pumpDue = $carrying + $scale - $cash - $fuelAmt;
+
+            $pumpStats[$p->id] = [
+                'bill_count'  => $bills->count(),
+                'invoice_qty' => $bills->sum('qty'),
+                'mark_qty'    => $bills->sum('markqty'),
+                'notmark_qty' => $bills->sum('notmarkqty'),
+                'due'         => $pumpDue,
+                'last_bill'   => $bills->first()?->date,
+            ];
+        }
+        $data = $pumps; // keep using $data in blade
+        return view('admin.pump.index', compact(
+            'data',
+            'totalPumps',
+            'totalFuelBills',
+            'totalInvoiceQty',
+            'totalMarkQty',
+            'totalNotMarkQty',
+            'grandDue'
+        ))->with('pumpStats', $pumpStats);
     }
 
     public function store(Request $request)
@@ -326,10 +393,6 @@ class PumpController extends Controller
 
         $allTrips = $pdtls;
 
-        // Get transactions for the vendor sequence
-        $totalPaidTransaction = Transaction::where('vendor_sequence_number_id', $pumpSequenceNumber->vendor_sequence_number_id)
-            ->latest()
-            ->get();
         
         // Calculate totals in controller
         $totals = [
@@ -341,14 +404,11 @@ class PumpController extends Controller
             'total_fuel_amount' => $allTrips->sum(function($item) {
                 return $item->advancePayment->fuelamount ?? 0;
             }),
-            'total_paid' => $totalPaidTransaction->where('tran_type', 'Due Payment')->sum('amount'),
-            'total_received' => $totalPaidTransaction->where('tran_type', 'Advance Adjust')->sum('amount'),
         ];
         
         // Calculate total due
         $totals['total_due'] = $totals['total_carrying_bill'] + $totals['total_scale_fee'] 
-            - $totals['total_cash_amount'] - $totals['total_fuel_amount'] 
-            - $totals['total_paid'] + $totals['total_received'];
+            - $totals['total_cash_amount'] - $totals['total_fuel_amount'];
         
         $totals['total_due'] = round($totals['total_due'], 2);
         if ($totals['total_due'] === -0.0) {
@@ -362,12 +422,11 @@ class PumpController extends Controller
             'pump',
             'pumpSequenceNumber',
             'allTrips',
-            'totalPaidTransaction',
             'totals'
         ));
     }
 
-    public function pumpUpdate(Request $request)
+    public function fuelBillUpdate(Request $request)
     {
         $request->validate([
             'tran_id' => 'required|exists:fuel_bills,id',
