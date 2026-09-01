@@ -83,6 +83,7 @@ class TrialBalanceService
     /**
      * Private Method: Handle Chart of Accounts
      */
+    
     private function getChartOfAccountBalances($startDate, $endDate)
     {
         $accountStructure = ChartOfAccount::select('account_head', 'sub_account_head')
@@ -116,11 +117,13 @@ class TrialBalanceService
                 switch ($structure->account_head) {
                     case 'Assets':
                         if ($structure->sub_account_head === 'Fixed Asset') {
+                            // Updated Logic
                             $debit = $transactions->whereIn('tran_type', ['Purchase', 'Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                             $credit = $transactions->whereIn('tran_type', ['Sold', 'Deprication'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         } else {
-                            $debit = $transactions->whereIn('tran_type', ['Payment',  'Purchase'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                            $credit = $transactions->whereIn('tran_type', ['Received','Sold'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                            // Updated Logic
+                            $debit = $transactions->whereIn('tran_type', ['Payment', 'Purchase'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                            $credit = $transactions->whereIn('tran_type', ['Received', 'Sold'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         }
                         break;
 
@@ -147,8 +150,20 @@ class TrialBalanceService
                 $netBalance = $debit - $credit;
 
                 if (abs($netBalance) > 0.009) {
-                    $displayDebit  = $netBalance > 0 ? $netBalance : 0;
-                    $displayCredit = $netBalance < 0 ? abs($netBalance) : 0;
+                    // ============================================================
+                    // NEW LOGIC: Natural Side with Negative Sign
+                    // ============================================================
+                    $isNaturalDebit = in_array($structure->account_head, ['Assets', 'Expenses']);
+
+                    if ($isNaturalDebit) {
+                        // Assets & Expenses: Natural side is Debit
+                        $displayDebit  = $netBalance; // If negative, it will show as -amount in Debit column
+                        $displayCredit = 0;
+                    } else {
+                        // Liabilities, Equity, Income: Natural side is Credit
+                        $displayDebit  = 0;
+                        $displayCredit = -$netBalance; // If positive (abnormal), it will show as -amount in Credit column
+                    }
 
                     $accountList[] = [
                         'id'           => $account->id,
@@ -158,6 +173,7 @@ class TrialBalanceService
                         'credit'       => $displayCredit,
                     ];
 
+                    // Add to totals (mathematically, negative numbers balance perfectly)
                     $sectionDebit  += $displayDebit;
                     $sectionCredit += $displayCredit;
                 }

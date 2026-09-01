@@ -110,29 +110,33 @@
                                           </tr>
 
                                           {{-- ===== Individual Accounts ===== --}}
-                                          @foreach($sectionData['accounts'] as $account)
-                                          <tr>
-                                              <td class="text-center">{{ $account['serial'] ?? '' }}</td>
-                                              <td class="pl-4">{{ $account['account_name'] }}</td>
-                                              <td class="text-right">
-                                                  {{ $account['debit'] > 0 ? number_format($account['debit'], 2) : '' }}
-                                              </td>
-                                              <td class="text-right">
-                                                  {{ $account['credit'] > 0 ? number_format($account['credit'], 2) : '' }}
-                                              </td>
-                                          </tr>
-                                          @endforeach
+                                            @foreach($sectionData['accounts'] as $account)
+                                            <tr>
+                                                <td class="text-center">{{ $account['serial'] ?? '' }}</td>
+                                                <td class="pl-4">{{ $account['account_name'] }}</td>
+                                                
+                                                {{-- Debit Column --}}
+                                                <td class="text-right {{ $account['debit'] < 0 ? 'text-danger font-weight-bold' : '' }}">
+                                                    {{ $account['debit'] != 0 ? number_format($account['debit'], 2) : '' }}
+                                                </td>
+                                                
+                                                {{-- Credit Column --}}
+                                                <td class="text-right {{ $account['credit'] < 0 ? 'text-danger font-weight-bold' : '' }}">
+                                                    {{ $account['credit'] != 0 ? number_format($account['credit'], 2) : '' }}
+                                                </td>
+                                            </tr>
+                                            @endforeach
 
                                           {{-- ===== Sub-Total Row ===== --}}
-                                          <tr class="bg-info text-white font-weight-bold">
-                                              <td colspan="2" class="text-right pl-4">Sub-Total {{ $subHead }}</td>
-                                              <td class="text-right">
-                                                  {{ $sectionData['subtotal_debit'] > 0 ? number_format($sectionData['subtotal_debit'], 2) : '' }}
-                                              </td>
-                                              <td class="text-right">
-                                                  {{ $sectionData['subtotal_credit'] > 0 ? number_format($sectionData['subtotal_credit'], 2) : '' }}
-                                              </td>
-                                          </tr>
+                                            <tr class="bg-info text-white font-weight-bold">
+                                                <td colspan="2" class="text-right pl-4">Sub-Total {{ $subHead }}</td>
+                                                <td class="text-right {{ $sectionData['subtotal_debit'] < 0 ? 'text-warning' : '' }}">
+                                                    {{ $sectionData['subtotal_debit'] != 0 ? number_format($sectionData['subtotal_debit'], 2) : '' }}
+                                                </td>
+                                                <td class="text-right {{ $sectionData['subtotal_credit'] < 0 ? 'text-warning' : '' }}">
+                                                    {{ $sectionData['subtotal_credit'] != 0 ? number_format($sectionData['subtotal_credit'], 2) : '' }}
+                                                </td>
+                                            </tr>
                                       @endforeach
 
                                       {{-- ===== Separator between sections ===== --}}
