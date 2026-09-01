@@ -290,11 +290,11 @@
                                                       title="View Bills">
                                                     <i class="fas fa-eye"></i>
                                                 </span>
-                                                <a id="EditBtn" 
+                                                <a id="EditBtn" class="btn btn-primary btn-xs"
                                                    rid="{{ $data->id }}" 
                                                    style="cursor:pointer" 
                                                    title="Edit">
-                                                    <i class="fa fa-edit text-primary" style="font-size:16px;"></i>
+                                                    <i class="fa fa-edit" style="font-size:16px;"></i>
                                                 </a>
                                                 
                                                 {{-- Delete Button Hidden as requested --}}

@@ -437,7 +437,7 @@
             <div class="col-md-6">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white text-center">
-                        <h5 class="mb-0">Bill Summary</h5>
+                        <h5 class="mb-0">Bill Summary </h5>
                     </div>
                     <div class="card-body">
                         <div class="row mb-2">

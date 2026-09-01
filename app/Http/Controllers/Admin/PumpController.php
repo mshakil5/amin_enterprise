@@ -415,7 +415,7 @@ class PumpController extends Controller
             $totals['total_due'] = 0.0;
         }
         
-        $totals['label'] = $totals['total_due'] >= 0 ? 'Vendors Payable' : 'Vendors Receivable';
+        $totals['label'] = $totals['total_due'] >= 0 ? 'Petrol Pump Payable' : 'Petrol Pump Receivable';
 
         return view('admin.pump.fuelbill_wise_program_list', compact(
             'data',
