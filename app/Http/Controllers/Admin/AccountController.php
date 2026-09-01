@@ -169,7 +169,7 @@ class AccountController extends Controller
         }
     }
 
-    public function transfer(Request $request)
+public function transfer(Request $request)
 {
     $request->validate([
         'from_account_id' => 'required|exists:accounts,id',
@@ -183,8 +183,27 @@ class AccountController extends Controller
         $toAccount = Account::findOrFail($request->to_account_id);
         
         // Use calculated balance
-        $currentBalance = Transaction::getAccountBalance($fromAccount->id);
+        // $currentBalance = Transaction::getAccountBalance($fromAccount->id);
+
+        $b = cash_balances();
+        $totalOpening = $b['cashInHandOpening'] + $b['cashInFieldOpening'];
+        $totalClosing = $b['cashInHandClosing'] + $b['cashInFieldClosing'];
         
+        if ($fromAccount->id == 1) {
+            $currentBalance = $b['cashInHandClosing'];
+        } else {
+            $currentBalance = $b['cashInFieldClosing'];
+        }
+
+        \Log::info('Transfer initiated', [
+            'from_account_id' => $fromAccount->id,
+            'to_account_id' => $toAccount->id,
+            'amount' => $request->amount,
+            'current_balance' => $currentBalance,
+            'total_opening' => $totalOpening,
+            'total_closing' => $totalClosing
+        ]);
+
         if ($currentBalance < $request->amount) {
             return response()->json([
                 'success' => false,

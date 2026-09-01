@@ -272,12 +272,18 @@
                   @foreach ($data as $key => $data)
 
                   @php
-                      $balance = \App\Models\Transaction::getAccountBalance($data->id);
+                        if ($data->id == 1) {
+                            $balance = number_format($b['cashInHandClosing'], 2);
+                        } else {
+                            $balance = number_format($b['cashInFieldClosing'], 2);
+                        }
+                        
+                        // $balance = \App\Models\Transaction::getAccountBalance($data->id);
                   @endphp
 
                   <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{$data->type}}</td>
+                    <td>{{$data->type}} </td>
                     <td>{{$balance}}</td>
                     <td>
                       <a id="EditBtn" rid="{{$data->id}}"><i class="fa fa-edit mr-2" style="color: #2196f3;font-size:20px;"></i></a>
@@ -521,6 +527,9 @@
           var accountId = $(this).data('id');
           var accountType = $(this).data('type');
           var accountAmount = $(this).data('amount');
+
+          console.log('Account ID:', accountId);
+          console.log('Account accountAmount:', accountAmount);
           
           $('#fromAccountId').val(accountId);
           $('#fromAccountType').val(accountType);
@@ -528,6 +537,8 @@
           $('#transferAmount').attr('max', accountAmount);
           $('#transferAmount').val('');
           $('#toAccountId').val('');
+
+          console.log($('#currentBalance').val());
           
           $('#toAccountId option').show();
           $('#toAccountId option[value="' + accountId + '"]').hide();
@@ -538,8 +549,12 @@
       $('#confirmTransfer').click(function() {
           var formData = $('#transferForm').serialize();
           
-          var fromAmount = parseFloat($('#currentBalance').val());
+          var fromAmount = $('#currentBalance').val();
           var transferAmount = parseFloat($('#transferAmount').val());
+
+          
+          console.log('fromAmount:', fromAmount);
+          console.log('transferAmount:', transferAmount);
           
           if (transferAmount > fromAmount) {
               $('.ermsg').html('<div class="alert alert-danger">Transfer amount cannot exceed current balance!</div>');

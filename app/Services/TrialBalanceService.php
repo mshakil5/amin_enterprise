@@ -119,8 +119,8 @@ class TrialBalanceService
                             $debit = $transactions->whereIn('tran_type', ['Purchase', 'Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                             $credit = $transactions->whereIn('tran_type', ['Sold', 'Deprication'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         } else {
-                            $debit = $transactions->whereIn('tran_type', ['Received', 'Purchase'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                            $credit = $transactions->whereIn('tran_type', ['Payment', 'Sold'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                            $debit = $transactions->whereIn('tran_type', ['Received', 'Purchase','Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                            $credit = $transactions->whereIn('tran_type', ['Sold'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         }
                         break;
 
