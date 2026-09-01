@@ -186,8 +186,6 @@ public function transfer(Request $request)
         // $currentBalance = Transaction::getAccountBalance($fromAccount->id);
 
         $b = cash_balances();
-        $totalOpening = $b['cashInHandOpening'] + $b['cashInFieldOpening'];
-        $totalClosing = $b['cashInHandClosing'] + $b['cashInFieldClosing'];
         
         if ($fromAccount->id == 1) {
             $currentBalance = $b['cashInHandClosing'];
@@ -200,8 +198,6 @@ public function transfer(Request $request)
             'to_account_id' => $toAccount->id,
             'amount' => $request->amount,
             'current_balance' => $currentBalance,
-            'total_opening' => $totalOpening,
-            'total_closing' => $totalClosing
         ]);
 
         if ($currentBalance < $request->amount) {

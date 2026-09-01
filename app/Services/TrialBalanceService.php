@@ -35,8 +35,8 @@ class TrialBalanceService
             }
         }
 
-        // 2. Get Cash Account Balances
-        $cashData = $this->getCashAccountBalances($startDate, $endDate);
+        // 2. Get Cash Account Balances (Using CashSheetBalanceService)
+        $cashData = $this->getCashAccountBalances($endDate);
         if (!empty($cashData['accounts'])) {
             if (!isset($trialBalanceData['Assets'])) {
                 $trialBalanceData['Assets'] = [];
@@ -119,8 +119,8 @@ class TrialBalanceService
                             $debit = $transactions->whereIn('tran_type', ['Purchase', 'Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                             $credit = $transactions->whereIn('tran_type', ['Sold', 'Deprication'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         } else {
-                            $debit = $transactions->whereIn('tran_type', ['Received', 'Purchase','Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                            $credit = $transactions->whereIn('tran_type', ['Sold'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                            $debit = $transactions->whereIn('tran_type', ['Payment',  'Purchase'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                            $credit = $transactions->whereIn('tran_type', ['Received','Sold'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         }
                         break;
 
@@ -180,35 +180,37 @@ class TrialBalanceService
 
     /**
      * Private Method: Handle Cash Accounts
+     * Reuses CashSheetBalanceService to guarantee it matches the dashboard perfectly.
      */
-    private function getCashAccountBalances($startDate, $endDate)
+    private function getCashAccountBalances($endDate)
     {
-        $cashAccounts = DB::table('accounts')->whereNull('deleted_at')->get();
+        // Resolve the same service used by the dashboard helper
+        $cashService = app(CashSheetBalanceService::class);
+        
+        // Get the closing balances up to the Trial Balance end date
+        $balances = $cashService->getBalances($endDate);
+
+        // Define the cash accounts based on the service constants
+        $cashAccounts = [
+            ['id' => 1, 'name' => 'Office Cash', 'balance' => $balances['cashInHandClosing']],
+            ['id' => 2, 'name' => 'Field Cash', 'balance' => $balances['cashInFieldClosing']],
+        ];
+
         $cashAccountList = [];
         $cashSectionDebit = 0;
         $cashSectionCredit = 0;
 
         foreach ($cashAccounts as $cashAccount) {
-            $cashDebit = Transaction::where('account_id', $cashAccount->id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereIn('tran_type', ['TransferIn', 'Wallet'])
-                ->sum('amount');
-
-            $cashCredit = Transaction::where('account_id', $cashAccount->id)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereIn('tran_type', ['TransferOut'])
-                ->sum('amount');
-
-            $netBalance = $cashDebit - $cashCredit;
+            $netBalance = $cashAccount['balance'];
 
             if (abs($netBalance) > 0.009) {
-                $displayDebit  = $cashAccount->amount; 
-                $displayCredit = 0;
+                $displayDebit  = $netBalance > 0 ? $netBalance : 0;
+                $displayCredit = $netBalance < 0 ? abs($netBalance) : 0;
 
                 $cashAccountList[] = [
-                    'id'           => 'cash_' . $cashAccount->id,
+                    'id'           => 'cash_' . $cashAccount['id'],
                     'serial'       => '-',
-                    'account_name' => $cashAccount->type,
+                    'account_name' => $cashAccount['name'],
                     'debit'        => $displayDebit,
                     'credit'       => $displayCredit,
                 ];
