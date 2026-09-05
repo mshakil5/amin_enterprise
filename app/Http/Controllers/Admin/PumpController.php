@@ -454,16 +454,71 @@ class PumpController extends Controller
         return response()->json($fuelBills);
     }
 
-    public function showLedger($id)
+    
+
+    public function showLedger(Request $request, $id)
     {
         $pump = PetrolPump::findOrFail($id);
-        
+
+        // Date range filter
+        $startDate = $request->filled('start_date') ? $request->start_date : '2025-07-20';
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->toDateString();
+
+        // 1. Fetch Fuel Bills (Debit side)
         $fuelBills = FuelBill::where('petrol_pump_id', $id)
-            ->orderBy('date', 'DESC')
-            ->with(['programDetails.advancePayment']) 
+            ->whereBetween('date', [$startDate, $endDate])
+            ->with(['programDetails.advancePayment'])
             ->get();
 
-        return view('admin.pump.ledger', compact('pump', 'fuelBills'));
+        // 2. Fetch Transactions (Credit side)
+        $transactions = Transaction::where('petrol_pump_id', $id)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->get();
+
+        // 3. Merge into a single unified collection
+        $ledgerData = collect();
+
+        foreach ($fuelBills as $bill) {
+            $ledgerData->push([
+                'date' => $bill->date,
+                'description' => "Fuel Bill #" . $bill->bill_number,
+                'ref' => $bill->unique_id,
+                'qty' => $bill->total_fuel_qty,
+                'debit' => $bill->total_fuel_amount,
+                'credit' => 0,
+            ]);
+        }
+
+        foreach ($transactions as $tran) {
+            $ledgerData->push([
+                'date' => $tran->date,
+                'description' => $tran->description ?? 'Payment',
+                'ref' => $tran->tran_id,
+                'qty' => 0,
+                'debit' => 0,
+                'credit' => $tran->at_amount,
+            ]);
+        }
+
+        // Sort the unified collection by date DESC
+        $ledgerData = $ledgerData->sortByDesc('date')->values();
+
+        // Calculate totals
+        $totalDebit = $ledgerData->sum('debit');
+        $totalCredit = $ledgerData->sum('credit');
+        $totalQty = $ledgerData->sum('qty');
+        $balance = $totalDebit - $totalCredit;
+
+        return view('admin.pump.ledger', compact(
+            'pump', 
+            'ledgerData', 
+            'totalDebit', 
+            'totalCredit', 
+            'totalQty', 
+            'balance', 
+            'startDate', 
+            'endDate'
+        ));
     }
 
 }
