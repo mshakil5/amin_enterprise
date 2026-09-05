@@ -123,6 +123,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/get-pump-sequence-list/{id}', [PumpController::class, 'getPumpWiseProgramList'])->name('admin.pump.sequence.show');
     Route::post('/pump/update', [PumpController::class, 'fuelBillUpdate'])->name('admin.pump.update');
     Route::post('/petrol-pump/submit', [PumpController::class, 'updateMarkQty'])->name('petrol.pump.mark.qty');
+    Route::get('/get-fuel-bills/{pump_id}', [PumpController::class, 'getFuelBills'])->name('get.fuel.bills');
 
 
 

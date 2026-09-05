@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ChartOfAccount;
 use App\Models\Account;
+use App\Models\PetrolPump;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -103,7 +104,8 @@ class LiabilityController extends Controller
         
         $accounts = ChartOfAccount::where('account_head', 'Liabilities')->get();
         $accountList = Account::latest()->get();
-        return view('admin.transactions.liabilities', compact('accounts', 'accountList'));
+        $pumps = PetrolPump::orderby('id', 'DESC')->where('status', 1)->get();
+        return view('admin.transactions.liabilities', compact('accounts', 'accountList', 'pumps'));
     }
 
     public function getSummary(Request $request)
@@ -165,6 +167,7 @@ class LiabilityController extends Controller
             $transaction->ref = $request->input('ref');
             $transaction->client_id = $request->input('client_id');
             $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+            $transaction->fuel_bill_id = $request->input('fuel_bill_id');
             $transaction->description = $request->input('description');
             $transaction->amount = $request->input('amount');
             $transaction->tax_rate = $request->input('tax_rate');
@@ -222,6 +225,7 @@ class LiabilityController extends Controller
             'ref' => $transaction->ref,
             'client_id' => $transaction->client_id,
             'mother_vassel_id' => $transaction->mother_vassel_id,
+            'fuel_bill_id' => $transaction->fuel_bill_id,
             'tran_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
             'tax_rate' => $transaction->tax_rate,
@@ -287,6 +291,7 @@ class LiabilityController extends Controller
             $transaction->ref = $request->input('ref');
             $transaction->client_id = $request->input('client_id');
             $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+            $transaction->fuel_bill_id = $request->input('fuel_bill_id');
             $transaction->description = $request->input('description');
             $transaction->amount = $newAmount;
             $transaction->tax_rate = $request->input('tax_rate');

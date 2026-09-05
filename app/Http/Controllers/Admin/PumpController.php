@@ -446,4 +446,12 @@ class PumpController extends Controller
         return response()->json(['status' => 200, 'message' => 'Bill updated successfully']);
     }
 
+
+    public function getFuelBills($pump_id)
+    {
+        $fuelBills = FuelBill::where('petrol_pump_id', $pump_id)->get();
+        
+        return response()->json($fuelBills);
+    }
+
 }

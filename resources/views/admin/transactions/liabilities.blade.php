@@ -206,6 +206,29 @@
                                 </select>
                             </div>
                         </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Petrol Pump</label>
+                                <select class="form-control select2" id="petrol_pump_id" name="petrol_pump_id">
+                                    <option value="">Select Petrol Pump</option>
+                                    @foreach ($pumps as $pump)
+                                        <option value="{{ $pump->id }}">{{ $pump->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold" style="font-size:13px;">Fuel Bill</label>
+                                <select class="form-control select2" id="fuel_bill_id" name="fuel_bill_id">
+                                    <option value="">Select Fuel Bill</option>
+                                </select>
+                            </div>
+                        </div>
+
+
                     </div>
 
                     {{-- Form Actions --}}
@@ -860,6 +883,7 @@
                 $('#payment_type').val(response.payment_type || '');
                 $('#client_id').val(response.client_id).trigger('change');
                 $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
+                $('#fuel_bill_id').val(response.fuel_bill_id).trigger('change');
                 $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
 
                 // FIX: Set account after select2 is ready
@@ -1024,4 +1048,67 @@
 
 });
 </script>
+
+<script>
+    $(document).ready(function() {
+        // When Petrol Pump dropdown changes
+        $('#petrol_pump_id').on('change', function() {
+            var pumpId = $(this).val();
+            var fuelBillSelect = $('#fuel_bill_id');
+
+            // 1. Clear current options and show Loading text
+            fuelBillSelect.empty().append('<option value="">Loading...</option>');
+            
+            // 2. Disable the dropdown while fetching data
+            fuelBillSelect.prop('disabled', true);
+            
+            // 3. Trigger Select2 to update the UI to show "Loading..." and greyed out
+            fuelBillSelect.trigger('change');
+
+            // If a pump is selected, fetch the bills
+            if (pumpId) {
+                $.ajax({
+                    url: "{{ route('get.fuel.bills', '__pump_id__') }}".replace('__pump_id__', pumpId),
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        // Clear the loading text
+                        fuelBillSelect.empty();
+                        
+                        // Re-enable the dropdown
+                        fuelBillSelect.prop('disabled', false);
+                        
+                        // Add the default option
+                        fuelBillSelect.append('<option value="">Select Fuel Bill</option>');
+                        
+                        // Loop through the data and append options
+                        $.each(data, function(key, bill) {
+                            // NOTE: Change 'bill_number' to whatever column you use to display the bill
+                            fuelBillSelect.append('<option value="'+bill.id+'">'+bill.bill_number+'</option>');
+                        });
+                        
+                        // Trigger select2 to update the dropdown UI with new data
+                        fuelBillSelect.trigger('change');
+                    },
+                    error: function(xhr) {
+                        console.log("Error fetching fuel bills:", xhr.responseText);
+                        
+                        // Reset dropdown on error
+                        fuelBillSelect.empty();
+                        fuelBillSelect.prop('disabled', false);
+                        fuelBillSelect.append('<option value="">Select Fuel Bill</option>');
+                        fuelBillSelect.trigger('change');
+                    }
+                });
+            } else {
+                // If user selects the empty "Select Petrol Pump" option again
+                fuelBillSelect.empty();
+                fuelBillSelect.prop('disabled', false);
+                fuelBillSelect.append('<option value="">Select Fuel Bill</option>');
+                fuelBillSelect.trigger('change');
+            }
+        });
+    });
+</script>
+
 @endsection

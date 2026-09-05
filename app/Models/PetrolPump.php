@@ -22,4 +22,9 @@ class PetrolPump extends Model
             }
         });
     }
+
+    public function fuelBills()
+    {
+        return $this->hasMany(FuelBill::class);
+    }
 }
