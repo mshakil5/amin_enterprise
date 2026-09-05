@@ -39,18 +39,28 @@
                                 </thead>
                                 <tbody>
                                     @php 
-                                        $runningBalance = 0; 
+                                        // 1. Calculate Grand Totals first
+                                        $totalDebit = $fuelBills->sum(function($b) { return $b->total_fuel_amount; });
+                                        $totalCredit = 0; // Currently 0, change if credit logic is added
+                                        $totalQty = $fuelBills->sum(function($b) { return $b->total_fuel_qty; });
+                                        
+                                        // 2. Starting balance for DESC view is the Grand Total Balance
+                                        $runningBalance = $totalDebit - $totalCredit;
                                         $sl = 1; 
                                     @endphp
                                     
                                     @forelse($fuelBills as $bill)
                                         @php
-                                            // Use the accessors we created in the model
                                             $fuelQty = $bill->total_fuel_qty;
                                             $fuelAmount = $bill->total_fuel_amount;
+                                            $creditAmount = 0; // Set to 0 for now
                                             
-                                            // Debit increases the balance
-                                            $runningBalance += $fuelAmount;
+                                            // The balance to show for THIS row is the current running balance
+                                            $currentRowBalance = $runningBalance;
+                                            
+                                            // Reverse the math for the NEXT row (going backwards in time)
+                                            // Since Debit increases balance, going back in time means we subtract it
+                                            $runningBalance = $runningBalance - $fuelAmount + $creditAmount;
                                         @endphp
                                         
                                         <tr>
@@ -66,10 +76,11 @@
                                                 {{ $fuelAmount > 0 ? number_format($fuelAmount, 2) : '0.00' }}
                                             </td>
                                             <td class="text-right text-success">
-                                                0.00
+                                                {{ $creditAmount > 0 ? number_format($creditAmount, 2) : '0.00' }}
                                             </td>
                                             <td class="text-right font-weight-bold">
-                                                {{ number_format($runningBalance, 2) }} Dr
+                                                {{ number_format(abs($currentRowBalance), 2) }} 
+                                                <small>{{ $currentRowBalance >= 0 ? 'Dr' : 'Cr' }}</small>
                                             </td>
                                         </tr>
                                     @empty
@@ -85,10 +96,13 @@
                                 <tfoot>
                                     <tr class="font-weight-bold bg-light">
                                         <td colspan="3" class="text-right">Total:</td>
-                                        <td class="text-center">{{ number_format($fuelBills->sum(function($b) { return $b->total_fuel_qty; }), 2) }}</td>
-                                        <td class="text-right text-info">{{ number_format($runningBalance, 2) }}</td>
-                                        <td class="text-right text-success">0.00</td>
-                                        <td class="text-right">{{ number_format($runningBalance, 2) }} Dr</td>
+                                        <td class="text-center">{{ number_format($totalQty, 2) }}</td>
+                                        <td class="text-right text-info">{{ number_format($totalDebit, 2) }}</td>
+                                        <td class="text-right text-success">{{ number_format($totalCredit, 2) }}</td>
+                                        <td class="text-right">
+                                            {{ number_format(abs($totalDebit - $totalCredit), 2) }} 
+                                            <small>{{ ($totalDebit - $totalCredit) >= 0 ? 'Dr' : 'Cr' }}</small>
+                                        </td>
                                     </tr>
                                 </tfoot>
                                 @endif

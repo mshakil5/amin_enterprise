@@ -458,10 +458,9 @@ class PumpController extends Controller
     {
         $pump = PetrolPump::findOrFail($id);
         
-        // Fetch fuel bills for this pump ordered by date ASC for ledger view
         $fuelBills = FuelBill::where('petrol_pump_id', $id)
             ->orderBy('date', 'DESC')
-            ->with(['programDetails.advancePayment']) // Eager load remains the same
+            ->with(['programDetails.advancePayment']) 
             ->get();
 
         return view('admin.pump.ledger', compact('pump', 'fuelBills'));
