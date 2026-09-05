@@ -33,4 +33,31 @@ class FuelBill extends Model
         return $this->hasMany(ProgramDetail::class, 'fuel_bill_id', 'id');
     }
 
+    // --- ADD THESE TWO FUNCTIONS ---
+
+    // Calculate total fuel quantity
+    public function getTotalFuelQtyAttribute()
+    {
+        // Check if relation is already loaded to prevent N+1 queries
+        if (!$this->relationLoaded('programDetails')) {
+            return 0;
+        }
+        
+        return $this->programDetails->sum(function ($detail) {
+            return $detail->advancePayment ? $detail->advancePayment->fuelqty : 0;
+        });
+    }
+
+    // Calculate total fuel amount
+    public function getTotalFuelAmountAttribute()
+    {
+        // Check if relation is already loaded to prevent N+1 queries
+        if (!$this->relationLoaded('programDetails')) {
+            return 0;
+        }
+        
+        return $this->programDetails->sum(function ($detail) {
+            return $detail->advancePayment ? $detail->advancePayment->fuelamount : 0;
+        });
+    }
 }

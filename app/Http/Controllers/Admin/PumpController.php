@@ -311,9 +311,9 @@ class PumpController extends Controller
             $prop .= '<tr>
                         <td>' . $tran->date . '</td>
                         <td>' . $tran->bill_number . '</td>
-                        <td>' . $tran->qty . '</td>
                         <td>' . $tripCount . '</td>
-                        <td>' . $formattedBalance . '</td>
+                        <td>' . $tran->qty . '</td>
+                        <td>' . $totalFuelAmount . '</td>
                         <td>
                             <a class="btn btn-success btn-xs" href="' . route('admin.pump.sequence.show', $tran->id) . '">' . $tran->unique_id . '</a>
                         </td>
@@ -452,6 +452,19 @@ class PumpController extends Controller
         $fuelBills = FuelBill::where('petrol_pump_id', $pump_id)->get();
         
         return response()->json($fuelBills);
+    }
+
+    public function showLedger($id)
+    {
+        $pump = PetrolPump::findOrFail($id);
+        
+        // Fetch fuel bills for this pump ordered by date ASC for ledger view
+        $fuelBills = FuelBill::where('petrol_pump_id', $id)
+            ->orderBy('date', 'DESC')
+            ->with(['programDetails.advancePayment']) // Eager load remains the same
+            ->get();
+
+        return view('admin.pump.ledger', compact('pump', 'fuelBills'));
     }
 
 }

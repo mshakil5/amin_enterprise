@@ -216,6 +216,7 @@
                                     <th class="text-center">Due / Advance</th>
                                     <th class="text-center">Last Bill</th>
                                     <th class="text-center" style="width: 120px;">Action</th>
+                                    <th class="text-center">Ledger</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -305,6 +306,11 @@
                                                 --}}
                                             </div>
                                         </td>
+                                        <td class="text-center">
+                                            <a href="{{ route('admin.pump.ledger', $data->id) }}" class="btn btn-primary btn-sm" target="_blank">
+                                                <i class="fas fa-book"></i> Ledger
+                                            </a>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -316,6 +322,7 @@
                                     <th class="text-center">{{ number_format($totalMarkQty, 2) }}</th>
                                     <th class="text-center">{{ number_format($totalNotMarkQty, 2) }}</th>
                                     <th class="text-center">৳ {{ number_format(abs($grandDue), 2) }}</th>
+                                    <th></th>
                                     <th></th>
                                     <th></th>
                                 </tr>
@@ -381,11 +388,12 @@
                         <tr>
                             <th>Date</th>
                             <th>Bill Number</th>
-                            <th>Invoice Qty</th>
                             <th>Total Vehicle</th>
-                            <th>Due/Advance</th>
+                            <th>Fuel Qty</th>
+                            <th>Fuel Amount</th>
                             <th>Unique ID</th>
                             <th>Edit</th>
+                            
                         </tr>
                     </thead>
                     <tbody></tbody>
