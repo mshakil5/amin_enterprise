@@ -323,12 +323,7 @@ class TrialBalanceService
             }
 
             if (abs($vendorBalance) > 0.009) {
-                // ============================================================
-                // NEW LOGIC: Vendor Balances (Natural Side = Debit)
-                // Negative Balance (Receivable) -> Normal Debit
-                // Positive Balance (Payable) -> Negative Debit (-amount)
-                // ============================================================
-                $displayDebit  = $vendorBalance < 0 ? abs($vendorBalance) : -$vendorBalance;
+                $displayDebit  = $vendorBalance;
                 $displayCredit = 0;
 
                 $vendorAccountList[] = [
