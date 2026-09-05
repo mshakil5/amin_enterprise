@@ -167,6 +167,7 @@ class LiabilityController extends Controller
             $transaction->ref = $request->input('ref');
             $transaction->client_id = $request->input('client_id');
             $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+            $transaction->petrol_pump_id = $request->input('petrol_pump_id');
             $transaction->fuel_bill_id = $request->input('fuel_bill_id');
             $transaction->description = $request->input('description');
             $transaction->amount = $request->input('amount');
@@ -225,6 +226,7 @@ class LiabilityController extends Controller
             'ref' => $transaction->ref,
             'client_id' => $transaction->client_id,
             'mother_vassel_id' => $transaction->mother_vassel_id,
+            'petrol_pump_id' => $transaction->petrol_pump_id,
             'fuel_bill_id' => $transaction->fuel_bill_id,
             'tran_type' => $transaction->tran_type,
             'amount' => $transaction->amount,
@@ -291,6 +293,7 @@ class LiabilityController extends Controller
             $transaction->ref = $request->input('ref');
             $transaction->client_id = $request->input('client_id');
             $transaction->mother_vassel_id = $request->input('mother_vassel_id');
+            $transaction->petrol_pump_id = $request->input('petrol_pump_id');
             $transaction->fuel_bill_id = $request->input('fuel_bill_id');
             $transaction->description = $request->input('description');
             $transaction->amount = $newAmount;

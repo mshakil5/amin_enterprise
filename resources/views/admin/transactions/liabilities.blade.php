@@ -883,6 +883,7 @@
                 $('#payment_type').val(response.payment_type || '');
                 $('#client_id').val(response.client_id).trigger('change');
                 $('#mother_vassel_id').val(response.mother_vassel_id).trigger('change');
+                $('#petrol_pump_id').val(response.petrol_pump_id).trigger('change');
                 $('#fuel_bill_id').val(response.fuel_bill_id).trigger('change');
                 $('#chart_of_account_id').val(response.chart_of_account_id).trigger('change');
 
