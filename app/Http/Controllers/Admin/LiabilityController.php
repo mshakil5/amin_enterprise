@@ -24,7 +24,7 @@ class LiabilityController extends Controller
         }
         
         if ($request->ajax()) {
-            $transactions = Transaction::with(['chartOfAccount', 'account'])
+            $transactions = Transaction::with(['chartOfAccount', 'account', 'petrolPump', 'fuelBill'])
                 ->where('table_type', 'Liabilities')
                 ->whereNotNull('chart_of_account_id');
 
@@ -59,9 +59,17 @@ class LiabilityController extends Controller
                     return '<span class="text-muted">-</span>';
                 })
                 ->addColumn('ref', function ($transaction) {
-                    $tranid = $transaction->tran_id;
-                    $class = 'text-success';
-                    return '<span class="font-weight-bold ' . $class . '">' . $tranid . '</span>';
+                    $html = '<span class="font-weight-bold text-success">' . $transaction->tran_id . '</span>';
+
+                    if ($transaction->petrolPump) {
+                        $html .= '<br><span class="text-muted"><i class="fas fa-gas-pump mr-1"></i>' . $transaction->petrolPump->name . '</span>';
+                    }
+
+                    if ($transaction->fuelBill && $transaction->fuelBill->unique_id) {
+                        $html .= '<br><span class="text-info"><i class="fas fa-file mr-1"></i>' . $transaction->fuelBill->unique_id . '</span>';
+                    }
+
+                    return $html;
                 })
                 ->addColumn('amount_formatted', function ($transaction) {
                     $amount = $transaction->amount;
@@ -98,7 +106,7 @@ class LiabilityController extends Controller
                     $config = $configs[$type] ?? ['badge-secondary', 'fa-question'];
                     return '<span class="badge ' . $config[0] . '"><i class="fas ' . $config[1] . ' mr-1"></i>' . $type . '</span>';
                 })
-                ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge','ref'])
+                ->rawColumns(['chart_of_account', 'accountname', 'amount_formatted', 'tran_type_badge', 'payment_badge', 'ref'])
                 ->make(true);
         }
         
@@ -107,7 +115,7 @@ class LiabilityController extends Controller
         $pumps = PetrolPump::orderby('id', 'DESC')->where('status', 1)->get();
         return view('admin.transactions.liabilities', compact('accounts', 'accountList', 'pumps'));
     }
-
+    
     public function getSummary(Request $request)
     {
         // FIX: Use clone instead of re-querying

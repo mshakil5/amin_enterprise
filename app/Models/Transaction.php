@@ -222,15 +222,21 @@ class Transaction extends Model
         return $this->hasOne(Transaction::class, 'reverse_id', 'id'); 
     }
 
-    public function fuelBill()
-    {
-        return $this->belongsTo(FuelBill::class);
-    }
 
     public function billReceive()
     {
         return $this->belongsTo(BillReceive::class);
     }
 
+
+    
+    public function fuelBill()
+    {
+        return $this->belongsTo(FuelBill::class);
+    }
+    public function petrolPump()
+    {
+        return $this->belongsTo(PetrolPump::class);
+    }
 
 }

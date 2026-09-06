@@ -1085,7 +1085,7 @@
                         // Loop through the data and append options
                         $.each(data, function(key, bill) {
                             // NOTE: Change 'bill_number' to whatever column you use to display the bill
-                            fuelBillSelect.append('<option value="'+bill.id+'">'+bill.bill_number+'</option>');
+                            fuelBillSelect.append('<option value="'+bill.id+'">'+bill.bill_number+' - '+ bill.unique_id + '</option>');
                         });
                         
                         // Trigger select2 to update the dropdown UI with new data
