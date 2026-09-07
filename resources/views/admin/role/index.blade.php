@@ -269,6 +269,18 @@
                                                 <input class="form-check-input" type="checkbox" id="p30" name="permission[]" value="30">
                                                 <label class="form-check-label" for="p30">Challan Delete</label>
                                             </div>
+
+                                            
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="p31" name="permission[]" value="31">
+                                                <label class="form-check-label" for="p31">Vendor Sequence Checked</label>
+                                            </div>
+
+                                            
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="p32" name="permission[]" value="32">
+                                                <label class="form-check-label" for="p32">Vendor Sequence Approved</label>
+                                            </div>
                                             
 
                                         </div>

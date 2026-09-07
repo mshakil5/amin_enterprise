@@ -186,119 +186,132 @@ class VendorController extends Controller
 
     public function getSequenceNumber(Request $request)
     {
-        
         $vendor = Vendor::where('id', $request->vendorId)->first();
 
         $data = VendorSequenceNumber::where('vendor_id',$request->vendorId)->orderBy('id', 'DESC')->get();
         $i = 1;
         $prop = '';
         
-            foreach ($data as $tran){
+        // Get authenticated user's permissions once
+        $userPermissions = json_decode(auth()->user()->role->permission) ?? [];
 
-                $programCount = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->count();
-                $totalCarringCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
+        foreach ($data as $tran){
 
-                $totalAdvance = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('advance');
+            $programCount = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->count();
+            $totalCarringCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
 
-                $programDetails = ProgramDetail::with('advancePayment')
-                    ->where('vendor_sequence_number_id', $tran->id)
-                    ->get();
+            $totalAdvance = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('advance');
 
-                $totalCash = $programDetails->sum(function ($pd) {
-                    return $pd->advancePayment->cashamount ?? 0;
-                });
+            $programDetails = ProgramDetail::with('advancePayment')
+                ->where('vendor_sequence_number_id', $tran->id)
+                ->get();
 
-                $totalFuel = $programDetails->sum(function ($pd) {
-                    return $pd->advancePayment->fuelamount ?? 0;
-                });
+            $totalCash = $programDetails->sum(function ($pd) {
+                return $pd->advancePayment->cashamount ?? 0;
+            });
 
-                $totalDue = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('due');
-                $totalScaleFee = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('scale_fee');
-                $totalLineCharge = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('line_charge');
-                $totalOtherCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('other_cost');
-                $totalTransportCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('transportcost');
-                $totalCarryingBill = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
-                $totalAdditionalCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('additional_cost');
+            $totalFuel = $programDetails->sum(function ($pd) {
+                return $pd->advancePayment->fuelamount ?? 0;
+            });
 
-                $balance = number_format($totalCarringCost + $totalScaleFee - ($totalCash + $totalFuel), 2);
+            $totalDue = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('due');
+            $totalScaleFee = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('scale_fee');
+            $totalLineCharge = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('line_charge');
+            $totalOtherCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('other_cost');
+            $totalTransportCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('transportcost');
+            $totalCarryingBill = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('carrying_bill');
+            $totalAdditionalCost = ProgramDetail::where('vendor_sequence_number_id', $tran->id)->sum('additional_cost');
 
+            $balance = number_format($totalCarringCost + $totalScaleFee - ($totalCash + $totalFuel), 2);
 
-
-
-
-                // <!-- Single Property Start -->
-                $prop.= '<tr>
-                            <td class="d-none">' . $i++ . '</td>
-                            <td>
-                                '.$tran->date.'
-                            </td>
-                            <td>
-                                '.$tran->qty.'
-                            </td>
-                            <td>
-                                '.$programCount.'
-                            </td>
-                            <td>
-                                '.$tran->sequence.'
-                            </td>
-                            <td>
-                                '.$balance.'
-                            </td>
-                            <td>
-                                '.$tran->client->name.'
-                            </td>
-                            <td>';
-                                    if($programCount > 0){
-                                       $prop.=  '<a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>';
-                                    }else{
-                                       $prop.=  '<span class="btn btn-danger btn-xs">'.$tran->unique_id.' (No data)</span>';
-                                    }
-
-                            
-                            $prop.=  '</td>
-                            <td><a class="btn btn-primary btn-xs" href="'.route('admin.vendor.sequence.ledger', $tran->id).'">Ledger</a>
-                                <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn d-none" style="cursor:pointer">Delete</span>
-                            </td>
-                            <td>
-                                <label class="form-checkbox  grid layout">';
-
+            // <!-- Single Property Start -->
+            $prop.= '<tr>
+                        <td class="d-none">' . $i++ . '</td>
+                        <td>
+                            '.$tran->date.'
+                        </td>
+                        <td>
+                            '.$tran->qty.'
+                        </td>
+                        <td>
+                            '.$programCount.'
+                        </td>
+                        <td>
+                            '.$tran->sequence.'
+                        </td>
+                        <td>
+                            '.$balance.'
+                        </td>
+                        <td>
+                            '.$tran->client->name.'
+                        </td>
+                        <td>';
+                                if($programCount > 0){
+                                   $prop.=  '<a class="btn btn-success btn-xs" href="'.route('admin.vendor.sequence.show', $tran->id).'">'.$tran->unique_id.'</a>';
+                                }else{
+                                   $prop.=  '<span class="btn btn-danger btn-xs">'.$tran->unique_id.' (No data)</span>';
+                                }
+                        $prop.=  '</td>
+                        <td><a class="btn btn-primary btn-xs" href="'.route('admin.vendor.sequence.ledger', $tran->id).'">Ledger</a>
+                            <span id="seqDeleteBtn" rid="'.$tran->id.'" class="btn btn-warning btn-xs seqDeleteBtn d-none" style="cursor:pointer">Delete</span>
+                        </td>
+                        
+                        <!-- CHECKED COLUMN (Permission 31) -->
+                        <td>
+                            <label class="form-checkbox grid layout">';
+                                
+                                // Check if user has permission 31
+                                if(in_array('31', $userPermissions)) {
                                     if($tran->checked == 1){
                                        $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox" data-vsid="'.$tran->id.'" checked disabled/>';
                                     }else{
                                        $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox checkedBtn" data-vsid="'.$tran->id.'"/>';
                                     }
+                                } else {
+                                    // If no permission, show disabled checkbox based on status
+                                    $checkedAttr = $tran->checked == 1 ? 'checked disabled' : 'disabled';
+                                    $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox" data-vsid="'.$tran->id.'" '.$checkedAttr.'/>';
+                                }
 
                         $prop.= '</label>
-                            </td>
-                            <td>
-                                <label class="form-checkbox  grid layout">';
-                                
+                        </td>
+                        
+                        <!-- APPROVED COLUMN (Permission 32) -->
+                        <td>
+                            <label class="form-checkbox grid layout">';
+                            
+                                // Check if user has permission 32
+                                if(in_array('32', $userPermissions)) {
                                     if($tran->approved == 1){
-                                       $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox" data-vsid="'.$tran->id.'" checked disabled/>';
+                                       $prop.=  '<input type="checkbox" name="checkbox-approved" class="custom-checkbox" data-vsid="'.$tran->id.'" checked disabled/>';
                                     }else{
-                                       $prop.=  '<input type="checkbox" name="checkbox-checked" class="custom-checkbox approvedBtn" data-vsid="'.$tran->id.'"/>';
+                                       $prop.=  '<input type="checkbox" name="checkbox-approved" class="custom-checkbox approvedBtn" data-vsid="'.$tran->id.'"/>';
                                     }
+                                } else {
+                                    // If no permission, show disabled checkbox based on status
+                                    $approvedAttr = $tran->approved == 1 ? 'checked disabled' : 'disabled';
+                                    $prop.=  '<input type="checkbox" name="checkbox-approved" class="custom-checkbox" data-vsid="'.$tran->id.'" '.$approvedAttr.'/>';
+                                }
 
                         $prop.= '</label>
                                 <div id="loader'.$tran->id.'" style="display: none;">
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                     Loading...
                                 </div>
-                            </td>
+                        </td>
 
-                            <td>
-                                <button class="btn btn-info btn-xs editQtyBtn" 
-                                        data-id="' . $tran->id . '" 
-                                        data-qty="' . $tran->qty . '" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#editQtyModal">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
+                        <td>
+                            <button class="btn btn-info btn-xs editQtyBtn" 
+                                    data-id="' . $tran->id . '" 
+                                    data-qty="' . $tran->qty . '" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editQtyModal">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
 
-                        </tr>';
-                        
-            }
+                    </tr>';
+        }
 
         return response()->json(['status'=> 300,'data'=>$prop, 'vendor'=>$vendor]);
     }
