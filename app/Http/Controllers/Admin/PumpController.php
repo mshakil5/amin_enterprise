@@ -484,8 +484,8 @@ class PumpController extends Controller
                 'description' => "Fuel Bill #" . $bill->bill_number,
                 'ref' => $bill->unique_id,
                 'qty' => $bill->total_fuel_qty,
-                'debit' => $bill->total_fuel_amount,
-                'credit' => 0,
+                'debit' => 0,
+                'credit' => $bill->total_fuel_amount,
             ]);
         }
 
@@ -495,8 +495,8 @@ class PumpController extends Controller
                 'description' => $tran->description ?? 'Payment',
                 'ref' => $tran->tran_id,
                 'qty' => 0,
-                'debit' => 0,
-                'credit' => $tran->at_amount,
+                'debit' => $tran->at_amount,
+                'credit' => 0,
             ]);
         }
 
