@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ChartOfAccount;
+use App\Models\FuelBill;
 use App\Models\Vendor;
 use App\Models\VendorSequenceNumber;
 use App\Models\Transaction;
@@ -137,8 +138,27 @@ class TrialBalanceService
                         break;
 
                     case 'Liabilities':
-                        $debit = $transactions->whereIn('tran_type', ['Received'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        $credit = $transactions->whereIn('tran_type', ['Payment', 'Advance'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                        $debit = $transactions->whereIn('tran_type', ['Received', 'Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                        
+                        $credit = $transactions->whereIn('tran_type', ['Advance'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                        
+                        // ==========================================
+                        // PETROL PUMP FUEL BILL LOGIC
+                        // ==========================================
+                        $petrolPumpId = $transactions->whereNotNull('petrol_pump_id')->pluck('petrol_pump_id')->first();
+                        
+                        if ($petrolPumpId) {
+                            $fuelBills = FuelBill::where('petrol_pump_id', $petrolPumpId)
+                                ->whereBetween('date', [$startDate, $endDate])
+                                ->with(['programDetails.advancePayment'])
+                                ->get();
+                                
+                            $fuelBillAmount = $fuelBills->sum(function ($bill) {
+                                return $bill->total_fuel_amount;
+                            });
+                                
+                            $credit += $fuelBillAmount; 
+                        }
                         break;
 
                     case 'Equity':
