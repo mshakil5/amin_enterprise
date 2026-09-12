@@ -138,9 +138,9 @@ class TrialBalanceService
                         break;
 
                     case 'Liabilities':
-                        $debit = $transactions->whereIn('tran_type', ['Received', 'Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                        $debit = $transactions->whereIn('tran_type', ['Received'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         
-                        $credit = $transactions->whereIn('tran_type', ['Advance'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                        $credit = $transactions->whereIn('tran_type', ['Advance', 'Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         
                         // ==========================================
                         // PETROL PUMP FUEL BILL LOGIC
