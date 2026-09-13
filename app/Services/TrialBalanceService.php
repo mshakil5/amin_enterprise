@@ -9,6 +9,7 @@ use App\Models\VendorSequenceNumber;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class TrialBalanceService
 {
@@ -85,6 +86,9 @@ class TrialBalanceService
      * Private Method: Handle Chart of Accounts
      */
     
+        /**
+     * Private Method: Handle Chart of Accounts
+     */
     private function getChartOfAccountBalances($startDate, $endDate)
     {
         $accountStructure = ChartOfAccount::select('account_head', 'sub_account_head')
@@ -110,7 +114,11 @@ class TrialBalanceService
                     ->whereBetween('date', [$startDate, $endDate])
                     ->get();
 
-                if ($transactions->isEmpty()) continue;
+                // Check if this account is linked to a Petrol Pump
+                $isPetrolPump = $account->petrol_pumps_id ? true : false;
+
+                // Skip if no transactions AND not a petrol pump (petrol pumps might have FuelBills without direct chart_of_account transactions)
+                if ($transactions->isEmpty() && !$isPetrolPump) continue;
 
                 $debit = 0;
                 $credit = 0;
@@ -118,11 +126,9 @@ class TrialBalanceService
                 switch ($structure->account_head) {
                     case 'Assets':
                         if ($structure->sub_account_head === 'Fixed Asset') {
-                            // Updated Logic
                             $debit = $transactions->whereIn('tran_type', ['Purchase', 'Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                             $credit = $transactions->whereIn('tran_type', ['Sold', 'Deprication'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         } else {
-                            // Updated Logic
                             $debit = $transactions->whereIn('tran_type', ['Payment', 'Purchase'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                             $credit = $transactions->whereIn('tran_type', ['Received', 'Sold'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         }
@@ -138,26 +144,31 @@ class TrialBalanceService
                         break;
 
                     case 'Liabilities':
-                        $debit = $transactions->whereIn('tran_type', ['Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        
-                        $credit = $transactions->whereIn('tran_type', ['Received', 'Advance'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        
-                        // ==========================================
-                        // PETROL PUMP FUEL BILL LOGIC
-                        // ==========================================
-                        $petrolPumpId = $transactions->whereNotNull('petrol_pump_id')->pluck('petrol_pump_id')->first();
-                        
-                        if ($petrolPumpId) {
-                            $fuelBills = FuelBill::where('petrol_pump_id', $petrolPumpId)
+                        if ($isPetrolPump) {
+                            // ==========================================
+                            // PETROL PUMP FUEL BILL LEDGER LOGIC
+                            // ==========================================
+                            
+                            // 1. Get Fuel Bills (Credit side)
+                            $fuelBills = FuelBill::where('petrol_pump_id', $account->petrol_pumps_id)
                                 ->whereBetween('date', [$startDate, $endDate])
                                 ->with(['programDetails.advancePayment'])
                                 ->get();
                                 
-                            $fuelBillAmount = $fuelBills->sum(function ($bill) {
+                            $credit = $fuelBills->sum(function ($bill) {
                                 return $bill->total_fuel_amount;
                             });
+
+                            // 2. Get Transactions (Debit side)
+                            $pumpTransactions = Transaction::where('petrol_pump_id', $account->petrol_pumps_id)
+                                ->whereBetween('date', [$startDate, $endDate])
+                                ->get();
                                 
-                            $credit += $fuelBillAmount; 
+                            $debit = $pumpTransactions->sum(fn($t) => $t->at_amount ?? 0);
+                        } else {
+                            // Normal Liability Logic
+                            $debit = $transactions->whereIn('tran_type', ['Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                            $credit = $transactions->whereIn('tran_type', ['Received', 'Advance'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         }
                         break;
 
@@ -177,12 +188,12 @@ class TrialBalanceService
 
                     if ($isNaturalDebit) {
                         // Assets & Expenses: Natural side is Debit
-                        $displayDebit  = $netBalance; // If negative, it will show as -amount in Debit column
+                        $displayDebit  = $netBalance; 
                         $displayCredit = 0;
                     } else {
                         // Liabilities, Equity, Income: Natural side is Credit
                         $displayDebit  = 0;
-                        $displayCredit = -$netBalance; // If positive (abnormal), it will show as -amount in Credit column
+                        $displayCredit = -$netBalance; 
                     }
 
                     $accountList[] = [
@@ -195,7 +206,6 @@ class TrialBalanceService
                         'link_id'      => $account->id,            
                     ];
 
-                    // Add to totals (mathematically, negative numbers balance perfectly)
                     $sectionDebit  += $displayDebit;
                     $sectionCredit += $displayCredit;
                 }
