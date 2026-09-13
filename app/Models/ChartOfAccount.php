@@ -28,6 +28,17 @@ class ChartOfAccount extends Model
         });
     }
 
+    protected $fillable = [
+        'account_head', 'sub_account_head', 'date', 'account_name', 
+        'contingent', 'serial', 'description', 'status', 'created_by', 
+        'updated_by', 'petrol_pumps_id' 
+    ];
+
+    public function petrolPump()
+    {
+        return $this->belongsTo(PetrolPump::class, 'petrol_pumps_id');
+    }
+
 
     public function chartOfAccount()
     {

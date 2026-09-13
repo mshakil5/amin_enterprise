@@ -322,6 +322,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     //Chart of account
     Route::get('chart-of-account', [ChartOfAccountController::class, 'index'])->name('admin.addchartofaccount');
     Route::post('chart-of-accounts', [ChartOfAccountController::class, 'index'])->name('admin.addchartofaccount.filter');
+    Route::get('chart-of-account-summary', [ChartOfAccountController::class, 'getSummary'])->name('admin.coa.summary');
     Route::post('chart-of-account', [ChartOfAccountController::class, 'store']);
     Route::get('chart-of-account/{id}', [ChartOfAccountController::class, 'edit']);
     Route::put('chart-of-account/{id}', [ChartOfAccountController::class, 'update']);
