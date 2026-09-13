@@ -162,8 +162,8 @@ class TrialBalanceService
                         break;
 
                     case 'Equity':
-                        $debit = $transactions->whereIn('tran_type', ['Received'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
-                        $credit = $transactions->whereIn('tran_type', ['Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                        $debit = $transactions->whereIn('tran_type', ['Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
+                        $credit = $transactions->whereIn('tran_type', ['Received'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         break;
                 }
 
