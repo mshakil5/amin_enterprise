@@ -79,12 +79,13 @@ class Program extends Model
     /**
      * Get the grand total of carrying bill from program details.
      *
-     * @param string $expectedDate
      * @return float
      */
-    public static function getGrandTotalCarryingBill($expectedDate)
+    public static function getGrandTotalCarryingBill()
     {
-        return self::where('status', 1)
+        $expectedDate = '2025-07-20';
+        
+        return self::where('programs.status', 1) 
             ->whereHas('programDetail', function($q) use ($expectedDate) {
                 $q->where('date', '>=', $expectedDate);
             })

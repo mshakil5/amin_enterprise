@@ -7,6 +7,7 @@ use App\Models\FuelBill;
 use App\Models\Vendor;
 use App\Models\VendorSequenceNumber;
 use App\Models\Transaction;
+use App\Models\Program; // <-- ADDED THIS IMPORT
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -59,7 +60,35 @@ class TrialBalanceService
             $totalCredit += $vendorData['subtotal_credit'];
         }
 
-        // 4. Reorder data according to standard accounting heads
+        // 4. Get Program Transportation Cost (Carrying Bill)
+        $transportationCost = Program::getGrandTotalCarryingBill($startDate);
+        
+        if ($transportationCost > 0) {
+            if (!isset($trialBalanceData['Expenses'])) {
+                $trialBalanceData['Expenses'] = [];
+            }
+            
+            // Add as a new Sub Account Head so it appears after Operating Expense
+            $trialBalanceData['Expenses']['Transportation Cost'] = [
+                'accounts' => [
+                    [
+                        'id'           => 'trans_cost_custom',
+                        'serial'       => '-',
+                        'account_name' => 'Transportation Cost',
+                        'debit'        => $transportationCost,
+                        'credit'       => 0,
+                        'link_type'    => null,
+                        'link_id'      => null,
+                    ]
+                ],
+                'subtotal_debit'  => $transportationCost,
+                'subtotal_credit' => 0,
+            ];
+            
+            $totalDebit += $transportationCost;
+        }
+
+        // 5. Reorder data according to standard accounting heads
         $orderedData = [];
         foreach ($headOrder as $head) {
             if (isset($trialBalanceData[$head])) {
@@ -83,10 +112,6 @@ class TrialBalanceService
     }
 
     /**
-     * Private Method: Handle Chart of Accounts
-     */
-    
-        /**
      * Private Method: Handle Chart of Accounts
      */
     private function getChartOfAccountBalances($startDate, $endDate)
@@ -114,10 +139,8 @@ class TrialBalanceService
                     ->whereBetween('date', [$startDate, $endDate])
                     ->get();
 
-                // Check if this account is linked to a Petrol Pump
                 $isPetrolPump = $account->petrol_pumps_id ? true : false;
 
-                // Skip if no transactions AND not a petrol pump (petrol pumps might have FuelBills without direct chart_of_account transactions)
                 if ($transactions->isEmpty() && !$isPetrolPump) continue;
 
                 $debit = 0;
@@ -145,11 +168,6 @@ class TrialBalanceService
 
                     case 'Liabilities':
                         if ($isPetrolPump) {
-                            // ==========================================
-                            // PETROL PUMP FUEL BILL LEDGER LOGIC
-                            // ==========================================
-                            
-                            // 1. Get Fuel Bills (Credit side)
                             $fuelBills = FuelBill::where('petrol_pump_id', $account->petrol_pumps_id)
                                 ->whereBetween('date', [$startDate, $endDate])
                                 ->with(['programDetails.advancePayment'])
@@ -159,14 +177,12 @@ class TrialBalanceService
                                 return $bill->total_fuel_amount;
                             });
 
-                            // 2. Get Transactions (Debit side)
                             $pumpTransactions = Transaction::where('petrol_pump_id', $account->petrol_pumps_id)
                                 ->whereBetween('date', [$startDate, $endDate])
                                 ->get();
                                 
                             $debit = $pumpTransactions->sum(fn($t) => $t->at_amount ?? 0);
                         } else {
-                            // Normal Liability Logic
                             $debit = $transactions->whereIn('tran_type', ['Payment'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                             $credit = $transactions->whereIn('tran_type', ['Received', 'Advance'])->sum(fn($t) => $t->at_amount ?? $t->amount ?? 0);
                         }
@@ -181,17 +197,12 @@ class TrialBalanceService
                 $netBalance = $debit - $credit;
 
                 if (abs($netBalance) > 0.009) {
-                    // ============================================================
-                    // NEW LOGIC: Natural Side with Negative Sign
-                    // ============================================================
                     $isNaturalDebit = in_array($structure->account_head, ['Assets', 'Expenses']);
 
                     if ($isNaturalDebit) {
-                        // Assets & Expenses: Natural side is Debit
                         $displayDebit  = $netBalance; 
                         $displayCredit = 0;
                     } else {
-                        // Liabilities, Equity, Income: Natural side is Credit
                         $displayDebit  = 0;
                         $displayCredit = -$netBalance; 
                     }
@@ -228,17 +239,12 @@ class TrialBalanceService
 
     /**
      * Private Method: Handle Cash Accounts
-     * Reuses CashSheetBalanceService to guarantee it matches the dashboard perfectly.
      */
     private function getCashAccountBalances($endDate)
     {
-        // Resolve the same service used by the dashboard helper
         $cashService = app(CashSheetBalanceService::class);
-        
-        // Get the closing balances up to the Trial Balance end date
         $balances = $cashService->getBalances($endDate);
 
-        // Define the cash accounts based on the service constants
         $cashAccounts = [
             ['id' => 1, 'name' => 'Office Cash', 'balance' => $balances['cashInHandClosing']],
             ['id' => 2, 'name' => 'Field Cash', 'balance' => $balances['cashInFieldClosing']],
