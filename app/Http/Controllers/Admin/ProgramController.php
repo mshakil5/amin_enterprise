@@ -173,6 +173,61 @@ class ProgramController extends Controller
     }
 
 
+    public function programSummery(Request $request)
+    {
+        if (!(in_array('14', json_decode(auth()->user()->role->permission)))) {
+            return redirect()->back()->with('error', 'Sorry, You do not have permission to access that page.');
+        }
+
+        
+        $expectedDate = '2025-07-20';
+        
+        $query = Program::with(['client', 'motherVassel', 'lighterVassel', 'ghat'])
+            // 3. Filter Programs that have programDetail matching the date condition
+            ->whereHas('programDetail', function($q) use ($expectedDate) {
+                $q->where('date', '>=', $expectedDate);
+            })
+            ->withCount([
+                'programDetail as unique_challan_count' => fn($q) => $q->select(DB::raw('COUNT(DISTINCT challan_no)'))->where('date', '>=', $expectedDate),
+                'programDetail as generate_bill_count' => fn($q) => $q->where('generate_bill', 1)->where('date', '>=', $expectedDate),
+                'programDetail as not_generate_bill_count' => fn($q) => $q->where('generate_bill', 0)->where('date', '>=', $expectedDate),
+                'programDetail as deleted_count' => fn($q) => $q->onlyTrashed()->where('date', '>=', $expectedDate),
+                'programDetail as pump_count' => fn($q) => $q->whereHas('advancePayment', fn($q2) => $q2->whereNotNull('petrol_pump_id'))->where('date', '>=', $expectedDate),
+                'programDetail as after_challan_posting_count' => fn($q) => $q->whereNotNull('headerid')->where('date', '>=', $expectedDate),
+                'programDetail as before_challan_count' => fn($q) => $q->whereNull('headerid')->where('date', '>=', $expectedDate),
+                'programDetail as not_twelve_mt' => fn($q) => $q->where('dest_qty', '!=', 12)->where('date', '>=', $expectedDate),
+                
+                // 4. Calculate Sums with the same date condition using selectRaw inside withCount
+                'programDetail as total_dest_qty' => fn($q) => $q->select(DB::raw('SUM(dest_qty)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_line_charge' => fn($q) => $q->select(DB::raw('SUM(line_charge)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_carrying_bill' => fn($q) => $q->select(DB::raw('SUM(carrying_bill)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_scale_fee' => fn($q) => $q->select(DB::raw('SUM(scale_fee)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_other_cost' => fn($q) => $q->select(DB::raw('SUM(other_cost)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_transportcost' => fn($q) => $q->select(DB::raw('SUM(transportcost)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_additional_cost' => fn($q) => $q->select(DB::raw('SUM(additional_cost)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_advance' => fn($q) => $q->select(DB::raw('SUM(advance)'))->where('date', '>=', $expectedDate),
+                'programDetail as total_due' => fn($q) => $q->select(DB::raw('SUM(due)'))->where('date', '>=', $expectedDate),
+            ])
+            ->withMin(['programDetail' => fn($q) => $q->where('date', '>=', $expectedDate)], 'date')
+            ->withMax(['programDetail' => fn($q) => $q->where('date', '>=', $expectedDate)], 'date')
+            ->where('status', 1);
+
+
+        $data = $query->orderBy('id', 'DESC')->get();
+
+        // --- Summaries ---
+        $summaries = [
+            'total_programs'     => $data->count(),
+            'total_challans'     => $data->sum('unique_challan_count'),
+            'bills_generated'    => $data->sum('generate_bill_count'),
+            'bills_pending'      => $data->sum('not_generate_bill_count'),
+            'after_posting'      => $data->sum('after_challan_posting_count'),
+            'deleted_records'    => $data->sum('deleted_count'),
+        ];
+
+        return view('admin.program.program-summery', compact('data', 'summaries'));
+    }
+
     public function showAddChallanForm($id)
     {
         

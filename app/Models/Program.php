@@ -75,4 +75,22 @@ class Program extends Model
         return $this->hasMany(ReportNote::class);
     }
 
+
+    /**
+     * Get the grand total of carrying bill from program details.
+     *
+     * @param string $expectedDate
+     * @return float
+     */
+    public static function getGrandTotalCarryingBill($expectedDate)
+    {
+        return self::where('status', 1)
+            ->whereHas('programDetail', function($q) use ($expectedDate) {
+                $q->where('date', '>=', $expectedDate);
+            })
+            ->join('program_details', 'programs.id', '=', 'program_details.program_id')
+            ->where('program_details.date', '>=', $expectedDate)
+            ->sum('program_details.carrying_bill');
+    }
+
 }

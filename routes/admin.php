@@ -206,6 +206,7 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/program', [ProgramController::class, 'allPrograms'])->name('admin.allProgram');
     Route::get('/deleted-program-details/{id}', [ProgramController::class, 'deletedProgramDetail'])
     ->name('admin.deletedProgramDetail');
+    Route::get('/program-summery', [ProgramController::class, 'programSummery'])->name('admin.programSummery');
 
     Route::get('/program/{id}/{type?}', [ProgramController::class, 'programDetail'])->name('admin.programDetail');
 
