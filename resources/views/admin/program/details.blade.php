@@ -246,6 +246,13 @@
                     <button type="button" id="dateBtn" class="btn btn-primary btn-sm"><i class="fas fa-search mr-1"></i>Filter</button>
                 </div>
                 <div class="table-responsive">
+                    <div class="px-0 pb-2">
+                        <button class="btn btn-sm btn-secondary" id="btn-copy-3"><i class="fas fa-copy"></i> Copy</button>
+                        <button class="btn btn-sm btn-success" id="btn-csv-3"><i class="fas fa-file-csv"></i> CSV</button>
+                        <button class="btn btn-sm btn-primary" id="btn-excel-3"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-sm btn-dark" id="btn-print-3"><i class="fas fa-print"></i> Print</button>
+                    </div>
+
                     <table id="example3" class="table table-bordered table-striped table-sm" style="font-size: 12px;">
                         <thead class="text-bold">
                             <tr class="text-center">
@@ -318,6 +325,12 @@
                     <button type="button" id="vtrucBtn" class="btn btn-primary btn-sm"><i class="fas fa-search mr-1"></i>Filter</button>
                 </div>
                 <div class="table-responsive">
+                    <div class="px-0 pb-2">
+                        <button class="btn btn-sm btn-secondary" id="btn-copy-4"><i class="fas fa-copy"></i> Copy</button>
+                        <button class="btn btn-sm btn-success" id="btn-csv-4"><i class="fas fa-file-csv"></i> CSV</button>
+                        <button class="btn btn-sm btn-primary" id="btn-excel-4"><i class="fas fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-sm btn-dark" id="btn-print-4"><i class="fas fa-print"></i> Print</button>
+                    </div>
                     <table id="example4" class="table table-bordered table-striped table-sm vendorsummery" style="font-size: 12px;">
                         <thead class="text-bold">
                             
@@ -393,8 +406,9 @@
 
 <script>
  $(document).ready(function () {
+    
     // =============================================
-    // DATATABLE INIT
+    // 1. MAIN TABLE (example1)
     // =============================================
     var programTBL = $('#example1').DataTable({
         responsive: true, lengthChange: true, autoWidth: false, pageLength: 100,
@@ -409,20 +423,59 @@
         order: [], lengthMenu: [[100, "All", 50, 25], [100, "All", 50, 25]],
         language: { search: "", searchPlaceholder: "Search details..." }
     });
-    $('.dt-buttons').hide();
+    
+    // Hide default buttons and wire up custom HTML buttons
+    $('#example1_wrapper .dt-buttons').hide();
     $('#btn-copy').on('click', function() { programTBL.button(0).trigger(); });
     $('#btn-csv').on('click', function() { programTBL.button(1).trigger(); });
     $('#btn-excel').on('click', function() { programTBL.button(2).trigger(); });
     $('#btn-pdf').on('click', function() { programTBL.button(3).trigger(); });
     $('#btn-print').on('click', function() { programTBL.button(4).trigger(); });
 
-    // Modals Tables Init
-    $('#example3').DataTable({ responsive: true, lengthChange: false, autoWidth: false, dom: 'Bfrtip', order: [], lengthMenu: [[100, "All"], [100, "All"]], buttons: ["copy","csv","excel","print"] }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
-    $('.vendorsummery').DataTable({ responsive: true, lengthChange: false, autoWidth: false, dom: 'Bfrtip', order: [], lengthMenu: [[100, "All"], [100, "All"]], buttons: ["copy","csv","excel","print"] }).buttons().container().appendTo('#vendorsummery_wrapper .col-md-6:eq(0)');
-    $('.dt-buttons').hide(); // Hide modal button bars to keep it clean, or keep if you want them inside modals
 
     // =============================================
-    // PETROL PUMP CHECKBOX LOGIC
+    // 2. MODAL TABLES INITIALIZATION HELPER
+    // =============================================
+    function initModalTable(selector) {
+        // Destroy if already exists
+        if ($.fn.DataTable.isDataTable(selector)) {
+            $(selector).DataTable().clear().destroy();
+        }
+        
+        // Initialize fresh
+        var tbl = $(selector).DataTable({
+            responsive: true, 
+            lengthChange: false, 
+            autoWidth: false, 
+            dom: 'Bfrtip', 
+            order: [], 
+            buttons: ["copy", "csv", "excel", "print"]
+        });
+        
+        // Hide the default DataTables generated buttons for this specific table
+        $(selector + '_wrapper .dt-buttons').hide();
+        return tbl;
+    }
+
+    // Initialize on page load
+    initModalTable('#example3');
+    initModalTable('#example4');
+
+    // Wire up custom modal buttons (Vendor Advance)
+    $('#btn-copy-3').on('click', function() { $('#example3').DataTable().button(0).trigger(); });
+    $('#btn-csv-3').on('click', function() { $('#example3').DataTable().button(1).trigger(); });
+    $('#btn-excel-3').on('click', function() { $('#example3').DataTable().button(2).trigger(); });
+    $('#btn-print-3').on('click', function() { $('#example3').DataTable().button(3).trigger(); });
+
+    // Wire up custom modal buttons (Truck Summary)
+    $('#btn-copy-4').on('click', function() { $('#example4').DataTable().button(0).trigger(); });
+    $('#btn-csv-4').on('click', function() { $('#example4').DataTable().button(1).trigger(); });
+    $('#btn-excel-4').on('click', function() { $('#example4').DataTable().button(2).trigger(); });
+    $('#btn-print-4').on('click', function() { $('#example4').DataTable().button(3).trigger(); });
+
+
+    // =============================================
+    // 3. PETROL PUMP CHECKBOX LOGIC
     // =============================================
     let selectedRows = {};
     let selectedPumpId = null;
@@ -435,8 +488,13 @@
         const qty = parseFloat(checkbox.data('qty')) || 0;
 
         if (this.checked) {
-            if (!selectedPumpId) { selectedPumpId = pumpId; } 
-            else if (selectedPumpId !== pumpId) { alert('Only the same petrol pump can be selected!'); checkbox.prop('checked', false); return; }
+            if (!selectedPumpId) { 
+                selectedPumpId = pumpId; 
+            } else if (selectedPumpId !== pumpId) { 
+                alert('Only the same petrol pump can be selected!'); 
+                checkbox.prop('checked', false); 
+                return; 
+            }
             selectedRows[programDetailId] = { pumpId, fuelBills, qty };
         } else {
             delete selectedRows[programDetailId];
@@ -449,11 +507,19 @@
             $('#petrol_pump_id').val(selectedPumpId);
             
             let optionsHtml = `<option value="">Select Unique ID</option>`;
-            fuelBills.forEach(fb => { optionsHtml += `<option value="${fb.unique_id}">${fb.unique_id} - ${fb.petrol_pump.name} - ${fb.qty}L</option>`; });
+            if (fuelBills && fuelBills.length > 0) {
+                fuelBills.forEach(fb => { 
+                    optionsHtml += `<option value="${fb.unique_id}">${fb.unique_id} - ${fb.petrol_pump.name} - ${fb.qty}L</option>`; 
+                });
+            }
             $('#unique-id-display').html(optionsHtml);
 
-            let totalQty = 0; const selectedIds = [];
-            Object.keys(selectedRows).forEach(id => { totalQty += selectedRows[id].qty; selectedIds.push(id); });
+            let totalQty = 0; 
+            const selectedIds = [];
+            Object.keys(selectedRows).forEach(id => { 
+                totalQty += selectedRows[id].qty; 
+                selectedIds.push(id); 
+            });
             $('#total_qty').val(totalQty);
             $('#program_detail_ids').val(JSON.stringify(selectedIds));
         } else {
@@ -463,13 +529,12 @@
     });
 
     // =============================================
-    // VENDOR ADVANCE MODAL SEARCH (AJAX)
+    // 4. VENDOR ADVANCE MODAL SEARCH (AJAX)
     // =============================================
     $('#dateBtn').click(function() {
-        var selectedDate = $('#searchdate').val(); // Can be empty string for "All Dates"
+        var selectedDate = $('#searchdate').val();
         var program_id = $('#program_id').val();
         
-
         $.ajax({
             url: '{{ route("getAdvancePayments") }}', 
             method: 'POST',
@@ -482,10 +547,6 @@
                 $('#dateBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
-                if ($.fn.DataTable.isDataTable('#example3')) { 
-                    $('#example3').DataTable().destroy(); 
-                }
-                
                 var tbody = $('#example3 tbody'); 
                 tbody.empty();
                 var tfoot = $('#example3 tfoot'); 
@@ -493,7 +554,6 @@
 
                 $('#vendorAdvanceSearchDate').text(selectedDate ? `Date: ${selectedDate}` : 'All Dates');
                 
-                // Handle empty data gracefully
                 if(response.data.length === 0) {
                     tbody.append('<tr><td colspan="7" class="text-center text-muted py-3">No data found for this date.</td></tr>');
                 } else {
@@ -519,17 +579,11 @@
                     </tr>`);
                 }
                 
-                $('#example3').DataTable({ 
-                    responsive: true, lengthChange: false, autoWidth: false, 
-                    dom: 'Bfrtip', order: [], retrieve: true, 
-                    lengthMenu: [[100, "All"], [100, "All"]], 
-                    buttons: ["copy","csv","excel","print"] 
-                }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
-                
-                $('.dt-buttons').hide(); // Hide default buttons
+                // Re-initialize table after AJAX update
+                initModalTable('#example3');
             },
             error: function(xhr) {
-                console.log("Vendor Advance Error:", xhr.responseJSON); // Added this
+                console.log("Vendor Advance Error:", xhr.responseJSON);
                 alert("Error loading vendor advance data.");
             },
             complete: function() {
@@ -538,17 +592,14 @@
         });
     });
 
-
     // =============================================
-    // TRUCK SUMMARY MODAL SEARCH (AJAX)
+    // 5. TRUCK SUMMARY MODAL SEARCH (AJAX)
     // =============================================
     $('#vtrucBtn').click(function() {
         var selectedVendor = $('#vendors_truc').val();
         var selectedDate = $('#trucksearchdate').val();
         var program_id = $('#program_id').val();
         
-        // Assuming you have a route named 'getTruckSummary' setup in web.php
-        // If your route name is different, change it below
         $.ajax({
             url: '{{ route("getProgramDetailsByVendor") }}', 
             method: 'POST',
@@ -562,10 +613,6 @@
                 $('#vtrucBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
-                if ($.fn.DataTable.isDataTable('#example4')) { 
-                    $('#example4').DataTable().destroy(); 
-                }
-                
                 var tbody = $('#example4 tbody'); 
                 tbody.empty();
                 
@@ -587,14 +634,8 @@
                     });
                 }
                 
-                $('#example4').DataTable({ 
-                    responsive: true, lengthChange: false, autoWidth: false, 
-                    dom: 'Bfrtip', order: [], retrieve: true, 
-                    lengthMenu: [[100, "All"], [100, "All"]], 
-                    buttons: ["copy","csv","excel","print"] 
-                }).buttons().container().appendTo('#example4_wrapper .col-md-6:eq(0)');
-                
-                $('.dt-buttons').hide();
+                // Re-initialize table after AJAX update
+                initModalTable('#example4');
             },
             error: function(xhr) {
                 alert("Error loading truck summary data. Make sure the route exists.");
@@ -607,7 +648,7 @@
     });
 
     // =============================================
-    // QTY CHANGE LOGIC (Assuming route exists)
+    // 6. QTY CHANGE LOGIC
     // =============================================
     $('#qtyBtn').click(function() {
         var newQty = $('#newQty').val();
@@ -623,14 +664,15 @@
                 program_id: program_id, 
                 type: type 
             },
-            success: function(response) { if(response.status == 200) { location.reload(); } }
+            success: function(response) { 
+                if(response.status == 200) { location.reload(); } 
+            }
         });
     });
 
-
     $('#undoBtn').click(function() {
-            $(this).attr('disabled', true);
-            $('#loader').show();
+        $(this).attr('disabled', true);
+        $('#loader').show();
         var program_id = $('#program_id').val();
 
         $.ajax({
@@ -641,7 +683,6 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                console.log(response);
                 if (response.status == 200) {
                     alert(response.message);
                     location.reload();
@@ -654,7 +695,6 @@
             }
         });
     });
-    // (Add your #vtrucBtn and #undoBtn logic here exactly as it was in your original file, just ensuring it uses the new clean selectors)
 
 });
 </script>
