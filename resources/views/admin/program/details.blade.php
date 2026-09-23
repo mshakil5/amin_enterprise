@@ -417,11 +417,11 @@
         responsive: true, lengthChange: true, autoWidth: false, pageLength: 100,
         dom: 'Bfrtip',
         buttons: [
-            { extend: 'copy', className: 'btn btn-sm btn-secondary', text: '<i class="fas fa-copy"></i> Copy' },
-            { extend: 'csv', className: 'btn btn-sm btn-success', text: '<i class="fas fa-file-csv"></i> CSV' },
-            { extend: 'excel', className: 'btn btn-sm btn-primary', text: '<i class="fas fa-file-excel"></i> Excel' },
-            { extend: 'pdf', className: 'btn btn-sm btn-danger', text: '<i class="fas fa-file-pdf"></i> PDF', title: 'Program_Details' },
-            { extend: 'print', className: 'btn btn-sm btn-dark', text: '<i class="fas fa-print"></i> Print' }
+            { extend: 'copy', className: 'btn btn-sm btn-secondary', text: '<i class="fas fa-copy"></i> Copy', footer: true },
+            { extend: 'csv', className: 'btn btn-sm btn-success', text: '<i class="fas fa-file-csv"></i> CSV', footer: true },
+            { extend: 'excel', className: 'btn btn-sm btn-primary', text: '<i class="fas fa-file-excel"></i> Excel', footer: true },
+            { extend: 'pdf', className: 'btn btn-sm btn-danger', text: '<i class="fas fa-file-pdf"></i> PDF', title: 'Program_Details', footer: true },
+            { extend: 'print', className: 'btn btn-sm btn-dark', text: '<i class="fas fa-print"></i> Print', footer: true }
         ],
         order: [], lengthMenu: [[100, "All", 50, 25], [100, "All", 50, 25]],
         language: { search: "", searchPlaceholder: "Search details..." }
@@ -440,25 +440,22 @@
     // =============================================
     function getModalButtons(tableId, subtitleId) {
         return [
-            "copy",
-            "csv",
-            "excel",
+            { extend: 'copy', footer: true, exportOptions: { columns: ':visible' } },
+            { extend: 'csv', footer: true, exportOptions: { columns: ':visible' } },
+            { extend: 'excel', footer: true, exportOptions: { columns: ':visible' } },
             {
                 extend: 'print',
+                footer: true, // <--- ADDED THIS to include footer in print
                 title: function() {
-                    // Get the Vessel Name from the <h3> inside the table
                     return $('#' + tableId + ' h3').text().trim();
                 },
                 messageTop: function() {
-                    // Get the Date from the <h4>
                     return $('#' + subtitleId).text().trim();
                 },
                 exportOptions: {
                     columns: ':visible',
                     format: {
                         header: function (data, col, node) {
-                            // Hide the first row (with colspan) from the printed table headers
-                            // because we are already showing it in Title & messageTop
                             if ($(node).find('h3, h4').length > 0) {
                                 return '';
                             }
@@ -578,7 +575,6 @@
                 $('#dateBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
-                // Destroy DataTable FIRST, before clearing HTML
                 if ($.fn.DataTable.isDataTable('#example3')) {
                     $('#example3').DataTable().destroy();
                 }
@@ -615,7 +611,6 @@
                     </tr>`);
                 }
                 
-                // Re-initialize table with Custom Print Buttons
                 initModalTable('#example3', getModalButtons('example3', 'vendorAdvanceSearchDate'));
             },
             error: function(xhr) {
@@ -649,7 +644,6 @@
                 $('#vtrucBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
-                // Destroy DataTable FIRST, before clearing HTML
                 if ($.fn.DataTable.isDataTable('#example4')) {
                     $('#example4').DataTable().destroy();
                 }
@@ -675,7 +669,6 @@
                     });
                 }
                 
-                // Re-initialize table with Custom Print Buttons
                 initModalTable('#example4', getModalButtons('example4', 'truckSummarySearchDate'));
             },
             error: function(xhr) {
