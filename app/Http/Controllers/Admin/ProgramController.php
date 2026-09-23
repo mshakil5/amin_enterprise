@@ -281,23 +281,15 @@ class ProgramController extends Controller
         ]);
 
         if ($validator->fails()) {
-            // ADDED: Log validation failure
             Log::warning('getVendorAdvanceByDate Validation Failed', [
                 'errors' => $validator->errors()->toArray(),
                 'input' => $request->all()
             ]);
-            
             return response()->json(['status' => 400, 'errors' => $validator->errors()]);
         }
 
         $programId = $request->input('program_id');
         $date = $request->input('date');
-
-        // ADDED: Log the incoming request parameters
-        Log::info('getVendorAdvanceByDate API called', [
-            'program_id' => $programId,
-            'date' => $date
-        ]);
 
         $program = Program::with('motherVassel:id,name')->where('id', $programId)->first();
 
@@ -318,12 +310,6 @@ class ProgramController extends Controller
             ->get();
 
         $totalCount = $vendorAdvances->count(); 
-
-        // ADDED: Log the successful completion of the query
-        Log::info('getVendorAdvanceByDate data fetched successfully', [
-            'program_id' => $programId,
-            'total_records_found' => $totalCount
-        ]);
 
         return response()->json([
             'status' => 200, 

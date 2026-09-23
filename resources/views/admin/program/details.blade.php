@@ -1,5 +1,8 @@
 @extends('admin.layouts.admin')
 
+
+@section('title', 'abc')
+
 @section('content')
 <section class="content pt-3">
     <div class="container-fluid">
@@ -434,16 +437,18 @@
 
 
     // =============================================
-    // 2. MODAL TABLES INITIALIZATION HELPER
+    // 2. MODAL TABLES INITIALIZATION HELPER (FIXED)
     // =============================================
     function initModalTable(selector) {
-        // Destroy if already exists
+        // Destroy if already exists WITHOUT .clear() so rows aren't wiped out
         if ($.fn.DataTable.isDataTable(selector)) {
-            $(selector).DataTable().clear().destroy();
+            $(selector).DataTable().destroy();
+            // Remove DataTables classes from tbody to prevent styling issues
+            $(selector + ' tbody').removeAttr('class').removeAttr('role');
         }
         
         // Initialize fresh
-        var tbl = $(selector).DataTable({
+        $(selector).DataTable({
             responsive: true, 
             lengthChange: false, 
             autoWidth: false, 
@@ -454,7 +459,6 @@
         
         // Hide the default DataTables generated buttons for this specific table
         $(selector + '_wrapper .dt-buttons').hide();
-        return tbl;
     }
 
     // Initialize on page load
@@ -547,6 +551,11 @@
                 $('#dateBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
+                // FIX: Destroy DataTable FIRST, before clearing HTML
+                if ($.fn.DataTable.isDataTable('#example3')) {
+                    $('#example3').DataTable().destroy();
+                }
+                
                 var tbody = $('#example3 tbody'); 
                 tbody.empty();
                 var tfoot = $('#example3 tfoot'); 
@@ -560,8 +569,8 @@
                     $.each(response.data, function(i, p) {
                         tbody.append(`<tr class="text-center">
                             <td>${i+1}</td>
-                            <td class="text-left">${p.vendor?.name ?? ''}</td>
-                            <td>${p.vendor_count}</td>
+                            <td class="text-left">${p.vendor?.name ?? 'Unknown'}</td>
+                            <td>${p.vendor_count ?? 0}</td>
                             <td class="text-right">${p.total_cashamount || 0}</td>
                             <td class="text-right">${p.total_fuelqty || 0}</td>
                             <td class="text-right">${p.total_fuelamount || 0}</td>
@@ -613,6 +622,11 @@
                 $('#vtrucBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
+                // FIX: Destroy DataTable FIRST, before clearing HTML
+                if ($.fn.DataTable.isDataTable('#example4')) {
+                    $('#example4').DataTable().destroy();
+                }
+                
                 var tbody = $('#example4 tbody'); 
                 tbody.empty();
                 
