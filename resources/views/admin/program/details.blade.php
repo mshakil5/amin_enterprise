@@ -1,7 +1,7 @@
 @extends('admin.layouts.admin')
 
 
-@section('title', 'abc')
+@section('title', $data->motherVassel->name ?? '')
 
 @section('content')
 <section class="content pt-3">
@@ -427,7 +427,6 @@
         language: { search: "", searchPlaceholder: "Search details..." }
     });
     
-    // Hide default buttons and wire up custom HTML buttons
     $('#example1_wrapper .dt-buttons').hide();
     $('#btn-copy').on('click', function() { programTBL.button(0).trigger(); });
     $('#btn-csv').on('click', function() { programTBL.button(1).trigger(); });
@@ -437,33 +436,61 @@
 
 
     // =============================================
-    // 2. MODAL TABLES INITIALIZATION HELPER (FIXED)
+    // 2. MODAL TABLES INITIALIZATION & BUTTONS HELPER
     // =============================================
-    function initModalTable(selector) {
-        // Destroy if already exists WITHOUT .clear() so rows aren't wiped out
+    function getModalButtons(tableId, subtitleId) {
+        return [
+            "copy",
+            "csv",
+            "excel",
+            {
+                extend: 'print',
+                title: function() {
+                    // Get the Vessel Name from the <h3> inside the table
+                    return $('#' + tableId + ' h3').text().trim();
+                },
+                messageTop: function() {
+                    // Get the Date from the <h4>
+                    return $('#' + subtitleId).text().trim();
+                },
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        header: function (data, col, node) {
+                            // Hide the first row (with colspan) from the printed table headers
+                            // because we are already showing it in Title & messageTop
+                            if ($(node).find('h3, h4').length > 0) {
+                                return '';
+                            }
+                            return data;
+                        }
+                    }
+                }
+            }
+        ];
+    }
+
+    function initModalTable(selector, buttonsConfig) {
         if ($.fn.DataTable.isDataTable(selector)) {
             $(selector).DataTable().destroy();
-            // Remove DataTables classes from tbody to prevent styling issues
             $(selector + ' tbody').removeAttr('class').removeAttr('role');
         }
         
-        // Initialize fresh
         $(selector).DataTable({
             responsive: true, 
             lengthChange: false, 
             autoWidth: false, 
             dom: 'Bfrtip', 
             order: [], 
-            buttons: ["copy", "csv", "excel", "print"]
+            buttons: buttonsConfig
         });
         
-        // Hide the default DataTables generated buttons for this specific table
         $(selector + '_wrapper .dt-buttons').hide();
     }
 
     // Initialize on page load
-    initModalTable('#example3');
-    initModalTable('#example4');
+    initModalTable('#example3', getModalButtons('example3', 'vendorAdvanceSearchDate'));
+    initModalTable('#example4', getModalButtons('example4', 'truckSummarySearchDate'));
 
     // Wire up custom modal buttons (Vendor Advance)
     $('#btn-copy-3').on('click', function() { $('#example3').DataTable().button(0).trigger(); });
@@ -551,7 +578,7 @@
                 $('#dateBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
-                // FIX: Destroy DataTable FIRST, before clearing HTML
+                // Destroy DataTable FIRST, before clearing HTML
                 if ($.fn.DataTable.isDataTable('#example3')) {
                     $('#example3').DataTable().destroy();
                 }
@@ -588,8 +615,8 @@
                     </tr>`);
                 }
                 
-                // Re-initialize table after AJAX update
-                initModalTable('#example3');
+                // Re-initialize table with Custom Print Buttons
+                initModalTable('#example3', getModalButtons('example3', 'vendorAdvanceSearchDate'));
             },
             error: function(xhr) {
                 console.log("Vendor Advance Error:", xhr.responseJSON);
@@ -622,7 +649,7 @@
                 $('#vtrucBtn').html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...').prop('disabled', true);
             },
             success: function(response) {
-                // FIX: Destroy DataTable FIRST, before clearing HTML
+                // Destroy DataTable FIRST, before clearing HTML
                 if ($.fn.DataTable.isDataTable('#example4')) {
                     $('#example4').DataTable().destroy();
                 }
@@ -648,8 +675,8 @@
                     });
                 }
                 
-                // Re-initialize table after AJAX update
-                initModalTable('#example4');
+                // Re-initialize table with Custom Print Buttons
+                initModalTable('#example4', getModalButtons('example4', 'truckSummarySearchDate'));
             },
             error: function(xhr) {
                 alert("Error loading truck summary data. Make sure the route exists.");
