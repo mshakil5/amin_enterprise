@@ -374,10 +374,7 @@ class VendorController extends Controller
             'vsId' => 'required',
         ]);
 
-        if (Auth::user()->role_id != 1) {
-            $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Sorry, You do not have permission to approved this.</b></div>";
-            return response()->json(['status' => 303, 'message' => $message]);
-        }
+
 
         $data = VendorSequenceNumber::find($request->vsId);
         $data->approved = 1;
@@ -395,10 +392,6 @@ class VendorController extends Controller
             'vsId' => 'required',
         ]);
 
-        if (Auth::user()->role_id != 1) {
-            $message = "<div class='alert alert-danger'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><b>Sorry, You do not have permission to checked this.</b></div>";
-            return response()->json(['status' => 303, 'message' => $message]);
-        }
 
         $data = VendorSequenceNumber::find($request->vsId);
         $data->checked = 1;
