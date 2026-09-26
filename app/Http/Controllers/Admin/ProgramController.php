@@ -293,20 +293,37 @@ class ProgramController extends Controller
 
         $program = Program::with('motherVassel:id,name')->where('id', $programId)->first();
 
-        $vendorAdvances = AdvancePayment::select(
-                'vendor_id',
-                DB::raw('SUM(fuelqty) as total_fuelqty'),
-                DB::raw('SUM(fuelamount) as total_fuelamount'),
-                DB::raw('SUM(cashamount) as total_cashamount'),
-                DB::raw('SUM(amount) as total_amount'),
+        // $vendorAdvances = AdvancePayment::select(
+        //         'vendor_id',
+        //         DB::raw('SUM(fuelqty) as total_fuelqty'),
+        //         DB::raw('SUM(fuelamount) as total_fuelamount'),
+        //         DB::raw('SUM(cashamount) as total_cashamount'),
+        //         DB::raw('SUM(amount) as total_amount'),
+        //         DB::raw('COUNT(*) as vendor_count')
+        //     )
+        //     ->with('vendor:id,name')
+        //     ->where('program_id', $programId)
+        //     ->when($date, function ($query, $date) { 
+        //         return $query->whereDate('date', $date);
+        //     })
+        //     ->groupBy('vendor_id')
+        //     ->get();
+
+         $vendorAdvances = AdvancePayment::select(
+                'advance_payments.vendor_id',
+                DB::raw('SUM(advance_payments.fuelqty) as total_fuelqty'),
+                DB::raw('SUM(advance_payments.fuelamount) as total_fuelamount'),
+                DB::raw('SUM(advance_payments.cashamount) as total_cashamount'),
+                DB::raw('SUM(advance_payments.amount) as total_amount'),
                 DB::raw('COUNT(*) as vendor_count')
             )
+            ->join('program_details', 'program_details.id', '=', 'advance_payments.program_detail_id')
             ->with('vendor:id,name')
-            ->where('program_id', $programId)
-            ->when($date, function ($query, $date) { 
-                return $query->whereDate('date', $date);
+            ->where('advance_payments.program_id', $programId)
+            ->when($date, function ($query, $date) {
+                return $query->whereDate('program_details.date', $date);
             })
-            ->groupBy('vendor_id')
+            ->groupBy('advance_payments.vendor_id')
             ->get();
 
         $totalCount = $vendorAdvances->count(); 
