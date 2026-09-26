@@ -180,7 +180,7 @@
                                 </td>
 
                                 <td class="text-center align-middle">{{ $detail->bill_no }}</td>
-                                <td class="text-center align-middle">{{ \Carbon\Carbon::parse($detail->date)->format('d/m/Y') }}</td>
+                                <td class="text-center align-middle">{{ \Carbon\Carbon::parse($detail->advancePayment->date)->format('d/m/Y') }}</td>
                                 <td class="align-middle" title="Create: {{ $detail->createdBy->name ?? '' }} | Update: {{ $detail->updatedBy->name ?? '' }}">{{ $detail->vendor->name }}</td>
                                 <td class="text-center align-middle">{{ $detail->headerid }}</td>
                                 <td class="text-center align-middle font-weight-bold">{{ strtoupper($detail->truck_number) }}</td>
