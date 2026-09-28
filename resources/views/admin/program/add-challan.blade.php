@@ -241,8 +241,8 @@
                     // Last row gets a "+" button, others get a "-" button
                     let isLast = (index === formData.rows.length - 1);
                     let actionBtn = isLast 
-                        ? '<button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button>'
-                        : '<button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button>';
+                        ? '<button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button>'
+                        : '<button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button>';
 
                     // NOTE: No id="" attributes on inputs to prevent duplicate ID warnings
                     let newRow = `
@@ -257,7 +257,7 @@
                         <td><input type="number" class="form-control form-control-sm" name="fueltoken[]" value="${row.fueltoken}"></td>
                         <td><select name="petrol_pump_id[]" class="form-control form-control-sm select2 pump-select"><option value="">Select</option>@foreach ($pumps as $pump)<option value="{{ $pump->id }}">{{ $pump->name }}</option>@endforeach</select></td>
                         <td><input type="number" class="form-control form-control-sm totalamount" name="amount[]" value="${row.amount}" readonly></td>
-                        <td class="text-center align-middle">${actionBtn}</td>
+                        <td class="text-center align-middle"><button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button></td>
                     </tr>`;
                     
                     $('#programTable tbody').append(newRow);
@@ -333,7 +333,7 @@
             $(this).closest('tr').remove();
             
             // Make sure the new last row always has a "+" button
-            $('#programTable tbody tr:last .remove-row').replaceWith('<button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button>');
+            $('#programTable tbody tr:last .remove-row').replaceWith('<button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button>');
             
             updateSummary();
         } else {
