@@ -98,7 +98,9 @@
                                     <th style="width: 100px;">Fuel Token</th>
                                     <th style="width: 140px;">Pump</th>
                                     <th style="width: 110px;">Total</th>
-                                    <th style="width: 50px;">Action</th>
+                                    <th style="width: 50px;">Action
+                                        <button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -149,6 +151,50 @@
 
     // Initialize Select2
     $('.select2').select2({ allowClear: true, minimumResultsForSearch: 10 });
+
+
+    // ==========================================
+    // KEYBOARD USABILITY FOR SELECT2 (No Mouse Needed)
+    // ==========================================
+    
+    // 1. When Select2 opens (via Enter key or click), auto-focus the search field
+    $(document).on('select2:open', 'select', function (e) {
+        setTimeout(function() {
+            const searchField = document.querySelector('.select2-container--open .select2-search__field');
+            if (searchField) {
+                searchField.focus();
+            }
+        }, 10); // 10ms timeout ensures Select2 is fully rendered before focusing
+    });
+
+    // 2. (Bonus) When a vendor is selected from the dropdown, auto-jump to the Truck# field
+    // This will allow your client to press Enter -> Type Vendor -> Enter -> Type Truck without touching the mouse!
+    $(document).on('select2:select', 'select.vendor-select', function (e) {
+        $(this).closest('tr').find('input[name="truck_number[]"]').focus();
+    });
+
+    // 3. (Bonus) If the client starts typing letters directly while the dropdown is focused, 
+    // it will automatically open and search (without needing to press Enter first)
+    $(document).on('keydown', '.select2-selection--single', function(e) {
+        // Check if an alphabet or number key is pressed
+        if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90)) {
+            const selectEl = $(this).closest('.select2-container').prev('select');
+            if (!selectEl.length) return;
+            
+            // If it's not already open, open it
+            if (!$(this).closest('.select2-container').hasClass('select2-container--open')) {
+                selectEl.select2('open');
+                // Pass the typed character into the search field
+                setTimeout(function() {
+                    const searchField = document.querySelector('.select2-container--open .select2-search__field');
+                    if (searchField) {
+                        searchField.value = e.key;
+                        searchField.dispatchEvent(new Event('input'));
+                    }
+                }, 10);
+            }
+        }
+    });
 
     // ==========================================
     // 1. LOCAL STORAGE: SAVE FUNCTION
