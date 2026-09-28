@@ -115,7 +115,7 @@
                                     <td><input type="number" class="form-control form-control-sm" name="fueltoken[]"></td>
                                     <td><select name="petrol_pump_id[]" class="form-control form-control-sm select2 pump-select"><option value="">Select</option>@foreach ($pumps as $pump)<option value="{{ $pump->id }}">{{ $pump->name }}</option>@endforeach</select></td>
                                     <td><input type="number" class="form-control form-control-sm totalamount" name="amount[]" readonly></td>
-                                    <td class="text-center align-middle"><button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button></td>
+                                    <td class="text-center align-middle"><button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -242,7 +242,7 @@
                     let isLast = (index === formData.rows.length - 1);
                     let actionBtn = isLast 
                         ? '<button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button>'
-                        : '<button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button>';
+                        : '<button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button>';
 
                     // NOTE: No id="" attributes on inputs to prevent duplicate ID warnings
                     let newRow = `
@@ -320,7 +320,7 @@
             <td><input type="number" class="form-control form-control-sm" name="fueltoken[]"></td>
             <td><select name="petrol_pump_id[]" class="form-control form-control-sm select2 pump-select"><option value="">Select</option>@foreach ($pumps as $pump)<option value="{{ $pump->id }}">{{ $pump->name }}</option>@endforeach</select></td>
             <td><input type="number" class="form-control form-control-sm totalamount" name="amount[]" readonly></td>
-            <td class="text-center align-middle"><button type="button" class="btn btn-success btn-xs add-row"><i class="fas fa-plus"></i></button></td>
+            <td class="text-center align-middle"><button type="button" class="btn btn-danger btn-xs remove-row"><i class="fas fa-trash"></i></button></td>
         </tr>`;
         
         $('#programTable tbody').append(newRow);
