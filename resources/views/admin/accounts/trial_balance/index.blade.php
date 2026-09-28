@@ -119,9 +119,12 @@
                                                     @php
                                                         // Determine the URL based on link_type
                                                         $ledgerUrl = '#';
-                                                        if (isset($account['link_type']) && isset($account['link_id'])) {
-                                                            if ($account['link_type'] === 'Vendor') {
+                                                        if (isset($account['link_type'])) {
+                                                            if ($account['link_type'] === 'Vendor' && isset($account['link_id'])) {
                                                                 $ledgerUrl = route('admin.vendorledger', $account['link_id']);
+                                                            } elseif ($account['link_type'] === 'Transportation') {
+                                                                // <-- ADD THIS BLOCK: Transportation Cost link
+                                                                $ledgerUrl = route('admin.programSummery');
                                                             } else {
                                                                 $headRoutes = [
                                                                     'Assets'      => '/admin/ledger/asset-details/',
@@ -131,7 +134,7 @@
                                                                     'Equity'      => '/admin/ledger/equity-details/',
                                                                 ];
                                                                 
-                                                                if (isset($headRoutes[$account['link_type']])) {
+                                                                if (isset($headRoutes[$account['link_type']]) && isset($account['link_id'])) {
                                                                     $ledgerUrl = url($headRoutes[$account['link_type']] . $account['link_id']);
                                                                 }
                                                             }

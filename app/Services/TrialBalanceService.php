@@ -7,7 +7,7 @@ use App\Models\FuelBill;
 use App\Models\Vendor;
 use App\Models\VendorSequenceNumber;
 use App\Models\Transaction;
-use App\Models\Program; // <-- ADDED THIS IMPORT
+use App\Models\Program; 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -77,8 +77,8 @@ class TrialBalanceService
                         'account_name' => 'Transportation Cost',
                         'debit'        => $transportationCost,
                         'credit'       => 0,
-                        'link_type'    => null,
-                        'link_id'      => null,
+                        'link_type'    => 'Transportation',
+                        'link_id'      => null,  
                     ]
                 ],
                 'subtotal_debit'  => $transportationCost,
