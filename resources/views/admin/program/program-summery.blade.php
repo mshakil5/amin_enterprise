@@ -92,16 +92,14 @@
                                 <th style="width:110px">Date</th>
                                 <th>Client</th>
                                 <th>Vessels (Mother / Lighter)</th>
-                                <th>Ghat</th>
-                                <th>Challans</th>
+                                <th>Trips</th>
+                                <th>Trips as per bill</th>
+                                <th>Bill Pending</th>
                                 <th>Qty</th>
+                                <th>Service Revenue</th>
                                 <th>Carrying Bill</th>
-                                <th>Transport Cost</th>
-                                <th>Add. Cost</th>
-                                <th>Advance</th>
-                                <th>Scale Fee</th>
-                                <th>Line Charge</th>
-                                <th>Due</th>
+                                <th>Gross Profit</th>
+                                <th>Program Month</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -121,18 +119,16 @@
                                         <br><small class="text-muted">LV: {{ $item->lighterVassel->name ?? '' }}</small>
                                     @endif
                                 </td>
-                                <td class="text-center align-middle">{{ $item->ghat->name ?? 'N/A' }}</td>
                                 <td class="text-center align-middle"><span class="badge badge-info">{{ $item->unique_challan_count ?? 0 }}</span></td>
+                                <td class="text-center align-middle"><span class="badge badge-info">{{ $item->generate_bill_count ?? 0 }}</span></td>
+                                <td class="text-center align-middle"><span class="badge badge-info">{{ $item->not_generate_bill_count ?? 0 }}</span></td>
                                 
                                 {{-- Sums Columns --}}
                                 <td class="text-right align-middle">{{ number_format($item->total_dest_qty ?? 0, 2) }}</td>
+                                <td class="text-right align-middle"> </td>
                                 <td class="text-right align-middle">{{ number_format($item->total_carrying_bill ?? 0, 2) }}</td>
-                                <td class="text-right align-middle">{{ number_format($item->total_transportcost ?? 0, 2) }}</td>
-                                <td class="text-right align-middle">{{ number_format($item->total_additional_cost ?? 0, 2) }}</td>
-                                <td class="text-right align-middle text-primary">{{ number_format($item->total_advance ?? 0, 2) }}</td>
-                                <td class="text-right align-middle">{{ number_format($item->total_scale_fee ?? 0, 2) }}</td>
-                                <td class="text-right align-middle">{{ number_format($item->total_line_charge ?? 0, 2) }}</td>
-                                <td class="text-right align-middle text-danger">{{ number_format($item->total_due ?? 0, 2) }}</td>
+                                <td class="text-right align-middle"></td>
+                                <td class="text-right align-middle"></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -141,15 +137,15 @@
                         {{-- ============================================= --}}
                         <tfoot>
                             <tr class="bg-light font-weight-bold text-dark">
-                                <td colspan="6" class="text-right align-middle">TOTAL</td>
+                                <td colspan="4" class="text-right align-middle">TOTAL</td>
                                 <td class="text-right align-middle">{{ number_format($data->sum('total_dest_qty'), 2) }}</td>
+                                <td class="text-right align-middle"></td>
+                                <td class="text-right align-middle"></td>
                                 <td class="text-right align-middle">{{ number_format($data->sum('total_carrying_bill'), 2) }}</td>
+                                <td class="text-right align-middle"></td>
                                 <td class="text-right align-middle">{{ number_format($data->sum('total_transportcost'), 2) }}</td>
-                                <td class="text-right align-middle">{{ number_format($data->sum('total_additional_cost'), 2) }}</td>
-                                <td class="text-right align-middle text-primary">{{ number_format($data->sum('total_advance'), 2) }}</td>
-                                <td class="text-right align-middle">{{ number_format($data->sum('total_scale_fee'), 2) }}</td>
-                                <td class="text-right align-middle">{{ number_format($data->sum('total_line_charge'), 2) }}</td>
-                                <td class="text-right align-middle text-danger">{{ number_format($data->sum('total_due'), 2) }}</td>
+                                <td class="text-right align-middle"></td>
+                                <td class="text-right align-middle"></td>
                             </tr>
                         </tfoot>
                     </table>
