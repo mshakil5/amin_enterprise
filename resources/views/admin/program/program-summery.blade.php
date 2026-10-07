@@ -98,6 +98,7 @@
                                 <th>Qty</th>
                                 <th>Service Revenue</th>
                                 <th>Carrying Bill</th>
+                                <th>Total Received</th> {{-- 👈 NEW HEADER --}}
                                 <th>Gross Profit</th>
                                 <th>Program Month</th>
                             </tr>
@@ -142,6 +143,10 @@
                                 <td class="text-right align-middle">{{ number_format($item->total_dest_qty ?? 0, 2) }}</td>
                                 <td class="text-right align-middle"> </td>
                                 <td class="text-right align-middle">{{ number_format($item->total_carrying_bill ?? 0, 2) }}</td>
+                                {{-- 👈 NEW COLUMN DATA --}}
+                                <td class="text-right align-middle text-success font-weight-bold">
+                                    {{ number_format($item->total_received_amount ?? 0, 2) }}
+                                </td>
                                 <td class="text-right align-middle"></td>
                                 <td class="text-right align-middle"></td>
                             </tr>
@@ -152,13 +157,13 @@
                         {{-- ============================================= --}}
                         <tfoot>
                             <tr class="bg-light font-weight-bold text-dark">
-                                <td colspan="4" class="text-right align-middle">TOTAL</td>
+                                {{-- Adjusted colspan to 7 to match columns properly --}}
+                                <td colspan="7" class="text-right align-middle">TOTAL</td>
                                 <td class="text-right align-middle">{{ number_format($data->sum('total_dest_qty'), 2) }}</td>
                                 <td class="text-right align-middle"></td>
-                                <td class="text-right align-middle"></td>
                                 <td class="text-right align-middle">{{ number_format($data->sum('total_carrying_bill'), 2) }}</td>
-                                <td class="text-right align-middle"></td>
-                                <td class="text-right align-middle">{{ number_format($data->sum('total_transportcost'), 2) }}</td>
+                                {{-- 👈 NEW FOOTER TOTAL --}}
+                                <td class="text-right align-middle text-success">{{ number_format($data->sum('total_received_amount'), 2) }}</td>
                                 <td class="text-right align-middle"></td>
                                 <td class="text-right align-middle"></td>
                             </tr>

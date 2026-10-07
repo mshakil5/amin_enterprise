@@ -94,4 +94,11 @@ class Program extends Model
             ->sum('program_details.carrying_bill');
     }
 
+
+    public function billReceives()
+    {
+        return $this->hasMany(BillReceive::class, 'program_id');
+    }
+
+
 }

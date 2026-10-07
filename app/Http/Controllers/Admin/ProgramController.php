@@ -208,6 +208,7 @@ class ProgramController extends Controller
                 'programDetail as total_advance' => fn($q) => $q->select(DB::raw('SUM(advance)'))->where('date', '>=', $expectedDate),
                 'programDetail as total_due' => fn($q) => $q->select(DB::raw('SUM(due)'))->where('date', '>=', $expectedDate),
             ])
+            ->withSum('billReceives as total_received_amount', 'net_amount') 
             ->withMin(['programDetail' => fn($q) => $q->where('date', '>=', $expectedDate)], 'date')
             ->withMax(['programDetail' => fn($q) => $q->where('date', '>=', $expectedDate)], 'date')
             ->where('status', 1);
