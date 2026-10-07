@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\FinancialStatementController;
 use App\Http\Controllers\Admin\CashSheetController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AfterChallanPostingController;
+use App\Http\Controllers\Admin\BillReceiveController;
 use App\Http\Controllers\Admin\ChequeController;
 use App\Http\Controllers\Admin\VendorLedgerController;
 use App\Http\Controllers\Admin\ExcelUploadController;
@@ -199,6 +200,9 @@ Route::group(['prefix' =>'admin/', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/client-rate/{id}/edit', [ClientRateController::class, 'edit']);
     Route::post('/client-rate-update', [ClientRateController::class, 'update']);
     Route::get('/client-rate/{id}', [ClientRateController::class, 'delete']);
+
+    // bill 
+    Route::post('/bill-receives/store', [BillReceiveController::class, 'storeBillReceive'])->name('admin.billReceives.store');
 
 
 

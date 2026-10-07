@@ -11,6 +11,27 @@ class BillReceive extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $fillable = [
+        'date',
+        'bill_number',
+        'mother_vassel_id',
+        'client_id',
+        'program_id',
+        'rcv_type',
+        'qty',
+        'total_amount',
+        'maintainance',
+        'scale_charge',
+        'other_exp',
+        'other_rcv',
+        'net_amount',
+        'note',
+        'status',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+    ];
+
     protected static function boot()
     {
         parent::boot();

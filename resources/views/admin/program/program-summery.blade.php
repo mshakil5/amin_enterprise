@@ -121,7 +121,22 @@
                                 </td>
                                 <td class="text-center align-middle"><span class="badge badge-info">{{ $item->unique_challan_count ?? 0 }}</span></td>
                                 <td class="text-center align-middle"><span class="badge badge-info">{{ $item->generate_bill_count ?? 0 }}</span></td>
-                                <td class="text-center align-middle"><span class="badge badge-info">{{ $item->not_generate_bill_count ?? 0 }}</span></td>
+                                <td class="text-center align-middle">
+                                    <span class="badge badge-info">{{ $item->not_generate_bill_count ?? 0 }}</span>
+                                    @if(($item->not_generate_bill_count ?? 0) > 0)
+                                    <button type="button" class="btn btn-warning btn-xs ml-1 btn-bill-receive"
+                                            data-toggle="tooltip" title="Receive Bill"
+                                            data-program-id="{{ $item->id ?? '' }}"
+                                            data-client-id="{{ $item->client->id ?? '' }}"
+                                            data-client-name="{{ $item->client->name ?? 'N/A' }}"
+                                            data-mv-id="{{ $item->mother_vassel_id ?? '' }}"
+                                            data-mv-name="{{ $item->motherVassel->name ?? 'N/A' }}"
+                                            data-qty="{{ $item->total_dest_qty ?? 0 }}"
+                                            data-carrying-bill="{{ $item->total_carrying_bill ?? 0 }}">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
+                                    @endif
+                                </td>
                                 
                                 {{-- Sums Columns --}}
                                 <td class="text-right align-middle">{{ number_format($item->total_dest_qty ?? 0, 2) }}</td>
@@ -157,7 +172,129 @@
 
     </div>
 </section>
+{{-- ============================================= --}}
+{{-- BILL RECEIVE MODAL --}}
+{{-- ============================================= --}}
+<div class="modal fade" id="billReceiveModal" tabindex="-1" role="dialog" aria-labelledby="billReceiveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form id="billReceiveForm" action="{{ route('admin.billReceives.store') }}" method="POST">
+                @csrf
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="billReceiveModalLabel"><i class="fas fa-money-bill-wave"></i> Receive Bill</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                        {{-- Alert Placeholder --}}
+                    <div id="billReceiveAlert" class="alert" style="display:none;"></div>
+    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date <span class="text-danger">*</span></label>
+                                <input type="date" name="date" class="form-control form-control-sm" required value="{{ date('Y-m-d') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Bill Number <span class="text-danger">*</span></label>
+                                <input type="text" name="bill_number" class="form-control form-control-sm" placeholder="Enter Bill Number" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden IDs -->
+                        <input type="hidden" name="program_id" id="br_program_id">
+                        <input type="hidden" name="client_id" id="br_client_id">
+                        <input type="hidden" name="mother_vassel_id" id="br_mv_id">
+                        <input type="hidden" name="status" value="1">
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Client</label>
+                                <input type="text" class="form-control form-control-sm bg-light" id="br_client_name" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Mother Vessel</label>
+                                <input type="text" class="form-control form-control-sm bg-light" id="br_mv_name" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Receive Type</label>
+                                <select name="rcv_type" class="form-control form-control-sm">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Adjustment">Adjustment</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Qty</label>
+                                <input type="text" name="qty" id="br_qty" class="form-control form-control-sm bg-light" readonly>
+                            </div>
+                        </div>
 
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Total Amount</label>
+                                <input type="number" step="0.01" name="total_amount" id="br_total_amount" class="form-control form-control-sm" value="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Maintenance</label>
+                                <input type="number" step="0.01" name="maintainance" id="br_maintainance" class="form-control form-control-sm" value="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Scale Charge</label>
+                                <input type="number" step="0.01" name="scale_charge" id="br_scale_charge" class="form-control form-control-sm" value="0.00">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Other Expense</label>
+                                <input type="number" step="0.01" name="other_exp" id="br_other_exp" class="form-control form-control-sm" value="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Other Receive</label>
+                                <input type="number" step="0.01" name="other_rcv" id="br_other_rcv" class="form-control form-control-sm" value="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Net Amount</label>
+                                <input type="number" step="0.01" name="net_amount" id="br_net_amount" class="form-control form-control-sm bg-info font-weight-bold" readonly value="0.00">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Note</label>
+                                <textarea name="note" class="form-control form-control-sm" rows="2" placeholder="Optional note..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save Bill Receive</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @endsection
 
@@ -252,6 +389,113 @@
     $('#btn-excel').on('click', function() { programTBL.button(2).trigger(); });
     $('#btn-pdf').on('click',   function() { programTBL.button(3).trigger(); });
     $('#btn-print').on('click', function() { programTBL.button(4).trigger(); });
+
+
+
+
+
+        // =============================================
+    // BILL RECEIVE MODAL HANDLER
+    // =============================================
+    $('.btn-bill-receive').on('click', function() {
+        let programId = $(this).data('program-id'); 
+        let clientId = $(this).data('client-id');
+        let clientName = $(this).data('client-name');
+        let mvId = $(this).data('mv-id');
+        let mvName = $(this).data('mv-name');
+        let qty = $(this).data('qty');
+        let carryingBill = $(this).data('carrying-bill');
+
+        // Reset form and clear previous errors
+        $('#billReceiveForm')[0].reset(); 
+        $('#billReceiveAlert').hide().removeClass('alert-success alert-danger').html('');
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        // Re-set the dynamically populated values because reset clears them
+        $('#br_program_id').val(programId); 
+        $('#br_client_id').val(clientId);
+        $('#br_mv_id').val(mvId);
+        $('#br_client_name').val(clientName);
+        $('#br_mv_name').val(mvName);
+        $('#br_qty').val(qty);
+        $('#br_total_amount').val(carryingBill);
+        $('input[name="date"]').val('{{ date("Y-m-d") }}');
+        
+        calculateNet();
+        $('#billReceiveModal').modal('show');
+    });
+
+    // Calculate Net Amount dynamically
+    function calculateNet() {
+        let total = parseFloat($('#br_total_amount').val()) || 0;
+        let maint = parseFloat($('#br_maintainance').val()) || 0;
+        let scale = parseFloat($('#br_scale_charge').val()) || 0;
+        let exp = parseFloat($('#br_other_exp').val()) || 0;
+        let rcv = parseFloat($('#br_other_rcv').val()) || 0;
+        
+        let net = total - (maint + scale + exp) + rcv;
+        $('#br_net_amount').val(net.toFixed(2));
+    }
+
+    $('#br_total_amount, #br_maintainance, #br_scale_charge, #br_other_exp, #br_other_rcv').on('input', function() {
+        calculateNet();
+    });
+
+    // =============================================
+    // AJAX FORM SUBMISSION
+    // =============================================
+    $('#billReceiveForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        let submitBtn = $(this).find('button[type="submit"]');
+        let originalBtnHtml = submitBtn.html();
+        
+        // Show loading state
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+
+        // Clear previous errors
+        $('#billReceiveAlert').hide().removeClass('alert-success alert-danger');
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                // Show success message
+                $('#billReceiveAlert').addClass('alert alert-success').html('<i class="fas fa-check-circle"></i> ' + response.message).show();
+                
+                // Close modal after 1.5 seconds and reload page to refresh data
+                setTimeout(function() {
+                    $('#billReceiveModal').modal('hide');
+                    location.reload(); // Reload to update the "Bill Pending" counts
+                }, 1500);
+            },
+            error: function(xhr) {
+                // Reset button state
+                submitBtn.prop('disabled', false).html(originalBtnHtml);
+
+                if (xhr.status === 422) {
+                    // Validation errors
+                    let errors = xhr.responseJSON.errors;
+                    let errorHtml = '<ul class="mb-0">';
+                    $.each(errors, function(key, value) {
+                        errorHtml += '<li>' + value[0] + '</li>';
+                        // Highlight the invalid field
+                        $('#' + key).addClass('is-invalid');
+                    });
+                    errorHtml += '</ul>';
+                    $('#billReceiveAlert').addClass('alert alert-danger').html(errorHtml).show();
+                } else {
+                    // Server error (500, etc.)
+                    let errorMsg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An unexpected error occurred. Please check the logs.';
+                    $('#billReceiveAlert').addClass('alert alert-danger').html('<i class="fas fa-exclamation-triangle"></i> ' + errorMsg).show();
+                }
+            }
+        });
+    });
 
 
 });
