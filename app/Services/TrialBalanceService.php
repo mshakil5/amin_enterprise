@@ -359,8 +359,8 @@ class TrialBalanceService
             }
 
             if (abs($vendorBalance) > 0.009) {
-                $displayDebit  = $vendorBalance;
-                $displayCredit = 0;
+                $displayDebit  = 0;
+                $displayCredit = $vendorBalance;
 
                 $vendorAccountList[] = [
                     'id'           => 'vendor_' . $vendor->id,
