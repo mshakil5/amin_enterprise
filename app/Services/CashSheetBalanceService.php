@@ -104,7 +104,7 @@ class CashSheetBalanceService
               ->orWhere(fn($q2) => $q2->whereIn('table_type', ['Liabilities', 'Equity'])->where('tran_type', 'Payment'))
               ->orWhereIn('table_type', ['Expenses', 'Expense', 'Cogs'])
               ->orWhere(fn($q2) => $q2->where('table_type', 'Income')->whereIn('tran_type', ['Refund']))
-              ->orWhere(fn($q2) => $q2->where('table_type', 'Assets')->where('tran_type', 'Purchase'));
+              ->orWhere(fn($q2) => $q2->where('table_type', 'Assets')->where('tran_type',  ['Purchase','Payment']));
         };
 
         $debitOffice  = Transaction::where('account_id', 1)->whereBetween('date', [$startDate, $endDate])->where($debitFilter)->sum('amount');

@@ -150,7 +150,7 @@ class CashSheetController extends Controller
 
         $assetsPurchase = Transaction::where('table_type','Assets')
             ->whereDate('date', $date)
-            ->whereIn('tran_type', ['Purchase'])->get();
+            ->whereIn('tran_type', ['Purchase','Payment'])->get();
 
 
 
@@ -333,13 +333,13 @@ class CashSheetController extends Controller
 
         $assetsPurchaseOfficeCash = Transaction::where('table_type','Assets')
             ->whereBetween('date', [$startDate, $date])
-            ->whereIn('tran_type', ['Purchase'])
+            ->whereIn('tran_type', ['Purchase','Payment'])
             ->where('account_id', 1)
             ->sum('amount');
 
         $assetsPurchaseFieldCash = Transaction::where('table_type','Assets')
             ->whereBetween('date', [$startDate, $date])
-            ->whereIn('tran_type', ['Purchase'])
+            ->whereIn('tran_type', ['Purchase','Payment'])
             ->where('account_id', 2)
             ->sum('amount');
 
